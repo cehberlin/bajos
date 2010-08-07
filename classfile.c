@@ -114,6 +114,37 @@ strncmp
 	return 0;
 }
 
+u1 findFieldByRamName(const char* fieldName,u1 fieldNameLength, const char* fieldDescr,u1 fieldDescrLength)	{
+	fNO=0;
+	do	{
+		u1 numFields = getU2(cs[cN].fields_count); 
+		for(fNC = 0 ; fNC < numFields ; ++fNC) {
+			u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)];
+			u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 4)];
+			if(	fieldNameLength == getU2(fieldname + 1) &&
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+(fieldName,(const char*) getAddr(fieldname + 3), getU2(fieldname + 1)) == 0 &&
+				fieldDescrLength == getU2(fielddescr + 1) &&
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+(fieldDescr,(const char*) getAddr(fielddescr + 3), getU2(fielddescr + 1)) == 0)	{
+						break;
+			}
+		}
+		fNO += fNC;
+		if (fNC < numFields) return 1; 
+	} while (findSuperClass());
+	return 0;
+}
+
+
 u1 findMethod(const char* className, const u1 classNameLength, const char* methodName, const u1 methodNameLength, const char* methodDescr, const u1 methodDescrLength)		{ 
 // all args in flash for arduinomega
 /*in cN, out: cN, mN*/
@@ -733,7 +764,7 @@ strncmp
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: code_length: %d\n\t\t"),getU4(pc+8));
 #else
-	printf("\t\tCode: code_length: %d\n\t\t",getU4(pc+8));
+	printf("\t\tCode: code_length: %d pc: %d\n\t\t",getU4(pc+8),pc);
 #endif
 
 #endif
