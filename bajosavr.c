@@ -23,7 +23,7 @@ Erweiterungen von:
 // no interfaces
 // no inner classes
 // no classloader
-// static fields in classes must be the first elements in a class!!!!!!!!!!!!!!!!!!!!!
+// static fields must be the first elements in a class before others !!!!!!!!!!!!!!!!!!!!!
 // no ...
 // and errors ........................................................................
 /*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX -> Target Systems*/
@@ -105,17 +105,17 @@ DEBUGPRINTHEAP;
 // 	anwendungsklassen im DS(Ram) -> hard coded
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u2 length;
-#ifdef EVK1100
-classFileBase=(u1*)0x80040000;  // boot classes in flash
 // use malloc!!
-apClassFileBase=(u1*)0xD0000000;	// app classes in sdram
+#ifdef EVK1100
+classFileBase=(u1*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
+apClassFileBase=(u1*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 #ifdef STK1000
-classFileBase=(u1*)0x00040000;  // boot classes in flash
-apClassFileBase=STK1000_SDRAM_BASE;	// app classes in sdram
+classFileBase=(u1*)STK1000_FLASH_JAVA_BASE;  			// boot classes in flash
+apClassFileBase=STK1000_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 #ifdef NGW100
-classFileBase=(u1*)0x00040000;  // boot classes in flash
+classFileBase=(u1*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
 apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
 
@@ -172,7 +172,8 @@ cN++;//!!
 #ifdef AVR8
 		printf("Laden der aller Bootklassen - Geben Sie ein  'w' ein %d\n",cN); 
 // the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
-(*loadInSram1)(classFileBase);
+//(*loadInSram1)(classFileBase);
+(*loadInSram)(classFileBase);
 u1* addr;
 numClasses=*classFileBase;
 addr=classFileBase+4; // after numclasses
