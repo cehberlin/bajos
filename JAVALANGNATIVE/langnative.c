@@ -123,6 +123,7 @@ ThreadControlBlock* myTCB=actualThreadCB;
 return 0; }
 
 char waitTime(){return 0; }
+
 char getDataAddress (u4 obj)	{
 return 1;	/* ret val is  on Stack !!*/
 } 
