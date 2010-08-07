@@ -151,7 +151,7 @@ compile: $(TARGETFILE)
 .PHONY: clobber
 
 clobber: clean
-	-$(VERBOSE_CMD)$(RM) *bootpack
+	-$(VERBOSE_CMD)$(RM) *bootpack amapp bajos.bin
 	-$(VERBOSE_CMD)$(RM) `find . -name *.class -print`
 
 .PHONY: clean
@@ -164,8 +164,10 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(TARGETFILE)
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM)  *.o
+	-$(VERBOSE_CMD)$(RM)  *.d
 	-$(VERBOSE_CMD)$(RM)  */*.o
 	-$(VERBOSE_CMD)$(RM)  */*.d
+	-$(VERBOSE_CMD)$(RM)  */*.lst
 	-$(VERBOSE_CMD)$(RM)  */*.c~
 	-$(VERBOSE_CMD)$(RM)  */*.S~
 	-$(VERBOSE_CMD)$(RM)  */*.h~
