@@ -61,6 +61,7 @@ scheduler
 #include "classfile.h"
 #include "interpreter.h"
 #include "scheduler.h"
+#include "stack.h"
 
 #if !(AVR32LINUX||LINUX || AM || CH || XPLAIN || NGW100||STK1000||EVK1100|| EVK1104)
 #error ein Zielsystem muß es doch geben?
@@ -68,12 +69,17 @@ scheduler
 
 int main(int argc,char* argv[]){
 	initHW();
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef LINUX
+	initVM(argc-1,argv);	
+#else
+	initVM();
+#endif
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!	
 	printf_P(PSTR("Bajos starting\n"));
 #else
 	printf("Bajos starting\n");
 #endif
-	initVM(argc-1,argv);	
+
 	createThread();			/* for main*/
 	opStackBase = actualThreadCB->opStackBase;
 	opStackSetSpPos(0);
