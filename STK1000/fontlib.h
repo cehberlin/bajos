@@ -1,13 +1,13 @@
 /* GLCD Library für's Nokia 6100
-   copyright 2004 Hagen Reddmann 
+   copyright 2004 Hagen Reddmann
 
-   Umsetzung für STK1000, Christian Hecht, Berufsakademie Berlin 
-   
+   Umsetzung für STK1000, Christian Hecht, Berufsakademie Berlin
+
 */
 #include "lib2d.h"
 #include "arial16.h"
 //#include "ComicSansMS26.h"
-#include "test3.h"
+#include "bajosfont.h"
 
 #ifndef FONTLIB_H_
 #define FONTLIB_H_

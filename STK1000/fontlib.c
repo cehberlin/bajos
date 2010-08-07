@@ -1,8 +1,8 @@
 /* GLCD Library für's Nokia 6100
-   copyright 2004 Hagen Reddmann 
+   copyright 2004 Hagen Reddmann
 
-   Umsetzung für STK1000, Christian Hecht, Berufsakademie Berlin 
-   
+   Umsetzung für STK1000, Christian Hecht, Berufsakademie Berlin
+
 */
 
 #include "fontlib.h"
@@ -13,7 +13,7 @@ void lcdSelectFontFromArray(const u2 index)
 		lcdSelectFont(lcd_Fonts[index], lcdFontRead);
 }
 
-void lcdSelectFont(const void * data, const lcdFontFunc_t callback) 
+void lcdSelectFont(const void * data, const lcdFontFunc_t callback)
 {
     lcd_FontData = (lcdFontData_t)(data);
     lcd_FontRead = callback;
@@ -28,8 +28,8 @@ void initFont(void)
 {
 	//hier die benoetigten Schriften einbinden, es koennen auch harte Speicheradressen sein
 	lcd_Fonts[0] = arial16;
-	lcd_Fonts[1] = test3;
-	
+	lcd_Fonts[1] = bajosfont;
+
 	//Farb-Mappings, wegen dynamischer Bits / Pixel (1, 2, 3, 4)
 	//nach Wichtigkeit geordnet
 	lcd_Colors[0] = LCD_COLOR_NONE;		//Hintergrundfarbe, NONE = Transparent
@@ -48,22 +48,22 @@ void initFont(void)
 	lcd_Colors[13] = LCD_COLOR_LIME;
 	lcd_Colors[14] = LCD_COLOR_FUCHSIA;
 	lcd_Colors[15] = LCD_COLOR_AQUA;
-	
+
 	//LCD_COLOR_OLIVE musse wegen NONE weichen
-	
+
 	lcd_FontData=0;	//Schrift-DATA -> keine Schrift geladen
-	
+
 	lcd_Flags.AutoLineFeed=0;	//Automatischer umbruch, wenn Zeile voll?
 	lcd_Flags.FixedFont=0;		//Feste Schriftbreite?
 	//lcdSetRect(lcd_Clip, 1, 1, SCREEN_WIDTH, SCREEN_HEIGHT);
 	lcdSetRect(lcd_Window, 0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1); //Schrift-Fenster
-	
+
 	//Schrift Cursor
 	lcd_Cursor.X = lcd_Window.X1;
 	lcd_Cursor.Y = lcd_Window.Y1;
 }
 
-void lcdNewLine(void) 
+void lcdNewLine(void)
 {
 
     lcd_Cursor.X = lcd_Window.X1;
@@ -73,7 +73,7 @@ void lcdNewLine(void)
     }
 }
 
-u2 lcdFontRead(const lcdFontData_t index) 
+u2 lcdFontRead(const lcdFontData_t index)
 {
     //return(pgm_read_byte(index));
 
@@ -245,7 +245,7 @@ u2 lcdDrawChar(const char c) {
         	  {
         		  //Farbtabelle zu klein, keim Mapping möglich -> alle Farben werden schwarz
         		  pixelcolor=1;
-        	  } 
+        	  }
           }
           bits >>= bitspixel;
           bitscount -= bitspixel;
@@ -259,8 +259,8 @@ u2 lcdDrawChar(const char c) {
             clipinvalid = 0;
           }
           //lcdPutPixel(pixelcolor);
-          lcdSetPixelRGB(x, y, lcd_Colors[pixelcolor]);	
-        } 
+          lcdSetPixelRGB(x, y, lcd_Colors[pixelcolor]);
+        }
         else {
           clipinvalid = 1;
         }
@@ -270,7 +270,7 @@ u2 lcdDrawChar(const char c) {
     return(width);
 }
 
-u2 lcdCharWidth(const char c) 
+u2 lcdCharWidth(const char c)
 {
 
     if ((c < lcd_FontFirstChar) | (c > lcd_FontLastChar) | (lcd_FontData == 0)) {
@@ -289,7 +289,7 @@ u2 lcdCharWidth(const char c)
     }
 }
 
-u4 lcdPrint(const char *addr) 
+u4 lcdPrint(const char *addr)
 {
 
     u2 c;
@@ -310,7 +310,7 @@ u4 lcdPrint(const char *addr)
     return(i);
 }*/
 
-u4 lcdCharsWidth(const char *addr) 
+u4 lcdCharsWidth(const char *addr)
 {
 
     u2 c;
@@ -337,11 +337,11 @@ u4 lcdDrawStringAt(const lcdCoord_t x, const lcdCoord_t y, const char *addr, con
 {
 	lcd_Colors[0] = bkcolor;		//Hintergrundfarbe, NONE = Transparent
 	lcd_Colors[1] = fgcolor;		//Vordergrundfarbe
-	
+
 	//Schrift Cursor
 	lcd_Cursor.X = x;
 	lcd_Cursor.Y = y;
-	
+
 	return lcdPrint(addr);
 }
 
@@ -349,10 +349,10 @@ u2 lcdDrawCharAt(const lcdCoord_t x, const lcdCoord_t y, const char c, lcdColor_
 {
 	lcd_Colors[0] = bkcolor;		//Hintergrundfarbe, NONE = Transparent
 	lcd_Colors[1] = fgcolor;		//Vordergrundfarbe
-	
+
 	//Schrift Cursor
 	lcd_Cursor.X = x;
 	lcd_Cursor.Y = y;
-	
-	return lcdDrawChar(c); 
+
+	return lcdDrawChar(c);
 }
