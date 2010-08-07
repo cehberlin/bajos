@@ -51,6 +51,12 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {asm volatile  (INLINEASM(jmp,mySysClock));}
 
  /* monitor for sysclock millisec */
 #else
+void conOut(char c)	{
+  uart_putchar(c,& uartAVR8);
+}
+char conIn()	{
+  return uart_getchar(&uartAVR8);
+}
 int uart_putchar(char c, FILE *stream)	{
 	loop_until_bit_is_set(UCSR0A, UDRE0);
 	UDR0 = c;
