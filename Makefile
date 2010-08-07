@@ -5,7 +5,9 @@
 # avr8 linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
 # make clean goal
 # make compile goal
-# make debig comile verbose goal
+# make debug compile verbose goal
+# make all goal
+# make program stk1000
 # make A linux
 # make compA linux
 # make boot goal
@@ -105,12 +107,20 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			${GRAPHICS}/Line.java ${GRAPHICS}/Polyline.java \
 			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
 
-
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
 
-BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
+# a small subset for the small controller
+AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
+			$(LANG)/String.class $(LANG)/StringBuffer.java \
+			$(LANG)/StringBuilder.java $(LANG)/Integer.java \
+			$(LANG)/Object.java $(LANG)/System.java \
+			$(IO)/OutStream.java $(IO)/InStream.java \
+			$(LANG)/Throwable.java $(LANG)/Math.java \
+			$(LANG)/Thread.java $(LANG)/Exception.java \
+			javatests/ProducerConsumer.java javatests/Buffer.java
 
-BOOTPACK = mbc
+BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
+AVR8BOOTCLASSES	= $(AVR8BOOTSOURCES:.java=.class)
 #java binaries and flags
 JAVACOMP		= javac
 JAVACOMPFLAGS		= -g:none -source 1.4 -verbose
@@ -197,23 +207,30 @@ STACKSEGMENT	= 0x4000
 avr8:
 	@:
 
+all:	clean compile bootclasses bootpack
+
 compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -Wl,--section-start,.data=0x801100,--defsym=__heap_start=0x802200,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
+# ... <- stack 0x1100 data -> bss ->  0x2200 heap->
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
 	@${CC} --version
 #		@rm ${EXE}
 # -Wl,-u,vfprintf -lprintf_flt
 
+bootpack:
+	@printf %4d `echo $(AVR8BOOTCLASSES)| wc -w` > avr8bootpack
+	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
+	echo generate file: avr8bootpack length: `ls -l avr8bootpack | cut -f5 -d' '`
+
 %.o: %.c
 	@echo $(MSG_COMPILING)
 	$(VERBOSE_CMD) ${CC}	-c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
-endif
-
+endif #avr8
 
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
@@ -226,7 +243,19 @@ endif
 ifeq  ($(TARGETHW), avr32-linux)
 CC		= avr32-linux-gcc
 CPPFLAGS	= -DAVR32LINUX
+
+bootpack:
+	echo generate file: avr32bootpack
+	@printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
+	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
+else
+bootpack:
+	@:
 endif
+
+all: clean compile bootclasses bootgraphic bootpack 
+
+
 
 compile: $(TARGETFILE)
 
@@ -240,15 +269,13 @@ avr32-linux:
 linux:	
 	@:
 
-
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
 	@echo $(MSG_COMPILING)
 	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall  ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
-endif
-
+endif #linux avr32-linux
 
 ifeq  ($(TARGETHW), evk1100)
 OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
@@ -315,23 +342,22 @@ $(TARGETFILE): $(OBJFILES)
 	@touch $@
 	$(VERBOSE_NL)
 
+all:	clean compile programm bootclasses bootgraphic progbootpack
+
 # Program MCU memory from ELF output file.
 .PHONY: program
+
 program: $(TARGETFILE)
 	@echo
-	@echo $(MSG_PROGRAMMING)
+	@echo $(MSG_PROGRAMMING) xxxx
 	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TARGETFILE).bin
+
+progbootpack:
 	@printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
 	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
 	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp
-	@rm mytemp
-	ifneq ($(call LastWord,$(filter cpuinfo chiperase program secureflash debug readregs,$(MAKECMDGOALS))),program)
 	@$(SLEEP) $(SLEEPUSB)
-	else
-	@echo
-	endif
 endif
 # endif evk1100
 #	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  #-finternal@0x80000000,512Kb -cxtal -e -v -R $(BOOTPACK)
@@ -606,10 +632,12 @@ debug:
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-boot:
+bootclasses:
 	make -f ./BAJOSBOOT/makefile boot
 	make -f ./BAJOSBOOT/makefile $(TARGETHW)
 
+bootgraphic:		
+	make -f ./BAJOSBOOT/makefile graphic
 
 
 # examples 
