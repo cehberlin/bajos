@@ -54,19 +54,19 @@ void	createThread(void)			{
 		}	
 		actualThreadCB=t;
 		t->obj=NULLOBJECT;
-		mainThreadPriority[0] = NORMPRIORITY;	// priority (and alive) of main thread -> immutable
-		mainThreadPriority[1] = 1;		// alive -> doesnt need fpr main thread??
+		mainThreadPriority[0] = (u4)NORMPRIORITY;	// priority (and alive) of main thread -> immutable
+		mainThreadPriority[1] = (u4)1;		// alive -> doesnt need fpr main thread??
 		t->pPriority=mainThreadPriority;
 	}
 	else				{
 		  cN=opStackGetValue(local).stackObj.classNumber;
 	  	  if (!findFieldByRamName("priority",8,"I",1)) errorExit(77,"field priority not found");
 		  t->pPriority=(u4*)(heapBase+opStackGetValue(local).stackObj.pos+fNO+1);
-		   // position of int field priority of the thread creating object
+		   // position of int field priority of the thread creating object, next field is aLive
 		  cN=opStackGetValue(local).stackObj.classNumber;  // restore class number of object
 		  t->obj=opStackGetValue(local);
 		}
-	*((t->pPriority)+1)=1;		// isALive == true
+	*((t->pPriority)+1)=(u4)1;		// isALive == true
 	t->numTicks=*(t->pPriority);
 	insertThreadIntoPriorityList(t);
 	if (numThreads!=0)	{
@@ -139,7 +139,7 @@ void removeThreadFromPriorityList(ThreadControlBlock* t){
  */
 void	deleteThread(void)	{
 	removeThreadFromPriorityList(actualThreadCB);
-	*((actualThreadCB->pPriority)+1)=0;		// isALive == false
+	*((actualThreadCB->pPriority)+1)=(u4)0;		// isALive == false
 	u1 i=MAXPRIORITY-1;
 	while(threadPriorities[i].count==0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
