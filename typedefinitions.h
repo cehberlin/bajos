@@ -46,7 +46,7 @@ typedef struct 	{
 
 #define classNumber arrayLength
 
-typedef struct	{
+typedef struct {
 	u4	pos:16;			// on heap (reataive to base) or for CP-string cN refbyte in CP
 // 2008 if pos==0 or classnumber ==255 or magic+1 -> CP-String!!
 	u4 xxx:4;
@@ -69,14 +69,15 @@ slot*	opStackBase;
 u2*		methodStackBase;	
 u2		methodSpPos;	// relative to methodStackBase
 u1		tid;
-u1		priority;
+slot		obj;		// thread creating object
+u4*		pPriority;	// pointer to priority on heap
 u1		numTicks;
 u1		state;		// THREADNOTBLOCKED, THREADMUTEXBLOCKED, THREADWAITBLOCKED, THREADWAITAWEAKENED
 struct ThreadControlBlock* 	pred;
 struct ThreadControlBlock* 	succ;
 slot	isMutexBlockedOrWaitingForObject;
 slot	hasMutexLockForObject[MAXLOCKEDTHREADOBJECTS];
-u1		lockCount[MAXLOCKEDTHREADOBJECTS];
+u1	lockCount[MAXLOCKEDTHREADOBJECTS];
 } 	ThreadControlBlock;
 
 typedef struct ThreadPriorityList {
