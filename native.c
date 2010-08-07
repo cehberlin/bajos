@@ -518,7 +518,7 @@ u4 i;
 for (i=0;i<mySlot.stackObj.arrayLength;i++) 
 buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
 buf[mySlot.stackObj.arrayLength]=0;
-scanf(buf,"%f",&f);
+sscanf(buf,"%f",&f);
 opStackPush((slot)f);
 return 1;
 }
