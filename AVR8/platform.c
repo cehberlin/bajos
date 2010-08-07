@@ -117,3 +117,8 @@ OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell be
 void exit(int n)	{
 goto *0xf002;	//asm	 (INLINEASM(jmp,0xf002));
 }
+
+
+SIGNAL(SIG_OUTPUT_COMPARE0)		{
+	timerMilliSec++;	
+}
