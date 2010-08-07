@@ -689,13 +689,13 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 				u4 windex = opStackPop().Int;
 				relPc = (u2)((relPc + 4) & 0xfffc);	/* next pc as multiple of 4 --> skip padding bytes*/
 				pc = relPc + getStartPC();/*pcMethodStart;	// set pc to begin of default address*/
-				u4 offset = (u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));	/* default offset*/
-				u4 lowbyte = (u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));
-				u4 highbyte = (u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));
+				u4 offset = getU4(0);//(u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));	// default offset
+				u4 lowbyte = getU4(0);//(u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));
+				u4 highbyte = getU4(0);//(u4)((u4)getU1(pc++)<<24 | (u4)getU1(pc++)<<16 | (u4)getU1(pc++)<<8 | getU1(pc++));
 				if (lowbyte <= windex && windex <= highbyte) {
 					u4 tableoffset = windex - lowbyte;
 					pc+= tableoffset * 4;	/* skip 4 byte of previous address(es)*/
-					offset = (u4)((u4)getU1(0)<<24 | (u4)getU1(0)<<16 | (u4)getU1(0)<<8 | (u4)getU1(0));
+					offset = getU4(0);//(u4)((u4)getU1(0)<<24 | (u4)getU1(0)<<16 | (u4)getU1(0)<<8 | (u4)getU1(0));
 				}
 				pc = startPc + offset;
 
