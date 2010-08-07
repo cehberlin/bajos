@@ -106,17 +106,28 @@ char jointimeout(){return 0; }
 
 /* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
 char notify(){	/* not tested yet aug2007*/
-u1 i;
-ThreadControlBlock* cb=actualThreadCB;
-if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
-/*can not be ->IllegalMonitorStateException*/
-for (i=1; i < numThreads;i++)	{
-cb=cb->succ;
-if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
-cb->state=THREADWAITAWAKENED;
-break;
+	u1 i,k;
+	u1 max,breakNested;
+	ThreadControlBlock* cb=actualThreadCB;
+	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
+	/*can not be ->IllegalMonitorStateException*/
+
+	for(i=0;i<(MAXPRIORITY);i++){
+		max=(threadPriorities[i].count);
+		breakNested=0;
+		cb=threadPriorities[i].cb;
+		for(k=0;i<max;k++){
+			if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt)){	
+				cb->state=THREADWAITAWAKENED;
+				breakNested=1;
+				break;
+			}	
+			cb=cb->succ;
+		}
+		if(breakNested)break;	
+	}	
+	return 0; 
 }
-return 0; }
 
 char notifyAll() {
 u1 i;

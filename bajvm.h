@@ -14,6 +14,7 @@
 #include "typedefinitions.h"
 #include "limits.h"
 #include "definitions.h"
+#include "scheduler.h"
 
 void errorExit(char nr,const char *format, ...);
 
@@ -45,6 +46,7 @@ GLOBAL u1	numClasses	INIT__(0);
 GLOBAL 		ThreadControlBlock*  actualThreadCB	INIT__(NULL);
 GLOBAL u1	numThreads	INIT__(0);
 GLOBAL u1	tid 		INIT__(0);
+GLOBAL ThreadPriorityList  threadPriorities[MAXPRIORITY]; //array of priority lists
 GLOBAL classStructure cs[MAXCLASSES];
 #ifndef AVR8
 GLOBAL u4	timerMilliSec 	INIT__(0);

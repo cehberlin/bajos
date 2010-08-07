@@ -9,9 +9,24 @@
 #include "stack.h"
 #include "scheduler.h"
 #include "heap.h"
-
-//array of priority lists
-ThreadControlBlock*  threadPriorities[MAXPRIORITY];
+/*
+//EXAMPLE FOR ITERATING OVER ALL THREADS:
+void 	iterateOverThreads2(){
+	u1 k,i,max;
+	ThreadControlBlock* t;
+	printf("start\n");
+	for(i=0;i<(MAXPRIORITY);i++){
+		max=(threadPriorities[i].count);
+		t=threadPriorities[i].cb;
+		for(k=0;k<max;k++){
+			//do something with t
+			printf("NR: %d\n", t->tid);
+			//do something with t
+			t=t->succ;
+		}	
+	}
+}
+*/
 
 void	createThread(void)			{
 	if (numThreads == MAXTHREADS){
@@ -27,14 +42,15 @@ void	createThread(void)			{
 	t->methodSpPos=(numThreads==0)?0:5;
 	t->tid=tid++;
 	t->priority=(actualThreadCB==NULL) ?NORMPRIORITY:actualThreadCB->priority;
-	t->numTicks=t->priority+1;//+1 because 0 ticks are stupid
+	t->numTicks=t->priority;
 	t->state=THREADNOTBLOCKED;
 	//set thread in matching priority list
 	if (actualThreadCB==NULL){ //==the first thread (main thread) is created
 		//init priority array because first thread is created
 		u1 i;	
-		for(i=0;i<MAXPRIORITY;i++){
-			threadPriorities[i]=NULL;	
+		for(i=0;i<(MAXPRIORITY);i++){
+			threadPriorities[i].cb=NULL;
+			threadPriorities[i].count=0;	
 		}	
 		actualThreadCB=t;
 	}
@@ -54,7 +70,7 @@ void	createThread(void)			{
 		t->hasMutexLockForObject[i]=NULLOBJECT;
 		t->lockCount[i]=0; 		}
 	t->isMutexBlockedOrWaitingForObject=NULLOBJECT;
-	numThreads++;					
+	numThreads++;				
 }
 
 /*
@@ -65,10 +81,10 @@ void	createThread(void)			{
  */
 void insertThreadIntoPriorityList(ThreadControlBlock* t){
 	ThreadControlBlock* pos;
-	u1 prio=t->priority;
-	pos=threadPriorities[prio];
+	u1 prio=t->priority-1;
+	pos=threadPriorities[prio].cb;
 	if(pos==NULL){
-		threadPriorities[prio]=t;
+		threadPriorities[prio].cb=t;
 		t->pred=t;
 		t->succ=t;
 	}else{
@@ -77,8 +93,9 @@ void insertThreadIntoPriorityList(ThreadControlBlock* t){
 		t->pred->succ=t;
 		t->succ->pred=t;
 	}
+	threadPriorities[prio].count++;
 
-	if(actualThreadCB->priority<prio){
+	if((actualThreadCB->priority-1)<prio){
 		actualThreadCB->numTicks=0;		
 	}
 }
@@ -90,16 +107,17 @@ void insertThreadIntoPriorityList(ThreadControlBlock* t){
  */
 void removeThreadFromPriorityList(ThreadControlBlock* t){
 	ThreadControlBlock* temp=t->succ;
-	u1 prio=t->priority;
+	u1 prio=t->priority-1;
 	if(t==temp){ //last thread of current priority
-		threadPriorities[prio]=NULL;
+		threadPriorities[prio].cb=NULL;
 	}else{
 		temp->pred=t->pred;
 		temp->pred->succ=temp;
-		if(t==threadPriorities[prio]){
-			threadPriorities[prio]=temp;
+		if(t==threadPriorities[prio].cb){
+			threadPriorities[prio].cb=temp;
 		}
 	}
+	threadPriorities[prio].count--;
 }
 
 /*
@@ -107,14 +125,14 @@ void removeThreadFromPriorityList(ThreadControlBlock* t){
  */
 void	deleteThread(void)	{
 	removeThreadFromPriorityList(actualThreadCB);
-	u1 i=MAXPRIORITY;
-	while(threadPriorities[i]==NULL){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
+	u1 i=MAXPRIORITY-1;
+	while(threadPriorities[i].count==0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
 	}
 	free(actualThreadCB->methodStackBase); /*/ crash -> to do*/ /*EDIT CEH: AFTER IMPLEMENTING NEW SCHEDULING IT SEEMS TO WORK*/
 	free(actualThreadCB->opStackBase);
 	free(actualThreadCB);
-	actualThreadCB =threadPriorities[i];
+	actualThreadCB =threadPriorities[i].cb;
 	methodStackBase=actualThreadCB->methodStackBase;
 	methodStackSetSpPos(actualThreadCB->methodSpPos);
 	opStackBase=actualThreadCB->opStackBase;
@@ -129,7 +147,7 @@ void	deleteThread(void)	{
 /*
  * the scheduling process function, this function is called after every bytecode
  * one thread can run until is numTicks are 0. The numTicks a thread gets after he
- * was scheduled is his priority+1. The scheduler schedules if the numTicks of
+ * was scheduled is his priority. The scheduler schedules if the numTicks of
  * current thread are 0. //CEH
  */
 void scheduler(void)	{
@@ -148,13 +166,13 @@ void scheduler(void)	{
 	methodStackPush((u2)(opStackGetSpPos()));
 	actualThreadCB->methodSpPos=methodStackGetSpPos();
 	//set current thread on first position of priority list to ensure that on next scheduling a new thread could be run
-	threadPriorities[actualThreadCB->priority]=actualThreadCB;
+	threadPriorities[actualThreadCB->priority-1].cb=actualThreadCB;
 	//find highest priority list with members
-	u1 i=MAXPRIORITY;
-	while(threadPriorities[i]==NULL){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
+	u1 i=MAXPRIORITY-1;
+	while(threadPriorities[i].count==0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
 	}
-	actualThreadCB=threadPriorities[i];
+	actualThreadCB=threadPriorities[i].cb;
 	do 	{
 		actualThreadCB=actualThreadCB->succ;
 		if ((actualThreadCB->state)==THREADNOTBLOCKED) break;

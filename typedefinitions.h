@@ -79,6 +79,11 @@ slot	hasMutexLockForObject[MAXLOCKEDTHREADOBJECTS];
 u1		lockCount[MAXLOCKEDTHREADOBJECTS];
 } 	ThreadControlBlock;
 
+typedef struct ThreadPriorityList {
+	ThreadControlBlock* cb;
+	u1 count;
+} ThreadPriorityList;
+
 #define methodStartPC (methodInfoStart+6)
 
 

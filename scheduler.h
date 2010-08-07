@@ -10,7 +10,7 @@
 // number of byte code instructions, counter
 #define NORMPRIORITY 5
 #define MAXPRIORITY 10
-#define MINPRIORITY 0 //must be 0 do not edit!!!
+#define MINPRIORITY 1 
 
 void createThread(void);
 void deleteThread(void);

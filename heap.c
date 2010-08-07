@@ -68,13 +68,13 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 	&& ((HEAPOBJECTMARKER(nextElementPos).length)>=length))  return nextElementPos; /* first fit	 */
 	}	while  ((nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
 
-/* verschmelzen*/
+/* verschmelzen=merge free heap space to bigger blocks*/
 int schmelz;
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("verschmelzen\n"));
+	printf_P(PSTR("Heap merge\n"));
 #else
-	printf("verschmelzen\n");
+	printf("Heap merge\n");
 #endif
 
 for ( schmelz=0; schmelz < 20; schmelz++)	{	
@@ -113,29 +113,42 @@ void checkObjects()	{
 /* static objects or objects in opstack (root objects) or objects, referenced by other objects (circular??)*/
 /* ob das reicht?*/
 /* ich markiere heapobjekte (rootCheck=1), die anderen geben ich zum abschuß frei!!*/
-u1 threadNr=0;
 u2 opSPPos;
 u2 nextElementPos=0;
-int i=0;
+u1 i;
 u1 stillAConcatedObject;
+ThreadControlBlock* tCB;
+u1 k,max;
 do		{
-HEAPOBJECTMARKER(nextElementPos).rootCheck=0;
-if ((HEAPOBJECTMARKER(nextElementPos).status==HEAPFREESPACE)||(HEAPOBJECTMARKER(nextElementPos).status==HEAPALLOCATEDSTATICCLASSOBJECT))	{ /* empty or static*/
-	HEAPOBJECTMARKER(nextElementPos).rootCheck=1;
-	continue;							}
-ThreadControlBlock* tCB=actualThreadCB;
-opSPPos=opStackGetSpPos();
-for (threadNr=0;threadNr<numThreads;threadNr++)									{		/* searching for root objects on stack*/
-while (opSPPos>0) 		{
-		if  (  (nextElementPos==((*(tCB->opStackBase+(--opSPPos))).stackObj.pos)) &&
-			( ((*(tCB->opStackBase+(opSPPos))).stackObj.magic)==OBJECTMAGIC  ))/*UInt)*/
-					{HEAPOBJECTMARKER(nextElementPos).rootCheck=1;break;}
-						}
-if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1) break;
-tCB=tCB->succ;	
-opSPPos=*(tCB->methodStackBase+tCB->methodSpPos-1);								}
-/*if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1) continue;*/
-}	while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
+	HEAPOBJECTMARKER(nextElementPos).rootCheck=0;
+	if ((HEAPOBJECTMARKER(nextElementPos).status==HEAPFREESPACE)||(HEAPOBJECTMARKER(nextElementPos).status==HEAPALLOCATEDSTATICCLASSOBJECT))	{ /* empty or static*/
+		HEAPOBJECTMARKER(nextElementPos).rootCheck=1;
+		continue;						
+	}
+
+	for(i=0;i<(MAXPRIORITY);i++){ //searching for root objects on stack
+		tCB=threadPriorities[i].cb;
+		max=(threadPriorities[i].count);
+		for(k=0;k<max;k++){
+			opSPPos=*(tCB->methodStackBase+tCB->methodSpPos-1); 
+			while (opSPPos>0) {
+				if  (  (nextElementPos==((*(tCB->opStackBase+(--opSPPos))).stackObj.pos)) &&
+				( ((*(tCB->opStackBase+(opSPPos))).stackObj.magic)==OBJECTMAGIC  ))//UInt)
+				{
+					HEAPOBJECTMARKER(nextElementPos).rootCheck=1;
+					break;
+				}
+			}
+			if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1){
+				break;
+			}
+			tCB=tCB->succ;		
+		}
+		if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1){
+			break;
+		};
+	}
+}while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) < heapTop);
 /* alle Objekte von den stacks erreichbar (root elements)	markiert	*/
 /* jetzt suche ich nur noch im heap*/
 /* markierte objekte können referencen zu anderen objekten halten*/
