@@ -13,7 +13,8 @@
 // getstatic putstatic xaload xastore
 // 12.12.08 bh generatebootclasspackage.c und packer.c sind nicht mehr notwendig
 // -> alles im Makefile $(BOOTSOURCES)
-// -> es musste auch bajvm.c angepasst werden, weil ascii numClasses und length in mytemp(mbc)
+// -> es musste auch bajvm.c angepasst werden, weil numClasses und length als ascii in mytemp(mbc)
 // Funktion errorExit(Fehlernummer, formatstring für printf) in bajvm.c eingefügt
 // make A jetzt -> make A java
 // make compA jetzt -> make compA java
+// einige ungereimtheiten im makefile bereinigt
