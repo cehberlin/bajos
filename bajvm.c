@@ -51,7 +51,7 @@ students of informatics at the HWR-Berlin/Berufsakademie
 #include "interpreter.h"
 #include "scheduler.h"
 
-#if !(AVR32LINUX||LINUX || AM || CH || NGW100||STK1000||EVK1100)
+#if !(AVR32LINUX||LINUX || AM || CH || NGW100||STK1000||EVK1100|| EVK1104)
 #error ein Zielsystem muß es doch geben?
 #endif
 
