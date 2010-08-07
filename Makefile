@@ -165,6 +165,11 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM)  *.o
 	-$(VERBOSE_CMD)$(RM)  */*.o
+	-$(VERBOSE_CMD)$(RM)  */*.d
+	-$(VERBOSE_CMD)$(RM)  */*.c~
+	-$(VERBOSE_CMD)$(RM)  */*.S~
+	-$(VERBOSE_CMD)$(RM)  */*.h~
+	-$(VERBOSE_CMD)$(RM)  */*.hex
 	$(VERBOSE_NL)
 	
 # Rebuild the project.
