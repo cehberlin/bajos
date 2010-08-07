@@ -25,6 +25,15 @@
 	#define METHODSTACKSIZE			24	// u2	
 	#define MAXNATIVEMETHODS		40
 #endif
+#ifdef XPLAIN
+	#define MAXHEAP				0x180	// u4 entries for heap-elements	
+	#define MAXHEAPOBJECTLENGTH 		0x40
+	#define MAXTHREADS			6
+	#define MAXLOCKEDTHREADOBJECTS 		4
+	#define OPSTACKSIZE 			48	// u4	
+	#define METHODSTACKSIZE			24	// u2	
+	#define MAXNATIVEMETHODS		40
+#endif
 #endif
 #if (!AVR8)
 	#define MAXCLASSES 			45 //30
