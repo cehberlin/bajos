@@ -171,7 +171,7 @@ u2 lcdDrawChar(const char c) {
       table[1] = lcd_FontRead(data++);
       table[2] = lcd_FontRead(data++);
       table[3] = lcd_FontRead(data++);
-      u4 index = 0;
+      u8 index = 0;
       for (i = lcd_FontFirstChar; i < c; i++) {
         index += lcd_FontRead(data++);
       }
@@ -184,7 +184,7 @@ u2 lcdDrawChar(const char c) {
 
     // berechne nun den Bitindex zu den Bitdaten im Font
       data = lcd_FontData + FONT_HEADER_SIZE;
-      u4 index = 0;
+      u8 index = 0;
       for (i = lcd_FontFirstChar; i < c; i++) {
         index += lcd_FontRead(data++);
       }
