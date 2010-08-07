@@ -67,7 +67,7 @@ _trampoline:
   // Jump to program start.
   rjmp    program_start
 
-  .org  PROGRAM_START_OFFSET
+//bh  .org  PROGRAM_START_OFFSET
 program_start:
   // Jump to the C runtime startup routine.
   lda.w   pc, _stext

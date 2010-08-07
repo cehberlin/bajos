@@ -47,7 +47,7 @@
  */
 
 #include <avr32/io.h>
-
+#include "evk1104.h"
 
 //! @{
 //! \verbatim
@@ -66,7 +66,7 @@ _start:
 
   // _stext is placed outside the .reset section so that the program entry point
   // can be changed without affecting the C runtime startup.
-  .section  .text._stext, "ax", @progbits
+//  .section  .text._stext, "ax", @progbits
 
 
   .global _stext
