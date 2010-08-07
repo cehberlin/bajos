@@ -482,7 +482,7 @@ char currentTimeMillis() {
 // atmega128 Monitor functions
 #define		loadInSRam1		(2*(0xf000+26))
 void exit(int n)	{
-asm	 (INLINEASM(jmp,0xf002));
+goto *0xf002;	//asm	 (INLINEASM(jmp,0xf002));
 }
 #endif
 
