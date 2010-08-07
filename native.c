@@ -122,9 +122,10 @@ switch(i)					{
 	case	24: return notifyAll(local);
 	case	25: return wait(local);	// ???
 	case	28: return nativeParseFloat(local);
-	case 	29: return typeConvert(local);
-	case	30: return typeConvert(local);
+	case 	29: return floatToIntBits(local);
+	case	30: return intBitsToFloat(local);
 	case	31: return floatToCharArray(local);
+
 	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
 			   exit(-1);		}							}
 
@@ -155,7 +156,8 @@ numMethods/=2;				}
 //"actplatform/Serial","nativeIntOut","nativeFloatOut","println","nativeCharOut","nativeCharIn"
 // 0
 char nativeCharOut(u2 local)		{
-char val=opStackGetValue(local+1).UInt;
+char val=opStackGetValue(local).UInt;		
+// static first arg <-> local virtual first arg <-> local+1
 	printf("%c",val);
 	return 0;							}
 // 1
@@ -462,13 +464,6 @@ return 0;
 #endif
 
 
-
-char typeConvert(u2 local)	{
-opStackPush(opStackGetValue(local));
-return 1;
-}
-
-
 // char arr to float
 char nativeParseFloat(u2 local)	{
 slot mySlot=opStackGetValue(local); // the char array
@@ -481,6 +476,18 @@ scanf(buf,"%f",&f);
 opStackPush((slot)f);
 return 1;
 }
+
+char floatToIntBits(u2 local)	{
+opStackPoke(( slot)(f4)opStackPeek().Int);
+return 1;
+}
+
+char intBitsToFloat(u2 local){
+opStackPoke(( slot)(s4)opStackPeek().Float);
+return 1;
+}
+
+
 
 char floatToCharArray(u2 local)	{
 slot mySlot;
@@ -525,8 +532,9 @@ return 1;
 char drawPoint(u2 local)	{
 
 setPixelRGB(opStackGetValue(local+1).UInt,opStackGetValue(local+2).UInt,
-opStackGetValue(local+3).UInt>>16,(opStackGetValue(local+3).UInt>>8)&0xff,
+(opStackGetValue(local+3).UInt>>16)&0xff,(opStackGetValue(local+3).UInt>>8)&0xff,
 opStackGetValue(local+3).UInt&0xff);
+//printf("%c %c %c\n",(opStackGetValue(local+3).UInt>>16)&0xff,(opStackGetValue(local+3).UInt>>8)&0xff,opStackGetValue(local+3).UInt&0xff);
 
 //setPixelRGB(100,100,0xff,0xff,0xff);
 return 0;
