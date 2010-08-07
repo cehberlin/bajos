@@ -52,7 +52,10 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeSetBarGraph,
 	nativeGetDIL,
 	nativeSetPort,
-	nativeGetPort
+	nativeGetPort,
+	nativeSer1CharIn,
+	nativeSer1CharOut,
+	nativeSer1Stat
 };
 #endif
 
@@ -66,8 +69,8 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeExit,
 	currentTimeMillis,
 	nativeConStat,
-	nativeSetPort,
-	nativeGetPort
+	nativeSetData,
+	nativeGetData
 };
 #endif
 
