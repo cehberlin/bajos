@@ -14,7 +14,7 @@
 #include "heap.h"
 // heap 
 void heapInit()	{
-#if (AVR8||LINUX)
+#if (AVR8||LINUX||AVR32LINUX)
 if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("malloc error\n");exit(-1);}			// heap fixed size!!
 #else
 // make it better
