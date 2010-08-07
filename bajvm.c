@@ -2,11 +2,11 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// fuer lehrzwecke,...
-// version 0.1 - 1.10.07
-// version 0.2 - 15.3.08
-// version 0.3 - 15.1.09
-// version 0.4 - 15.6.09
+/* fuer lehrzwecke,...*/
+/* version 0.1 - 1.10.07*/
+/* version 0.2 - 15.3.08*/
+/* version 0.3 - 15.1.09*/
+/* version 0.4 - 15.6.09*/
 /********************************************************************************************
 Erweiterungen von:
 2006	Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
@@ -23,14 +23,14 @@ Erweiterungen von:
 	Steffen Kalisch, COMED
 Studenten der Informatik an der HWR-Berlin/Fachbereich Berufsakademie	
 ********************************************************************************************/
-// speed is not our primary goal!!!
-// no double, no long
-// no access flags evaluation
-// no utf8 but ascii
-// ignore some attributes
-// no classloader
-// no ...
-// and errors ........................................................................
+/* speed is not our primary goal!!!*/
+/* no double, no long*/
+/* no access flags evaluation*/
+/* no utf8 but ascii*/
+/* ignore some attributes*/
+/* no classloader*/
+/* no ...*/
+/* and errors ........................................................................*/
 /*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX AVR32-LINUX -> Target Systems*/
 #include <stdint.h>
 #include <stdlib.h>
@@ -75,7 +75,7 @@ int main(int argc,char* argv[]){
 	initHW();
 	printf("Bajos starting\n");
 	initVM(argc-1,argv);	
-	createThread();			// for main
+	createThread();			/* for main*/
 	opStackBase		= actualThreadCB->opStackBase;
 	opStackSetSpPos(0);
 	methodStackBase	= actualThreadCB->methodStackBase;
@@ -89,16 +89,16 @@ int main(int argc,char* argv[]){
 	printf("<clinit> 's executed");
 	if (findMain() == 0)		{printf("no main found %d %d\n",numClasses,cN);return 1;	}	
 	printf("  -> run <main> :\n");
-	opStackPush((slot) (u4)0);	// args parameter to main (should be a string array)
+	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
-	run(); 				//  run main
+	run(); 				/*  run main*/
 	return 0;
 }
 
 void executeClInits()		{
-//DEBUGPRINTSTACK;
-//DEBUGPRINTLOCALS;
-//DEBUGPRINTHEAP;
+/*DEBUGPRINTSTACK;*/
+/*DEBUGPRINTLOCALS;*/
+/*DEBUGPRINTHEAP;*/
 	for (cN=0; cN < numClasses;cN++)	
 	if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
@@ -107,26 +107,26 @@ void executeClInits()		{
 }
 
 
-// class files stored for linux in DS (malloc)
-// for avr8 in sram	(malloc)
-// for ap7000 and uc3a:	bootclasses in flash
-// 			application classes  DS(Ram) -> hard coded
-void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
+/* class files stored for linux in DS (malloc)*/
+/* for avr8 in sram	(malloc)*/
+/* for ap7000 and uc3a:	bootclasses in flash*/
+/* 			application classes  DS(Ram) -> hard coded*/
+void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
 	u4 length;
-// use malloc!!
+/* use malloc!!*/
 #ifdef EVK1100
-classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
-apClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
+classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	/* boot classes in flash*/
+apClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	/* app classes in sdram*/
 #endif
 
 #ifdef STK1000
-classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  	// boot classes in flash
-apClassFileBase=STK1000_SDRAM_JAVA_BASE;	// app classes in sdram
+classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  	/* boot classes in flash*/
+apClassFileBase=STK1000_SDRAM_JAVA_BASE;	/* app classes in sdram*/
 #endif
 
 #ifdef NGW100
-classFileBase=(char*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
-apClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	// app classes in sdram
+classFileBase=(char*)NGW_FLASH_JAVA_BASE;  /* boot classes in flash*/
+apClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	/* app classes in sdram*/
 #endif
 
 #if (AVR32LINUX||LINUX||AVR8)
@@ -136,9 +136,9 @@ apClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	// app classes in sdram
     if (classFileBase==NULL) {
         MALLOCERR(MAXBYTECODE, "class files");
     }
-	// memory for classfiles -> fixed size
+	/* memory for classfiles -> fixed size*/
 #endif
-	heapInit();	// linux avr8 malloc , others hard coded!
+	heapInit();	/* linux avr8 malloc , others hard coded!*/
 	length=0;
 #if LINUX|| AVR32LINUX
     if (argc > MAXCLASSES)
@@ -156,7 +156,7 @@ apClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	// app classes in sdram
 
 
 #if (NGW100||STK1000|| EVK1100)
-// analyze bootclasses, which are programmed in flash
+/* analyze bootclasses, which are programmed in flash*/
 char* addr;
 u4 temp;
 char buf[5];
@@ -164,19 +164,19 @@ strncpy(buf,classFileBase,4);
 buf[4]=0;
 sscanf(buf,"%4d",&temp);
 numClasses=(u1)temp;
-addr=classFileBase+4; // after numclasses
+addr=classFileBase+4; /* after numclasses*/
 for (cN=0; cN<numClasses;cN++)	{
 strncpy(buf,addr,4);
 sscanf(buf,"%4d",&temp);
-cs[cN].classFileStartAddress=addr+4;	// after length of class
-cs[cN].classFileLength=temp;//(u1)(*addr)+256*(u1)(*(addr+1));
+cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
+cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 }
 printf("%d bootclasses are loaded\n",cN);
 cN=numClasses;
-// thats to boot classes
-// now the application classes
+/* thats to boot classes*/
+/* now the application classes*/
 cN--;
 addr=apClassFileBase;
 length=0;
@@ -193,13 +193,13 @@ length=0;
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
-//!!
+/*!!*/
 cN++;
 #endif
 
 #if AVR8
 		printf("load boot classes - type  'w'! -> \n"); 
-// the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
+/* the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden*/
 (*loadInSram)(classFileBase);
 printf("\ndone\n");
 char* addr;
@@ -209,20 +209,20 @@ strncpy(buf,classFileBase,4);
 buf[4]=0;
 sscanf(buf,"%4d",&temp);
 numClasses=(u1)temp;
-addr=classFileBase+4; // after numclasses
+addr=classFileBase+4; /* after numclasses*/
 for (cN=0; cN<numClasses;cN++)	{
 strncpy(buf,addr,4);
 sscanf(buf,"%4d",&temp);
-cs[cN].classFileStartAddress=addr+4;	// after length of class
-cs[cN].classFileLength=temp;//(u1)(*addr)+256*(u1)(*(addr+1));
+cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
+cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 printf("bootclass: %x length:%x loaded\n",cN,temp);
 }
 
 cN=numClasses;
-// thats to boot classes
-// now the application classes
+/* thats to boot classes*/
+/* now the application classes*/
 cN--;
 addr-=4;
 		do
