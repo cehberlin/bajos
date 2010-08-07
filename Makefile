@@ -549,52 +549,9 @@ $(BOOTPACK): packer $(BOOTCLASSES)
 
 
 A:
-<<<<<<< .mine
 	./$(TARGET)   $(BOOTCLASSES) \
 		$(APPCLASSPATH)/A.class \
 		$(APPCLASSPATH)/Aparent.class
-=======
-	./$(TARGET)   ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
- 		${LANG}/StringBuffer.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${LANG}/ArrayIndexOutOfBoundsException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-		${UTIL}/AbstractCollection.class \
-		${UTIL}/AbstractList.class \
-		${UTIL}/Collection.class \
-		${UTIL}/List.class \
-		${UTIL}/Random.class \
-		${UTIL}/RandomAccess.class \
-		${UTIL}/Stack.class \
-		${UTIL}/Vector.class \
-		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayKonstanten.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Font.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Line.class \
-		${GRAPHICS}/Polyline.class \
-		${GRAPHICS}/AffineMatrix.class \
-		${GRAPHICS}/ProjectionMatrix.class \
-  		$(APPCLASSPATH)/A.class
->>>>>>> .r297
 
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
