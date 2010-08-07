@@ -22,3 +22,13 @@
 // jetzt müsste alles unter suse11.0 mit dem neunen native konzept funktionieren
 // avr32-linux wie linix-aufruf #>./bajvm *.class auf sd card
 // ngw100 nostartfiles mir exception.S und crt0.S
+// 19.12.09 lief auf arduinoMega mit classfiles in flash!!!
+einlesen der KLASSEN MUSS SAUBERER WERDEN
+// wide instruction error modified 5.1.10
+am withmon/alone
+ch withmon
+evk1100 withmon/alone
+ngw100 alone
+stk1000 alone
+ngw100, stk1000 avr32-linux
+linux
