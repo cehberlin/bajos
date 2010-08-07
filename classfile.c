@@ -317,7 +317,7 @@ pc+=6;
 }	
 
 void analyseConstantPool(classStructure* c){
-	u2 n,i,length;
+	u2 n,length;
 	for (n=1; n<getU2(c->constant_pool_count);n++){
 		c->constant_pool[n]=pc;
 		switch (getU1(0)){
@@ -444,7 +444,6 @@ pc+=etl*8;
 #endif
 			mN=n;
 			u4 n=getU4(0);
-			u2 i;
 			n=getU2(0);
 #ifdef DEBUG
 			for (i=0;i<n;i++)	
