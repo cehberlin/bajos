@@ -57,8 +57,7 @@ opStackPeek:
 
 //write 32 bit var on pretop of operant stack
 .global opStackPoke
-opStackPoke:
-			lds	ZL,opSp
+opStackPoke:		lds	ZL,opSp
 			lds	ZH,opSp+1
 			sbiw	ZL, 0x04	; 4
 			st	Z, r22
@@ -155,12 +154,12 @@ methodStackPush:		//load global pointer
 methodStackPop:		//load global pointer
 			lds	ZL,methodSp
 			lds	ZH,methodSp+1
-			//decrement pointer 32bit
+			//decrement pointer 16bit
 			sbiw	ZL,0x02
 			//write global pointer back
 			sts	methodSp+1,ZH
 			sts	methodSp,ZL
-			//load 32bit data where pointer points to
+			//load 16bit data where pointer points to
 			ld	r24,Z
 			ldd	r25,Z+1	
 			ret
@@ -188,10 +187,9 @@ methodStackGetSpPos:
 			ret
 
 .global methodStackSetSpPos
-methodStackSetSpPos:
-			lds	r18, methodStackBase
+methodStackSetSpPos:	lds	r18, methodStackBase
 			lds	r19, methodStackBase+1
-			//muliplication by 4 because of 32BIT Slots
+			//muliplication by 2 because of 16BIT Slots
 			add	r24, r24
 			adc	r25, r25
 			add	r24, r18
