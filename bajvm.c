@@ -1,5 +1,5 @@
 /*
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // fuer lehrzwecke,...
@@ -20,7 +20,7 @@ Erweiterungen von:
 	Chris Engel, CONTROL
 	Felix Fehlberg, Berliner Volksbank
 	Steffen Kalisch, COMED
-Studenten der Informatik an der FHW-Berlin/Fachbereich Berufsakademie	
+Studenten der Informatik an der HWR-Berlin/Fachbereich Berufsakademie	
 ********************************************************************************************/
 // speed is not our primary goal!!!
 // no double, no long
@@ -112,14 +112,17 @@ void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill struct
 classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
 apClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
+
 #ifdef STK1000
 classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  			// boot classes in flash
 apClassFileBase=STK1000_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
+
 #ifdef NGW100
 classFileBase=(char*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
 apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
+
 #if (AVR32LINUX||LINUX||AVR8)
     classFileBase=(char*)malloc((size_t) MAXBYTECODE);
     if (classFileBase==NULL)
@@ -129,7 +132,6 @@ apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
     }
 	// memory for classfiles -> fixed size
 #endif
-
 	heapInit();	// linux avr8 malloc , others hard coded!
 	length=0;
 #ifdef LINUX
@@ -146,7 +148,7 @@ apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 }
 #endif
 
-#if (NGW100||STK1000|| EVK1100)
+#if (AVR32LINUX||NGW100||STK1000|| EVK1100)
 // analyze bootclasses, which are programmed in flash
 char* addr;
 u4 temp;
@@ -170,13 +172,15 @@ cN=numClasses;
 // now the application classes
 cN--;
 addr-=4;
+#ifndef AVR32LINUX
 addr=apClassFileBase;
+#endif
 length=0;
 		do
 		{
 		printf("load application classes-> type \"w\" \n");
 			cN++;
-			cs[cN].classFileStartAddress=apClassFileBase+length;
+			cs[cN].classFileStartAddress=addr+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
 			printf("\n");
 			length+=cs[cN].classFileLength;
