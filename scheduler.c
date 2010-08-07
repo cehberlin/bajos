@@ -33,7 +33,7 @@ if (numThreads!=0)	{
 	*(t->methodStackBase+2)=mN;
 	*(t->methodStackBase+3)=getStartPC();
 	*(t->methodStackBase+4)=findMaxLocals();
-	*(t->opStackBase)=opStackGetValue(local); // reference to caller object (from start())
+	*(t->opStackBase)=opStackGetValue(local); /* reference to caller object (from start())*/
 }
 u2 i;
 for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	{
@@ -46,9 +46,9 @@ void	deleteThread(void)	{
 ThreadControlBlock* t=actualThreadCB->succ;
 t->pred=actualThreadCB->pred;
 t->pred->succ=t;
-//free(actualThreadCB->methodStackBase); // crash -> to do
-//free(actualThreadCB->opStackBase);
-//free(actualThreadCB);
+/*free(actualThreadCB->methodStackBase); // crash -> to do*/
+/*free(actualThreadCB->opStackBase);*/
+/*free(actualThreadCB);*/
 actualThreadCB =t;
 methodStackBase=actualThreadCB->methodStackBase;
 methodStackSetSpPos(actualThreadCB->methodSpPos);
@@ -62,8 +62,8 @@ numThreads--;			}
 
 void scheduler(void)	{
 if (numThreads==1) return;
-// scheduling -> next thread
-// at thread change after each byte code
+/* scheduling -> next thread*/
+/* at thread change after each byte code*/
 methodStackPush(local);
 methodStackPush(cN);
 methodStackPush(mN);
@@ -79,7 +79,7 @@ do 	{
 	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex)
 		==MUTEXBLOCKED))
 	continue;
-// awakened and mutexnotblocked
+/* awakened and mutexnotblocked*/
 if ((actualThreadCB->state)==THREADWAITAWAKENED)	{
 HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
 actualThreadCB->state=THREADNOTBLOCKED;
