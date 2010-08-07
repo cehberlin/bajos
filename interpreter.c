@@ -950,7 +950,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 // no synchronized,or I have the lock
 // jetzt call die methode
 			if (getU2(METHODBASE(cN,mN))&ACC_NATIVE)							{
-				if (nativeDispatch(local))		goto nativeValueReturn;
+				if (nativeDispatch())		goto nativeValueReturn;
 				else										goto nativeVoidReturn;
 			}
 			pc=getStartPC();
@@ -1015,7 +1015,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 // no synchronized,or I have the lock
 // jetzt call die methode
 			if (getU2(METHODBASE(cN,mN)) & ACC_NATIVE)							{
-				if (nativeDispatch(local))		goto nativeValueReturn;
+				if (nativeDispatch())		goto nativeValueReturn;
 				else								goto nativeVoidReturn;
 			}
 			pc=getStartPC();

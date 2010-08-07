@@ -129,44 +129,44 @@ u1*	nativeCNMN;
 int	numEntryNativeCNMN=MAXNATIVEMETHODS;
 u2 	i;
 
-char	nativeDispatch(u2 local)	{
+char	nativeDispatch()	{
 for(i=0;i<numMethods;i++)	
 	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
-	case	0: return nativeCharOut(local);
+	case	0: return nativeCharOut();
 	case	1: return nativeCharIn();
 	case	2: return getButtons();
-	case	3: return setOnBoardLEDs(local);
-	case	4: return charLCDOut(local);
-	case	5: return controlLCD(local); 
+	case	3: return setOnBoardLEDs();
+	case	4: return charLCDOut();
+	case	5: return controlLCD(); 
 	case	6: return currentTimeMillis();
-	case	7: return javaExit(local);
-	case	8: return drawPointRGB(local);
-	case	9: return drawFillRectRGB(local);
-	case	10: return drawRectangleRGB(local);
-	case	11: return clearScreenRGB(local);
-	case	12: return drawRoundRectRGB(local);
-	case	13: return drawEllipseRGB(local);
-	case	14: return drawCircleRGB(local);
-	case	15: return drawLineRGB(local);
-	case	16: return drawPointHSB(local);
-	case	17: return drawLineHSB(local);
-	case	18: return drawTriangleFill(local);
+	case	7: return javaExit();
+	case	8: return drawPointRGB();
+	case	9: return drawFillRectRGB();
+	case	10: return drawRectangleRGB();
+	case	11: return clearScreenRGB();
+	case	12: return drawRoundRectRGB();
+	case	13: return drawEllipseRGB();
+	case	14: return drawCircleRGB();
+	case	15: return drawLineRGB();
+	case	16: return drawPointHSB();
+	case	17: return drawLineHSB();
+	case	18: return drawTriangleFill();
 	case	19: return clearZBuffer();
-	case	20: return drawPointHSBZBuffer(local);
-	case	21: return drawLineHSBZBuffer(local);
-	case	22: return setFont(local);
-	case	23: return setFontWindow(local);
-	case	24: return setFontAutoLineFeed(local);
-	case	25: return setFontFixedFont(local);
-	case	26: return setFontCursor(local);
-	case	27: return setFontColor(local);
-	case	28: return drawChar(local);
-	case	29: return drawCharAt(local);
-	case	30: return getCharWidth(local);
-	case	31: return nativeCharAt(local);
-	case	32: return nativeStringLength(local);
-	case	33: return start(local);
+	case	20: return drawPointHSBZBuffer();
+	case	21: return drawLineHSBZBuffer();
+	case	22: return setFont();
+	case	23: return setFontWindow();
+	case	24: return setFontAutoLineFeed();
+	case	25: return setFontFixedFont();
+	case	26: return setFontCursor();
+	case	27: return setFontColor();
+	case	28: return drawChar();
+	case	29: return drawCharAt();
+	case	30: return getCharWidth();
+	case	31: return nativeCharAt();
+	case	32: return nativeStringLength();
+	case	33: return start();
 	/*	34	"yield",
 		35	"sleep",
 		36	"currentThread",
@@ -178,15 +178,15 @@ switch(i)					{
 		42	"isDaemon",
 		43	"setDaemon",
 		44	"join",*/ //+12
-	case	45: return notify(local);
-	case	46: return notifyAll(local);
-	case	47: return wait(local);	// ???
+	case	45: return notify();
+	case	46: return notifyAll();
+	case	47: return wait();	// ???
 	/*	48	"waitTime",
 		49	"getDataAddress",NULL};*/ //51
-	case	50: return nativeParseFloat(local);
-	case 	51: return typeConvert(local);
-	case	52: return typeConvert(local);
-	case	53: return floatToCharArray(local);
+	case	50: return nativeParseFloat();
+	case 	51: return typeConvert();
+	case	52: return typeConvert();
+	case	53: return floatToCharArray();
 
 	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
 			   exit(-1);		}							}
@@ -215,7 +215,7 @@ numMethods/=2;				}
 
 //"actplatform/Serial","nativeIntOut","nativeFloatOut","println","nativeCharOut","nativeCharIn"
 // 0
-char nativeCharOut(u2 local)		{
+char nativeCharOut()		{
 char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
 	return 0;							}
@@ -254,7 +254,7 @@ u1 rowLCD=0;
 u1 columnLCD=0;
 #define LCDRowLength 15
 
-char charLCDOut(u2 local)	{
+char charLCDOut()	{
 LCD_Putch(opStackGetValue(local+1).UInt);
 if (rowLCD == LCDRowLength){
 rowLCD=0;
@@ -263,7 +263,7 @@ columnLCD=(columnLCD+1)&0xf7;
 else rowLCD++;
 return 0;					}
 
-char controlLCD(u2 local)	{
+char controlLCD()	{
 u4 val=opStackGetValue(local+1).UInt;
 // 0x00000000 clear
 // 0x0100yyxx cursor at x y
@@ -277,7 +277,7 @@ return 0; 					}
 #endif
 
 // 5
-char nativeStringLength(u2 local)	{
+char nativeStringLength()	{
 slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
@@ -290,7 +290,7 @@ opStackPush((slot)(u4)0xffff);
 return 1;
 }
 
-char nativeCharAt(u2 local)	{
+char nativeCharAt()	{
 slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
@@ -315,7 +315,7 @@ char currentThread(){return 1; }
 //8
 char getPriority(){return 1; }
 //9
-char setPriority(u2 local){return 0; }
+char setPriority(){return 0; }
 //10
 char interrupt(){return 0; }
 //11
@@ -325,10 +325,10 @@ char isInterrupted(){return 1; }
 //13
 char isDaemon(){return 1; }
 //14
-char setDaemon(u2 local){return 0; }
+char setDaemon(){return 0; }
 char  join(){return 0; }
 //15
-char jointimeout(u2 local){return 0; }
+char jointimeout(){return 0; }
 
 // "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"
 char notify(){	// not tested yet aug2007
@@ -375,7 +375,7 @@ ThreadControlBlock* myTCB=actualThreadCB;
 					}
 return 0; }
 
-char waitTime(u2 local){return 0; }
+char waitTime(){return 0; }
 char getDataAddress (u4 obj)	{
 return 1;	// ret val is  on Stack !!
 }
@@ -415,7 +415,7 @@ char	getButtons() {
 ##     LED1 LED2 LED3 LED4 LED5_red LED5_green LED6_red LED6_green
 ## Return Value: void
 */
-char	setOnBoardLEDs(u2 local) {
+char	setOnBoardLEDs() {
 	char state = opStackGetValue(local+1).UInt;
 	int LEDs[8] = {LED0_GPIO, LED1_GPIO, LED2_GPIO, LED3_GPIO, LED4_GPIO, LED5_GPIO, LED6_GPIO, LED7_GPIO};
 	int n = 0;
@@ -428,13 +428,13 @@ char	setOnBoardLEDs(u2 local) {
 	return 0;
 }
 
-char charLCDOut(u2 local) {
+char charLCDOut() {
 	char c = opStackGetValue(local+1).UInt;
 	dip204_write_data(c);
 	return 0;
 }
 
-char controlLCD(u2 local) {
+char controlLCD() {
 	int control = opStackGetValue(local+1).UInt;
 	switch (control)
 	{
@@ -481,36 +481,35 @@ goto *0x80000000;
 
 #if NGW100 || STK1000
 char currentTimeMillis(){return 0;};
-char controlLCD(u2 local){ return 0;}
-char charLCDOut(u2 local){return 0;}
+char controlLCD(){ return 0;}
+char charLCDOut(){return 0;}
 void exit(int status)	{
 asm("  lda.w   pc, 0");
 //goto *0x00000000;
 }
 #endif
-#if LINUX||AVR32LINUX || AVR8 || NGW100 || STK1000
-char getButtons()	{
 
-return 1;
+#if LINUX || AVR32LINUX || AVR8 || NGW100 || STK1000
+/* the following methods are not supported by these platforms */
+
+char getButtons()	{
+	opStackPush((slot)(u4)0);
+	return 1;
 }
 
-
-char setOnBoardLEDs(u2 local)	{
-
-return 0;
+char setOnBoardLEDs()	{
+	return 0;
 }
 #endif
 
-
-
-char typeConvert(u2 local)	{
+char typeConvert()	{
 opStackPush(opStackGetValue(local));
 return 1;
 }
 
 
 // char arr to float
-char nativeParseFloat(u2 local)	{
+char nativeParseFloat()	{
 slot mySlot=opStackGetValue(local); // the char array
 char buf[mySlot.stackObj.arrayLength];
 f4 f;
@@ -522,7 +521,7 @@ opStackPush((slot)f);
 return 1;
 }
 
-char floatToCharArray(u2 local)	{
+char floatToCharArray()	{
 	slot mySlot;
 	f4 f=opStackGetValue(local).Float;	// the float
 	char buf[8];
@@ -542,7 +541,7 @@ char floatToCharArray(u2 local)	{
 }
 
 
-char javaExit(u2 local)	{
+char javaExit()	{
 exit(opStackGetValue(local).UInt);
 return 0;
 }
@@ -551,8 +550,8 @@ return 0;
 
 
 #if LINUX||AVR32LINUX
-char charLCDOut(u2 local){return 0;}
-char controlLCD(u2 local){return 0;}
+char charLCDOut(){return 0;}
+char controlLCD(){return 0;}
 void timer_Init()	{}
 
 char currentTimeMillis()	{
@@ -564,7 +563,7 @@ return 1;
 #endif
 #ifdef STK1000
 
-char drawPointRGB(u2 local)
+char drawPointRGB()
 {
 	//public native void drawPointRGB(int x,int y, int color);
 	lcdSetPixelRGB(opStackGetValue(local+1).UInt, 
@@ -573,7 +572,7 @@ char drawPointRGB(u2 local)
 	return 0;
 }
 
-char drawFillRectRGB(u2 local)
+char drawFillRectRGB()
 {
 	//public native void drawFillRectRGB(int x1, int y1, int x2, int y2, int color);
 	lcdFillRect(opStackGetValue(local+1).UInt, 
@@ -585,7 +584,7 @@ char drawFillRectRGB(u2 local)
 	return 0;
 }
 
-char drawRectangleRGB(u2 local)
+char drawRectangleRGB()
 {
 	//public native void drawRectangleRGB(int x1, int y1, int x2, int y2, int fgcolor, int bkcolor);
 	lcdRectangle(opStackGetValue(local+1).UInt, 
@@ -597,14 +596,14 @@ char drawRectangleRGB(u2 local)
 	return 0;
 }
 
-char clearScreenRGB(u2 local)
+char clearScreenRGB()
 {
 	//public native void clearScreenRGB(int color);
 	lcdClearScreen(opStackGetValue(local+1).UInt);
 	return 0;
 }
 
-char drawRoundRectRGB(u2 local)
+char drawRoundRectRGB()
 {
 	//public native void drawRoundRectRGB(int x1, int y1, int x2, int y2, int a, int b, int fgcolor, int bkcolor);
 	lcdRoundRect(opStackGetValue(local+1).UInt,
@@ -618,7 +617,7 @@ char drawRoundRectRGB(u2 local)
 	return 0;
 }
 
-char drawEllipseRGB(u2 local)
+char drawEllipseRGB()
 {
 	//public native void drawEllipseRGB(int x1, int y1, int x2, int y2, int fgcolor, int bkcolor);
 	lcdEllipse(opStackGetValue(local+1).UInt,
@@ -630,7 +629,7 @@ char drawEllipseRGB(u2 local)
 	return 0;
 }
 
-char drawCircleRGB(u2 local)
+char drawCircleRGB()
 {
 	//public native void drawCircleRGB(int x, int y, int r, int fgcolor, int bkcolor);
 	lcdCircle(opStackGetValue(local+1).UInt,
@@ -641,7 +640,7 @@ char drawCircleRGB(u2 local)
 	return 0;
 }
 
-char drawLineRGB(u2 local)
+char drawLineRGB()
 {
 	//public native void drawLineRGB(int x1, int y1, int x2, int y2, int color);
 	lcdLine(opStackGetValue(local+1).UInt,
@@ -651,7 +650,7 @@ char drawLineRGB(u2 local)
 			opStackGetValue(local+5).UInt);
 	return 0;
 }
-char drawPointHSB(u2 local)
+char drawPointHSB()
 {
 	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
                                                     // otherwise local+1
@@ -666,7 +665,7 @@ char drawPointHSB(u2 local)
 	return 0;
 }
 
-char drawLineHSB(u2 local)
+char drawLineHSB()
 {
 	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
@@ -691,7 +690,7 @@ char drawLineHSB(u2 local)
 	return 0;
 }
 
-char drawTriangleFill(u2 local)
+char drawTriangleFill()
 {
 	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
@@ -731,7 +730,7 @@ char clearZBuffer()
 	return 0;
 }
 
-char drawPointHSBZBuffer(u2 local)
+char drawPointHSBZBuffer()
 {
 	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
@@ -748,7 +747,7 @@ char drawPointHSBZBuffer(u2 local)
 	lcdDrawZBufferPoint(p);
 	return 0;
 }
-char drawLineHSBZBuffer(u2 local)
+char drawLineHSBZBuffer()
 {
 	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
@@ -775,13 +774,13 @@ char drawLineHSBZBuffer(u2 local)
 	return 0;
 }
 
-char setFont(u2 local)
+char setFont()
 {
 	lcdSelectFontFromArray(opStackGetValue(local+1).UInt);
 	return 0;
 }
 
-char setFontWindow(u2 local)
+char setFontWindow()
 {
 	lcdSetRect(lcd_Window, 
 		opStackGetValue(local+1).UInt,
@@ -791,7 +790,7 @@ char setFontWindow(u2 local)
 	return 0;
 }
 
-char setFontAutoLineFeed(u2 local)
+char setFontAutoLineFeed()
 {
 	if (opStackGetValue(local+1).UInt>0)
 	{	
@@ -804,7 +803,7 @@ char setFontAutoLineFeed(u2 local)
 	return 0;
 }
 
-char setFontFixedFont(u2 local)
+char setFontFixedFont()
 {
 	if (opStackGetValue(local+1).UInt>0)
 	{	
@@ -817,7 +816,7 @@ char setFontFixedFont(u2 local)
 	return 0;
 }
 
-char setFontCursor(u2 local)
+char setFontCursor()
 {
 	lcd_Cursor.X = opStackGetValue(local+1).UInt;
 	lcd_Cursor.Y = opStackGetValue(local+2).UInt;
@@ -825,7 +824,7 @@ char setFontCursor(u2 local)
 	return 0;
 }
 
-char setFontColor(u2 local)
+char setFontColor()
 {
 	//public native void setFontColor(int fgcolor, int bkcolor);
 	lcd_Colors[0] = opStackGetValue(local+2).UInt;		//Hintergrundfarbe, NONE = Transparent
@@ -833,13 +832,13 @@ char setFontColor(u2 local)
 	return 0;
 }
 
-char drawChar(u2 local)
+char drawChar()
 {
 	opStackPush((slot) (u4) lcdDrawChar(opStackGetValue(local+1).UInt));
 	return 0;
 }
 
-char drawCharAt(u2 local)
+char drawCharAt()
 {
 	opStackPush((slot) (u4) lcdDrawCharAt(opStackGetValue(local+1).UInt,
 						opStackGetValue(local+2).UInt,
@@ -849,7 +848,7 @@ char drawCharAt(u2 local)
 	return 0;
 }
 
-char getCharWidth(u2 local)
+char getCharWidth()
 {
 	opStackPush((slot) (u4) lcdCharWidth(opStackGetValue(local+1).UInt));
 	return 0;
@@ -860,21 +859,21 @@ char getCharWidth(u2 local)
 #if AVR8||NGW100||LINUX||AVR32LINUX||EVK1100
 
 //Grafikmethoden nur fuer STK1000 implementiert
-char drawPointRGB(u2 local){ printf("native drawPointRGB\n"); return 0;}
-char drawFillRectRGB(u2 local){printf("native drawFillRectRGB\n"); return 0;}
-char drawRectangleRGB(u2 local){printf("native drawRectangleRGB\n"); return 0;}
-char clearScreenRGB(u2 local)
+char drawPointRGB(){ printf("native drawPointRGB\n"); return 0;}
+char drawFillRectRGB(){printf("native drawFillRectRGB\n"); return 0;}
+char drawRectangleRGB(){printf("native drawRectangleRGB\n"); return 0;}
+char clearScreenRGB()
 {
 	printf("native clearScreenRGB\n"); 
 	printf("Screen Color:: %d\n",opStackGetValue(local+1).UInt);
 	return 0;
 }
-char drawRoundRectRGB(u2 local){printf("native drawRoundRectRGB\n"); return 0;}
-char drawEllipseRGB(u2 local){printf("native drawEllipseRGB\n"); return 0;}
-char drawCircleRGB(u2 local){printf("native drawCircleRGB\n"); return 0;}
-char drawLineRGB(u2 local){printf("native drawLineRGB\n"); return 0;}
+char drawRoundRectRGB(){printf("native drawRoundRectRGB\n"); return 0;}
+char drawEllipseRGB(){printf("native drawEllipseRGB\n"); return 0;}
+char drawCircleRGB(){printf("native drawCircleRGB\n"); return 0;}
+char drawLineRGB(){printf("native drawLineRGB\n"); return 0;}
 
-char drawPointHSB(u2 local)
+char drawPointHSB()
 {
 	printf("native drawPointHSB\n"); 
 
@@ -901,7 +900,7 @@ x=heapGetElement(mySlot.stackObj.pos+1).Float;
 printf("point pe, x koordinate: %f",x);*/
 	return 0;
 }
-char drawLineHSB(u2 local)
+char drawLineHSB()
 {
 	printf("native drawLineHSB\n"); 
 
@@ -938,7 +937,7 @@ char drawLineHSB(u2 local)
 
 	return 0;
 }
-char drawTriangleFill(u2 local)
+char drawTriangleFill()
 {
 	printf("native drawTriangleFill\n"); 
 
@@ -991,7 +990,7 @@ char drawTriangleFill(u2 local)
 	return 0;
 }
 char clearZBuffer(){printf("native clearZBuffer\n"); return 0;}
-char drawPointHSBZBuffer(u2 local)
+char drawPointHSBZBuffer()
 {
 	printf("native drawPointHSBZBuffer\n"); 
 	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
@@ -1011,7 +1010,7 @@ char drawPointHSBZBuffer(u2 local)
 	printf("point, b koordinate: %f\n",b);
 	return 0;
 }
-char drawLineHSBZBuffer(u2 local)
+char drawLineHSBZBuffer()
 {
 	printf("native drawLineHSBZBuffer\n"); 
 	
@@ -1048,13 +1047,13 @@ char drawLineHSBZBuffer(u2 local)
 	return 0;
 }
 
-char setFont(u2 local)
+char setFont()
 {
 	printf("native setFont\n");
 	printf("%d\n", opStackGetValue(local+1).UInt);
 	return 0;
 }
-char setFontWindow(u2 local)
+char setFontWindow()
 {
 	printf("native setFontWindow\n"); 
 	printf("%d\n", opStackGetValue(local+1).UInt);
@@ -1063,19 +1062,19 @@ char setFontWindow(u2 local)
 	printf("%d\n", opStackGetValue(local+4).UInt);
 	return 0;
 }
-char setFontAutoLineFeed(u2 local){printf("native setFontAutoLineFeed\n"); return 0;}
-char setFontFixedFont(u2 local){printf("native setFontFixedFont\n"); return 0;}
-char setFontCursor(u2 local){printf("native setFontCursor\n"); return 0;}
-char setFontColor(u2 local){printf("native setFontColor\n"); return 0;}
-char drawChar(u2 local)
+char setFontAutoLineFeed(){printf("native setFontAutoLineFeed\n"); return 0;}
+char setFontFixedFont(){printf("native setFontFixedFont\n"); return 0;}
+char setFontCursor(){printf("native setFontCursor\n"); return 0;}
+char setFontColor(){printf("native setFontColor\n"); return 0;}
+char drawChar()
 {
 	printf("native drawChar\n");
 	char val=opStackGetValue(local+1).UInt;
 	printf("%c\n",val);
 	return 0;
 }
-char drawCharAt(u2 local){printf("native drawCharAt\n"); return 0;}
-char getCharWidth(u2 local){printf("native getCharWidth\n"); return 0;}
+char drawCharAt(){printf("native drawCharAt\n"); return 0;}
+char getCharWidth(){printf("native getCharWidth\n"); return 0;}
 
 #endif
 
