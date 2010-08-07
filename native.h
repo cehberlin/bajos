@@ -74,5 +74,6 @@ char currentTimeMillis();
 char nativeParseFloat();
 char typeConvert();
 char floatToCharArray();
+char getTemperature();
 #endif
 
