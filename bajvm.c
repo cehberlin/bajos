@@ -84,6 +84,11 @@ int main(int argc,char* argv[]){
 if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
+<<<<<<< .mine
+			run();				}
+	for (cN=0; cN < numClasses;cN++)
+	if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
+=======
 			run();								}	
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
@@ -91,6 +96,7 @@ if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("  -> run <main> :\n"));
 #else
+>>>>>>> .r1095
 	printf("  -> run <main> :\n");
 #endif
 
@@ -107,6 +113,7 @@ if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 	
 	return 1;
 }
+
 
 void errorExit(char nr,const char *format, ...)	{
 	va_list list;
