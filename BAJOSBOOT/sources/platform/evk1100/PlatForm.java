@@ -3,14 +3,15 @@
 //	 		H.-Christian Hecht, FHW-BA Berlin; CoMedServ GmbH
 //			Adrian Lang,FHW-BA Berlin; Fritz-Haber-Institut
 //			Stephan Bauer; FHW-BA Berlin; Bayer Schering Pharma AG
+//			Felix Fehlberg; FHW-BA Berlin; Berliner Volksbank eG
+//			Steffen Kalisch; FHW-BA Berlin; SANA IT Services GmbH
+
 package platform;
-
-
-
 public class PlatForm	{
 public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
+public native int conStat();
 public native byte getButtons();
 public native void setOnBoardLEDs(byte status);
 public native void charLCDOut(char c);
