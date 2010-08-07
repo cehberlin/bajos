@@ -32,7 +32,7 @@ extern functionForNativeMethodType functionForNativePlatFormMethod[];
 /* eg. address 0x2345 means byte in flash at address (binary):1001000110100101 */
 extern u1 getU1Flash(u2 pos);
 u1 getU1(u2 pos)	{ 
-return getU1Flash(CLASSSTA + ((pos==0) ? (pc++) : pos));
+  return getU1Flash(CLASSSTA + ((pos==0) ? (pc++) : pos));
 }
 #else
 /* classSTA and pc are global variables for actual class and method*/
@@ -41,7 +41,13 @@ return getU1Flash(CLASSSTA + ((pos==0) ? (pc++) : pos));
 u1 getU1(u2 pos){return *(CLASSSTA + ( (pos==0) ? (pc++) : pos) );	}
 #endif
 
-u2 getU2(u2 pos){return (((u2)getU1(pos) << 8) | (u2)getU1 ( (pos == 0) ? 0 : pos+1 )); }	
+
+
+u2 getU2(u2 pos){
+if (pos==0) {pc+=2;return (*(CLASSSTA + pc-2))*256+*(CLASSSTA + pc-1);}
+else return (*(CLASSSTA + pos)*256)+*(CLASSSTA + pos+1);
+}
+//  return (((u2)getU1(pos) << 8) | (u2)getU1 ( (pos == 0) ? 0 : pos+1 )); }	
 
 u4 getU4(u2 pos){return (((u4)getU2(pos)<<16)|(u4)getU2((pos==0)?0:pos+2));	}
 
@@ -112,6 +118,7 @@ u1 findMethod(const char* className, const u1 classNameLength, const char* metho
 // all args in flash for arduinomega
 /*in cN, out: cN, mN*/
 /* recursive down to object*/
+//printf("%4x %4x %4x %4x\n", 0x8000+(unsigned int)className/2,classNameLength,0x8000+ (unsigned int)methodName/2,methodNameLength);
 	if (!
 #ifdef AVR8
 findClassFlash
@@ -119,7 +126,7 @@ findClassFlash
 findClass
 #endif
 
-		(className,classNameLength)) 					{
+		(className,classNameLength)) 					{ 
 		CLASSNOTFOUNDERR(className);	}/* out: cN*/
 	if (
 #ifdef AVR8
