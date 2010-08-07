@@ -280,8 +280,8 @@ if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
-if ((cb->status==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
-cb->status=THREADWAITAWAKENED;
+if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
+cb->state=THREADWAITAWAKENED;
 break;
 }
 return 0; }
@@ -295,9 +295,9 @@ if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
-if ((cb->status==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))//stackObj.pos)) //!!!bh
-//cb->status=THREADNOTBLOCKED;
-cb->status=THREADWAITAWAKENED;
+if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))//stackObj.pos)) //!!!bh
+//cb->state=THREADNOTBLOCKED;
+cb->state=THREADWAITAWAKENED;
 }
 return 0; }
 
@@ -311,13 +311,13 @@ if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
 //darf nicht sein ->IllegalMonitorStateException
 HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; // lock abgeben
 actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
-actualThreadCB->status=THREADWAITBLOCKED;
+actualThreadCB->state=THREADWAITBLOCKED;
 ThreadControlBlock* myTCB=actualThreadCB;
 						for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
 						myTCB=myTCB-> succ;
 						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
-											(myTCB->status==THREADMUTEXBLOCKED))	{
-							myTCB->status=THREADNOTBLOCKED; //!!
+											(myTCB->state==THREADMUTEXBLOCKED))	{
+							myTCB->state=THREADNOTBLOCKED; //!!
 							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
 														}
 
