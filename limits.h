@@ -6,15 +6,27 @@
 #define __LIMITS
 #ifdef AVR8
 	#define MAXCLASSES 			15
-	#define MAXBYTECODE 			16000 	//!!! class file bytes	
-	#define MAXHEAP				800	// number of u4 entries for heap-elements	
-	#define MAXHEAPOBJECTLENGTH 		60
+	#define MAXBYTECODE 			0x5000 	//!!! class file bytes in flash!!
+#ifdef CH
+	#define MAXHEAP				0x280	// u4 entries for heap-elements	
+	#define MAXHEAPOBJECTLENGTH 		0x40
+	#define MAXTHREADS			5
+	#define MAXLOCKEDTHREADOBJECTS 		4
+	#define OPSTACKSIZE 			64	// u4	
+	#define METHODSTACKSIZE			16	// u2	
+	#define MAXNATIVEMETHODS		40
+#endif
+#ifdef AM
+	#define MAXHEAP				0x280	// u4 entries for heap-elements	
+	#define MAXHEAPOBJECTLENGTH 		0x40
 	#define MAXTHREADS			5
 	#define MAXLOCKEDTHREADOBJECTS 		4
 	#define OPSTACKSIZE 			96	// u4	
-	#define METHODSTACKSIZE			164	// u2	
+	#define METHODSTACKSIZE			32	// u2	
 	#define MAXNATIVEMETHODS		40
-#else
+#endif
+#endif
+#if ( !AVR8)
 	#define MAXCLASSES 			45 //30
 	#define MAXBYTECODE 			52768	// 16384 !!! class file bytes < 16 kB	
 	#define MAXHEAP				6000	// number of u4 entries for heap-elements	
