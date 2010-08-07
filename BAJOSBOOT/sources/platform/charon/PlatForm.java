@@ -13,7 +13,6 @@
 package platform;
 
 public class PlatForm	{
-public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
 public native void exit (int status);
@@ -30,4 +29,5 @@ public native byte nativeGetPort(char port);
 public native byte nativeSer1In();
 public native void nativeSer1Out(byte c);
 public native byte nativeSer1Stat();
+public PlatForm()	{}
 }

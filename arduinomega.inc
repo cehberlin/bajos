@@ -20,8 +20,8 @@ CC		= avr-gcc
 OBJCOPY		= avr-objcopy
 PROGRAM		= avrdude
 # flasher means the avrdude device which you are using for flashing
-#FLASHER 	= stk200 
-FLASHER 	= avrispmkII -P usb 
+FLASHER 	= stk200 
+#FLASHER 	= avrispmkII -P usb 
 
 # DEVICE
 ARCH			= AVR5

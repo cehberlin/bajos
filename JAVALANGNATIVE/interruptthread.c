@@ -23,11 +23,20 @@
 #include "../heap.h"
 #include "lock.h"
 #include "interruptthread.h"
-char sei(){
+#ifdef AVR8
+	#include <avr/interrupt.h>  
+#endif
+
+char static_sei(){
+	#ifdef AVR8
+	sei();
+	#endif
 	return 0;
 }
 
-char cli(){
+char static_cli(){
+	#ifdef AVR8
+	cli();
+	#endif
 	return 0; 
 }
-

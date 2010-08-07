@@ -24,7 +24,6 @@
 #ifdef AVR8
 
 #include <avr/pgmspace.h>
-extern void printStringFromFlash(u1*,u1);
 
 #define GETSTARTPC(offset)	((strncmpRamFlash(	"Code",\
 			getAddr( cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+offset)]+3	),\

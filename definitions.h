@@ -77,7 +77,7 @@
 #endif	
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define CLASSNOTFOUNDERR(classname,classnamelength) { printStringFromFlash(classname,classnamelength);errorExit(-3, PSTR("Class '%s' not found.\n"), classname);}
+	#define CLASSNOTFOUNDERR(classname,classnamelength) {errorExit(-3, PSTR("Class '%s' not found.\n"), classname);}
 #else
 	#define CLASSNOTFOUNDERR(classname,classnamelength) errorExit(-3, "Class '%s' not found.\n", classname)
 #endif	

@@ -97,6 +97,42 @@ public final class Float {
    */
   private final float value;
 
+  public static native char[] floatToCharArray(float f);
+
+  public static native  float nativeParseFloat(char[] arr);
+
+
+ /**
+   * Convert the float to the IEEE 754 floating-point "single format" bit
+   * layout. Bit 31 (the most significant) is the sign bit, bits 30-23
+   * (masked by 0x7f800000) represent the exponent, and bits 22-0
+   * (masked by 0x007fffff) are the mantissa. This function collapses all
+   * versions of NaN to 0x7fc00000. The result of this function can be used
+   * as the argument to <code>Float.intBitsToFloat(int)</code> to obtain the
+   * original <code>float</code> value.
+   *
+   * @param value the <code>float</code> to convert
+   * @return the bits of the <code>float</code>
+   * @see #intBitsToFloat(int)
+   */
+  public static native int floatToIntBits(float value);
+ 
+
+  /**
+   * Convert the argument in IEEE 754 floating-point "single format" bit
+   * layout to the corresponding float. Bit 31 (the most significant) is the
+   * sign bit, bits 30-23 (masked by 0x7f800000) represent the exponent, and
+   * bits 22-0 (masked by 0x007fffff) are the mantissa. This function leaves
+   * NaN alone, so that you can recover the bit pattern with
+   * <code>Float.floatToRawIntBits(float)</code>.
+   *
+   * @param bits the bits to convert
+   * @return the <code>float</code> represented by the bits
+   * @see #floatToIntBits(float)
+   * @see #floatToRawIntBits(float)
+   */
+  public static native float intBitsToFloat(int bits);
+
   /**
    * Create a <code>Float</code> from the primitive <code>float</code>
    * specified.
@@ -159,8 +195,6 @@ public final class Float {
   public static  String toString(float f)	{
 		return new String(floatToCharArray(f));
 	}
-
-public static native char[] floatToCharArray(float f);
 
   /**
    * Creates a new <code>Float</code> object using the <code>String</code>.
@@ -244,8 +278,6 @@ public static native char[] floatToCharArray(float f);
 public static float parseFloat(String str)	{
 return nativeParseFloat(str.toCharArray());
 }
-
-  public static native  float nativeParseFloat(char[] arr);
 
 
   /**
@@ -350,36 +382,7 @@ return nativeParseFloat(str.toCharArray());
     return isNaN(value) && isNaN(f);
   }
 
-  /**
-   * Convert the float to the IEEE 754 floating-point "single format" bit
-   * layout. Bit 31 (the most significant) is the sign bit, bits 30-23
-   * (masked by 0x7f800000) represent the exponent, and bits 22-0
-   * (masked by 0x007fffff) are the mantissa. This function collapses all
-   * versions of NaN to 0x7fc00000. The result of this function can be used
-   * as the argument to <code>Float.intBitsToFloat(int)</code> to obtain the
-   * original <code>float</code> value.
-   *
-   * @param value the <code>float</code> to convert
-   * @return the bits of the <code>float</code>
-   * @see #intBitsToFloat(int)
-   */
-  public static native int floatToIntBits(float value);
- 
 
-  /**
-   * Convert the argument in IEEE 754 floating-point "single format" bit
-   * layout to the corresponding float. Bit 31 (the most significant) is the
-   * sign bit, bits 30-23 (masked by 0x7f800000) represent the exponent, and
-   * bits 22-0 (masked by 0x007fffff) are the mantissa. This function leaves
-   * NaN alone, so that you can recover the bit pattern with
-   * <code>Float.floatToRawIntBits(float)</code>.
-   *
-   * @param bits the bits to convert
-   * @return the <code>float</code> represented by the bits
-   * @see #floatToIntBits(float)
-   * @see #floatToRawIntBits(float)
-   */
-  public static native float intBitsToFloat(int bits);
   /**
    * Compare two Floats numerically by comparing their <code>float</code>
    * values. The result is positive if the first is greater, negative if the

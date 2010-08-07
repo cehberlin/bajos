@@ -4,11 +4,6 @@ package java.lang;
  * All classes extend this one, implicitly.
  */
 public class Object	{
-	public Object() {
-	}
-
-  public boolean equals (Object aOther)	{
-    return this == aOther;					}
 
 /*	public int hashCode() {
     return getDataAddress (this);
@@ -35,6 +30,23 @@ public class Object	{
    */
   public final native void wait(); //bhthrows InterruptedException;
 
+
+  public native void waitTime(int timeout);
+
+  private native static int getDataAddress (Object obj);
+
+  public Object() {
+  }
+
+  public boolean equals (Object aOther)	{
+    return this == aOther;					
+  }
+
+  public String toString()
+  {
+    return "Object@?"; // + getDataAddress(this);
+  }
+
   /**
    * Wait until notified. Must be synchronized on this object otherwise
    * an IllegalMonitorStateException will be thrown. The wait can
@@ -51,13 +63,6 @@ public class Object	{
   waitTime(timeout);
   }
   
-	public native void waitTime(int timeout);
 
-  public String toString()
-  {
-    return "Object@?"; // + getDataAddress(this);
-  }
-
-  private native static int getDataAddress (Object obj);
 }
 

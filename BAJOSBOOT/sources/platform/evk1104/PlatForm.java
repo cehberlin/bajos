@@ -5,10 +5,10 @@
 
 package platform;
 public class PlatForm	{
-public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
 public native int conStat(); // inkey
 public native void exit (int status);
 public native int currentTimeMillis();
+public PlatForm()	{}
 }

@@ -14,7 +14,6 @@ package platform;
 import java.util.concurrent.InterruptThread;
 
 public class PlatForm	{
-public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
 public native void exit (int status);
@@ -23,4 +22,5 @@ public native byte nativeConStat();
 public native void nativeSetData(int addr, byte value);	// sdram
 public native byte nativeGetData(int addr);				// sdram
 public native void initTimer8bit(InterruptThread thread,int prescaler);
+public PlatForm()	{}
 }

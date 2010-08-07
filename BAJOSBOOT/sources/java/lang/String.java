@@ -6,9 +6,14 @@ package java.lang;
 
 public final class String implements CharSequence
 {
+
   // NOTE: The state of this class is mapped to
 	private char[] characters; // let it private
 	// never use characters.length better length()
+
+	private native int nativeStringLength();
+
+	private native char nativeCharAt(int index);
 
 	public String(String str) {
 		int slen = str.length();
@@ -20,8 +25,8 @@ public final class String implements CharSequence
 
 	public String(char[] c) {
 		int len = c.length;
-    characters = new char[len];
-    System.arraycopy (c, 0, characters, 0, len);
+    		characters = new char[len];
+    		System.arraycopy (c, 0, characters, 0, len);
 	}
 
   /**
@@ -49,8 +54,6 @@ public final class String implements CharSequence
    * Return the length of the String in characters
    * @return the length of the String
    **/
-	private native int nativeStringLength();
-
 	public int length() {
 		int length = nativeStringLength();
 		return (length != 0xffff) ? length : characters.length;
@@ -60,8 +63,6 @@ public final class String implements CharSequence
    * Return the character at the given index
    * @return the characters at the given index
    **/
- 
-	private native char nativeCharAt(int index);
 
   public char charAt(int index) {
 		if (index < 0 || index > length()) {

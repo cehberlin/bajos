@@ -9,7 +9,6 @@
 package platform;
 
 public class PlatForm	{
-public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
 //public native byte getButtons();
@@ -47,4 +46,5 @@ public native void setFontColor(int fgcolor, int bkcolor);
 public native int drawChar(char c);
 public native int drawCharAt(int x, int y, char c, int fgcolor, int bkcolor);
 public native int getCharWidth(char c);
+public PlatForm()	{}
 }

@@ -11,7 +11,6 @@
 
 package platform;
 public class PlatForm	{
-public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
 public native int conStat(); // inkey
@@ -29,4 +28,5 @@ public native void ser1DTR(char c);// +12 V 1??
 public native void pwmStart(int channel, int pulseLength, int frequency);
 public native void pwmStop (int channel);
 public native int adcGetValue (int channel, int mode);
+public PlatForm()	{}
 }

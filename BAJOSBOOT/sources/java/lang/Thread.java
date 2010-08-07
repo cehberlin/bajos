@@ -29,31 +29,55 @@ public abstract class Thread	{
   private int priority = 5;		// field 1
   private boolean isAlive = false;	// field 2
 
+  public native void start();	
+
+  public static native void yield();	
+ //bh public static native void sleep (long aMilliseconds) throws InterruptedException;
+  public static native void sleep (int aMilliseconds) throws InterruptedException;		
+ 
+  public static native Thread currentThread();		
+
+
+  /**
+   * Set the interrupted flag. If we are asleep we will wake up
+   * and an InterruptedException will be thrown.
+   */
+  public native void interrupt();		
+  public static native boolean interrupted();	
+  public final native boolean isInterrupted();	
+  
+  /**
+   * Set the daemon flag. If a thread is a daemon thread its existence will
+   * not prevent a JVM from exiting.
+   */
+//bh  public final native boolean isDaemon();
+//bh  public final native void setDaemon(boolean on);
+  
+ private native void nativeSetPriority(int priority);		
+ public final native void join() throws InterruptedException;	
+//bh  public final native void join(long timeout) throws InterruptedException;
+  //public final  void join(int timeout) 	{
+//jointimeout1(timeout);
+//}
+//public native void jointimeout1(int timeout);//throws InterruptedException;
 	  
-  public Thread()  	{	// method 0
+  public Thread()  	{	
     this ("");		}
 
-  public Thread (String name)	{	// method 1
+  public Thread (String name)	{	
     this.name = name;
   }
 
 //bh a thread is alive after start and upto deleteThread
   public final boolean isAlive()	{
-	  return isAlive;		}	// method 2
+	  return isAlive;		}	
 
-  public abstract void run();		// method 3
+  public abstract void run();	
   
 // create thread, register pointer to priority in native treadControlBlock, execute run, set isALive
 
-  public native void start();	// methode 4
 
-  public static native void yield();	// method 5
- //bh public static native void sleep (long aMilliseconds) throws InterruptedException;
-  public static native void sleep (int aMilliseconds) throws InterruptedException;		// method 6
- 
-  public static native Thread currentThread();		// method 7
-
-  public final int getPriority()	{		// method 8
+  public final int getPriority()	{		
     return priority;			}
   /**
    * Set the priority of this thread. Higher number have higher priority.
@@ -69,34 +93,10 @@ public abstract class Thread	{
    *
    * @param priority must be between MIN_PRIORITY and MAX_PRIORITY.
    */
-  public  final void setPriority(int priority)	{ 	// method 9
+  public  final void setPriority(int priority)	{ 	
     if ( isAlive)	nativeSetPriority(priority);
     else		this.priority=((priority>0)&& (priority <=10))?priority:5;
  }
-
-  /**
-   * Set the interrupted flag. If we are asleep we will wake up
-   * and an InterruptedException will be thrown.
-   */
-  public native void interrupt();		// method 10
-  public static native boolean interrupted();	// method 11
-  public final native boolean isInterrupted();	// method 12
-  
-  /**
-   * Set the daemon flag. If a thread is a daemon thread its existence will
-   * not prevent a JVM from exiting.
-   */
-//bh  public final native boolean isDaemon();
-//bh  public final native void setDaemon(boolean on);
-  
-private native void nativeSetPriority(int priority);		// method 13
- public final native void join() throws InterruptedException;	// method 14
-//bh  public final native void join(long timeout) throws InterruptedException;
-  //public final  void join(int timeout) 	{
-//jointimeout1(timeout);
-//}
-//public native void jointimeout1(int timeout);//throws InterruptedException;
-
 
  /**
    * Returns a string representation of this thread, including the
@@ -104,7 +104,7 @@ private native void nativeSetPriority(int priority);		// method 13
    *
    * @return a human-readable String representing this Thread
    */
-  public String toString()					// method 15
+  public String toString()					
   {
     return ("Thread " + name + ",Prio: " + priority);
   }
@@ -114,7 +114,7 @@ private native void nativeSetPriority(int priority);		// method 13
    *
    * @return this Thread's name
    */
-  public final String getName()					// method 16
+  public final String getName()					
   {
     return name;
   }

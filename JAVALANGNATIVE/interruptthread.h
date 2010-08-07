@@ -4,6 +4,6 @@
 */
 
 //Lock
-char sei(void);
-char cli(void);
+char static_sei(void);
+char static_cli(void);
 

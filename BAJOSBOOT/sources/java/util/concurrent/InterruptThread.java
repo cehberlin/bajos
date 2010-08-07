@@ -5,9 +5,9 @@ package java.util.concurrent;
  */
 public abstract class InterruptThread extends Thread	{
 
-	public native void sei();
+	public static native void sei();
 
-	public native void cli();
+	public static native void cli();
 
 	public InterruptThread(){
 		setPriority(MAX_PRIORITY);

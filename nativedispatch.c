@@ -28,13 +28,38 @@ const char*	nativeClassNames[] =		{
 			"java/lang/Float"	
 };
 
+/*
+!!!IMPORTANT!!!!
+For every class in array nativeClassNames it is necessary to define a array like below.
+You need to set a function pointer for every native class in the order of the java class.
+For every not native method you must set a !!NULL!! pointer into the array. Also you need
+to set NULL for a not explicit defined default
+constructor.
+
+EXAMPLE
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
+	NULL, // << this is for the default constructor, which is not explicit in the java file
+	nativeCharIn,
+	NULL, here is a some arbitary normal java function in the java class
+	nativeCharOut,
+	nativeExit,
+	currentTimeMillis
+};
+
+After you have written your array, you must set the array into the array at the bottom "funcArray"
+at the corresponding position as in array nativeClassNames
+
+In general it is better to set all native methods at the beginning of the class and explicity define the
+constructor to save ram.
+*/
+
+
 u2 numNativeClassNames=sizeof(nativeClassNames)/sizeof(char*);
 
 #if (LINUX||AVR32LINUX)
 #include "LINUX/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -46,7 +71,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "CHARON/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -70,7 +94,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "ARDUINOMEGA/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -86,7 +109,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "XMEGA/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 /*	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -103,7 +125,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "EVK1100/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,	/* for our board only TXD,RXD works correct on UART0*/
 	nativeCharOut,
 	conStat,
@@ -129,7 +150,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "EVK1104/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,	/* for our board only TXD,RXD works correct on UART0*/
 	nativeCharOut,
 	conStat,
@@ -141,7 +161,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #ifdef NGW100
 #include "NGW100/native.h"
 functionForNativeMethodType functionForNativePlatFormMethod[] = {
-	NULL,
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -152,7 +171,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] = {
 #ifdef STK1000
 #include "STK1000/native.h"
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-	NULL,
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
@@ -186,69 +204,38 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #endif
 
 functionForNativeMethodType functionForNativeStringMethod[] =	{
-	NULL,
-	NULL,
-	NULL,
-	NULL,
 	nativeStringLength,
-	NULL,
 	nativeCharAt
 };
 
 functionForNativeMethodType functionForNativeThreadMethod[] =	{
-	NULL,		// constructor
-	NULL,		// constructor
-	NULL,		// isAlive;
-	NULL,		// run
 	start,
 	yield,
 	sleep,
 	currentThread,
-	NULL,		// getPriority,
-	NULL,		// setPriority,
 	interrupt,
 	interrupted,
 	isInterrupted,
 	nativeSetPriority,
-	join,
-	NULL,
-	NULL
+	join
 };
 
 functionForNativeMethodType functionForNativeFloatMethod[] =	{
-	NULL,
-	NULL,
-	NULL,
 	floatToCharArray,
-	NULL,
-	NULL,
-	NULL,
 	nativeParseFloat,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
 	typeConvert,
 	typeConvert
 };
 
 functionForNativeMethodType functionForNativeObjectMethod[] =	{
-	NULL,
-	NULL,
 	notify,
 	notifyAll,
 	nativeWait,
-	NULL,
 	waitTime,
-	NULL,
 	getDataAddress
 };
 
 functionForNativeMethodType functionForNativeLockMethod[] =	{
-	NULL,//default not visible constructor
 	lock,
 	unlock,
 	tryLock,
@@ -257,8 +244,8 @@ functionForNativeMethodType functionForNativeLockMethod[] =	{
 };
 
 functionForNativeMethodType functionForNativeInterruptThreadMethod[] =	{
-	sei,
-	cli
+	static_sei,
+	static_cli
 };
 
 /* insert array of function pointer*/

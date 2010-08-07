@@ -12,8 +12,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef AVR8 
+#include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>  
+#endif
 #include "../definitions.h"
 #include "../typedefinitions.h"
 #include "../bajvm.h"
@@ -21,9 +24,7 @@
 #include "../classfile.h"
 #include "../scheduler.h"
 #include "../heap.h"
-#ifdef AVR8 
-#include <avr/pgmspace.h>
-#endif
+
 #include "native.h"
 #include "platform.h"
 

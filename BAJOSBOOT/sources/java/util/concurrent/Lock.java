@@ -15,4 +15,6 @@ public class Lock {
 
 	public native static void unlock(Object obj);
 
+	public Lock(){}
+
 }
