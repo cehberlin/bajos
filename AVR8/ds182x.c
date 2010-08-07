@@ -43,531 +43,315 @@
 #ifndef _DEV_BOARD_DS182X_C
 #define _DEV_BOARD_DS182X_C
 
-
 #include "ds182x.h"
 
 /* forward definitions of local functions */
-static void   TM_Write_byte(u_char);
-static u_char TM_Read_byte(void);
-static void   TM_Write_bit(u_char);
-static u_char TM_Read_bit(void);
-static u_char TM_Reset(void);
+static void   writeByte(u_char);
+static u_char readByte(void);
+static void   writeBit(u_char);
+static u_char readBit(void);
+static u_char reset(void);
+void delay(u_char cnt);
+u_char buildCrc(u_char crc, u_char inp);
+u_char searchNext(u_char *ptr);
 
-#if DS_DEBUG
- static void hex_dump (u_char *buf, u_int length);
-#endif
+#define enterCritical()    NutEnterCritical() /* disable all interrupts */
+#define exitCritical()     NutExitCritical()  /* reenable interrupts */
 
-#define TM_Enter_Critical()    NutEnterCritical() /* disable all interrupts */
-#define TM_Exit_Critical()     NutExitCritical()  /* reenable interrupts */
-
-u_char tm_romdta[8*MAX_CHIP];  /* storage to hold memory pattern */
-u_char tm_lst0;                /* last detected zero bit */
-
-/*
- *  TM_Convert_temperature()
- *
+u_char romData[8*MAXCHIP];  /* storage to hold memory pattern */
+u_char lastZero;            /* last detected zero bit */
+/*  	Convert temperature()
  *	This function converts value from raw into an integer data format.
- *	Conversion is chosen based on an 8-bit family code.
- *
+ *	Convqersion is chosegn based on an 8-bit family code.
  *	Assume:	0x10 - DS1820,
- *			0x10 - DS18S20 - software compatible with the DS1820.
+ *		0x10 - DS18S20 - software compatible with the DS1820.
  *	        0x22 - DS1822
  *	        0x28 - DS18B20 - software compatible with the DS1822.
  */
-void TM_Convert_temperature(u_char idx, u_int *temp, u_int *frac)
-{
-	switch(tm_romdta[8*idx])
-	{ case 0x10: if(*temp & 0x01) *frac = 5000; /* 4 decimal char. precision */
-	             else *frac = 0;
-
-				 *temp >>= 1;
-                 break;
-
-	  case 0x22:
-	  case 0x28: *frac = ((*temp & (1 << 3)) ? 10000/(1 << 1) : 0) +
+void convertTemperature(u_char idx, u_int *temp, u_int *frac)	{
+switch(romData[8*idx])					{ 
+	case 0x10: 	if(*temp & 0x01) *frac = 5000;
+/* 4 decimal char precision */
+	             	else *frac = 0;
+			*temp >>= 1;
+                 	break;
+	case 0x22:
+	case 0x28: 	*frac = ((*temp & (1 << 3)) ? 10000/(1 << 1) : 0) +
                          ((*temp & (1 << 2)) ? 10000/(1 << 2) : 0) +
                          ((*temp & (1 << 1)) ? 10000/(1 << 3) : 0) +
                          ((*temp & (1 << 0)) ? 10000/(1 << 4) : 0);
-
-                 *temp >>= 4;
-				 break;
-      default:
-#if DS_DEBUG
-                 printf_P(PSTR("\n\rUnknown family code - %02X.\n\r"), tm_romdta[8*idx]);
-#endif
-				 *temp = 85;
-				 *frac = 0;
-				 break;
-	}
-
-    if(*temp & 0x80)		/* check the sign bit */
-    { *temp &= 0x007F;		/* clear sign bits */
-      *temp |= 0x8000;		/* set sign bit */
-    }
+                 	*temp >>= 4;
+			break;
+	default:	*temp = 85;
+			*frac = 0;			}
+    if(*temp & 0x80)	{	/* check the sign bit */
+      *temp &= 0x007F;		/* clear sign bits */
+      *temp |= 0x8000;	}	/* set sign bit */
 }
 
-/*
- *  TM_Read_temperature()
- *
- *    This function expects a previous call to TM_Search_rom() which
+/*    Read_temperature()
+ *    This function expects a previous call to Search_rom() which
  *    fills an array of ROM patterns of found devices.
- *
  *  Arguments:
  *    idx is index to this array.
- *
  *  Returns:
  *    0xFFFF (-1) Device not present
  *    0x8000      Error during read (improper CRC)
  *    > 0         Temperature value
  */
-u_int TM_Read_temperature(u_char idx)
-{
+u_int readTemperature(u_char idx)	{
     u_char cnt;
     u_char crc;
     u_int temper;
-    u_char temp_buf[9];
-    #define crc_read  ((u_char)temp_buf[8]) /* last byte is CRC */
-
-    #if (DS_DEBUG && MULTI_DEVICE) || MULTI_DEVICE
-     u_char *ptr_tmp = &tm_romdta[8*idx];
-    #endif
-    /*
-    if (*ptr_tmp != 0x22)
-        return -2;          // other device type
-    */
-
-    #if DS_DEBUG && MULTI_DEVICE
-     hex_dump((char *)ptr_tmp, 8);
-    #endif
-
-    TM_Enter_Critical();   /* disable interrupts */
-
-    /* Read previously sampled value ("packet" which last byte is CRC of previous) */
-    if (TM_Reset())
-    { TM_Exit_Critical();   /* reenable interrupts */
-      return -1;            /* device not present (e.g. unplugged) */
-    }
+    u_char tempBuf[9];
+    enterCritical();   /* disable interrupts */
+/* Read previously sampled value ("packet" which last byte is CRC of previous) */
+    if (reset())	{ 
+	exitCritical();		/* reenable interrupts */
+      	return -1;      }      	/* device not present (e.g. unplugged) */
 
     #if !MULTI_DEVICE
-     TM_Write_byte(0xCC); /* skip ROM */
+     writeByte(0xCC); /* skip ROM */
     #else
-     TM_Write_byte(0x55); /* match ROM */
-
+u_char *ptr_tmp=&tm_romdta[8*idx]; //bh
+     writeByte(0x55); /* match ROM */
      cnt = 8;
-     do
-        TM_Write_byte(*ptr_tmp++);
+     do	writeByte(*ptr_tmp++);
      while (--cnt);
     #endif
-
-    TM_Write_byte(0xBE);  /* read Scratch Pad */
-
-    for(cnt=0; cnt <= 8; cnt++) temp_buf[cnt] = TM_Read_byte();
-
-    TM_Exit_Critical();   /* reenable interrupts */
-
+    writeByte(0xBE);  /* read Scratch Pad */
+    for(cnt=0; cnt <= 8; cnt++) tempBuf[cnt] = readByte();
+    exitCritical();   /* reenable interrupts */
     /* check if read byte stream has correct CRC */
-
     crc = 0;
-    for(cnt=0; cnt<sizeof(temp_buf); cnt++) crc = TM_Crc(crc, temp_buf[cnt]);
-
-    #if DS_DEBUG
-     hex_dump((char *)&temp_buf, sizeof(temp_buf));
-    #endif
-
-    temper = ((temp_buf[1] & 0x0F) << 8) | temp_buf[0];
-
-    if (crc)
-    {
-        temper |= 0x8000;    /* return error (conversion can be pending) */
-
-        #if DS_DEBUG
-         printf_P(PSTR("\n\rTM_read - err:%X(%X!=%X) "), temper, crc, crc_read);
-        #endif
-    }
-
+    for(cnt=0; cnt<sizeof(tempBuf); cnt++) crc = buildCrc(crc, tempBuf[cnt]);
+    temper = ((tempBuf[1] & 0x0F) << 8) | tempBuf[0];
+    if (crc) temper |= 0x8000;    /* return error (conversion can be pending) */
     return temper;
 }
 
-/*
- *  TM_Sample_temperature()
- *
+/*	sampleTemperature()
  *    This function initiates temperature conversion.
- *
  *  Arguments:
  *     idx == 0xFF   skip ROM and initiate conversion on all devices
  */
-void TM_Sample_temperature(u_char idx)
-{
-    u_char *ptr_tmp = &tm_romdta[8*idx];
+void sampleTemperature(u_char idx)	{
+    u_char *ptr_tmp = &romData[8*idx];
     u_char cnt;
-
     /* Issue command to sample temperature to be prepared for next read */
-
-    TM_Enter_Critical();     /* disable interrupts */
-
-    TM_Reset();
-
-    if (idx == 0xFF)
-        TM_Write_byte(0xCC); /* skip ROM */
-    else
-    {
-        TM_Write_byte(0x55); /* match ROM */
-
+    enterCritical();     /* disable interrupts */
+    reset();
+    if (idx == 0xFF)	writeByte(0xCC); /* skip ROM */
+    else    		{
+        writeByte(0x55); /* match ROM */
         cnt = 8;
-        do
-            TM_Write_byte(*ptr_tmp++);
-        while (--cnt);
-    }
-
-    TM_Write_byte(0x44);    /* start conversion */
-
-    TM_Exit_Critical();     /* reenable interrupts */
+        do   writeByte(*ptr_tmp++);
+        while (--cnt);	}
+    writeByte(0x44);    /* start conversion */
+    exitCritical();     /* reenable interrupts */
 }
 
 #if !MULTI_DEVICE
-/*
- *  TM_Read_rom()
- *
+/*  Read_rom()
  *    If there is a single device on a 1-wire bus
  *    its ROM code can be read by this function.
- *
  *    If more devices are present logical AND of their ROM will be read.
- *
  *    Currently not used. Will be removed from link automatically.
  */
-u_char TM_Read_rom(u_char *ptr)
-{
+u_char readRom(u_char *ptr)	{
     u_char stat = 0,
            cnt = 8,
            crc = 0,
            *fam_ptr = ptr;
-
-    #if DS_DEBUG
-     printf_P(PSTR("\n\rReading ROM Code\n\r"));
-    #endif
-
-    TM_Enter_Critical();              /* disable interrupts */
-
-    if (!TM_Reset())
-    {
-        TM_Write_byte(0x33);
-
-        do
-          *ptr++ = TM_Read_byte();    /* read ROM code */
+    enterCritical();              /* disable interrupts */
+    if (!reset())	{
+        writeByte(0x33);
+        do  *ptr++ = readByte();    /* read ROM code */
         while(--cnt);
-
-        TM_Exit_Critical();           /* reenable interrupts */
-
+        exitCritical();           /* reenable interrupts */
 	cnt = 8;
   	ptr = fam_ptr;
-
-        do
-          crc = TM_Crc(crc, *ptr++);  /* calculate CRC */
+        do   crc = buildCrc(crc, *ptr++);  /* calculate CRC */
         while(--cnt);
-
-        if ( !crc && *fam_ptr != 0)
-	 stat = 1;                    /* reading successfully finished */
-    }
-    else  TM_Exit_Critical();         /* reenable interrupts */
-
+        if ( !crc && *fam_ptr != 0) stat = 1; /* reading successfully finished */
+    			}
+    else  exitCritical();         /* reenable interrupts */
     return stat;
 }
 #endif
 
-/*
- *  TM_Search_rom()
- *
- *    This function scans all devices up to MAX_CHIP on 1-wire "network".
+/*  Search_rom()
+ *    This function scans all devices up to MAXCHIP on 1-wire "network".
  *    It fills passed array with ROM patterns of found devices.
- *    This array is supposed to be used with TM_Read_temperature().
+ *    This array is supposed to be used with Read_temperature().
  */
-u_char TM_Search_rom(u_char *ptr)
-{
+u_char searchRom(u_char *ptr)	{
     u_char  tm_cnt,   /* number of found devices (thermometers) */
             st;
-    u_char  cnt = MAX_SEARCH;
-
-    memset(ptr, (u_char)0, 8 * MAX_CHIP);
-
-    tm_lst0 = 0;
+    u_char  cnt = MAXSEARCH;
+   memset(ptr, (u_char)0, 8 * MAXCHIP);
+    lastZero = 0;
     tm_cnt = 0;
-
-    do
-    {	   
-        st = TM_Search_next(ptr);
-
-        #if DS_DEBUG
-         printf_P(PSTR("st:%u "), st);
-        #endif
-
-        if (st)
-        {
+    do		{	
+        st = searchNext(ptr);
+        if (st)			{
             tm_cnt++;
-            if ((st == 1) && (tm_cnt < MAX_CHIP))
-            {		
+            if ((st == 1) && (tm_cnt < MAXCHIP))	{		
                 memcpy(ptr + 8, ptr, 8);
-                ptr += 8;
-            }
-        }
+                ptr += 8;	}	}
         else
-        {
-            /*  if 1-wire bus is empty no device responds, this prevents endless loop */
-            if (!--cnt)
-                break;
-        }
-
-    } while ((st != 2) && (tm_cnt < MAX_CHIP));
-
+ /*  if 1-wire bus is empty no device responds, this prevents endless loop */
+            if (!--cnt)       break;
+    		} while ((st != 2) && (tm_cnt < MAXCHIP));
     return (tm_cnt | ((st != 2) ? 0x80 : 0));
 }
 
-/*
- *  TM_Search_next()
- *
+/*  Search_next()
  *    Search for a single device.
  */
-u_char TM_Search_next(u_char *ptr)
-{
-    u_char  i = 0, x = 0, lst_dif = tm_lst0;
+u_char searchNext(u_char *ptr)	{
+    u_char  i = 0, x = 0, lst_dif = lastZero;
     u_char  mask = 0x01;
     u_char  tm_rombit;
-
-	
-    TM_Enter_Critical();    /* disable interrupts */
-
-    
-    if (!TM_Reset()) {		
-        TM_Write_byte(0xF0);	
-    }
-    else
-     {  	
-	TM_Exit_Critical(); /* reenable interrupts */	
-        return 0;
-     }
-
-    ptr--;                          /* adjust pointer to satisfy algorithm within loop below */
-
+    enterCritical();    /* disable interrupts */
+    if (!reset())       writeByte(0xF0);
+    else		{  	
+	exitCritical(); /* reenable interrupts */	
+        return 0;	}
+    ptr--;            /* adjust pointer to satisfy algorithm within loop below */
     while ((i++ < 64) && (x < 3))   /* 8 bytes */
     {
-        if (!((i-1) % 8))
-        {
+        if (!((i-1) % 8))	{
             mask = 0x01;            /* mask within a byte */
-            ptr++;                  /* skip to next byte if 8 bits passed */
-        }
-        else
-            mask <<= 1;             /* next bit */
-
-
-        x = ((u_char)TM_Read_bit()) << 1;
-
-        x |= TM_Read_bit();
-
-        if (!x)
-        {
-            if (i > lst_dif)
-                tm_rombit = 0;
+            ptr++;              }    /* skip to next byte if 8 bits passed */
+        else            mask <<= 1;             /* next bit */
+        x = ((u_char)readBit()) << 1;
+        x |= readBit();
+        if (!x)	{
+            if (i > lst_dif)                tm_rombit = 0;
             else
-            if (i == lst_dif)       /* to device where conflict was last time use 1 now (it was 0 for previous device) */
-                tm_rombit = 1;
-            else
-                tm_rombit = *ptr & mask;
-                                    /* seed with bit value of previously found device */
-
-            if (!tm_rombit)         /* last bit not set position */
-                tm_lst0 = i;
-        }
+            if (i == lst_dif)	tm_rombit = 1;
+/* to device where conflict was last time use 1 now (it was 0 for previous device) */
+            else                tm_rombit = *ptr & mask;
+              /* seed with bit value of previously found device */
+            if (!tm_rombit) lastZero = i;        /* last bit not set position */
+        	}
         else
         #if 0   /* did not worked (against spec ?) */
             tm_rombit = (x & 0x02);  /* or (x & 1) ^ 1 (inverted LSb) */
         #else
             tm_rombit = (x & 1) ^ 1; /* inverted LSb */
         #endif
-
-        if (tm_rombit)
-            *ptr |= mask;
-        else
-            *ptr &= ~mask;
-	
-        TM_Write_bit(tm_rombit);
-    }    
-    TM_Exit_Critical();     /* reenable interrupts */    
-
-    #if DS_DEBUG
-     hex_dump((char *)&tm_romdta, sizeof(tm_romdta));
-    #endif
-
-    return (x == 3) ? 0 : 1 + (lst_dif == tm_lst0);
+        if (tm_rombit)	*ptr |= mask;
+        else		*ptr &= ~mask;
+        writeBit(tm_rombit);
+    }
+    exitCritical();     /* reenable interrupts */    
+    return (x == 3) ? 0 : 1 + (lst_dif == lastZero);
 }
 
-/*
- *  TM_Crc - calculate CRC (Cyclic Redundancy Check) for
+/*	  buildCrc - calculate CRC (Cyclic Redundancy Check) for
  *           Dallas Semiconductor Touch Memory.
  */
-u_char TM_Crc(u_char crc, u_char inp)
-{
+u_char buildCrc(u_char crc, u_char inp)	{
     u_char inp_z = inp,
-           i = 8,
-           carry;
-
-    do
-    {
+           i = 8,  carry;
+    do	{
         inp ^= crc;
         crc >>= 1;
-
-        if (inp & 1)
-        {
+        if (inp & 1)		{
             crc ^= (0x18 >> 1);
-            crc |= 0x80;
-        }
-
+            crc |= 0x80;	}
         carry = inp_z & 1;
         inp_z >>= 1;
-
-        if (carry)
-            inp_z |= 0x80;
+        if (carry)            inp_z |= 0x80;
         inp = inp_z;
-
-    } while (--i);
-
+    	} while (--i);
     return crc;
 }
 
-/*
- *  TM_WRITE_BYTE - writes a byte to the one-wire bus.
- */
-static void TM_Write_byte(u_char val)
-{
+/*  WRITE_BYTE - writes a byte to the one-wire bus. */
+static void writeByte(u_char val)	{
     u_char cnt = 8;
-
-    do
-    {
-      TM_Write_bit ((val & 1));
+    do  	  	{
+      writeBit ((val & 1));
       val >>= 1;
-    } while (--cnt);
+    			} while (--cnt);
 }
 
-/*
- *  TM_READ_BYTE - reads a byte from the one-wire bus.
- */
-static u_char TM_Read_byte(void)
-{
+/*  READ_BYTE - reads a byte from the one-wire bus.*/
+static u_char readByte(void)	{
     u_char cnt = 8;
     u_char value = 0;
-
-    do
-    {
+    do	{
         value >>= 1;
-        value |= (TM_Read_bit()) ? 0x80 : 0x00;         /* read one bit */
-    } while (--cnt);
-
+        value |= (readBit()) ? 0x80 : 0x00;         /* read one bit */
+    	} while (--cnt);
     return value;
 }
 
-/*
- *  TM_WRITE_BIT - writes a byte to the one-wire bus, passed in u_charval.
- */
-static void TM_Write_bit(u_char bitval)
-{
+/*  WRITE_BIT - writes a byte to the one-wire bus, passed in u_charval. */
+static void writeBit(u_char bitval)	{
     sbi(DS_DDR, DQ);        /* set DQ pin direction - output */
     cbi(DS_PORT, DQ);       /* pull DQ low to start timeslot */
-
-COMPRESS_DISABLE;
+COMPRESSDISABLE;
      _NOP();                /* wait 68 ns */
      _NOP();                /* wait 68 ns */
      _NOP();                /* wait 68 ns */
-COMPRESS_REENABLE;
-	 
-    if( bitval ) sbi(DS_PORT, DQ); /* set DQ */
-    else cbi(DS_PORT, DQ);
-
-    TM_Delay(3);            /* hold value for remainder of timeslot */
+COMPRESSREENABLE;
+    if( bitval ) 	sbi(DS_PORT, DQ); /* set DQ */
+    else 		cbi(DS_PORT, DQ);
+    delay(3);            /* hold value for remainder of timeslot */
     sbi(DS_PORT, DQ);       /* DQ = 1 */
-    TM_Delay(1);            /* finish timeslot */
+    delay(1);            /* finish timeslot */
 }
 
-/*
- *  TM_READ_BIT - reads a byte from the one-wire bus.
- */
-static u_char TM_Read_bit(void)
-{
+/*  READ_BIT - reads a byte from the one-wire bus.	*/
+static u_char readBit(void)	{
     u_char val;
-
     sbi(DS_DDR, DQ);        /* set DQ pin direction - output */
     cbi(DS_PORT, DQ);       /* pull DQ low to start timeslot */
-
-COMPRESS_DISABLE;
+COMPRESSDISABLE;
      _NOP();                /* wait 68 ns */
      _NOP();                /* wait 68 ns */
      _NOP();                /* wait 68 ns */
-COMPRESS_REENABLE;
-
+COMPRESSREENABLE;
     sbi(DS_PORT, DQ);       /* then return high DQ = 1 */
-
-    TM_Delay(1);            /* wait 15 us */
-
+    delay(1);            /* wait 15 us */
     cbi(DS_DDR, DQ);        /* set DQ pin direction - input */
     sbi(DS_PORT, DQ);       /* enable AVR internal pull-up resistor */
-
     bit_is_set(DS_PIN, DQ) ? (val = 1) : (val = 0); /* read DQ status */
-
-    TM_Delay(4);            /* wait for end of timeslot */
-
+    delay(4);            /* wait for end of timeslot */
     return val;             /* return value of DQ line */
 }
 
-/*
- *  TM_RESET - the initialization sequence (reset pulse and presence pulse(s)).
- *
+/*  RESET - the initialization sequence (reset pulse and presence pulse(s)).
  *  Note: All transactions on the 1-Wire bus begin with an initialization sequence.
  */
-static u_char TM_Reset(void)
-{
+static u_char reset(void)	{
     u_char presence;
-
     sbi(DS_DDR, DQ);        /* set DQ pin direction - output */
-
     cbi(DS_PORT, DQ);       /* pull DQ line low */
-
-    TM_Delay(32);           /* leave it low for 480us */
-
-                            /* allow DQ line to return high */
+   delay(32);           /* leave it low for 480us */                           /* allow DQ line to return high */
     cbi(DS_DDR, DQ);        /* set DQ pin direction - input */
    // sbi(DS_PORT, DQ);       /* enable AVR internal pull-up resistor */
-
-   // sbi(DS_PORT, DQ);
-    TM_Delay(4);            /* wait for presence */
-
+   delay(4);            /* wait for presence */
                             /* get presence signal */
-
-   if(bit_is_set(DS_PIN, DQ))
-   {
-   presence = 1;
-   }
-   else
-   {
-   presence = 0;
-   }						
+   if(bit_is_set(DS_PIN, DQ))	presence = 1; else presence = 0;
 //    bit_is_set(DS_PIN, DQ) ? (presence = 1) : (presence = 0);
-
-    TM_Delay(20);           /* wait for end of timeslot */
-
+   delay(20);           /* wait for end of timeslot */
     return presence;        /* presence signal returned
                              * 0 = presence, 1 = no part
                              */
 }
 
-/*
- *  TM_Delay()
- *
+/*  delay()
  *  approximately 15us delay - this is vital for DQ !!
  *                             change number of nops to adjust the delay
- *
  */
-void TM_Delay(u_char cnt)
-{
+void delay(u_char cnt)	{
   /* 14,7456 MHz ... 1x nop ... 68 ns */
-
-  #define Delay1us()  _NOP();  \
+  #define delay1us()  _NOP();  \
                       _NOP();  \
                       _NOP();  \
                       _NOP();  \
@@ -581,118 +365,41 @@ void TM_Delay(u_char cnt)
                       _NOP();  \
                       _NOP();  \
                       _NOP()
-
-COMPRESS_DISABLE;
+COMPRESSDISABLE;
   do
-  { Delay1us();       /* 1us */
-    Delay1us();       /* 2us */
-    Delay1us();       /* 3us */
-    Delay1us();       /* 4us */
-    Delay1us();       /* 5us */
-    Delay1us();       /* 6us */
-    Delay1us();       /* 7us */
-    Delay1us();       /* 8us */
-    Delay1us();       /* 9us */
-    Delay1us();       /* 10us */
-    Delay1us();       /* 11us */
-    Delay1us();       /* 12us */
-    Delay1us();       /* 13us */
-    Delay1us();       /* 14us */
-    Delay1us();       /* 15us */
+  { delay1us();       /* 1us */
+    delay1us();       /* 2us */
+    delay1us();       /* 3us */
+    delay1us();       /* 4us */
+    delay1us();       /* 5us */
+    delay1us();       /* 6us */
+    delay1us();       /* 7us */
+    delay1us();       /* 8us */
+    delay1us();       /* 9us */
+    delay1us();       /* 10us */
+    delay1us();       /* 11us */
+    delay1us();       /* 12us */
+    delay1us();       /* 13us */
+    delay1us();       /* 14us */
+    delay1us();       /* 15us */
   }while (--cnt);
-COMPRESS_REENABLE;
+COMPRESSREENABLE;
 }
 
-
-/*
- *  TM_Init()
- *
+/*    init()
  *    This is here to initialize the 1-Wire bus devices.
- *
  *   Returns:
  *    > 0  ...  Number of appeared thermometeres on the 1-Wire bus.
  *      0  ...  Thermometer not present.
  */
-u_char TM_Init(void)
-{
+u_char init(void)	{
   u_char tm_cnt = 0;
-
-  #if !MULTI_DEVICE && DS_DEBUG   
-   TM_Read_rom(&tm_romdta[0]);
-   hex_dump((char *)tm_romdta, 8);
-  #endif
-
-  /* TM_Search_rom() returns 0x80 if thermometer not connected */
- 
-  tm_cnt = 0x7F & TM_Search_rom(&tm_romdta[0]);
-
+  /* Search_rom() returns 0x80 if thermometer not connected */
+  tm_cnt = 0x7F & searchRom(&romData[0]);
   if( tm_cnt )
-  { /* here you can check if TM_Crc() works */
-
-    #if 0
-    { u_char  i, crc = 0;
-
-      for (i = 0; i < 7; i++) crc = TM_Crc(crc, tm_romdta[i]);
-
-      printf_P(PSTR("\ncrc:%X,%X\n"), crc, tm_romdta[7]);
-    }
-    #endif
-
     /* start conversion on all thermometers */   
-   TM_Sample_temperature(0xFF);
-  }
-
+   sampleTemperature(0xFF);
   return tm_cnt;
 }
-
-/*
- *  TM_Scan()
- *
- *    If e.g. 1 thermometer is unplugged this can be called to refresh address table.
- *
- */
-#if 0                     /* function is not currently used */
-void TM_Scan(void)
-{
-  /* TM_Search_rom() returns 0x80 if thermometer not connected */
-  return 0x7F & TM_Search_rom(&tm_romdta[0]);
-}
-#endif
-
-/*
- * Display some debugging information - ascii/hex dump.
- */
-#if DS_DEBUG
-void hex_dump (u_char *buf, u_int length)
-{ u_char abuf[19] = "[                ]\x0";	/* ascii buffer */
-  u_int acnt = 1;								/* ascii counter */
-
-  while(length--)
-  {
-	printf_P(PSTR("%02X "), *buf);
-
-	if(*buf > ' ') abuf[acnt] = *buf;
-	else abuf[acnt] = ' ';
-
-	buf++;
-
-	if(acnt++ == (sizeof(abuf)-3))
-	{ printf_P(PSTR("   %s\n"), abuf);
-   	  acnt = 1;
-	}
-  }
-
-  if(acnt>1)
-  { do
-	{ printf_P(PSTR("   "));
-	  abuf[acnt] = ' ';
-	}while ( acnt++ < (sizeof(abuf)-3) );
-
-    printf_P(PSTR("   %s\n"), abuf);
-  }
-}
-#endif
-
 #endif
 /* ---------------------------- End Of File ------------------------------ */
-
