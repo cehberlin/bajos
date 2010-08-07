@@ -391,9 +391,9 @@ pc+=8;
 #endif
 pc+=12;				
 #ifdef DEBUG
-				for (i=0;i <getU4(c->method_info[n]+8+10);i++)	printf("%2x ",getU1(pc+i));	 //length
+				for (i=0;i <getU4(pc-4);i++)	printf("%2x ",getU1(pc+i));	 //length
 #endif				
-pc+=getU4(c->method_info[n]+8+10);
+pc+=getU4(pc-4);
 etl=getU2(0);
 #ifdef DEBUG
 				printf("\n\t\tCode: exception_table_length: %d\n",etl);		// exception_table	

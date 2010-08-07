@@ -642,15 +642,13 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			pc+= (s2)BYTECODEREF-1;
 
 		CASE	JSR:
-			DEBUGPRINTLN1("jsr (not tested)");	// mb, jf
-			// not tested because no exceptions implemented yet 14.12.2006
-			// the opcode of athrow is required
+			DEBUGPRINTLN1("jsr");	// mb, jf
 			opStackPush(( slot)(u4)(pc+2));
-			pc += (s2)BYTECODEREF;
+			pc += (s2)BYTECODEREF - 1;
 
 		CASE	RET:
-			DEBUGPRINTLN1("ret (not tested)");	// mb, jf
-			pc = opStackGetValue(local+getU2(0)).UInt+getStartPC();
+			DEBUGPRINTLN1("ret");	// mb, jf
+			pc = opStackGetValue(local+getU1(0)).UInt;
 
 		CASE	TABLESWITCH:
 			DEBUGPRINTLN1("tableswitch");	// mb, jf
