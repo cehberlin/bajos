@@ -1,5 +1,4 @@
 package java.lang;
-//bh
 import java.io.*;
 import platform.*;
 //import java.graphics.*;
