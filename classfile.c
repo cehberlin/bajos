@@ -60,8 +60,6 @@ u1 findMain()			{
 		if (findMethodByName("main",4,"([Ljava/lang/String;)V",22)==1) return 1;	
 	return 0;		}
 
-u1 findNumFields()	{	return getU2(cs[cN].fields_count);	}
-
 u1 findNumArgs(u2 methodRef)	{	//  count BCDFIJLSZ in runden Klammern!!
 	u2 i;
 	u2 n=0;
@@ -93,7 +91,7 @@ u2	findMaxLocals()	{	//cN,mN
 u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDescr,u1 fieldDescrLength)	{
 	fNO=0;
 	do	{
-		u1 numFields = findNumFields();
+		u1 numFields = getU2(cs[cN].fields_count); 
 		for(fNC = 0 ; fNC < numFields ; ++fNC) {
 			u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)];
 			u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 4)];
@@ -110,16 +108,16 @@ u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDe
 	return 0;
 }
 
-u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNameLength, char* methodDescr,u1 methodDescrLength)		{ 
+u1 findMethod(const char* className, const u1 classNameLength, const char* methodName, const u1 methodNameLength, const char* methodDescr, const u1 methodDescrLength)		{ 
 //in cN, out: cN, mN
 // rekursiv bis Objekt
 	if (!findClass(className,classNameLength)) 					{
-		errorExit(-1, "kann nicht sein die klasse gibts nicht!! %c", className);	}// out: cN
+		CLASSNOTFOUNDERR(className);	}// out: cN
 	if (findMethodByName(methodName,methodNameLength,methodDescr,methodDescrLength))
-			return cN;
+			return 1;
 	else	
-		if (strncmp("java/lang/Object",(char*)className,classNameLength)==0) 		{
-			errorExit(-1, "kann nicht sein die methode gibts nicht!!: cN mN: %d %d %c ",cN,mN, methodName);	
+		if (classNameLength == 16 && strncmp("java/lang/Object",className,classNameLength)==0) 		{
+			return 0; // not found
 		} else 
 			return findMethod(	getAddr(CP(cN,getU2(CP(cN,  
 						getU2(cs[cN].super_class))+1))+3),
@@ -131,7 +129,7 @@ u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNa
 						methodDescrLength);
 }
 
-u1 findMethodByName(const char* name, u1 len, const char* methodDescr, u1 methodDescrLength)	{
+u1 findMethodByName(const char* name, const u1 len, const char* methodDescr, const u1 methodDescrLength)	{
 //  in: classNumber cN, out: methodNumber mN
 // non recursiv
 	for (mN=0; mN < getU2(cs[cN].methods_count); mN++)		
@@ -163,7 +161,7 @@ u1 findSuperClass()	{
 			printf("%c",*(char *)((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3))+_i));
 			 }
 */
-if (strncmp("java/lang/Object",getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1))==0)
+if (16 == getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1) && strncmp("java/lang/Object",getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3), 16)==0)
 { //printf("wars\n");
 return 0; // cN is class Object 
 }

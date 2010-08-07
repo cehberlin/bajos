@@ -121,8 +121,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #if (AVR32LINUX||LINUX||AVR8)
     classFileBase=(u1*)malloc((size_t) MAXBYTECODE);
     if (classFileBase==NULL) {
-        printf("malloc error while trying to allocate %d bytes for class files.\n", MAXBYTECODE);
-        exit(-1);
+        MALLOCERR(MAXBYTECODE, "class files");
     }
 
 	// Platz fuer classfiles -> fixed size

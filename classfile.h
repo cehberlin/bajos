@@ -20,14 +20,13 @@ u1 findClass(const char* name,u1 len);
 u1 findSuperClass();
 u1 findNumArgs(u2 method);
 u2 findMaxLocals();	//mb jf
-u1 findNumFields();
 u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDescr,u1 fieldDescrLength);
 u1 findMain();
-u1 findMethod(char* className, u1 classNameLength,
-		char* methodName, u1 methodNameLength,
-		char* methodDescr,u1 methodDescrLength);
-u1 findMethodByName(	const char* name,u1 len,
-			const char* methodDescr,u1 methodDescrLength);
+u1 findMethod(const char* className, const u1 classNameLength,
+		const char* methodName, const u1 methodNameLength,
+		const char* methodDescr, const u1 methodDescrLength);
+u1 findMethodByName(	const char* name, const u1 len,
+			const char* methodDescr, const u1 methodDescrLength);
 u1* findMethodByMethodNumber();	// mb jf
 
 u2	getStartPC();

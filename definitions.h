@@ -51,8 +51,12 @@
 #define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
 #define ILLEGALMONITORSTATEEXCEPTION raiseExceptionFromIdentifier("java/lang/IllegalMonitorStateException", 38)
 
-#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n");
-
+#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
+#define CLASSNOTFOUNDERR(classname) errorExit(-3, "Class '%s' not found.\n", classname)
+#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
+#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
+#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)
+#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)
 
 #define PRINTSTRING(p,l) {\
 			int _i;\

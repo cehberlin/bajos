@@ -20,7 +20,7 @@ static u2* 	methodSp;
 void opStackInit(slot** m)	{		// per thread, fixed size 
 #if (LINUX||AVR8||AVR32LINUX)
 	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL)
-			errorExit(-1,"op stack malloc error\n");			
+			MALLOCERR(OPSTACKSIZE * sizeof(slot), "op stack");			
 #else
 // classfiles - heap - (opstack methodstack)/ per thread
 //make it better
@@ -50,7 +50,7 @@ void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}
 void methodStackInit(u2** m)	{
 #if (LINUX||AVR8||AVR32LINUX)
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL)
-				errorExit(-1,"method stack malloc error\n");
+			MALLOCERR(METHODSTACKSIZE * sizeof(u2), "method stack");			
 #else
 *m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
 #endif

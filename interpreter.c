@@ -738,7 +738,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
 
 			if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-				errorExit(-27, "field '%s' not found\n", fieldName);
+				FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
 			// got position in constant pool --> results in position on heap
 			DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
@@ -768,7 +768,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			          getU2(CP(cN,getU2(CP(cN,
 			                               getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 			if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-				errorExit(-27, "field '%s' not found\n", fieldName);
+				FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
 
 			heapSetElement(opStackPop(), cs[cN].classInfo.stackObj.pos+/*i*/fNC+1);//opStackPop().UInt+i+1);
@@ -801,7 +801,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 
 			cN=first.stackObj.classNumber;
 			if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-				errorExit(-27, "field '%s' not found\n", fieldName);
+				FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
 			opStackPush(( slot)heapGetElement(first.stackObj.pos +fNO/*count+ i*/ +1).Int);//bh2007!!!!!!!
 			pc += 2;
@@ -844,7 +844,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 
 					cN=second.stackObj.classNumber;
 					if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-						errorExit(-27, "field '%s' not found\n", fieldName);
+						FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 					}
 					// jetzt hab ich alles
 					// den Typ
@@ -894,7 +894,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 				if (opStackGetValue(local).stackObj.magic==CPSTRINGMAGIC)	{
 					if (!findClass("java/lang/String",16))
 					{
-						errorExit(-4, "string calls error\n");
+						CLASSNOTFOUNDERR("java/lang/String");
 					}
 				}
 				else
@@ -908,7 +908,10 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 				classNameLength = getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1);
 			}
 			DEBUGPRINTLNSTRING(className,classNameLength);
-			cN = findMethod(className,classNameLength,methodName,methodNameLength,methodDescr,methodDescrLength);	// out cN,mN
+			if(!findMethod(className,classNameLength,methodName,methodNameLength,methodDescr,methodDescrLength)) {
+				METHODNOTFOUNDERR(methodName, className);
+			}
+				
 			opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
 			if (getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 				if ( HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
@@ -968,8 +971,9 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			methodNameLength=getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+1);
 			methodDescr = (char*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
 			methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
-			findMethod(	className,classNameLength,methodName,methodNameLength,
-			            methodDescr,methodDescrLength);
+			if(!findMethod(className,classNameLength,methodName,methodNameLength,methodDescr,methodDescrLength)) {
+				METHODNOTFOUNDERR(methodName, className);
+			}
 			DEBUGPRINTLNSTRING(methodName,methodNameLength);
 			DEBUGPRINTLNSTRING(className,classNameLength);
 			opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
@@ -1090,18 +1094,18 @@ nativeVoidReturn:
 			{
 				mN = methodStackPop();
 				cN = methodStackPop();
-				errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
+				CLASSNOTFOUNDERR((char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
 			}
 //printf("NEW find class in Constantpool: %x",cN);
 			methodStackPush(cN);
-			fNO=findNumFields();
-			while (findSuperClass()) fNO+=findNumFields();
+			fNO= getU2(cs[cN].fields_count);
+			while (findSuperClass()) fNO+=getU2(cs[cN].fields_count);
 // all fields of class and super classes on heap
 //printf("count %d %d\n",count,cN);
 			cN=methodStackPop();
 //printf(" Gesamt heap slots %x \n", count);
-//count=findNumFields();
-			heapPos=getFreeHeapSpace(fNO/*count findNumFields()*/+ 1);// + marker
+//count=getU2(cs[cN].fields_count);
+			heapPos=getFreeHeapSpace(fNO/*count getU2(cs[cN].fields_count)*/+ 1);// + marker
 			first.stackObj.pos=heapPos;
 			first.stackObj.magic=OBJECTMAGIC;
 			first.stackObj.classNumber=cN;
@@ -1114,7 +1118,7 @@ nativeVoidReturn:
 			HEAPOBJECTMARKER(heapPos).mutex = MUTEXNOTBLOCKED;
 //						HEAPOBJECTMARKER(heapPos).waitSetNumber = NUMWAITSETS;		// NULL
 
-			j=findNumFields();
+			j=getU2(cs[cN].fields_count);
 			for (i=0; i< fNO; i++)		// check access flag
 //							if(getU2( cs[cN].field_info[i]) != ACC_STATIC)	// if not static field, initialize with 0
 				heapSetElement((slot)(u4)0, heapPos+i+1); // initialize the heap elements
@@ -1290,7 +1294,7 @@ nativeVoidReturn:
 					methodStackPush(cN);
 					methodStackPush(mN);
 					if (!findClass(classname, len)) {
-						errorExit(-3, "class '%s' not found.\n", classname);
+						CLASSNOTFOUNDERR(classname);
 					}
 					u2 target = cN;
 					cN = first.stackObj.classNumber;
@@ -1355,7 +1359,7 @@ nativeVoidReturn:
 					methodStackPush(cN);
 					methodStackPush(mN);
 					if (!findClass(classname, len)) {
-						errorExit(-3, "class '%s' not found.\n", classname);
+						CLASSNOTFOUNDERR(classname);
 					}
 					u2 target = cN;
 					cN = first.stackObj.classNumber;
@@ -1509,10 +1513,10 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 
 	// Create a class of the given type
 	if (findClass(identifier, length) == 0) {
-		errorExit(-1, "cannot find and therefore not raise %s\n", identifier);
+		CLASSNOTFOUNDERR(identifier);
 	}
 
-	heapPos = getFreeHeapSpace(findNumFields()+ 1);	// + marker
+	heapPos = getFreeHeapSpace(getU2(cs[cN].fields_count) + 1);	// + marker
 	first.stackObj.pos=heapPos;
 	first.stackObj.magic=OBJECTMAGIC;
 	first.stackObj.classNumber=cN;
@@ -1521,13 +1525,13 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 	HEAPOBJECTMARKER(heapPos).status = HEAPALLOCATEDNEWOBJECT;
 	HEAPOBJECTMARKER(heapPos).magic = OBJECTMAGIC;
 	HEAPOBJECTMARKER(heapPos).mutex = MUTEXNOTBLOCKED;
-	j=findNumFields();
+	j=getU2(cs[cN].fields_count);
 	for (i=0; i< j; i++) {
 		heapSetElement((slot)(u4)0, heapPos+i+1);
 	}
 
 	/*	if (!findMethodByName("<init>", 6, "()V", 3)) {
-			errorExit(-1, "cannot find <init> in %s\n", identifier);
+			METHODNOTFOUNDERR("<init>", identifier);
 		}
 	printf("running <init> of %s\n", identifier);
 		methodStackPush(pc);
@@ -1596,7 +1600,7 @@ void handleException() {
 	if (methodStackEmpty())	{
 		DEBUGPRINTLN1("we are thru, this was the top frame");
 		cN = classNumberFromPushedObject;
-		errorExit(-1, "unhandled %s\n", (char *) getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
+		UNHANDLEDEXCEPTIONERR((char *) getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
 	} else {
 		DEBUGPRINTLN1("popping stack frame");
 		first=opStackPop();
