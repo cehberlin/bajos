@@ -198,6 +198,13 @@ for (;len >=0; --len) ca[len]=charAt(len);
 		return new String(characters, beginIndex, endIndex - beginIndex);
 	}
 
+	public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
+		if (srcBegin < 0 || srcBegin > srcEnd || srcEnd > length() || dstBegin < 0 || dstBegin+(srcEnd-srcBegin) > dst.length) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+    System.arraycopy (characters, srcBegin, dst, dstBegin, srcEnd - srcBegin);
+	}
+
 	public String concat(String str) {
 		int olen = str.length();
 		if (olen  == 0)
