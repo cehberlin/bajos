@@ -35,8 +35,8 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 };
 #endif
 
-#ifdef AVR8
-#include "AVR8/native.h"
+#ifdef CH
+#include "CHARON/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
@@ -52,11 +52,25 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeSetBarGraph,
 	nativeGetDIL,
 	nativeSetPort,
-	nativeSetIOPort,
-	nativeGetPort,
-	nativeGetIOPort
+	nativeGetPort
 };
 #endif
+
+#ifdef AM
+#include "ARDUINOMEGA/native.h"
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
+	NULL,
+	nativeCharIn,
+	nativeCharOut,
+	nativeExit,
+	currentTimeMillis,
+	nativeConStat,
+	nativeSetPort,
+	nativeGetPort
+};
+#endif
+
 
 #ifdef EVK1100
 #include "EVK1100/native.h"
