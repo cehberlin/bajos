@@ -1,26 +1,25 @@
-23.11.08 
+15.6.09
 BAJOS is a run-time environment for microcontroller. It consists of BAJVM, a Java Virtual Machine
-and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system.
+and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system. BAJOS is a development of HWR-Berlin, faculty of Company-Linked Programs, department for informatics. See the file "license.terms" for information on usage and redistribution.
 The system has been tested for 8 Bit and 32 AVR controllers on different development boards and works under Linux on PC or Linux for Embedded Systems.
 Installation of Bajos requires:
 	- C-compiler (gcc) on a cross development PC
 	- (serial) interface between PC and development board for programming and interaction
-	- at least 80 kbyte program memory on the controller board
-	- at least 4 kbyte data memory on the controller board
+	- at least 80 kByte program memory on the controller board
+	- at least 4 kByte data memory on the controller board
 Boot classes in BAJOSBOOT include necessary classes of the JVM-specification, other useful system
 classes as well as the class PlatForm.java for binding the run time environment to the hardware
 configuration.
 
-BAJOS is developed under Suse10.3 with the atmel tools for Suse10.1 and drivers from 
-STK1000_NGW_BSP_CD_Image_2.0.0. Newer AVR32-software releases require cumbersome adaptations because the company-specific driver examples are permanently changed. The C-compiler and the linker for AVR32 processors currently work with the tight internal ram. Memories for classfiles, heap, stack,.. are hard wired with the external ram.
+BAJOS version 0.4 is developed and compiled under Suse11.0 with the atmel tools for Suse11.0 and avr32studioV2.1.2.  BAJOSVers.04 has a revised native code interface and target specific files are now located in target specific directories. A class Graphics.java is added to the bootclasses for the lcd-display on the STK1000-board. The C-compiler and the linker for AVR32 processors currently work with the tight internal ram. Memories for classfiles, heap, stack,.. are hard wired with the external ram.
 Every variant allows the interaction with a terminal program (RS232-serial communication) after starting.
 
 GOALS OF BAJOS
-The main motivation for developing BAJOS is to create an open source software for education of computer science students at an advanced technical college. Students are to be able to translate the theroretical knowledge in pratical exercises. Java is appropiate for that particularly because the java run time environment includes elements of operating systems and the java specification lets students go way for creative ideas here. The combination of application software development in java, the programming of the jvm and native code device drivers in C/C++, the use of gnu development tools, the working in groups for an extensive software system and the use of an version control system under linux prepare the students for their job as software developers.
+The main motivation for developing BAJOS is to create an open source software for education of computer science students at an advanced technical college. Students are to be able to translate the theoretical knowledge in practical exercises. Java is appropriate for that particularly because the java run time environment includes elements of operating systems and the java specification lets students go way for creative ideas here. The combination of application software development in java, the programming of the jvm and native code device drivers in C/C++, the use of gnu development tools, the working in groups for an extensive software system and the use of an version control system under linux prepare the students for their job as software developers.
 
 FEATURES AND LIMITS OF BAJOS
 BAJOS contains a byte code interpreter, exception handling, multithreading and the
-java synchonization mechanism, a garbage collected heap and a native code interface.
+java synchronization mechanism, a garbage collected heap and a native code interface.
 Currently BAJOS is based or better "inspired" on the JVM-specification (nowtoday only < version 1.6)
 with exceptions and limits. 
 Known differences are:
@@ -51,12 +50,11 @@ Classfiles -compiled on external machines- can be included.
 
 HISTORY
 The project is used in an academic environment for a deeper understanding of
-lectures in C++/java-programming, unix-system programming ,embedded systems and operating systems.
+lectures in C++/Java-programming, unix-system programming ,embedded systems and operating systems.
 First version was created in 2006 for PC-linux and quickly ported for atmega128
 (development board CharonII with 32 kbyte ram and mica2dot only with internal flash/ram).
 Since 2007/08 BAJOS works on the AVR32 processors UC3A (stand alone application) and AP7000
-(stand alone and linux). Currently a graphical library is adapted for the
-lcd graphic display on the stk1000 development board.
+(stand alone and linux).
 BAJOS is used currently for controlling of peripheral equipment of embedded systems.
 It is planned to improve the binding of BAJOS at the AVR32 development boards, the processing
 of java 1.6 compiled classfiles, the porting to other processor architectures, to improve
@@ -67,7 +65,7 @@ PREPARATIONS ON PC
 Installation of the GNU-C-development tools for the platform.
 The actual BAJOS-version was compiled under Suse10.3 for AVR8 with the Tools shipped by Suse
 and for AVR32 with the atmel tools for Suse10.1. Later software versions require
-BAJOS software adjustment.
+BAJOS software (especially hardware drivers) adjustment.
 The bootclasses are compiled with Sun's java.
 Unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8, evk1100, stk1000, ngw100, linux, avr32-linux) in the BAJOS directory
 #>make clobber target				// clean all objects and executable
@@ -75,34 +73,64 @@ Unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8,
 #>make clean debug compile verbose target 	// generate target executable for debugging
 #>make all target				// generate executable and bootclasses
 
-PREPARATION OF DEVELOPMENT BOARD
+TESTING ON LINUX-PC
+#> make all linux
+generates the virtual machine executable bajvm and in BAJOSBOOT/classes the boot/system-classes.
+#> make compPC linux  # PC stands here for ProducerConsumer
+generates e.g. the application class ProducerConsumer.class (and Buffer.class) compiled against the bajos boot classes.
+#> make PC linux
+starts the virtual machine, loads the boot classes and loads and executes the application classes.
+It is also possible to work with "professional" java:
+javatests#> javac ProducerConsumer.java
+javatests#> java ProducerConsumer
+
+PREPARATION OF DEVELOPMENT BOARDS
 CHARONII WITH ATMEGA128
 We use the monitor program bamo128 (cs.ba-berlin.de). This monitor is burned in flash
 with uisp in the upper boot section (4kwords a 16 bit) at 0xF000 (word address).
+You can load with bamo128 programs and data ind the flash.
+Connect the CharonII (or equivalent board) with the PC over a serial communication line.
 For te atmega128 we store all classfiles in the ram, because the data acces to the flash
-is to slowly. You can generate with:
-#>make bootclasses avr8
-a file "avr8bootclasses", which is used for upload the atmega128 with the bootclasses.
+is to slowly. You can on the PC generate with:
+#>make all avr8
+the virtual machine bajvm.bin for the atmega128 processor and a file "avr8bootclasses" (all bootclasses in one file), a small subset of bootclasses, which is used for upload the CharonII with the bootclasses.
+#> make compCharon avr8
+generates in javatests e.g. the application class Charon.class (from Charon.java).
 With minikermit on the PC (cs.ba-berlin.de) you can now load with ISP-programming and
-the w-command of bamo128 the compiled BAJVM in the atmega128 flash memory (address 0x80 in words).
+the w-command of bamo128 the compiled bajvm.bin in the atmega128 flash memory (address 0x0000 )
+BAMo128 #> w.
+name of cob (bin) -file for uploading:
+type now "bajvm.bin"
 Then with
-#>g 80
-you start BAJOS, which loads on prompt request the boot/system classes "avr8bootclasses" and applications classes in data ram und executes your java program. Primary interaction is with PC-minikermit.
-In the atmega128 environment the classfiles are stored in the data-RAM (4k for atmaga Ram only and
-32k for the CharonII). The adjustment of BAJVM for the memory limits is carried out
-in limits.h before compiling.
+BAMo128 #>g		# starts at address 0x0000
+you start bajvm. Now follow the instructions for loading "avr8bootpack" and the application class "javatests/Charon.class".
+Primary interaction is with PC-minikermit. In the atmega128 environment the classfiles are stored in the data-RAM (4k for atmega Ram only and 32k for the CharonII). The adjustment of BAJVM for the memory limits is carried out in limits.h before compiling.
 
-EVK1000, STK1000 AND NGW100 WITH AVR32UC3A/AR32AP7000
+STANDALONE BAJOS on EVK1100, STK1000 AND NGW100 WITH AVR32UC3A/AR32AP7000
 BAJOS and the boot/systemclasses are written here with a programming adapter (JTAG interface)
 in the internal/external flash memory.
 The application classes are loaded after starting of BAJOS in the external RAM.
-#>make program target (target: evk1100, ngw100, stk1000)
-loads and starts BAJVM and the bootclasses.
-The application classes you can load in a x-terminal program after starting of minikermit (cs.ba-berlin.de) form the command line.
+#>make all target (target: evk1100, ngw100 or  stk1000)
+compiles and loads BAJVM and the bootclasses on the target system.
+#>make compEVK1100 evk1100
+compiles e.g. the application javatests/EVK1100.java against the bajos-bootclasses for the EVK1100 board.
+Now start minikermit (cs.ba-berlin.de) on PC and reset the target system, bajvm runs.
+Then you can load the application classes from the command line.
 After this starts the java program execution with the main interaction over the terminal program. 
 
+BAJOS FOR AVR32-LINUX ON NGW100 OR STK1000
+#> make all avr32-linux
+generates on PC the executable bajvm.
+#> make compPC avr32-linux
+generates e.g. the application classes ProducerConcumer.class and Buffer.class in dir jajatests.
+Copy bajvm, all needed bootclasses (have a look at the Makefile for bootclasses) from BAJOSBOOT/classes (do not forget Plattfom.class) and the application class on a SD-card.
+Connect the PC with the avr-linux running target hardware with a terminal program  (e.g. minikermit), boot
+avr32-linux and change to the SD card directory.
+Start from terminal the virtual machine and the application class. 
+##> ./bajvm *.class
+
 PORTING ON OTHER TARGET PLATFORMS
-We have ported BAJOS on 8 Bit up to 64 Bit processors with little endian/big endian data memory access. Therefore it seems to have not a great effort to port BAJOS on other platforms with the indiceted
+We have ported BAJOS on 8 Bit up to 64 Bit processors with little endian/big endian data memory access. Therefore it seems to have not a great effort to port BAJOS on other platforms with the indicated
 memory equipment and a C-compiler. Adaptations are to be carried out in the files:
 native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefinitions.h
 These are in the first row related to the memory partioning and the serial communication line binding.

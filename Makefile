@@ -137,12 +137,18 @@ BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
 AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
 		$(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
-UC3ASOURCES 	= $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
+
+UC3ASOURCES	= $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c 
+
+ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
+else
+UC3ASOURCES+=   $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
 		$(APPPATH)EVK1100/rtc.c $(APPPATH)EVK1100/pwm.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
-		$(APPPATH)EVK1100/gpio.c $(APPPATH)EVK1100/adc.c\
-		$(APPPATH)EVK1100/flashc.c $(APPPATH)EVK1100/usart.c \
-		$(APPPATH)EVK1100/sdramc.c $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c
+		$(APPPATH)EVK1100/adc.c\
+		$(APPPATH)EVK1100/flashc.c $(APPPATH)EVK1100/sdramc.c \
+		$(APPPATH)EVK1100/gpio.c $(APPPATH)EVK1100/usart.c 
+endif
 NGW100SOURCES	= $(APPPATH)NGW100/pio.c $(APPPATH)NGW100/intc.c \
 		$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/pm_at32ap7000.c \
 		$(APPPATH)NGW100/usart.c \
@@ -155,8 +161,12 @@ STK1000SOURCES	= $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1
 		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
-ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S \
-		$(APPPATH)/EVK1100/crt0.S
+
+ASSSOURCESUC3A	= $(APPPATH)/EVK1100/crt0.S
+ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
+else
+ASSSOURCESUC3A+= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S
+endif
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
@@ -255,7 +265,7 @@ ifeq  ($(TARGETHW), avr32-linux)
 OBJFILES	= $(BAJOSSOURCES:.c=.o) $(LINUXSOURCES:.c=.o) 
 CC		= $(AVR32LINUXGCC)
 CPPFLAGS	= -DAVR32LINUX
-all: clean compile bootpack 
+all: clean compile bootclasses
 
 
 bootpack:
@@ -267,7 +277,7 @@ else
 bootpack:
 	@:
 
-all: clean compile bootclasses  bootpack 
+all: clean compile bootclasses
 
 endif
 
@@ -309,7 +319,14 @@ ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 #LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 DEFS+= -D WITHMON
 LINKER_SCRIPT = $(APPPATH)EVK1100/link_uc3a0512withmon.lds
+# Extra flags to use when linking
+#LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections   -nostartfiles
 else
+# Extra flags to use when linking
+#LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
+
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 endif
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
@@ -321,9 +338,6 @@ DEBUG		= -g
 # Options that control optimization: [-O[0|1|2|3|s]]...
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
 OPTIMIZATION	= -O3 -ffunction-sections -fdata-sections
-# Extra flags to use when linking
-#LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
-LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
 
 CPPFLAGS	= -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
             $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
@@ -378,13 +392,12 @@ program: $(TARGETFILE)
 	sleep 2
 
 progbootpack:
-	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
-	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
-	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80040000,512Kb -cxtal -v -R mytemp
+	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
+	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
+	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80040000,512Kb -cxtal -v -R avr32bootpack
 	@$(SLEEP) $(SLEEPUSB)
-endif
-# endif evk1100
-#	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  #-finternal@0x80000000,512Kb -cxtal -e -v -R $(BOOTPACK)
+endif # endif evk1100
+
 
 
 ifeq  ($(TARGETHW), ngw100)
@@ -459,11 +472,11 @@ program:
 	$(VERBOSE_CMD) $(PROGRAM)   $(JTAG_PORT)  halt
 	sleep 3
 	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TARGETFILE).bin
-	@printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
-	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
+	@printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
+	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R mytemp
-	@rm mytemp
+	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R avr32bootpack
+	@rm avr32bootpack
 
 
 #	$(VERBOSE_CMD) $(PROGRAM)   run
@@ -795,12 +808,12 @@ compADC:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/ADC.java
 
-Intp:	 
-	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/IntpTest.class
+Interpreter:	 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/InterpreterTest.class $(APPCLASSPATH)/InpTest.class $(APPCLASSPATH)/ParamTest.class
 
-compIntp:
+compInterpreter:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
-		$(APPCLASSPATH)/IntpTest.java
+		$(APPCLASSPATH)/InterpreterTest.java
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES
