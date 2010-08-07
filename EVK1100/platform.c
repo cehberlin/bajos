@@ -27,25 +27,26 @@
 
 
 #define INT0          0 //!< Lowest interrupt priority level.
-
-
-#  define EXAMPLE_GCLK_ID             0
-#  define EXAMPLE_GCLK_PIN            AVR32_PM_GCLK_0_1_PIN
-#  define EXAMPLE_GCLK_FUNCTION       AVR32_PM_GCLK_0_1_FUNCTION
+#define EXAMPLE_GCLK_ID             0
+#define EXAMPLE_GCLK_PIN            AVR32_PM_GCLK_0_1_PIN
+#define EXAMPLE_GCLK_FUNCTION       AVR32_PM_GCLK_0_1_FUNCTION
 
 
 // usart0 for terminal weiter rechts von sv
 void initHW()	{
+#ifndef WITHMON
 // pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
 /* start PLL0 and switch main clock to PLL0 output */
 /* Also set-up a generic clock from PLL0 and output it to a gpio pin. */
+//On EVK1100, check GCLK0 pin with an oscilloscope, the frequency should be 48MHz. On EVK1100, GCLK_0 is pin number //51 (PB19) Since LED5 is also on PB19, you should also see LED5 turn red.
 	local_start_pll0(&AVR32_PM);
 /* Now toggle LED0 using a GPIO */
 	gpio_tgl_gpio_pin(LED0_GPIO);
 	software_delay();
 	usart1Init();		// 1200 baud
-	usart0Init();		//bhnot with monitor
-	stdIOInit(); 		//bhnot with monitor
+	usart0Init();		//bh not with monitor
+	stdIOInit(); 		//bh not with monitor
+#endif
 static const gpio_map_t DIP204_SPI_GPIO_MAP =		{
     {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  // SPI Clock.
     {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  // MISO.
@@ -86,11 +87,10 @@ spi_enable(DIP204_SPI);		// Enable SPI
 spi_setupChipReg(DIP204_SPI, &spiOptions, 4*FOSC0); //bh setup chip registers
 
   // configure local push buttons
-  dip204_example_configure_push_buttons_IT();
+//dip204_example_configure_push_buttons_IT();
 
   // configure local joystick
-  dip204_example_configure_joystick_IT();
-
+//dip204_example_configure_joystick_IT();
 dip204_init(backlight_PWM, TRUE);	// initialize LCD 
 dip204_set_cursor_position(1,1);	// Display default message.
 dip204_write_string("That writes for you ");
@@ -101,21 +101,10 @@ dip204_write_string("FWR-BA EVK1100");
 dip204_set_cursor_position(1,4);
 dip204_write_string("now BAJOS please:");
 //dip204_hide_cursor();
-/**/
-/*
-dip204_init(backlight_PWM, TRUE);	// initialize LCD 
-dip204_set_cursor_position(7,1);	// Display default message.
-dip204_write_string("FWR-BA");
-dip204_set_cursor_position(1,2);
-dip204_write_string("EVK1100-AVR32 UC3A");
-dip204_set_cursor_position(8,3);
-dip204_write_string("BAJOS");
-dip204_set_cursor_position(3,4);
-dip204_write_string("Informatik");
-//dip204_hide_cursor();
-*/
 initTimer();
+#ifndef WITHMON
 sdramc_init(48000000);//FOSC0) bh not with monitor
+#endif
 }
 
 
@@ -647,3 +636,7 @@ void local_start_pll0(volatile avr32_pm_t* pm)
   pm_switch_to_clock(pm, AVR32_PM_MCSEL_PLL0); /* Switch main clock to 48MHz */
 }
 
+void exit(int status)	{
+char* startAddr=(char*)0x80020000;
+goto *startAddr;
+}

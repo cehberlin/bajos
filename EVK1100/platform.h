@@ -24,7 +24,6 @@ void usart1Init();
 void initHW();
 
 
-
 void local_start_pll0(volatile avr32_pm_t* pm);
 static void software_delay(void);
 __attribute__((__interrupt__))	static void compare_irq_handler(void);
@@ -32,3 +31,5 @@ void dip204_example_configure_push_buttons_IT(void);
 void dip204_example_configure_joystick_IT(void);
 void dip204_example_configure_push_buttons_IT(void);
 
+
+void exit(int status);
