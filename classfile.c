@@ -30,9 +30,9 @@ extern functionForNativeMethodType functionForNativePlatFormMethod[];
 /* RAMPZ = 1 (ever) -> classfiles are in te upper half of flash */
 /* address of classfile byte in flash 0x0000 to 0xffff */
 /* eg. address 0x2345 means byte in flash at address (binary):1001000110100101 */
-extern u1 getU1Flash(u2 pos);
+extern u1 getU1Flash(u1* pos);
 u1 getU1(u2 pos)	{ 
-  return getU1Flash(CLASSSTA + ((pos==0) ? (pc++) : pos));
+  return getU1Flash((u1*)(CLASSSTA + ((pos==0) ? (pc++) : pos)));
 }
 #else
 /* classSTA and pc are global variables for actual class and method*/
@@ -40,8 +40,6 @@ u1 getU1(u2 pos)	{
 /* parameter ==0 -> value at global var pc and automatic increment */
 u1 getU1(u2 pos){return *(CLASSSTA + ( (pos==0) ? (pc++) : pos) );	}
 #endif
-
-
 
 u2 getU2(u2 pos){
 //if (pos==0) {pc+=2;return (*(CLASSSTA + pc-2))*256+*(CLASSSTA + pc-1);}
