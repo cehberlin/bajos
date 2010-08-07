@@ -1,5 +1,5 @@
 /*
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 #include <stdio.h>
@@ -9,15 +9,10 @@
 // array length ->  at least up to last native method < methods_count
 // lock at methods in the *.java or *.class file in increasing order 
 // if method is non native -> insert NULL, otherwise pointer to nativce C-function
-#define STRINGCLASSMETHODS	7
-#define THREADCLASSMETHODS	16
-#define OBJECTCLASSMETHODS	9
-#define FLOATCLASSMETHODS	17
 
-#include "nativedispatch.h"
 #include "JAVALANGNATIVE/langnative.h"
 // fill this array with classes containing native methods
-// dont forget to update nativedispatch.h
+
 const char*	nativeClassNames[] =		{
 			"platform/PlatForm",
 			"java/lang/Object",
@@ -26,10 +21,12 @@ const char*	nativeClassNames[] =		{
 			"java/lang/Float"	
 };
 
-#if (LINUX||AVR32-LINUX)
+u2 numNativeClassNames=sizeof(nativeClassNames)/sizeof(char*);
+
+#if (LINUX||AVR32LINUX)
 #include "LINUX/native.h"
-#define PLATFORMCLASSMETHODS	5
-functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS] =	{
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
 	nativeCharIn,
 	nativeCharOut,
@@ -40,8 +37,8 @@ functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS
 
 #ifdef AVR8
 #include "AVR8/native.h"
-#define PLATFORMCLASSMETHODS	8
-functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS] =	{
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
 	nativeCharIn,
 	nativeCharOut,
@@ -49,17 +46,26 @@ functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS
 	currentTimeMillis,
 	charLCDOut,
 	controlLCD,
-	getTemperature
+	getTemperature,
+	getAnalogueValue,
+	nativeConStat,
+	nativeSetBarGraph,
+	nativeGetDIL,
+	nativeSetPort,
+	nativeSetIOPort,
+	nativeGetPort,
+	nativeGetIOPort
 };
 #endif
 
 #ifdef EVK1100
 #include "EVK1100/native.h"
-#define PLATFORMCLASSMETHODS	14
-functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS] =	{
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
-	nativeCharIn,
+	nativeCharIn,	// for our board only TXD,RXD works correct on UART0
 	nativeCharOut,
+	conStat,
 	getButtons,
 	setOnBoardLEDs,
 	charLCDOut,
@@ -74,13 +80,13 @@ functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS
 	pwmStart,
 	pwmStop,
 	adcGetValue
+// usb, ether, sdcard
 };
 #endif
 
 #ifdef NGW100
 #include "NGW100/native.h"
-#define PLATFORMCLASSMETHODS	5
-functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativePlatFormMethod[] = {
 	NULL,
 	nativeCharIn,
 	nativeCharOut,
@@ -91,8 +97,7 @@ functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS
 
 #ifdef STK1000
 #include "STK1000/native.h"
-#define PLATFORMCLASSMETHODS	28
-functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
 	nativeCharIn,
 	nativeCharOut,
@@ -126,7 +131,7 @@ functionForNativeMethodType functionForNativePlatFormMethod[PLATFORMCLASSMETHODS
 };
 #endif
 
-functionForNativeMethodType functionForNativeStringMethod[STRINGCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativeStringMethod[] =	{
 	NULL,
 	NULL,
 	NULL,
@@ -136,7 +141,7 @@ functionForNativeMethodType functionForNativeStringMethod[STRINGCLASSMETHODS] =	
 	nativeCharAt
 };
 
-functionForNativeMethodType functionForNativeThreadMethod[THREADCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativeThreadMethod[] =	{
 	NULL,
 	NULL,
 	NULL,
@@ -154,7 +159,7 @@ functionForNativeMethodType functionForNativeThreadMethod[THREADCLASSMETHODS] =	
 	setDaemon,join
 };
 
-functionForNativeMethodType functionForNativeFloatMethod[FLOATCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativeFloatMethod[] =	{
 	NULL,
 	NULL,
 	NULL,
@@ -174,7 +179,7 @@ functionForNativeMethodType functionForNativeFloatMethod[FLOATCLASSMETHODS] =	{
 	typeConvert
 };
 
-functionForNativeMethodType functionForNativeObjectMethod[OBJECTCLASSMETHODS] =	{
+functionForNativeMethodType functionForNativeObjectMethod[] =	{
 	NULL,
 	NULL,
 	notify,
@@ -187,7 +192,7 @@ functionForNativeMethodType functionForNativeObjectMethod[OBJECTCLASSMETHODS] =	
 };
 
 // insert array of function pointer
-const functionForNativeMethodType* funcArray[NUMNATIVECLASSES]	=	{
+const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativePlatFormMethod,
 	functionForNativeObjectMethod,
 	functionForNativeStringMethod,
