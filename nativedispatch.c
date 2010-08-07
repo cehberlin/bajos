@@ -5,13 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include "typedefinitions.h"
-// insert and update here functionForNativeMethodType-arrays for classes with native methods
-// array length ->  at least up to last native method < methods_count
-// lock at methods in the *.java or *.class file in increasing order 
-// if method is non native -> insert NULL, otherwise pointer to nativce C-function
+/* insert and update here functionForNativeMethodType-arrays for classes with native methods*/
+/* array length ->  at least up to last native method < methods_count*/
+/* lock at methods in the *.java or *.class file in increasing order */
+/* if method is non native -> insert NULL, otherwise pointer to nativce C-function*/
 
 #include "JAVALANGNATIVE/langnative.h"
-// fill this array with classes containing native methods
+/* fill this array with classes containing native methods*/
 
 const char*	nativeClassNames[] =		{
 			"platform/PlatForm",
@@ -63,7 +63,7 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	NULL,
-	nativeCharIn,	// for our board only TXD,RXD works correct on UART0
+	nativeCharIn,	/* for our board only TXD,RXD works correct on UART0*/
 	nativeCharOut,
 	conStat,
 	getButtons,
@@ -80,7 +80,7 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	pwmStart,
 	pwmStop,
 	adcGetValue
-// usb, ether, sdcard
+/* usb, ether, sdcard*/
 };
 #endif
 
@@ -191,7 +191,7 @@ functionForNativeMethodType functionForNativeObjectMethod[] =	{
 	getDataAddress
 };
 
-// insert array of function pointer
+/* insert array of function pointer*/
 const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativePlatFormMethod,
 	functionForNativeObjectMethod,
