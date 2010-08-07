@@ -8,14 +8,19 @@
 // version 0.3 - 15.1.09
 /********************************************************************************************
 Erweiterungen von:
-2006 Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
-2008 Anna Maria Damm, Bayer Schering Pharma AG
- 	 H.-Christian Hecht, CoMedServ GmbH
-	 Adrian Lang,Fritz-Haber-Institut
-	 Stephan Bauer, Bayer Schering Pharma AGstudent
-	 Christopher Hartl, Alcatel-Lucent AG
-	 Jascha Radziewski, DP-IT-Service GmbH
- Studenten der Informatik an der FHW-Berlin/Fachbereich Berufsakademie	
+2006	Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
+2008	Anna Maria Damm, Stephan Bauer, Bayer Schering Pharma AG
+	H.-Christian Hecht, CoMedServ GmbH
+	Adrian Lang, Fritz-Haber-Institut
+	Christopher Hartl, Alcatel-Lucent AG
+	Jascha Radziewski, DP-IT-Service GmbH
+2009	Rainer Kirchhoff, MSA-Auer
+	Friedrich Grosse, Deutsche Post IT
+	Sebastian Staroske, Joerdis Loesser, Bayer Schering Pharma AG
+	Chris Engel, CONTROL
+	Felix Fehlberg, Berliner Volksbank
+	Steffen Kalisch, COMED
+Studenten der Informatik an der FHW-Berlin/Fachbereich Berufsakademie	
 ********************************************************************************************/
 // speed is not our primary goal!!!
 // no double, no long
@@ -30,12 +35,11 @@ Erweiterungen von:
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #ifdef AVR8
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include "AVR8/lcd.h"
+#include "AVR8/platform.h"
 #endif
-
 #include "definitions.h"
 #define __DEF_GLOBALS__
 #include "bajvm.h"
@@ -43,10 +47,18 @@ Erweiterungen von:
 #include "stack.h"
 #include "classfile.h"
 #include "interpreter.h"
-#include "native.h"
 #include "scheduler.h"
 #include "bajvm.h"
-#include "platform.h"
+
+#ifdef NGW100
+#include "NGW100/platform.h"
+#endif
+#ifdef EVK1100
+#include "EVK1100/platform.h"
+#endif
+#ifdef STK1000
+#include "STK1000/platform.h"
+#endif
 
 #if !(AVR32LINUX||LINUX || AVR8 || NGW100||STK1000||EVK1100)
 #error ein Zielsystem muß es doch geben?
@@ -85,33 +97,31 @@ void executeClInits()		{
 	if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());	
-			run();									};	
+			run();				}
 }
 
 
 // class files stored for linux in DS (malloc)
 // for avr8 in sram	(malloc)
-// for ap7000 and uc3a:
-// 	bootclasses in flash
-// 	application classes  DS(Ram) -> hard coded
+// for ap7000 and uc3a:	bootclasses in flash
+// 			application classes  DS(Ram) -> hard coded
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u4 length;
 // use malloc!!
 #ifdef EVK1100
-classFileBase=(u1*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
-apClassFileBase=(u1*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
+classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
+apClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 #ifdef STK1000
-classFileBase=(u1*)STK1000_FLASH_JAVA_BASE;  			// boot classes in flash
+classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  			// boot classes in flash
 apClassFileBase=STK1000_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 #ifdef NGW100
-classFileBase=(u1*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
-apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
+classFileBase=(char*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
+apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
-
 #if (AVR32LINUX||LINUX||AVR8)
-    classFileBase=(u1*)malloc((size_t) MAXBYTECODE);
+    classFileBase=(char*)malloc((size_t) MAXBYTECODE);
     if (classFileBase==NULL)
         errorExit(-1,"malloc error while trying to allocate %d bytes for class files.\n", MAXBYTECODE);
     if (classFileBase==NULL) {
@@ -122,7 +132,6 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 
 	heapInit();	// linux avr8 malloc , others hard coded!
 	length=0;
-
 #ifdef LINUX
     if (argc > MAXCLASSES)
         errorExit(-1,"ERROR: trying to load %d classes, MAXCLASSES is %d\n", argc, MAXCLASSES);
@@ -139,7 +148,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 
 #if (NGW100||STK1000|| EVK1100)
 // analyze bootclasses, which are programmed in flash
-u1* addr;
+char* addr;
 u4 temp;
 char buf[5];
 strncpy(buf,classFileBase,4);
@@ -184,7 +193,7 @@ cN++;//!!
 // the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
 (*loadInSram)(classFileBase);
 printf("\ndone\n");
-u1* addr;
+char* addr;
 u4 temp;
 char buf[5];
 strncpy(buf,classFileBase,4);
@@ -205,7 +214,6 @@ printf("bootclass: %x length:%x loaded\n",cN,temp);
 cN=numClasses;
 // thats to boot classes
 // now the application classes
-
 cN--;
 addr-=4;
 		do
@@ -224,8 +232,6 @@ addr-=4;
 numClasses=cN;
 printf("load java class: \n");
 DEBUGPRINTHEAP;
-initNativeDispatch();
-printf("initNativeDispatch\n");
 }
 
 void errorExit(char nr,const char *format, ...)	 {

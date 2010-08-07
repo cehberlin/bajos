@@ -38,9 +38,9 @@ GLOBAL slot*	opStackBase	INIT__(NULL);
 GLOBAL u2* 	methodStackBase INIT__(NULL);
 GLOBAL slot*	heapBase 	INIT__(NULL);
 GLOBAL u2	heapTop		INIT__(MAXHEAP);
-GLOBAL u1*	classFileBase	INIT__(NULL);
+GLOBAL char*	classFileBase	INIT__(NULL);
 #if (AVR32UC3A|| AVR32AP7000)
-GLOBAL u1*	apClassFileBase INIT__(NULL);
+GLOBAL char*	apClassFileBase INIT__(NULL);
 #endif
 GLOBAL u1	numClasses	INIT__(0);
 GLOBAL 		ThreadControlBlock*  actualThreadCB	INIT__(NULL);

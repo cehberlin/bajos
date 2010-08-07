@@ -3,7 +3,7 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 
-u2 readClassFile(char* fileName,u1* addr);
+u2 readClassFile(char* fileName,char* addr);
 
 u1 getU1(u2 pos);
 u2 getU2(u2 pos);

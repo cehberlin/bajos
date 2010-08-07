@@ -21,6 +21,7 @@
 	#include <ctype.h>
 	#include <stdint.h>
 	#include <stdio.h>
+	#include "AVR8/platform.h"
 	#include <avr/io.h>
 	#include <avr/interrupt.h>
 	#include <avr/pgmspace.h>
@@ -33,13 +34,28 @@
 // atmega128 Monitor functions
 // bamo128 cs.ba-berlin.de
 #define		loadInSRam	(2*(0xf000+26))
-u2 		loadInSram(u1*) __attribute__ ((naked));
-u2 		loadInSram(unsigned char* addr)		{
-		asm	 (INLINEASM(jmp,loadInSRam));	}
+u2 		loadInSram(char*) __attribute__ ((naked));
+u2 		loadInSram(char* addr)		{
+		asm	 (INLINEASM(jmp,loadInSRam));
+		return 0;			}
 #endif
 #include <string.h>
-
+#ifdef NGW100
+#include "NGW100/platform.h"
+#endif
+#ifdef EVK1100
+#include "EVK1100/platform.h"
+#endif
+#ifdef STK1000
+#include "STK1000/platform.h"
+#endif
 #include "classfile.h"
+#include "nativedispatch.h"
+
+
+extern const char* nativeClassNames[NUMNATIVECLASSES];
+extern const functionForNativeMethodType* funcArray[NUMNATIVECLASSES];
+extern functionForNativeMethodType functionForNativePlatFormMethod[];
 
 // classSTA and pc are global variables for actual class and method
 // parameter != 0 -> value at parameter-pos
@@ -367,6 +383,7 @@ pc+=length;
 void analyseMethods(classStructure* c){ // jan 08 not good tested
 	int i,n,m,a;
 	u2 etl;
+c->nativeFunction=NULL;
 	for (n=0; n<getU2(c->methods_count);n++)	{  //methods
 		c->method_info[n]=pc; // absolute in classfile
 #ifdef DEBUG
@@ -379,7 +396,14 @@ void analyseMethods(classStructure* c){ // jan 08 not good tested
 #endif
 a=getU2(pc+6);
 pc+=8;		
-		if (a==0) continue; // native method
+		if (a==0) {
+for (i=0; i < (sizeof(nativeClassNames)/sizeof(char*)); i++)
+	if (!strncmp(nativeClassNames[i],
+		(char*)getAddr(c->constant_pool[getU2(c->constant_pool[getU2(c->this_class)]+1)]+3),
+		getU2(c->constant_pool[getU2(c->constant_pool[getU2(c->this_class)]+1)]+1)))
+			{c->nativeFunction=(functionForNativeMethodType*)funcArray[i]; break;}
+	continue; // native method
+}
 		for (m=0; m<a;m++)																						{ // attributes of method
 		const char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
 			if (strncmp("Code", adr,4)==0)	{
@@ -502,7 +526,7 @@ if(strncmp(	"Code",
 return -1;
 }
 
-u2 readClassFile(char* fileName,u1* addr)		{
+u2 readClassFile(char* fileName,char* addr)		{
 #ifdef LINUX
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;

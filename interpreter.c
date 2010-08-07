@@ -19,7 +19,7 @@
 #include "classfile.h"
 #include "interpreter.h"
 #include "scheduler.h"
-#include "native.h"
+
 
 #define GETSTARTPC(offset)	((strncmp(	"Code",\
 			getAddr( cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+offset)]+3	),\
@@ -951,13 +951,15 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 				}
 			}
 // no synchronized,or I have the lock
-// jetzt call die methode
-			if (getU2(METHODBASE(cN,mN))&ACC_NATIVE)							{
-				if (nativeDispatch())		goto nativeValueReturn;
-				else										goto nativeVoidReturn;
+// now call method
+			if (getU2(METHODBASE(cN,mN))&ACC_NATIVE)			{
+if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
+				if (cs[cN].nativeFunction[mN]())goto nativeValueReturn;
+				else				goto nativeVoidReturn;
 			}
+			else errorExit(-3,"native method not found cN: %d mN: %d",cN,mN);
+}
 			pc=getStartPC();
-
 		CASE	INVOKESTATIC:
 			DEBUGPRINT1("invoke static: ");	// a static method
 			methodStackPush(local);
@@ -1011,16 +1013,19 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 						local = methodStackPop();
 						break;	// let the scheduler work
 					}
-					else // yes I have lock
+					else // yes I have the lock
 						actualThreadCB->lockCount[i]++;	// count
 				}
 			};
 // no synchronized,or I have the lock
-// jetzt call die methode
-			if (getU2(METHODBASE(cN,mN)) & ACC_NATIVE)							{
-				if (nativeDispatch())		goto nativeValueReturn;
-				else								goto nativeVoidReturn;
+// now call the method
+			if (getU2(METHODBASE(cN,mN)) & ACC_NATIVE)		{
+			if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
+				if (cs[cN].nativeFunction[mN]())goto nativeValueReturn;
+				else				goto nativeVoidReturn;
 			}
+			else errorExit(-3,"native method not found cN: %d mN: %d",cN,mN);
+}
 			pc=getStartPC();
 
 			break;
