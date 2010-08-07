@@ -50,7 +50,7 @@
 #include "compiler.h"
 #include "spi.h"
 #include "pwm.h"
-
+#include "../platform.h"
 /*! Write Command start byte */
 #define DIP204_WRITE_COMMAND             0xF8
 
@@ -71,7 +71,7 @@ static void dip204_read_byte(unsigned short * byte);
 static void dip204_select(void);
 static void dip204_unselect(void);
 static void dip204_wait_busy(void);
-extern void delay_ms(unsigned short time_ms);
+
 
 /*! the duty cycle that will be updated to change backlight power */
 unsigned short pwm_duty;
@@ -90,7 +90,7 @@ void dip204_init(backlight_options option)
 
   if (option == backlight_PWM)
   {
-    channel_id = DIP204_PWM_CHANNEL;
+/*    channel_id = DIP204_PWM_CHANNEL;
     gpio_enable_module_pin(AVR32_PWM_PWM_6_PIN, AVR32_PWM_PWM_6_FUNCTION);
 
     // PWM controller configuration
@@ -112,6 +112,7 @@ void dip204_init(backlight_options option)
     pwm_channel_init(channel_id, &pwm_channel);
     // start PWM
     pwm_start_channels(1 << channel_id);
+*/
   }
   else
   {
