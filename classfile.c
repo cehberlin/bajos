@@ -17,9 +17,6 @@
 	#include <unistd.h>
 	#include <stdlib.h>
 #endif
-#ifdef AVR32UC3A
-	#include "iobinding.h"
-#endif
 #ifdef AVR8
 	#include <ctype.h>
 	#include <stdint.h>
@@ -36,7 +33,7 @@
 // atmega128 Monitor functions
 // bamo128 cs.ba-berlin.de
 #define		loadInSRam	(2*(0xf000+26))
-u2 		loadInSram1(u1*) __attribute__ ((naked));
+u2 		loadInSram(u1*) __attribute__ ((naked));
 u2 		loadInSram(unsigned char* addr)		{
 		asm	 (INLINEASM(jmp,loadInSRam));	}
 #endif
@@ -517,7 +514,7 @@ return classFileLength+=(long)addr;
 
 #ifdef AVR8
 u2 classFileLength=0;
-printf("Laden der AnwendungsKlassen - Geben Sie ein  'w' ein\n"); 
+printf("\nload application class - type  'w'\n"); 
 // the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
 classFileLength=(*loadInSram)(addr);
 return classFileLength;
