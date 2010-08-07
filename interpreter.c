@@ -371,7 +371,7 @@ switch (code)	{
 			DEBUGPRINTSTACK;
 	CASE	LNEG:	PRINTSEXIT("LNEG",nry,4);
 	CASE	FNEG:	DEBUGPRINTLN1("FNEG");	
-			opStackPoke(( slot)(-opStackPeek().Int));
+			opStackPoke(( slot)(-opStackPeek().Float));
 			DEBUGPRINTSTACK;	
 	CASE	DNEG:	PRINTSEXIT("DNEG",nry,4);
 	CASE	ISHL:	DEBUGPRINTLN1("ISHL");
