@@ -15,4 +15,5 @@ public native byte getButtons();
 public native void setOnBoardLEDs(byte status);
 public native void charLCDOut(char c);
 public native void controlLCD(int control);
+public native float getTemperature();
 }
