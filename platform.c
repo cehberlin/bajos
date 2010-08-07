@@ -234,6 +234,7 @@ lcdc_conf_t ltv350qv_conf ={
 	/* print the image into the virtual framebuffer */
 	//myfill(&ltv350qv_conf);
 	
+	display_bm(((void *) 0x00700000));
 	lcdInitZBuffer();
 	initFont();
 	lcdSelectFontFromArray(0);
