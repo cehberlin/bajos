@@ -51,8 +51,8 @@ char val=opStackGetValue(local+1).UInt;
 
 
 char nativeExit()	{
-goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
-}
+exit(-1);
+return 0;		}
 
 char currentTimeMillis()	{
 #ifdef WITHMON
