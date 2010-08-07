@@ -546,21 +546,22 @@ return 1;
 }
 
 char floatToCharArray(u2 local)	{
-slot mySlot;
-f4 f=opStackGetValue(local).Float;	// the float
-u1 buf[8];
-snprintf(buf,8,"%8f",f);
-heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
-mySlot.stackObj.pos=heapPos;
-mySlot.stackObj.magic=OBJECTMAGIC;
-//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
-mySlot.stackObj.arrayLength=(u1)8;// char array length
-opStackPush(mySlot);
-HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
-HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
-HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
-for(i=0; i<8; i++)		heapSetElement(( slot)(u4)(*(buf+i)),heapPos++);
-return 1;
+	slot mySlot;
+	f4 f=opStackGetValue(local).Float;	// the float
+	u1 buf[8];
+	for(i=0; i<8; ++i) {buf[i]=0;}
+	snprintf(buf,8,"%G",f);
+	heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
+	mySlot.stackObj.pos=heapPos;
+	mySlot.stackObj.magic=OBJECTMAGIC;
+	//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
+	mySlot.stackObj.arrayLength=(u1)8;// char array length
+	opStackPush(mySlot);
+	HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
+	HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
+	HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
+	for(i=0; i<8; i++){	heapSetElement(( slot)(u4)(*(buf+i)),heapPos++);}
+	return 1;
 }
 
 

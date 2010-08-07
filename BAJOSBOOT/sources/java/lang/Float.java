@@ -158,9 +158,8 @@ public final class Float {
    */
   public static  String toString(float f)	{
 char [] c=floatToCharArray(f);
-int len=floatToCharArray(f).length;
 
-	return new String(c,0,len) ;		}
+	return new String(c,0,c.length) ;		}
 
 
 

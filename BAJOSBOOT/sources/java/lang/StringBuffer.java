@@ -11,21 +11,8 @@ package java.lang;
 public final class StringBuffer
 {
   
-  /**
-   * Conversion between integers from 0 to 9 and their respective
-   * chars.
-   **/
-  private static final char[] numbers = { '0', '1', '2', '3', '4',
-					    '5', '6', '7', '8', '9' };
-
-  /**
-   * The value of <i>log(10)</i> used for converting from base
-   * <i>e</i> to base 10.
-   **/
-  private static final float log10 = 2.30258509f;
-
-char[] characters;
-  int curPos = 0;
+	char[] characters;
+	int curPos = 0;
 
 
   public StringBuffer () {
@@ -59,7 +46,6 @@ char[] characters;
 
   public StringBuffer append (String s)
   {
-    // Reminder: compact code more important than speed
     return append(s.toCharArray());
   }
 
@@ -102,44 +88,12 @@ char[] characters;
 
   public StringBuffer append (int aInt)
   {
-	if (aInt == 0) {
-	    return this.append('0');
-	}
-
-	int lPos = 0;
-	char[] buff;
-        int pow;
-
-	if ( aInt < 0 ) {
-            aInt = -aInt;
-            pow = ( int )Math.floor( Math.log( aInt ) / log10 );
-            buff = new char[pow + 2];
-	    buff[ lPos++ ] = '-';
-	} else {
-            pow = ( int )Math.floor( Math.log( aInt ) / log10 );
-            buff = new char[pow + 1];
-        }
-
-	int div = 0;
-	while ( pow >= 0 ) {
-	    div = ( int ) ( aInt / (int)Math.pow( 10, pow ) );
-	    buff[ lPos++ ] = numbers[ div ];
-	    aInt -= div * (int)Math.pow( 10, pow );
-	    pow--;
-	} // while
-	
-	return this.append(buff);
+	return append(Integer.toString(aInt));
   }
 
   public StringBuffer append (float aFloat)
   {
-    try {
-        append (aFloat, 8);
-    } catch (ArrayIndexOutOfBoundsException e) {
-        curPos = Math.min(characters.length, curPos);
-    }
-    
-    return this;
+	return append(Float.toString(aFloat));
   }
   
   public String toString()
@@ -164,96 +118,4 @@ char[] characters;
   {
     return characters;
   }
-  
-    /**
-     * Helper method for converting floats
-     *
-     * @author Martin E. Nielsen
-     **/
-    private StringBuffer append( float number, int significantDigits ) {
-
-	if ( number == 0.f ) {
-	    return this.append("0.0");
-	} // if
-
-	boolean negative = number < 0.f;
-
-	if ( negative ) {
-	    number = -number;
-	} // if
-
-	// calc. the power (base 10) for the given number:
-	int pow = ( int )Math.floor( Math.log( number ) / log10 );
-	int exponent = 0;
-
-	// use exponential formatting if number too big or too small
-	if ( pow < -3 || pow > 6 ) {
-	    exponent = pow;
-	    number /= Math.exp( Math.ln10 * exponent );
-		// Recalc. the pow if exponent removed and d has changed
-		pow = ( int )Math.floor( Math.log( number ) / log10 );
-	} // if
-
-	// Decide how many insignificant zeros there will be in the
-	// lead of the number.
-	int insignificantDigits = -Math.min( 0, pow );
-
-	// Force it to start with at least "0." if necessarry
-	pow = Math.max( 0, pow );
-        float divisor = Math.pow(10, pow);
-
-	char[] buff = new char[(negative ? 1 : 0) + 1 + significantDigits + insignificantDigits ];
- 	int buffPos = 0;
-	if (negative) {
-		buff[buffPos++] = '-';
-	}
-       
-	// Loop over the significant digits (8 for float)
-	for ( int i = 0, end = significantDigits + insignificantDigits, div; i < end; i++  ) {
-
-	    // Add the '.' when passing from 10^0 to 10^-1
-	    if ( pow == -1 ) {
-		buff[ buffPos++ ] = '.';
-	    } // if
-	    
-	    // Find the divisor
-	    div = ( int ) ( number / divisor );
-	    // This might happen with 1e6: pow = 5 ( instead of 6 )
-	    if ( div == 10 ) {
-		buff[ buffPos++ ] = '1';
-		buff[ buffPos++ ] = '0';
-	    } // if
-	    else {
-//		characters[ curPos ] = numbers[ div ];
-		buff[ buffPos++ ] = (char)(div + '0');
-	    } // else
-
-	    number -= div * divisor;
-	    divisor /= 10.0f;
-	    pow--;
-
-	    // Break the loop if we have passed the '.'
-	    if ( number == 0 && divisor < 0.1f ) break;
-	} // for
-
-	// Remove trailing zeros
-  	while ( buff[ buffPos-1 ] == '0' )
-  	    buffPos--;
-
-	// Avoid "4." instead of "4.0"
-	if ( buff[ buffPos-1 ] == '.' )
-	    buffPos++;
-
-	append(buff);
-
-	// Restore the exponential format
-	if ( exponent != 0 ) {
-	    append('E');
-	    append( exponent );
-	} // if
-	
-	return this;
-    }
 }
-
-

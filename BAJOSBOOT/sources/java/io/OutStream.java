@@ -24,16 +24,7 @@ public class OutStream {
 	}
 
 	public synchronized void print(float f) {
-		// das sollte definitiv static sein; dafür muss aber noch ein bug mit static-aufrufen gefixt werden
-		// print(Float.toString(f));
-
-		// die native ist irgendwie verbuggt, das geht nicht.
-		// print(new Float(f).toString());
-
-		// daher über die in java-implementierte stringbuffer-methode
-		StringBuffer buff = new StringBuffer();
-		buff.append(f);
-		print(buff.toString());
+		print(Float.toString(f));
 	}
 
 	public synchronized void println() {
