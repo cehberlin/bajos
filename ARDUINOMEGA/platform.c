@@ -7,6 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+<<<<<<< .working
+<<<<<<< .mine
+#include <avr/io.h>
+#include <avr/interrupt.h>
+=======
+>>>>>>> .r1095
+=======
+>>>>>>> .merge-rechts.r1104
 #include "../definitions.h"
 #include "../typedefinitions.h"
 #include "../bajvm.h"
