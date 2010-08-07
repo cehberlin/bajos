@@ -1,6 +1,8 @@
  /*
  * by Christopher-Eyk Hrabia
  */
+import java.util.concurrent.*;
+
 public class LockTest extends Thread	{
 
 	int nr;
