@@ -27,12 +27,14 @@ char nativeCharOut()		{
 char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
 	return 0;							}
+
 char	nativeCharIn()	{
 char ch=conIn();
 opStackPush((slot)(u4)ch);
 return 1;}
 
-char currentTimeMillis(){return 0;};
+char currentTimeMillis(){opStackPush((slot) (u4) timerMilliSec);
+	return 1;};
 
 char nativeExit(int status)	{
 //asm("  lda.w   pc, 0");
