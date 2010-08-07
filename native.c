@@ -220,10 +220,11 @@ char nativeStringLength(u2 local)	{
 slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
-cN=(u1)(mySlot.stackObj.pos >>8);
-getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0xff)+1 )) +1 );
-opStackPush((slot)(u4)0);
-opStackPush((slot)(u4)getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0xff)+1 )) +1 ));
+//bh2008 cN=(u1)(mySlot.stackObj.pos >>8);
+cN=(u1)(mySlot.stackObj.classNumber);
+//getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0xff)+1 )) +1 );
+//opStackPush((slot)(u4)0);
+opStackPush((slot)(u4)getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos)+1 )) +1 ));
 cN=methodStackPop();
 }
 else	
@@ -235,8 +236,9 @@ char nativeCharAt(u2 local)	{
 slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
-cN=(u1)(mySlot.stackObj.pos >>8);
-opStackPush((slot)(u4)getU1(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0x00ff) + 1))+3+(u2)opStackGetValue(local+1).UInt));
+cN=(u1)(mySlot.stackObj.classNumber);
+//bh2008 cN=(u1)(mySlot.stackObj.pos >>8);
+opStackPush((slot)(u4)getU1(CP(cN,getU2(CP(cN,mySlot.stackObj.pos) + 1))+3+(u2)opStackGetValue(local+1).UInt));
 cN=methodStackPop();
 }
 else	
@@ -427,13 +429,15 @@ asm	 (INLINEASM(jmp,0xf002));
 }
 #endif
 
-#ifdef AVR32UC3A
+#ifdef EVK1100
 void exit(int n)	{
 goto *0x80000000;
 }
 #endif
 
-#ifdef NGW100
+
+
+#if NGW100 || STK1000
 char currentTimeMillis(){return 0;};
 char controlLCD(u2 local){ return 0;}
 char charLCDOut(u2 local){return 0;}
@@ -513,10 +517,4 @@ gettimeofday(&start,NULL);
 opStackPush((slot)(u4)((start.tv_sec*1000+start.tv_usec/1000)&0xFFFFFFFF));
 return 1;
 }
-#endif
-
-#ifdef STK1000
-char charLCDOut(u2 local){return 0;}
-char controlLCD(u2 local){return 0;}
-char currentTimeMillis() {return 0;}
 #endif
