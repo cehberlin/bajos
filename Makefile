@@ -30,16 +30,20 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK COMMAND LINE
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
-$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100  java clobber,$(MAKECMDGOALS)), ,$(error wrong command line))
+$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100  clean java clobber,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
 
 java:
 	@:
 
-ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux clobber java,$(MAKECMDGOALS)))"
+
+ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS)))"
 $(error only one target hardware accepted)
 endif
-	
+
+TARGETHW = noTarget
+ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
 TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS))
+endif
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # ENVIRONMENT SETTINGS
@@ -210,7 +214,6 @@ endif
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
 OBJFILES	= $(BAJOSSOURCES:.c=.o)
-
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
