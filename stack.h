@@ -14,14 +14,14 @@ slot	opStackPeek();
 void	opStackPoke(slot val);
 slot	opStackGetValue(u2 pos);
 void	opStackSetValue(u2 pos,slot val);
-u2		opStackGetSpPos();
+u2	opStackGetSpPos();
 void	opStackSetSpPos(u2 pos);
 
 void	methodStackInit();
 void	methodStackPush(u2 val);
-u2		methodStackPop();
-u2 		methodStackPeek();
-u1		methodStackEmpty();
-u2		methodStackGetSpPos();
+u2	methodStackPop();
+u2 	methodStackPeek();
+u1	methodStackEmpty();
+u2	methodStackGetSpPos();
 void	methodStackSetSpPos(u2 pos);
 #endif
