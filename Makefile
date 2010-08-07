@@ -568,15 +568,28 @@ A:
 		${LANG}/StringUtils.class \
 		${LANG}/RuntimeException.class \
 		${LANG}/InterruptedException.class \
+		${LANG}/ArrayIndexOutOfBoundsException.class \
 		${IO}/OutStream.class \
   		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
+		${UTIL}/AbstractCollection.class \
+		${UTIL}/AbstractList.class \
+		${UTIL}/Collection.class \
+		${UTIL}/List.class \
+		${UTIL}/Random.class \
+		${UTIL}/RandomAccess.class \
+		${UTIL}/Stack.class \
+		${UTIL}/Vector.class \
+		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayKonstanten.class \
 		${GRAPHICS}/DisplayHSB.class \
 		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
 		${GRAPHICS}/Font.class \
-		$(APPCLASSPATH)/A.class \
-		$(APPCLASSPATH)/Aparent.class
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Line.class \
+		${GRAPHICS}/Polyline.class \
+		${GRAPHICS}/AffineMatrix.class \
+		${GRAPHICS}/ProjectionMatrix.class \
+  		$(APPCLASSPATH)/A.class
 
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/Aparent.java $(APPCLASSPATH)/A.java

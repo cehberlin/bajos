@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 
-#define APPCLASSPATH 		"/home/nutzer/workspace/bajos_bh/javatests"
-#define CLASSPATH 		"/home/nutzer/workspace/bajos_bh"
+#define APPCLASSPATH 		"/home/nutzer/workspace/bajos/javatests"
+#define CLASSPATH 		"/home/nutzer/workspace/bajos"
 #define BOOTCLASSPATH		CLASSPATH"/BAJOSBOOT/classes"
 #define LANG			BOOTCLASSPATH"/java/lang"
 #define IO 			BOOTCLASSPATH"/java/io"
@@ -35,13 +35,27 @@ const char* classFiles[] ={
 						LANG"/StringUtils.class", 
 						LANG"/RuntimeException.class",  
 						LANG"/InterruptedException.class", 
+						LANG"/ArrayIndexOutOfBoundsException.class",
 						IO"/OutStream.class",
   	 					IO"/InStream.class",
+  	 					UTIL"/AbstractCollection.class",
+  	 					UTIL"/AbstractList.class",
+  	 					UTIL"/Collection.class",
+  	 					UTIL"/List.class",
+  	 					UTIL"/Random.class",
+  	 					UTIL"/RandomAccess.class",
+  	 					UTIL"/Stack.class",
+  	 					UTIL"/Vector.class",	 					
   	 					GRAPHICS"/Display.class",
+  	 					GRAPHICS"/DisplayKonstanten.class",
 						GRAPHICS"/DisplayHSB.class",
-						GRAPHICS"/DisplayZBuffer.class",
+						GRAPHICS"/DisplayZBuffer.class",						
+						GRAPHICS"/Font.class",
 						GRAPHICS"/Point.class",
-						GRAPHICS"/Font.class"
+						GRAPHICS"/Line.class",
+						GRAPHICS"/Polyline.class",
+						GRAPHICS"/AffineMatrix.class",
+						GRAPHICS"/ProjectionMatrix.class"
   	 					};
 
 FILE*  readFile,*writeFile;
