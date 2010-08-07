@@ -368,8 +368,11 @@ switch (code)	{
 			else					opStackPoke((slot)(opStackPeek().Int % first.Int));
 			DEBUGPRINTSTACK;
 	CASE	LREM:	DNOTSUPPORTED;
-	CASE	FREM:	DEBUGPRINTLN1("FREM");//???	
-			opStackPoke(( slot)(f4)((opStackPop().Float / opStackPeek().Float)));
+	CASE	FREM:	DEBUGPRINTLN1("FREM");
+			float divisor = opStackPop().Float;
+			float dividend = opStackPop().Float;
+			int q = dividend/divisor;
+			opStackPush((slot)(f4)(dividend - (divisor * q)));
 			DEBUGPRINTSTACK;	
 	CASE	DREM:	DNOTSUPPORTED;
 	CASE	INEG:	DEBUGPRINTLN1("INEG");
@@ -952,12 +955,18 @@ case	RETURN:	DEBUGPRINTLN1("return");
 					if (code== IRETURN) opStackPush(first);
 		CASE	DRETURN:
 		case	LRETURN: DNOTSUPPORTED;
-		CASE	NEW:	pc += 2;
+		CASE	NEW: DEBUGPRINT1("new");
+						pc += 2;
 						methodStackPush(cN);
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 										getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)))	// classNameLength
-{						printf("class not found %d %d\n",cN,mN); exit(-3);}
+						{
+							mN = methodStackPop();
+							cN = methodStackPop();
+							printf("class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
+							exit(-3);
+						}
 //printf("NEW find class in Constantpool: %x",cN);
 methodStackPush(cN);
 fNO=findNumFields();
@@ -972,7 +981,7 @@ cN=methodStackPop();
 						first.stackObj.magic=OBJECTMAGIC;
 						first.stackObj.classNumber=cN;
 						//first.stackObj.type=STACKNEWOBJECT;
-						DEBUGPRINTLN2("new -> push %x\n",heapPos);	// allocate on heap platz fuer.stackObjektvariablen
+						DEBUGPRINTLN2(" -> push %x\n",heapPos);	// allocate on heap platz fuer.stackObjektvariablen
 						opStackPush(first); // reference to.stackObject on opStack
 						HEAPOBJECTMARKER(heapPos).status = HEAPALLOCATEDNEWOBJECT;	//.stackObject
 						HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
