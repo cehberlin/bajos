@@ -19,6 +19,8 @@ LDFLAGS		= -march=$(ARCH) -mpart=$(PART)
 
 CC		= avr32-gcc
 PROGRAM		= avr32program
+OBJCOPY		= avr32-objcopy
+
 MCPU		= ap7000
 CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT)
 # -Werror -g
