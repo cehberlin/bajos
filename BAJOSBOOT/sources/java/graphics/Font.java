@@ -8,14 +8,12 @@ public class Font
 		
     public Font()
     {
-    	System.out.println ("Font()");
     	setDefaults();
     	setValues();
     }  
     
     public void setDefaults()
     {
-    	System.out.println ("Font.setDefaults()");
     	color = 0x000000;
     	bgColor = 0xffffff;  
     	windowX1=0;
@@ -29,7 +27,6 @@ public class Font
     
     public void setValues()
     {
-    	System.out.println ("Font.setValues()");
     	System.platform.setFont(fontIndex);
     	System.platform.setFontWindow(windowX1, windowY1, windowX2, windowY2);
     	System.platform.setFontAutoLineFeed(autoLineFeed);
@@ -112,31 +109,26 @@ public class Font
 	
 	public void setCursor(int x, int y)
 	{
-		System.out.println ("Font.setCursor()");
 		System.platform.setFontCursor(x, y);
 	}
 	
 	public int drawCharAt(int x, int y, char c, int fgcolor, int bkcolor)
 	{
-		System.out.println ("Font.drawCharAt()");
 		return System.platform.drawCharAt(x, y, c, fgcolor, bkcolor);
 	}
 	
 	public int drawChar(char c)
 	{
-		System.out.println ("Font.drawChar()");
 		return System.platform.drawChar(c);
 	}
 	
 	public int getCharWidth(char c)
     {
-		System.out.println ("Font.getCharWidth()");
 		return System.platform.getCharWidth(c);
     }
     
 	public int drawStringAt(int x, int y, String s, int fgcolor, int bkcolor)
 	{
-		System.out.println ("Font.drawStringAt()");
 		setCursor(x, y);
 		System.platform.setFontColor(fgcolor, bkcolor);
 		int with=0;
@@ -149,7 +141,6 @@ public class Font
 	
     public int getStringWidth(String s)
     {
-    	System.out.println ("Font.getStringWidth()");
     	int with=0;
 		for (int i=0; i<s.length();i++)
 		{
@@ -160,7 +151,6 @@ public class Font
     
     public int drawString(String s)
 	{
-    	System.out.println ("Font.drawString()");
     	int with=0;
 		for (int i=0; i<s.length();i++)
 		{

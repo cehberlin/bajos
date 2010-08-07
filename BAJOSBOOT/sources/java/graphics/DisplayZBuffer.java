@@ -2,26 +2,22 @@ package java.graphics;
 
 import java.util.Vector;
 
-
 public class DisplayZBuffer extends DisplayHSB 
 {
     public DisplayZBuffer()
     {
     	super();
-    	System.out.println ("DisplayZBuffer() ...");
     } 
 	
 	public void drawPoint(Point p)
     {
     	//mit zBuffer Algorithmus (Uebung 4)
-		System.out.println ("DisplayZBuffer.drawPoint() ...");
 		System.platform.drawPointHSBZBuffer(p);		
     }
 	
 	public void drawLine(Point pa, Point pe)
 	{
 		//mit ZBuffer
-		System.out.println ("DisplayZBuffer.drawLine() ...");
 		System.platform.drawLineHSBZBuffer(pa, pe);		
 	}
 	
@@ -44,8 +40,11 @@ public class DisplayZBuffer extends DisplayHSB
 				if (((Line)al.elementAt(i-1)).anf.y < ((Line)al.elementAt(i)).anf.y)
 				{
 					l=(Line)al.elementAt(i-1);
-					al.remove(i-1);
-					al.set(i, l);
+					al.removeElementAt(i-1);
+					if (i==al.size())
+						al.add(l);
+					else
+						al.insertElementAt(l,i);
 				}
 				if (al.size()==0) return;
 				int y=(int)((Line)al.elementAt(0)).anf.y;
@@ -118,7 +117,7 @@ public class DisplayZBuffer extends DisplayHSB
 			for (int i=0; i < loi.size();i++)
 				if ((int)((Line)loi.elementAt(i)).end.y ==y)
 				{
-					loi.remove(i);i--;
+					loi.removeElementAt(i);i--;
 					if ( i < 0) i=-1;
 				}// entfernen uninteressanter lines
 			if (y >= yMax) System.out.println("hier stimmt was nicht");
@@ -126,7 +125,7 @@ public class DisplayZBuffer extends DisplayHSB
 				if ((int)((Line)al.elementAt(i)).anf.y == y)
 				{
 					loi.addElement((Line)al.elementAt(i)/*!!*/);
-					al.remove(i);
+					al.removeElementAt(i);
 					i--;
 					if (i < 0) i=-1;
 				} // aufessen
