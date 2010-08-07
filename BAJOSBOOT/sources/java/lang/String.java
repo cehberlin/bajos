@@ -4,19 +4,17 @@ package java.lang;
  * An immutable string of characters.
  */
 
-
-public final class String
+public final class String implements CharSequence
 {
   // NOTE: The state of this class is mapped to
-private char[] characters; // let it private
-// never use characters.length better length()
+	private char[] characters; // let it private
+	// never use characters.length better length()
 
-public String(String str)
-  {
-      characters = new char[str.length()];
-  for (int i=0; i<str.length(); i++)	
-  characters[i]=str.charAt(i); 
-  }
+	public String(String str) {
+		int slen = str.length();
+		characters = new char[slen];
+		System.arraycopy(str.characters, 0, characters, 0, slen);
+	}
 
 	public String(char[] c) {
 		int len = c.length;
@@ -39,11 +37,17 @@ public String(String str)
     System.arraycopy (c, off, characters, 0, len);
   }
 
+	public String (StringBuffer sb) {
+		int slen = sb.length();
+		characters = new char[slen];
+		sb.getChars(0, slen, characters, 0);
+	}
+
   /**
    * Return the length of the String in characters
    * @return the length of the String
    **/
-public native int nativeStringLength();
+	private native int nativeStringLength();
 
 	public int length() {
 		int length = nativeStringLength();
@@ -55,9 +59,12 @@ public native int nativeStringLength();
    * @return the characters at the given index
    **/
  
- public native char nativeCharAt(int index);
+	private native char nativeCharAt(int index);
 
   public char charAt(int index) {
+		if (index < 0 || index > length()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
 		char c = nativeCharAt(index); 
 		return (c != 0) ? c : characters[index];
 	}
@@ -78,14 +85,47 @@ for (;len >=0; --len) ca[len]=charAt(len);
    * Converts an Object to a String
    * @return the String that represents the object
    **/
-  public static String valueOf (Object aObj)
+
+/*
+ * Not worth the bytes *
+
+	public static String valueOf (Object aObj)
   {
-    return aObj.toString();
+    return aObj == null ? "null" : aObj.toString();
   }
- public static String valueOf (int n)
-  {
-    return new Integer(n).toString();
-  }
+
+	public static String valueOf(int n) {
+		return Integer.toString(n);
+	}
+
+	public static String valueOf(float f) {
+		return Float.toString(f);
+	}
+
+	public static String valueOf(char c) {
+		return Character.toString(c);
+	}
+
+	public static String valueOf(boolean b) {
+		return Boolean.toString(b);
+	}
+
+	public static String copyValueOf(char[] data) {
+		return new String(data);
+	}
+
+	public static String valueOf(char[] data) {
+		return new String(data);
+	}
+
+	public static String copyValueOf(char[] data, int offset, int count) {
+		return new String(data, offset, count);
+	}
+
+	public static String valueOf(char[] data, int offset, int count) {
+		return new String(data, offset, count);
+	}*/
+
   /**
    * Returns itself.
    * @return the String itself
@@ -198,6 +238,10 @@ for (;len >=0; --len) ca[len]=charAt(len);
 		return new String(characters, beginIndex, endIndex - beginIndex);
 	}
 
+	public CharSequence subSequence(int beginIndex, int endIndex) {
+		return substring(beginIndex, endIndex);
+	}
+
 	public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
 		if (srcBegin < 0 || srcBegin > srcEnd || srcEnd > length() || dstBegin < 0 || dstBegin+(srcEnd-srcBegin) > dst.length) {
 			throw new ArrayIndexOutOfBoundsException();
@@ -214,10 +258,40 @@ for (;len >=0; --len) ca[len]=charAt(len);
 			return str;
 
 		char[] newStr = new char[olen + len];
-		System.arraycopy (toCharArray(), 0, newStr, 0, len);
-		System.arraycopy (str.toCharArray(), 0, newStr, len, olen);
+		System.arraycopy (characters, 0, newStr, 0, len);
+		System.arraycopy (str.characters, 0, newStr, len, olen);
 		return new String(newStr);
 	}
 
+	public String trim() {
+		int len = length();
+		int first;
+		for (first = 0 ; first < len ; ++first) {
+			if ((int)characters[first] > 20) break;
+		}
+		int last;
+		for (last = len - 1 ; last >= 0 ; --last) {
+			if ((int)characters[last] > 20) break;
+		}
+		return new String(substring(first, last));
+	}
+
+	public String toUpperCase() {
+		int len = length();
+		char[] newchar = new char[len];
+		for (int i = 0 ; i < len ; ++i) {
+			newchar[i] = Character.toUpperCase(characters[i]);
+		}
+		return new String(newchar);
+	}
+
+	public String toLowerCase() {
+		int len = length();
+		char[] newchar = new char[len];
+		for (int i = 0 ; i < len ; ++i) {
+			newchar[i] = Character.toLowerCase(characters[i]);
+		}
+		return new String(newchar);
+	}
 }
 
