@@ -27,7 +27,7 @@ endif
 OPTIMIZATION		= -O3
 
 # JAVA SOURCES
-JAVABOOTSOURCES		+= 	$(LANG)/Math.java  \
+JAVABOOTSOURCES		+= 	$(LANG)/Math.java \
 			$(LANG)/Boolean.java $(LANG)/Byte.java\
 			$(UTIL)/Random.java \
 			$(LANG)/Exception.java  $(LANG)/Error.java \
