@@ -56,7 +56,7 @@ void usart_printHex(volatile avr32_usart_t * usart, const unsigned long n)
 
 static int mt481c2m32b2tg_init(const sdram_info *info)
 {
-	volatile unsigned long *sdram = (unsigned long *) info->phys_addr;
+	volatile unsigned long *sdram = (unsigned long *) info->physical_address;
 	volatile avr32_sdramc_t *sdramc = &AVR32_SDRAMC;
 	unsigned long dummy_read;
 	unsigned long busHz;

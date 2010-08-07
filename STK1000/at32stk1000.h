@@ -56,7 +56,7 @@
 
 
 static const struct sdram_info sdram = {
-        .phys_addr      = AVR32_EBI1_ADDRESS,	// 0x10000000
+        .physical_address      = AVR32_EBI1_ADDRESS,	// 0x10000000
 		.bus_width	= 32,
         .rows           = 11,
         .cols           = 8,
