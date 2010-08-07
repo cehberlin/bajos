@@ -78,7 +78,7 @@ actualThreadCB->methodSpPos=methodStackGetSpPos();//methodSp;
 //printf("th %d %d %d %d\n",numThreads,actualThreadCB->status,actualThreadCB->succ->status,THREADMUTEXBLOCKED);
 do {
 actualThreadCB=actualThreadCB->succ;
-//printf(":::: %d\n",actualThreadCB->tid);
+//printf(":::: %d    stat %d\n",actualThreadCB->tid,actualThreadCB->status);
 if ((actualThreadCB->status)==THREADNOTBLOCKED) break;
 if ((actualThreadCB->status)==THREADMUTEXBLOCKED) break;
 //if ((actualThreadCB->status)==THREADMUTEXBLOCKED) continue; // handle hier!!
@@ -90,12 +90,12 @@ if (((actualThreadCB->status)==THREADWAITAWAKENED) &&
 if ((actualThreadCB->status)==THREADWAITAWAKENED)	{
 HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).status=MUTEXBLOCKED;
 actualThreadCB->status=THREADNOTBLOCKED;
-									for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
-										if (actualThreadCB->hasMutexLockForObject[i].UInt!=NULLOBJECT.UInt)continue;else break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {printf("1too many locks\n"); exit(251);	}
-								actualThreadCB->lockCount[i]+=1;	// count
-								actualThreadCB->hasMutexLockForObject[i]=(actualThreadCB->isMutexBlockedOrWaitingForObject);
-actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+	for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
+				if (actualThreadCB->hasMutexLockForObject[i].UInt!=NULLOBJECT.UInt)continue;else break;
+				if (i==MAXLOCKEDTHREADOBJECTS) {printf("1too many locks\n"); exit(251);	}
+				actualThreadCB->lockCount[i]+=1;	// count
+				actualThreadCB->hasMutexLockForObject[i]=(actualThreadCB->isMutexBlockedOrWaitingForObject);
+				actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 }
 } while (1);
 
