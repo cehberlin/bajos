@@ -30,8 +30,6 @@ public class Display implements DisplayKonstanten
 
     public void drawRectangle(int x1, int y1, int x2, int y2)
     {
-    	System.out.println(color);
-    	System.out.println(bgColor);
     	System.platform.drawRectangleRGB(x1, y1, x2, y2, color, bgColor);
     }
 
