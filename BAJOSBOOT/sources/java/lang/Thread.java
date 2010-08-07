@@ -89,9 +89,6 @@ public abstract class Thread	{
 //bh  public final native boolean isDaemon();
 //bh  public final native void setDaemon(boolean on);
   
-  /**
-   * Join not yet implemented
-   */
 public native void nativeSetPriority(int priority);		// method 13
  public final native void join() throws InterruptedException;	// method 14
 //bh  public final native void join(long timeout) throws InterruptedException;
@@ -99,4 +96,27 @@ public native void nativeSetPriority(int priority);		// method 13
 //jointimeout1(timeout);
 //}
 //public native void jointimeout1(int timeout);//throws InterruptedException;
+
+
+ /**
+   * Returns a string representation of this thread, including the
+   * thread's name, priority, and thread group.
+   *
+   * @return a human-readable String representing this Thread
+   */
+  public String toString()					// method 15
+  {
+    return ("Thread " + name + ",Prio: " + priority);
+  }
+
+ /**
+   * Get this Thread's name.
+   *
+   * @return this Thread's name
+   */
+  public final String getName()					// method 16
+  {
+    return name;
+  }
+
 }
