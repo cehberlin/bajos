@@ -91,6 +91,20 @@ char nativeGetData() { //sdarm
 
 ThreadControlBlock* timer8bitThread=NULL;
 
+/*
+Der Overflow Interrupt Handler
+wird aufgerufen, wenn TCNT0A von
+255 auf 0 wechselt (256 Schritte),
+*/
+ISR (TIMER0_OVF_vect)
+{
+	printf("Interrupt occured\n");
+	//yet not tested!!
+	if(timer8bitThread){
+		releaseMutexOnObject(timer8bitThread,timer8bitThread->obj,timer8bitThread);
+	}
+}
+
 //overflow
 char initTimer8bit(){
 
@@ -98,34 +112,10 @@ char initTimer8bit(){
 
   slot threadObj = opStackGetValue(local+1);
 
-  u2 prescaler = opStackGetValue(local+2).UInt;
+  printf("prescaler 1024\n");
+  TCCR0A = (1<<CS02)| (1<<CS00); // Prescaler 1024
 
-  // Timer 0 konfigurieren
-  switch(prescaler){
-  case 1:
-	printf("prescaler 1");
-  	TCCR0A = (1<<CS00); // Prescaler 1
-  	break;
-  case 8:
-	printf("prescaler 8");
-  	TCCR0A = (1<<CS01); // Prescaler 8
-  	break;
-  case 64:
-	printf("prescaler 64");
-  	TCCR0A = (1<<CS01) | (1<<CS00); // Prescaler 64
-  	break;
-  case 256:
-	printf("prescaler 256");
-  	TCCR0A = (1<<CS02); // Prescaler 256
-  	break;
-  case 1024:
-	printf("prescaler 1024");
-  	TCCR0A = (1<<CS02)| (1<<CS00); // Prescaler 1024
-  	break;
-  default:
-  	TCCR0A = 0; // Prescaler 0 = STOPP	
-  }
-
+  printf("Thread suchen\n");
   timer8bitThread=findThreadCB(threadObj);
  
   // Overflow Interrupt erlauben
@@ -137,17 +127,3 @@ char initTimer8bit(){
   return 0;
 }
 
-
-/*
-Der Overflow Interrupt Handler
-wird aufgerufen, wenn TCNT0A von
-255 auf 0 wechselt (256 Schritte),
-*/
-ISR (TIMER0_OVF_vect)
-{
-	printf("foo\n");
-	//yet not tested!!
-	if(timer8bitThread){
-		releaseMutexOnObject(timer8bitThread,timer8bitThread->obj,timer8bitThread);
-	}
-}

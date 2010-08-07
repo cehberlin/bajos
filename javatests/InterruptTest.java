@@ -5,25 +5,27 @@
 //by CEH
 import java.util.concurrent.InterruptThread;
 
-public class InterruptTest	extends InterruptThread		{
+public class InterruptTest extends InterruptThread {
 
 	public void isr(){
-		//DDRB PB7 output ->LED
-		System.platform.nativeSetData(0x25, (byte)(System.platform.nativeGetData(0x25)^0x80)); // PORTB toggle
+		System.out.println("Interrupt Occured in Java!!");
 	}
 
 
 	public static void main(String [] args)		{
 	
-	System.out.println("1 sec blinking led an arduinoMega -> type any char for closing application");
+	System.out.println("Start InterruptTest");
 
 	InterruptTest inter = new InterruptTest();
-	System.platform.nativeSetData(0x24, (byte)(System.platform.nativeGetData((byte)0x24)|0x80));
-	System.out.println("init Timer");
-	System.platform.initTimer8bit(inter,1024);
 
-						
-	System.in.read();	/* dummy read	*/		
+	System.out.println("iniT");
+	//System.platform.initTestInterrupt(inter);
+
+	
+	//System.platform.forceTestInterrupt();	
+
+	while(true);
+	
 	}
 }
 

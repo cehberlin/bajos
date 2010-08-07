@@ -63,7 +63,9 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
-	currentTimeMillis
+	currentTimeMillis,
+	initTestInterrupt,
+	forceTestInterrupt
 };
 #endif
 

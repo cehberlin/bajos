@@ -75,3 +75,25 @@ char currentTimeMillis()	{
 	opStackPush((slot)(u4)((timerstart.tv_sec*1000+timerstart.tv_usec/1000)&0x7FFFFFFF));
 	return 1;		}
 
+
+ThreadControlBlock* testInterruptThread=NULL;
+
+char forceTestInterrupt(){
+	printf("Interrupt occured C-Code\n");
+	//yet not tested!!
+	if(testInterruptThread){
+		releaseMutexOnObject(testInterruptThread,testInterruptThread->obj,testInterruptThread);
+	}
+	return 0;
+}
+
+char initTestInterrupt(){
+
+  slot threadObj = opStackGetValue(local+1);
+
+  printf("Thread suchen\n");
+  testInterruptThread=findThreadCB(threadObj);
+ 
+  return 0;
+}
+

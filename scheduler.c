@@ -333,8 +333,9 @@ void scheduler(void)	{
 		continue;
 	  for (n=0; n < threadPriorities[p].count; n++){
 		     found=found->succ;
-		     //printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
+		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
 		     if ((found->state)==THREADNOTBLOCKED) {
+			printf("New Thread= %d\n",found->tid); 
 			threadFound=1;//signal nested loop break
 			break;
 		     } // I take it
@@ -344,13 +345,13 @@ void scheduler(void)	{
 			((HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex) ==MUTEXBLOCKED))
 												continue; 
 		      /* awakened and mutexnotblocked*/
-		      if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
+		      //if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
 			HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
 			found->state=THREADNOTBLOCKED;
 			found->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 			threadFound=1;//signal nested loop break
 			break; 					
-			}	 
+			//}	 
 		} // end for n 
 		if(threadFound)break;
 	} // end for p

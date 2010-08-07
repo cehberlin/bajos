@@ -154,6 +154,14 @@ compLockTest:
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/LockTest.java $(APPCLASSPATH)/SpinLockTest.java
 
+Interrupt:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
+		$(APPCLASSPATH)/InterruptTest.class 
+
+compInterrupt:
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+		$(APPCLASSPATH)/InterruptTest.java
+
 ADC:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/ADC.class
 
