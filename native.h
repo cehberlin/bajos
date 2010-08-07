@@ -48,7 +48,8 @@ char waitTime(u2 local);
 char javaExit(u2);
 char currentTimeMillis();
 char nativeParseFloat(u2);
-char typeConvert(u2);
+char floatToIntBits(u2 local);
+char intBitsToFloat(u2 local);
 char floatToCharArray(u2);
 
 #endif
