@@ -12,8 +12,10 @@
 # make all evk1100 withmon -> generates bajvm.bin, avr32bootpack and javatests/EVK1100.class
 # load with monitor: u-command bajvm to 0x80002000 and avr32bootpack to 0x80003800
 # run with monitor: g 0x80002000 command bajos
-
 CC		= avr32-gcc
+OBJCOPY		= avr32-objcopy
+PROGRAM		= avr32program 
+
 ARCH		= ucr1
 PART 		= uc3a0512es
 # Flash memories: [{cfi|internal}@address,size]...
@@ -87,7 +89,7 @@ PLATFORMASMSOURCES	= $(APPPATH)EVK1100/crt0.S $(APPPATH)/EVK1100/trampoline.S $(
 LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 
-all:	clean compile bootclasses  compEVK1100 burnbootpack burnbajvm
+all:	clean compile bootclasses  compEVK1100 burnbootpack burnbajvm run
 
 # Program MCU memory from ELF output file.
 .PHONY: burnbajvm
