@@ -65,17 +65,21 @@ u1 findNumFields()	{	return getU2(cs[cN].fields_count);	}
 u1 findNumArgs(u2 methodRef)	{	//  count BCDFIJLSZ in runden Klammern!!
 	u2 i;
 	u2 n=0;
-	u1 c;
-	u1 on=1;
-	for (i=0; i <getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,methodRef)+3))+3))+1);i++)	{
-		c=*(u1*)(getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,methodRef)+3))+3))+3)+i);
+	u1 object=0;
+	u2 meth = CP(cN, getU2(CP(cN, getU2(CP(cN, methodRef)+3))+3));
+	for (i = 0 ; i < getU2(meth+1) ; i++) {
+		u1 c = *(u1*)(getAddr(meth+3)+i);
 		if (c=='(' )			continue;
 		if (c==')')				break;
-		if (c=='L'){			on=0; n++; }
-		if (c==';')				on=1;
-		if (on)
-			if ((c=='B')||(c=='C')||(c=='D')||(c=='F')||(c=='I')||(c=='J')||(c=='S')||(c=='Z'))
-				n++;																				}
+		if (c==';')				object=0;
+		if (!object) {
+			if (c=='L') {
+				object = 1; n++;
+			} else if ((c=='B')||(c=='C')||(c=='D')||(c=='F')||(c=='I')||(c=='J')||(c=='S')||(c=='Z')) {
+				n++;
+			}
+		}
+	}
 	return n;
 }
 

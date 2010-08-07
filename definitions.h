@@ -49,7 +49,7 @@
 #define NULLPOINTEREXCEPTION raiseExceptionFromIdentifier("java/lang/NullPointerException", 30)
 #define ARITHMETICEXCEPTION raiseExceptionFromIdentifier("java/lang/ArithmeticException", 29)
 #define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
-
+#define ILLEGALMONITORSTATEEXCEPTION raiseExceptionFromIdentifier("java/lang/IllegalMonitorStateException", 38)
 
 #define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n");
 
@@ -131,7 +131,7 @@
 		#define DEBUGPRINTF(a,b,c)	if (TR==actualThreadCB->tid)printf(a,b,c)
 		#define DEBUGPRINTSTACK if (TR==actualThreadCB->tid){\
 				int i;\
-				for (i=-8; i < 0; i++){\
+				for (i= opStackGetSpPos() > 8 ? -8 : -opStackGetSpPos() ; i < 0 ; i++){\
 				printf("%08x ",((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
 		} ;	printf(":|_|stack\n");}
 /*
@@ -141,7 +141,7 @@
 		#define DEBUGPRINTLOCALS if (TR==actualThreadCB->tid){\
 				int i;\
 				printf("|.| local:");\
-				for (i=0; i < 8; i++)\
+				for (i=0; i < 8 && i < local; i++)\
 				printf(" %08x",opStackGetValue(local+i).UInt);\
 		 printf("\n");}
 		
