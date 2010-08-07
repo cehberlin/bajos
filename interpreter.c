@@ -452,8 +452,10 @@ if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 						second = opStackPop();
 						first = opStackPop();
 						if(first.Float > second.Float)		opStackPush(( slot)(s4)1);
-						if(first.Float == second.Float)		opStackPush(( slot)(s4)0);
-						else								opStackPush(( slot)(s4)-1);
+						else	{		// corrected by al june 08
+							if(first.Float == second.Float)		opStackPush(( slot)(s4)0);
+							else								opStackPush(( slot)(s4)-1);
+								}
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	DCMPL:		PRINTSEXIT("DCMPL",nry,4);
@@ -546,12 +548,14 @@ if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 	CASE	JSR:		DEBUGPRINTLN1("jsr (not tested)");	// mb, jf
 						// not tested because no exceptions implemented yet 14.12.2006
 						// the opcode of athrow is required
+						// deprecated in java 1.6
 						opStackPush(( slot)(u4)(pc+2));
 						pc += (s2)BYTECODEREF;
 						DEBUGPRINTSTACK;
 	CASE	RET:		DEBUGPRINTLN1("ret (not tested)");	// mb, jf
 						pc = opStackGetValue(local+getU2(0)).UInt+getStartPC();
 						DEBUGPRINTSTACK;
+						// deprecated in java 1.6
 	CASE	TABLESWITCH:	DEBUGPRINTLN1("tableswitch");	// mb, jf
 					{
 							/*
