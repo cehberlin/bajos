@@ -35,6 +35,14 @@
 #include "classfile.h"
 
 #ifdef AVR8
+#define		loadInSRam1		(2*(0xf000+26))
+u2 	loadInSram1(u1*) __attribute__ ((naked));
+u2 loadInSram1(unsigned char* addr)	{
+asm	 (INLINEASM(jmp,loadInSRam1));	
+return 0;				}
+#endif
+
+#ifdef AVR8
 #define		STRING(a,b)		#a" "#b
 #define		INLINEASM(a,b)	STRING(a,b)
 // atmega128 Monitor functions
