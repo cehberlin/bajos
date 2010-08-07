@@ -116,6 +116,7 @@ findClassFlash
 #else
 findClass
 #endif
+
 		(className,classNameLength)) 					{
 		CLASSNOTFOUNDERR(className);	}/* out: cN*/
 	if (
@@ -284,7 +285,6 @@ void analyzeClass(classStructure* c)	{
 		printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
 #endif
 		c->magic=pc;  /* relative position in classfile*/
-
 #ifdef DEBUG
 		printf("cf\tmagic:\t %X\t", getU4(pc));	/* 0*/
 #endif
