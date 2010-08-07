@@ -44,10 +44,10 @@ u1 getU1(u2 pos){return *(CLASSSTA + ( (pos==0) ? (pc++) : pos) );	}
 
 
 u2 getU2(u2 pos){
-if (pos==0) {pc+=2;return (*(CLASSSTA + pc-2))*256+*(CLASSSTA + pc-1);}
-else return (*(CLASSSTA + pos)*256)+*(CLASSSTA + pos+1);
-}
-//  return (((u2)getU1(pos) << 8) | (u2)getU1 ( (pos == 0) ? 0 : pos+1 )); }	
+//if (pos==0) {pc+=2;return (*(CLASSSTA + pc-2))*256+*(CLASSSTA + pc-1);}
+//else return (*(CLASSSTA + pos)*256)+*(CLASSSTA + pos+1);
+//}
+  return (((u2)getU1(pos) << 8) | (u2)getU1 ( (pos == 0) ? 0 : pos+1 )); }	
 
 u4 getU4(u2 pos){return (((u4)getU2(pos)<<16)|(u4)getU2((pos==0)?0:pos+2));	}
 
@@ -291,23 +291,19 @@ void analyzeClass(classStructure* c)	{
 		cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
 		cs[cN].classInfo.stackObj.classNumber=cN;
 #ifdef DEBUG
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"), cN);
-#else
+  #else
 	printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
-#endif
-
+  #endif
 #endif
 		c->magic=pc;  /* relative position in classfile*/
 #ifdef DEBUG
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tmagic:\t %X\t"), getU4(pc));
-#else
+  #else
 	printf("cf\tmagic:\t %X\t", getU4(pc));
-#endif
-	/* 0*/
+  #endif
 #endif
 		pc=4; /* NOT +=4, because getU*(pc) increases pc when pc = 0 */
 		c->minor_version=pc++;			/* 4*/
