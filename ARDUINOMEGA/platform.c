@@ -197,5 +197,10 @@ void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
 }
 
 void exit(int n)	{
+#ifndef	WITHMON  
+asm volatile	(" ma: rjmp	ma	");
+#else
 goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
+#endif
 }
+
