@@ -5,6 +5,8 @@
 #ifndef __TYPEDEFINITIONS__
 #define __TYPEDEFINITIONS__
 #include "limits.h"
+
+typedef char (*functionForNativeMethodType)(void);
 	typedef unsigned char	u1;
 	typedef signed char		s1;
 	typedef float			f4;
@@ -83,7 +85,7 @@ u1		lockCount[MAXLOCKEDTHREADOBJECTS];
 #define	CONSTANTPOOLCOUNT(cN)	((u2) *cs[cN].classFileStartAddress+8)
 
 typedef struct 	{
-	u1*	classFileStartAddress;	// Speicheradresse fuer classfile-bytes
+	char*	classFileStartAddress;	// Speicheradresse fuer classfile-bytes
 	u2	classFileLength;	// << 64K	
 	u2	magic;		// kann weg
 	u2	minor_version;	// kann weg
@@ -102,6 +104,7 @@ typedef struct 	{
 	u2*	method_info;	//method_info methods[methods_count];
 	u2	attributes_count;
 	u2*	attribute_info;	//attribute_info attributes[attributes_count];
+	functionForNativeMethodType* nativeFunction;
 	slot	classInfo;
 		} 		classStructure ;
 #endif
