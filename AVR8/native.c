@@ -25,7 +25,8 @@
 #include "native.h"
 #include "platform.h"
 #include "lcd.h"
-#include "thermo.h"
+#include "ds182x.h"
+
 
 #define		STRING(a,b)		#a" "#b
 #define		INLINEASM(a,b)	STRING(a,b)
@@ -74,17 +75,18 @@ goto *0xf002;	//asm	 (INLINEASM(jmp,0xf002));
 
 // added 2009 by: Hannes Walz, FHW-BA Berlin
 // Berliner Stadtreinigung
-char getTemperature() 	{		
-	opStackPush((slot) (f4) nativeGetTemperature());
+char getTemperature() 	{
+	init();
+	u_int temp	= readTemperature(0);
+	u_int frac;
+	convertTemperature(0, &temp, &frac);	
+	opStackPush((slot) (f4) ((float)temp + (frac / 10000.f)));
 	return 1;
 }
 
 char currentTimeMillis()	{
 opStackPush((slot)(u4)timerMilliSec);
 	return 1;
-}
-SIGNAL(SIG_OUTPUT_COMPARE0)		{
-	timerMilliSec++;	
 }
 
 
