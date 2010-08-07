@@ -320,7 +320,7 @@ void scheduler(void)	{
 		continue;
 	  for (n=0; n < threadPriorities[p].count; n++){
 		     found=found->succ;
-		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
+//		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
 		     if ((found->state)==THREADNOTBLOCKED) {
 				threadFound=1;//signal nested loop break
 				break;
