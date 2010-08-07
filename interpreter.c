@@ -468,11 +468,11 @@ switch (code)	{
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
 	CASE	IFNULL:	DEBUGPRINTLN1("ifnull");
-			if((u2)opStackPop().UInt == 0)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
+			if(opStackPop().UInt == NULLOBJECT.UInt)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
 			else				pc += 2;	// skip branch bytes
 			DEBUGPRINTSTACK;
 	CASE	IFNONNULL:	DEBUGPRINTLN1("ifnonnull");	// mb jf
-			if( (u2)opStackPop().UInt != 0)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
+			if(opStackPop().UInt != NULLOBJECT.UInt)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
 			else				pc+= 2;	// skip branch bytes
 			DEBUGPRINTSTACK;
 	CASE	IFNE:	DEBUGPRINTLN1("ifne");		//mb, jf
@@ -627,7 +627,7 @@ switch (code)	{
 							getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
 
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	errorExit(-27, "field %s not found\n", fieldName);
+	errorExit(-27, "field '%s' not found\n", fieldName);
 }
 	// got position in constant pool --> results in position on heap
 						DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
@@ -658,7 +658,7 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 							getU2(CP(cN,getU2(CP(cN,  
 							getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	errorExit(-27, "field %s not found\n", fieldName);
+	errorExit(-27, "field '%s' not found\n", fieldName);
 }
 				DEBUGPRINTHEAP;
 							heapSetElement(opStackPop(), cs[cN].classInfo.stackObj.pos+/*i*/fNC+1);//opStackPop().UInt+i+1);
@@ -726,10 +726,15 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 first = opStackPop();	//mb jf doesn't work without variable ?!?!
 second =opStackPop();
 
+if (second.UInt == NULLOBJECT.UInt) {
+ 						pc+=2;
+ 						cN=methodStackPop();
+ NULLPOINTEREXCEPTION;
+ } else {
 
 cN=second.stackObj.classNumber;
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	errorExit(-27, "field %s not found\n", fieldName);
+	errorExit(-27, "field '%s' not found\n", fieldName);
 }
 							// jetzt hab ich alles
 							// den Typ
@@ -747,6 +752,7 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 						DEBUGPRINTLOCALS;
 						DEBUGPRINTHEAP;
 						cN=methodStackPop();
+}
 		CASE	INVOKESPECIAL:		
 		case	INVOKEVIRTUAL:
 		case	INVOKEINTERFACE:	
