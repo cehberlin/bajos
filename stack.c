@@ -24,7 +24,7 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 #else
 /* classfiles - heap - (opstack methodstack)/ per thread*/
 /*make it better*/
-*m=(slot*)((u4)apClassFileBase+MAXBYTECODE+4*MAXHEAP+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE));
+*m=(slot*)((u4)appClassFileBase+MAXBYTECODE+4*MAXHEAP+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE));
 #endif
 }
 void opStackPush( slot val)	{	*(opSp++)=val;			}	
@@ -52,7 +52,7 @@ void methodStackInit(u2** m)	{
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL)
 			MALLOCERR(METHODSTACKSIZE * sizeof(u2), "method stack");			
 #else
-*m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
+*m=(u2*)((u4)(appClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
 #endif
 									}
 
@@ -62,4 +62,12 @@ u2 methodStackPeek()		{	return *(methodSp-1);		}
 u1 methodStackEmpty()		{	return (methodSp==methodStackBase) ? 1:0;	}
 u2 methodStackGetSpPos()	{  	return (methodSp-methodStackBase);		}
 /* relative to actual base*/
-void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	}
+void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	
+}
+/*//BH
+void dummy(void)	{
+char* s1,*s2;
+char n;
+strncmpFlashFlash(s1,(const char*) s2, n);
+}
+*/
