@@ -234,6 +234,9 @@ void analyzeClass(classStructure* c)	{
 #endif
 		c->minor_version=pc++;			// 4
 		c->major_version=++pc;			// 6
+if (c->major_version > 49)	{
+	printf("this java version is not supported yet: c->major_version %d\n",c->major_version);
+	exit(-1);				}
 #ifdef DEBUG
 		printf("version:\t%d.%d\n", getU2(0),getU2(c->minor_version));
 #else
@@ -296,7 +299,7 @@ void analyzeClass(classStructure* c)	{
 #ifdef DEBUG
 			printf("cf-attributes: count: %d ",ln);
 			printf("attribute_length: %d",getU4(pc));
-			printf(" attribute_index: %d\n",getU2(pc+4));
+			printf("attribute_index: %d\n",getU2(pc+4));
 #endif
 			pc+=6;																			}				}
 }
@@ -363,6 +366,7 @@ pc+=8;
 			CASE	CONSTANT_Utf8:							//    1
 					length=getU2(0);
 #ifdef DEBUG
+int i;
 				printf("\tcp %d\t:Utf8:\t\t-> ",n);
 					for (i=0; i < length;i++)
 						printf("%c",getU1(pc+i));	// utf8 chars ???
@@ -658,7 +662,8 @@ u2 readClassFile(u1* fileName,u1* addr)		{
 #ifdef LINUX
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
-if ((fd=open((char*)fileName,O_RDONLY))==-1) perror("no such file");
+if ((fd=open((char*)fileName,O_RDONLY))==-1) 
+perror("no such file");
 while (read(fd,addr++,1));
 return classFileLength+=(long)addr;
 #endif
