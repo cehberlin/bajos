@@ -7,12 +7,12 @@
 #ifndef __HEAP__
 #define __HEAP__
 
-void 	heapInit();
+void 	heapInit(void);
 void	heapSetElement(slot e, u2 pos);	// mb jf switched order of arguments
 slot 	heapGetElement(u2 pos);
 u2		getNextHeapObjectPos(u2 pos);
 
 // garbage collection
 u2 getFreeHeapSpace(u2 length);
-void checkObjects();
+void checkObjects(void);
 #endif
