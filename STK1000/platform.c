@@ -219,7 +219,6 @@ lcdc_conf_t ltv350qv_conf ={
   /* initialize the external sdram chip */
 //  mt481c2m32b2tg_init(info);
 
-	
 	board_init();
 	piob->per = SWITCHES_MASK;
 	piob->codr = SWITCHES_MASK;
