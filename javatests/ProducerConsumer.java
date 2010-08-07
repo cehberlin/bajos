@@ -27,7 +27,7 @@ public  synchronized int consume()					{
 	if (item!=77)System.out.println("consume error "+item);
 	buffer[out]=0;
 	out = (out + 1) % BUFSIZE;
-	if ((progress%10000)==0)	System.out.println("progress " + progress);
+	if ((progress%100)==0)	System.out.println("progress " + progress);
 	progress++;
 	notify();//All();				
 return item;						
@@ -47,7 +47,7 @@ public void run()	{
 }
 
 public ProducerConsumer(char c)	{
-	dispatch=c;							}
+	dispatch=c;		}
 
 public static void main(String args[])		{
 ProducerConsumer.buf=new Buffer(4);
@@ -57,7 +57,6 @@ ProducerConsumer c=new ProducerConsumer('c');
 p.start();
 p1.start();
 c.start();
-
 p.run();										
 }
 }
