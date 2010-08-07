@@ -218,7 +218,7 @@ return 0; 					}
 
 char nativeStringLength(u2 local)	{
 slot mySlot=opStackGetValue(local);
-if (mySlot.stackObj.type==STACKCPSTRING)	{
+if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
 cN=(u1)(mySlot.stackObj.pos >>8);
 getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0xff)+1 )) +1 );
@@ -233,7 +233,7 @@ return 1;
 
 char nativeCharAt(u2 local)	{
 slot mySlot=opStackGetValue(local);
-if (mySlot.stackObj.type==STACKCPSTRING)	{
+if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
 cN=(u1)(mySlot.stackObj.pos >>8);
 opStackPush((slot)(u4)getU1(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0x00ff) + 1))+3+(u2)opStackGetValue(local+1).UInt));
@@ -275,7 +275,7 @@ char jointimeout(u2 local){return 0; }
 char notify(){	// not tested yet aug2007
 u1 i;
 ThreadControlBlock* cb=actualThreadCB;
-printf("notify %04x\n",opStackGetValue(local));
+//printf("notify %04x\n",opStackGetValue(local));
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
@@ -290,8 +290,8 @@ char notifyAll() {
 u1 i;
 return 0;
 ThreadControlBlock* cb=actualThreadCB;
-printf("notifyall %04x\n",opStackGetValue(local));
-if (HEAPOBJECTMARKER(opStackGetValue(local)./*UInt*/stackObj.pos).mutex!=MUTEXBLOCKED)	{exit(249); };
+//printf("notifyall %04x\n",opStackGetValue(local));
+if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{exit(249); };
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
@@ -306,18 +306,29 @@ char wait() {
 //slot mySlot=opStackPop();
 u1 i;
 
-printf("wait %04x numthr %d\n",opStackGetValue(local), numThreads);
+//printf("wait %04x numthr %d\n",opStackGetValue(local), numThreads);
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(254);};
 //darf nicht sein ->IllegalMonitorStateException
 HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; // lock abgeben
-for (i=0; i< MAXLOCKEDTHREADOBJECTS;i++)
+actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
+actualThreadCB->status=THREADWAITBLOCKED;
+ThreadControlBlock* myTCB=actualThreadCB;
+						for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
+						myTCB=myTCB-> succ;
+						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
+											(myTCB->status==THREADMUTEXBLOCKED))	{
+							myTCB->status=THREADNOTBLOCKED; //!!
+							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
+														}
+
+/*for (i=0; i< MAXLOCKEDTHREADOBJECTS;i++)
 if ((actualThreadCB->hasMutexLockForObject[i]).UInt == opStackGetValue(local).UInt )break;
 if (i==MAXLOCKEDTHREADOBJECTS)exit(253); // was dann?
 //printf("::: %d %d\n",i,actualThreadCB->lockCount[i]);
 actualThreadCB->lockCount[i]-=1;	// count decrementieren
 if (actualThreadCB->lockCount[i]==0)actualThreadCB->hasMutexLockForObject[i]=NULLOBJECT;
-actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
-actualThreadCB->status=THREADWAITBLOCKED;
+*/
+
 return 0; }
 
 char waitTime(u2 local){return 0; }
@@ -393,32 +404,6 @@ char controlLCD(u2 local) {
 }
 
 
-void delay_ms(unsigned short time_ms)
-{
-unsigned long u32CountVal,u32CompareVal;
-  timeOut = 0;
-  u32CountVal = Get_sys_count();
-
-  u32CompareVal = u32CountVal  + ((unsigned long)time_ms * (FOSC0 / 1000)); // WARNING: MUST FIT IN 32bits.
-
-  Set_sys_compare(u32CompareVal); // GO
-
-  //  The previous COMPARE write succeeded.
-  // Loop until the COUNT&COMPARE match triggers.
-  while (!timeOut);
-}
-
-void compare_irq_handler()
-{
-	timeOut = 1;
-	//Disable the compare and exception generation feature: set COMPARE to 0.
-	Set_sys_compare(0);
-}
-
-
-
-
-
 /*
 ## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
 ## Method: int currentTimeMillis(void);
@@ -426,7 +411,7 @@ void compare_irq_handler()
 ## Return Value: int, get the value of the timer
 */
 char currentTimeMillis() {
-	opStackPush((slot) (u4) timerSec);
+	opStackPush((slot) (u4) timerMilliSec);
 	return 1;
 }
 #endif
@@ -499,7 +484,7 @@ snprintf(buf,8,"%8f",f);
 heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
 mySlot.stackObj.pos=heapPos;
 mySlot.stackObj.magic=OBJECTMAGIC;
-mySlot.stackObj.type=STACKNEWARRAYOBJECT;
+//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
 mySlot.stackObj.arrayLength=(u1)8;// char array length
 opStackPush(mySlot);
 HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
