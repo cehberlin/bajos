@@ -1,10 +1,10 @@
 boot:
+	javac  -verbose -source 1.4 -classpath ./BAJOSBOOT/classes -g:none ./BAJOSBOOT/sources/java/lang/*.java -extdirs . -bootclasspath .
+	mv ./BAJOSBOOT/sources/java/lang/*.class  ./BAJOSBOOT/classes/java/lang
 	javac  -verbose -source 1.4 -classpath ./BAJOSBOOT/classes -g:none ./BAJOSBOOT/sources/java/io/*.java -extdirs .  -bootclasspath .
 	mv ./BAJOSBOOT/sources/java/io/*.class  ./BAJOSBOOT/classes/java/io
-	javac  -verbose -source 1.4 -classpath ./BAJOSBOOT/classes -g:none ./BAJOSBOOT/sources/java/lang/*.java -extdirs . -bootclasspath .
 
 graphic:
-	mv ./BAJOSBOOT/sources/java/lang/*.class  ./BAJOSBOOT/classes/java/lang
 	javac  -verbose -source 1.4 -classpath ./BAJOSBOOT/classes -g:none ./BAJOSBOOT/sources/java/graphics/*.java -extdirs . -bootclasspath . 
 	mv ./BAJOSBOOT/sources/java/graphics/*.class  ./BAJOSBOOT/classes/java/graphics/
 
