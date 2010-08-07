@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef LINUX
+#if LINUX||AVR32LINUX
 #include <termios.h>
 #include <unistd.h>
 #include <time.h>
@@ -222,7 +222,7 @@ char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
 	return 0;							}
 // 1
-#ifdef LINUX
+#if LINUX||AVR32LINUX
 char	nativeCharIn()	{
 struct termios oldt,newt;
 	int ch;
@@ -511,7 +511,7 @@ asm("  lda.w   pc, 0");
 //goto *0x00000000;
 }
 #endif
-#if LINUX || AVR8 || NGW100 || STK1000
+#if LINUX||AVR32LINUX || AVR8 || NGW100 || STK1000
 char getButtons()	{
 
 return 1;
@@ -573,7 +573,7 @@ return 0;
 
 
 
-#ifdef LINUX
+#if LINUX||AVR32LINUX
 char charLCDOut(u2 local){return 0;}
 char controlLCD(u2 local){return 0;}
 void timer_Init()	{}
@@ -880,7 +880,7 @@ char getCharWidth(u2 local)
 
 #endif
 
-#if AVR8||NGW100||LINUX||EVK1100
+#if AVR8||NGW100||LINUX||AVR32LINUX||EVK1100
 
 //Grafikmethoden nur fuer STK1000 implementiert
 char drawPointRGB(u2 local){ printf("native drawPointRGB\n"); return 0;}
