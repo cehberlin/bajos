@@ -246,22 +246,16 @@ char adcGetValue()	{
   	{
     		{EXAMPLE_ADC_TEMPERATURE_PIN, EXAMPLE_ADC_TEMPERATURE_FUNCTION},
     		{EXAMPLE_ADC_LIGHT_PIN, EXAMPLE_ADC_LIGHT_FUNCTION},
-		#if BOARD == EVK1100
     		{EXAMPLE_ADC_POTENTIOMETER_PIN, EXAMPLE_ADC_POTENTIOMETER_FUNCTION}
-		#endif
 	};
 	volatile avr32_adc_t *adc = &AVR32_ADC; // ADC IP registers address
 	signed short adc_value_temp = -1;
 	signed short adc_value_light = -1;
-	#if BOARD == EVK1100
 	signed short adc_value_pot = -1;
-	#endif
  	// Assign the on-board sensors to their ADC channel.
 	unsigned short adc_channel_temp = EXAMPLE_ADC_TEMPERATURE_CHANNEL;
 	unsigned short adc_channel_light = EXAMPLE_ADC_LIGHT_CHANNEL;
-	#if BOARD == EVK1100
 	unsigned short adc_channel_pot = EXAMPLE_ADC_POTENTIOMETER_CHANNEL;
-	#endif
 	// switch to oscillator 0
 //	pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
 	// Assign and enable GPIO pins to the ADC function.
@@ -287,7 +281,6 @@ char adcGetValue()	{
 		rw = adc_value_light;
 		}
     		// get value for third adc channel (POTI)
-		#if BOARD == EVK1100
 		if (channel==3)
 		{
     		adc_enable(adc,adc_channel_pot);
@@ -296,7 +289,6 @@ char adcGetValue()	{
     		adc_disable(adc,adc_channel_pot);
 		rw = adc_value_pot;
 		}
-		#endif
 //   	}
 opStackPush((slot)(s4)(rw));
 return(1);

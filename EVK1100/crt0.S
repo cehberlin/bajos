@@ -44,7 +44,7 @@
 
 
 #include <avr32/io.h>
-#include "board.h"
+#include "evk1100.h"
 
 
 //! @{
@@ -107,8 +107,9 @@ udata_clear_loop:
 udata_clear_loop_end:
 
 #ifdef CONFIG_FRAME_POINTER
+//#ifdef WITHMON
   // Safety: Set the default "return" @ to the exit routine address.
-  lda.w   lr, exit
+  lda.w   lr, /*monitor */exit
 #endif
 
   // Start the show.

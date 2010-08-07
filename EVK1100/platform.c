@@ -1,4 +1,4 @@
-// you must exchange crt0.o from AT32UC3A-1.2.2ES software framework to /usr/avr32/lib/ucr1
+// you must exchange crt0.o /usr/avr32/lib/ucr1 with AT32UC3A-1.2.2ES software framework crt0.o
 // i doesnt know why
 /*
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
@@ -31,8 +31,7 @@
 #define EXAMPLE_GCLK_PIN            AVR32_PM_GCLK_0_1_PIN
 #define EXAMPLE_GCLK_FUNCTION       AVR32_PM_GCLK_0_1_FUNCTION
 
-
-// usart0 for terminal weiter rechts von sv
+// usart0 for terminal
 void initHW()	{
 #ifndef WITHMON
 // pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
@@ -635,8 +634,9 @@ void local_start_pll0(volatile avr32_pm_t* pm)
 
   pm_switch_to_clock(pm, AVR32_PM_MCSEL_PLL0); /* Switch main clock to 48MHz */
 }
-
+/*
 void exit(int status)	{
 char* startAddr=(char*)0x80020000;
 goto *startAddr;
 }
+*/
