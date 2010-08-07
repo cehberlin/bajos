@@ -31,6 +31,10 @@ public class OutStream {
 		print(Boolean.toString(b));
 	}
 
+	public synchronized void print(Object obj) {
+		print(obj.toString());
+	}
+
 	public synchronized void println() {
 		print('\n');
 	}
@@ -57,6 +61,11 @@ public class OutStream {
 
 	public synchronized void println(boolean b) {
 		print(b);
+		println();
+	}
+
+	public synchronized void println(Object obj) {
+		print(obj);
 		println();
 	}
 }

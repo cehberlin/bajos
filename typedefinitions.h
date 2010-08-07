@@ -94,7 +94,7 @@ typedef struct 	{
 	u2	this_class;				
 	u2	super_class;				
 	u2	interfaces_count;			
-	u2*	interfaces;	//u2 interfaces[interfaces_count];
+	u2  interfaces;	//u2 interfaces[interfaces_count];
 	u2	fields_count;
 	u2*	field_info;	// field_info fields[fields_count];
 	// nur ConstantValue attribute

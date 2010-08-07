@@ -1393,32 +1393,50 @@ else*/
 					handleException();
 
         CASE    CHECKCAST: DEBUGPRINTLN1("checkcast");
-                    u1 class_cp2 = getU1(cs[cN].constant_pool[getU2(0)]);
-                    if (class_cp2 != CONSTANT_Class) {
-                        printf("invalid class file. Trying to call CHECKCAST for non-class/array/interface type\n");
-                        exit(-1);
-                    }
+					pc += 2;
                     first = opStackPop();
                     if (first.UInt != ((slot)NULLOBJECT).UInt) {
-                        // Do some check here
-                    }
-
+						methodStackPush(cN);
+						methodStackPush(mN);
+						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
+							getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))) {	// classNameLength
+							printf("class not found %d %d",cN,mN); exit(-1);
+						}
+						u2 target = cN;
+						cN = first.stackObj.classNumber;
+                 	    if (!checkInstance(target)) {
+							mN=methodStackPop();
+							cN=methodStackPop();
+							raiseExceptionFromIdentifier("java/lang/RuntimeException", 26);//ClassCastException", 29);
+						} else {	
+							mN=methodStackPop();
+							cN=methodStackPop();
+						}
+					}
 					opStackPush(first);
 
         CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
-                    u1 class_cp3 = getU1(cs[cN].constant_pool[getU2(0)]);
-                    if (class_cp3 != CONSTANT_Class) {
-                        printf("invalid class file. Trying to call INSTANCEOF for non-class/array/interface type\n");
-                        exit(-1);
-                    }
+					pc += 2;
                     first = opStackPop();
                     if (first.UInt != ((slot)NULLOBJECT).UInt) {
-                        // Do some check here
-                        opStackPush((slot) (u4)1);
+						methodStackPush(cN);
+						methodStackPush(mN);
+						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
+							getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))) {	// classNameLength
+							printf("class not found %d %d",cN,mN); exit(-1);
+						}
+						u2 target = cN;
+						cN = first.stackObj.classNumber;
+                 	    if (checkInstance(target)) {
+							opStackPush((slot) (u4)1);
+						} else {
+							opStackPush((slot) (u4)0);
+						}	
+						mN=methodStackPop();
+						cN=methodStackPop();
                     } else {
                         opStackPush((slot) (u4)0);
                     }
-
 		CASE	WIDE:		DEBUGPRINTLN1("wide (not tested)");	// mb jf
 					{
 						// not tested because so many locals are hard to implement on purpose  14.12.2006
@@ -1481,7 +1499,39 @@ scheduler();
 printf("schluss\n");
 }
 
-// not tested yet
+// generalized single comparison of target class with class at addr in cN's constant pool.i
+// keeps cN unchanged if target is no super class of cN.
+// else cN is the super class of former cN which has target as super class.
+void subCheck (u2 target, u2 addr) {
+	u2 super_class = cs[cN].constant_pool[getU2(cs[cN].constant_pool[addr]+1)];
+	methodStackPush(cN);
+	findClass(getAddr(super_class+3), getU2(super_class+1));
+	if (!checkInstance(target)) {
+		cN = methodStackPop();
+	} else {
+		methodStackPop();
+	}
+}
+
+// receives object's class via cN and target class as parameter
+// returns true / false
+u1 checkInstance(u2 target) {
+	if (cN != 0 && cN != target) {
+		// trying the super class. 
+		if (getU2(cs[cN].super_class) > 0) {
+			subCheck(target, getU2(cs[cN].super_class));
+		}
+		// trying the interfaces.
+		if (cN != 0 && cN != target) { 
+			u2 n = getU2(cs[cN].interfaces_count);
+			while (n-- && cN != target) {
+				subCheck(target, getU2(cs[cN].interfaces+n*2));
+			}
+		}
+	}
+	return (target == cN); 
+}
+
 slot createDims(u4 dimsLeft, u2 *count){
 	if (dimsLeft == 0) {
 		return (slot)(u4)0;
@@ -1525,13 +1575,9 @@ void raiseExceptionFromIdentifier(char identifier[], u1 length) {
 	methodStackPush(mN);
 
 	// Create a class of the given type
-	if (findClass(identifier, length) == 0) {
-		if (length != 15 || !strncmp(identifier, "java/lang/Error", 15)) {
-			raiseExceptionFromIdentifier("java/lang/Error", 15);
-		} else {
-			printf("cannot find and therefore not raise java/lang/Error\n");
-			exit(-1);
-		}
+	if (findClass(identifier, strlen(identifier)) == 0) {
+		printf("cannot find and therefore not raise %s\n", identifier);
+		exit(-1);
 	}
 	
 	heapPos = getFreeHeapSpace(findNumFields()+ 1);	// + marker
@@ -1601,8 +1647,7 @@ DEBUGPRINTLN2("%d catch clauses", n);
 		while (cN != 0) {
 			DEBUGPRINTLN2("trying to catch %d",cN);
 			// Class name we are trying to catch
-			DEBUGPRINTLN2("which is %s\n", getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
-
+			DEBUGPRINTLN2("which is %s", getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
 
 			if (classNumberInCodeExceptionTable == cN) {
 				DEBUGPRINTLN1("catching!");

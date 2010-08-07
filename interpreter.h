@@ -219,6 +219,7 @@
 
 void run();
 u2 getStartPC();
+u1 checkInstance(u2 target);
 void handleException();
 void handleArithmeticException();
 void raiseExceptionFromIdentifier(char identifier[], u1 length);
