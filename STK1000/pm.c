@@ -32,23 +32,23 @@ int pm_reset( void )
 {
 	avr32_pm_t *pm = (void *) AVR32_PM_ADDRESS;
 	unsigned int status = SUCCESS;
-	int disable_clock_mask = 0xFFFFffff;
+	int disable_clockmask = 0xFFFFffff;
 
 	pm_set_mclk_source(PM_OSC0);
 
 	pm->cksel = 0x00000000;
 	status |= pm_wait_for_lock(AVR32_PM_ISR_CKRDY);
 
-	pm->cpu_mask = disable_clock_mask;
+	pm->cpumask = disable_clockmask;
 	status |= pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 
-	pm->hsb_mask = disable_clock_mask;
+	pm->hsbmask = disable_clockmask;
 	status |= pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 
-	pm->pba_mask = disable_clock_mask;
+	pm->pbamask = disable_clockmask;
 	status |= pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 
-	pm->pbb_mask = disable_clock_mask;
+	pm->pbbmask = disable_clockmask;
 	status |= pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 
 	pm->ier = 0x7F; /* enable all interrupts*/
@@ -318,7 +318,7 @@ int pm_unmask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_CPU_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->cpu_mask |= ( 1<<(clock/32) );
+				pm->cpumask |= ( 1<<(clock/32) );
 				break;
 			}
 		case PM_HSB_DOMAIN:
@@ -326,7 +326,7 @@ int pm_unmask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_HSB_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->hsb_mask |= ( 1<<(clock/32) );
+				pm->hsbmask |= ( 1<<(clock/32) );
 				break;
 			}
 		case PM_PBA_DOMAIN:
@@ -334,7 +334,7 @@ int pm_unmask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_PBA_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->pba_mask |= ( 1<<(clock/32) );
+				pm->pbamask |= ( 1<<(clock/32) );
 				break;
 			}
 		case PM_PBB_DOMAIN:
@@ -342,7 +342,7 @@ int pm_unmask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_PBB_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->pbb_mask |= ( 1<<(clock/32) );
+				pm->pbbmask |= ( 1<<(clock/32) );
 				break;
 			}
 		default:
@@ -354,7 +354,7 @@ int pm_unmask_module_clock( unsigned int clock )
 
 
 /* Stop a single module clock part of a clock domain */
-int pm_mask_module_clock( unsigned int clock )
+int pmmask_module_clock( unsigned int clock )
 {
 	avr32_pm_t *pm = (void *)AVR32_PM_ADDRESS;
 
@@ -364,7 +364,7 @@ int pm_mask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_CPU_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->cpu_mask &= ~( 1<<(clock/32) );
+				pm->cpumask &= ~( 1<<(clock/32) );
 				break;
 			}
 		case PM_HSB_DOMAIN:
@@ -372,7 +372,7 @@ int pm_mask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_HSB_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->hsb_mask &= ~( 1<<(clock/32) );
+				pm->hsbmask &= ~( 1<<(clock/32) );
 				break;
 			}
 		case PM_PBA_DOMAIN:
@@ -380,7 +380,7 @@ int pm_mask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_PBA_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->pba_mask &= ~( 1<<(clock/32) );
+				pm->pbamask &= ~( 1<<(clock/32) );
 				break;
 			}
 		case PM_PBB_DOMAIN:
@@ -388,7 +388,7 @@ int pm_mask_module_clock( unsigned int clock )
 			if( (clock/32) > PM_PBB_DOMAIN_SIZE )
 				return INVALID_ARGUMENT;
 			else{
-				pm->pbb_mask &= ~( 1<<(clock/32) );
+				pm->pbbmask &= ~( 1<<(clock/32) );
 				break;
 			}
 		default:
@@ -402,22 +402,22 @@ void pm_unmask_all_module_clocks ( void )
 {
 	avr32_pm_t *pm = (void *)AVR32_PM_ADDRESS;
 
-	pm->cpu_mask = 0x00000000;
-	pm->hsb_mask = 0x00000000;
-	pm->pba_mask = 0x00000000;
-	pm->pbb_mask = 0x00000000;
+	pm->cpumask = 0x00000000;
+	pm->hsbmask = 0x00000000;
+	pm->pbamask = 0x00000000;
+	pm->pbbmask = 0x00000000;
 	pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 }
 
 /* Mask all module clocks */
-void pm_mask_all_module_clocks ( void )
+void pmmask_all_module_clocks ( void )
 {
 	avr32_pm_t *pm = (void *)AVR32_PM_ADDRESS;
 
-	pm->cpu_mask = 0xFFFFffff;
-	pm->hsb_mask = 0xFFFFffff;
-	pm->pba_mask = 0xFFFFffff;
-	pm->pbb_mask = 0xFFFFffff;
+	pm->cpumask = 0xFFFFffff;
+	pm->hsbmask = 0xFFFFffff;
+	pm->pbamask = 0xFFFFffff;
+	pm->pbbmask = 0xFFFFffff;
 
 	pm_wait_for_lock(AVR32_PM_ISR_MSKRDY);
 }
@@ -503,7 +503,7 @@ int pm_interrupt_clear( unsigned int source )
 
 
 /* Clear interrupt */
-int pm_interrupt_mask( unsigned int source )
+int pm_interruptmask( unsigned int source )
 {
 	avr32_pm_t *pm = (void *)AVR32_PM_ADDRESS;
 
