@@ -1,16 +1,17 @@
+CPATH	= ./classes
+
+JARGS	= -g:none -source 1.4 -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./sources
 
 all:
-	javac  -verbose -g:none -source 1.4 sources/platform/PlatForm.java -extdirs . -classpath /repos/bajos/BAJOSBOOT/classes
-	mv  sources/platform/PlatForm.class  classes/platform
-	javac  -verbose -source 1.4 -classpath /repos/bajos/BAJOSBOOT/classes -g:none sources/java/io/*.java -extdirs .  -bootclasspath .
-	mv sources/java/io/*.class  classes/java/io
-	javac  -verbose -source 1.4 -classpath /repos/bajos/BAJOSBOOT/classes -g:none sources/java/lang/*.java -extdirs .
-	mv sources/java/lang/*.class  classes/java/lang
-	javac  -verbose -source 1.4 -classpath /repos/bajos/BAJOSBOOT/classes -g:none sources/java/graphics/*.java -extdirs . -bootclasspath .
-	mv sources/java/graphics/*.class  classes/java/graphics/
+	javac  $(JARGS) sources/platform/PlatForm.java
+	javac  $(JARGS) sources/java/io/*.java
+	javac  $(JARGS) sources/java/lang/*.java 
+	javac  $(JARGS) sources/java/graphics/*.java
+	javac  $(JARGS) sources/java/util/*.java
 
-
-
-
-
-
+clean:
+	rm classes/platform/PlatForm.class
+	rm classes/java/io/*.class
+	rm classes/java/lang/*.class
+	rm classes/java/graphics/*.class
+	rm classes/java/util/*.class

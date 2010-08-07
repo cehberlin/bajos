@@ -7,9 +7,8 @@ import platform.*;
  */
 public final class System
 {
-public final static PlatForm	platform=new PlatForm();
-public static final OutStream out = new OutStream(platform);
-public static final InStream in = new InStream(platform);
+public static final OutStream out = new OutStream();
+public static final InStream in = new InStream();
 
 private System() {}
   
@@ -28,7 +27,7 @@ private System() {}
    * Terminate the application.m
    */
   public static void exit(int code) {
-	platform.exit(code);
+	PlatForm.exit(code);
    }
  
   /**
@@ -41,7 +40,7 @@ private System() {}
    */
  //bh public static native long currentTimeMillis();
 public static int currentTimeMillis() {
-	return platform.currentTimeMillis();
+	return PlatForm.currentTimeMillis();
    }
  
   /**
