@@ -37,6 +37,7 @@
 #endif 
 #ifdef AVR8
 #include "AVR8/lcd.h"
+#include "AVR8/thermo.h"
 #include <avr/interrupt.h>
 #endif
 #ifdef STK1000
@@ -1098,13 +1099,10 @@ char getCharWidth(){printf("native getCharWidth\n"); return 0;}
 #ifdef AVR8
 // added 2009 by: Hannes Walz, FHW-BA Berlin
 // Berliner Stadtreinigung
-char getTemperature() 
-{		
-	float t = nativeGetTemperature();	
-	printf("%f is kalt\n", t);
+char getTemperature() 	{		
 	opStackPush((slot) (f4) nativeGetTemperature());
 	return 1;
 }
 #else
-char getTemperature() { return 0; }
+char getTemperature() { printf(" not realized\n");opStackPush((slot)NULLOBJECT);return 1; }
 #endif
