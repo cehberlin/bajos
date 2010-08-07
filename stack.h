@@ -8,7 +8,7 @@
 #ifndef __STACK__
 #define __STACK__
 void	opStackInit(slot**);
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 extern void opStackPush( slot val);
 extern slot opStackPop(void);
 extern slot opStackPeek(void);
