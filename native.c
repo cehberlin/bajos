@@ -1100,9 +1100,9 @@ char getCharWidth(){printf("native getCharWidth\n"); return 0;}
 // Berliner Stadtreinigung
 char getTemperature() 
 {		
-	float t = NativeGetTemperature();	
+	float t = nativeGetTemperature();	
 	printf("%f is kalt\n", t);
-	opStackPush((slot) (f4) NativeGetTemperature());
+	opStackPush((slot) (f4) nativeGetTemperature());
 	return 1;
 }
 #else
