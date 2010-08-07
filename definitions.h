@@ -21,17 +21,20 @@
 	#define	STACKCPSTRING							5
 	#define	STACKNEWSTRINGOBJECT			6
 	
-	#define OBJECTMAGIC							0xA	
+	#define OBJECTMAGIC				0xA	
 	
 	#define MUTEXNOTBLOCKED			1
 	#define MUTEXBLOCKED				0
 
-	#define THREADNOTBLOCKED			0
+	#define THREADNOTBLOCKED		0
 	#define THREADMUTEXBLOCKED		1
 	#define THREADWAITBLOCKED		2
 	#define THREADWAITAWAKENED		3
-	
-	#define NULLOBJECT						((slot) (0x00ffffff |  ((u4)OBJECTMAGIC<<24)))
+#if (AVR32UC3A || AVR32AP7000)
+#define NULLOBJECT				((slot) (0xfffff000 |  ((u4)OBJECTMAGIC<<8)|((u4)OBJECTMAGIC<<4)|((u4)OBJECTMAGIC)))
+#else
+	#define NULLOBJECT				((slot) (0x000fffff |  ((u4)OBJECTMAGIC<<28)|((u4)OBJECTMAGIC<<24)|((u4)OBJECTMAGIC<<20)))
+#endif
 	#define NULLTHREAD						MAXTHREADS-1
 	#define NULLCLASS						0xff	
 
@@ -39,7 +42,7 @@
 #define ARRAYINDEXOUTOFBOUNDEXCEPTION	PRINTEXIT("ArrayIndexOutOfBoundException %d\n",0)
 #define NEGATIVEARRAYSIZEEXCEPTION	PRINTEXIT("NegativeArraySizeException %d\n",0)
 #define NULLPOINTEREXCEPTION		 PRINTEXIT("NullPointerException %d\n",0)
-#define ARITHMETHICEXCEPTION		PRINTEXIT("ArithmeticException Division by Zero ->  delete Thread: %d\n",actualThreadCB->tid)	
+#define ARITHMETHICEXCEPTION		PRINTEXIT("ArithmeticException Division by Zero ->  delete Thread: %d\n",actualThreadCB->tid)
 
 	#define PRINTSTRING(p,l) {\
 			int _i;\
@@ -107,48 +110,48 @@
 	#define		T_LONG    			0xb    // aaray type boolean		
 
 	#ifdef DEBUG
+#define TR 0 //(actualThreadCB->tid)
 		#define OUTSTREAM stdout
-		#define	DEBUGPRINT1(s)	printf(s)
-		#define	DEBUGPRINT2(f,a) printf(f,a)
-		#define	DEBUGPRINT3(f,a,b) printf(f,a,b)
-		#define	DEBUGPRINTLN1(s) {printf(s); printf("\n");}
-		#define	DEBUGPRINTLN2(f,a) {printf(f,a); printf("\n");}
-		#define	DEBUGPRINTLN3(f,a,b) {printf(f,a,b); printf("\n");}
-		#define 	DEBUGPRINTE(x,f)	printf(#x ": " "%"#f" ",x)
-		
-		#define 	PRINTE(x,f)	printf(#x ": " "%"#f" ",x)
-
-		#define DEBUGPRINTF(a,b,c)	printf(a,b,c)
-		#define DEBUGPRINTSTACK {\
+		#define	DEBUGPRINT1(s)	if (TR==actualThreadCB->tid)printf(s)
+		#define	DEBUGPRINT2(f,a) if (TR==actualThreadCB->tid) printf(f,a)
+		#define	DEBUGPRINT3(f,a,b) if (TR==actualThreadCB->tid) printf(f,a,b)
+		#define	DEBUGPRINTLN1(s) if (TR==actualThreadCB->tid) {printf(s); printf("\n");}
+		#define	DEBUGPRINTLN2(f,a) if (TR==actualThreadCB->tid) {printf(f,a); printf("\n");}
+		#define	DEBUGPRINTLN3(f,a,b) if (TR==actualThreadCB->tid) {printf(f,a,b); printf("\n");}
+		#define 	DEBUGPRINTE(x,f)	if (TR==actualThreadCB->tid) printf(#x ": " "%"#f" ",x)
+		#define 	PRINTE(x,f)	if (TR==actualThreadCB->tid) printf(#x ": " "%"#f" ",x)
+		#define DEBUGPRINTF(a,b,c)	if (TR==actualThreadCB->tid)printf(a,b,c)
+		#define DEBUGPRINTSTACK if (TR==actualThreadCB->tid){\
 				int i;\
-				printf("|_| stack:");\
-				for (i=0; i <=16; i++){\
+				for (i=-8; i < 0; i++){\
+				printf("%08x ",((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
+		} ;	printf(":|_|stack\n");}
+/*
 				VT102Attribute('0', COLOR_WHITE);printf(" ");\
 				if (i==(opStackGetSpPos()))VT102Attribute ('4', COLOR_GREEN); else VT102Attribute('0', COLOR_WHITE);\
-				printf("%8x",(unsigned int)((opStackGetValue(i))).UInt);\
-		} };printf("\n")
-
-		#define DEBUGPRINTLOCALS {\
+*/
+		#define DEBUGPRINTLOCALS if (TR==actualThreadCB->tid){\
 				int i;\
 				printf("|.| local:");\
 				for (i=0; i < 8; i++)\
-				printf(" %8x",opStackGetValue(local+i).UInt);\
-		} printf("\n")
+				printf(" %08x",opStackGetValue(local+i).UInt);\
+		 printf("\n");}
 		
-		#define DEBUGPRINTHEAP {\
+		#define DEBUGPRINTHEAP 
+/*{\
 			int i,j;\
 			printf("|#|  heap:\n");\
-			for (j=0; j <200; j+=8){\
+			for (j=0; j <33; j+=8){\
 			for (i=0; i < 8; i++)\
 				printf(" %8x",(*(heapBase+i+j)).UInt);printf("\n");}\
 		} printf("\n")
-		
+*/		
 		#define DEBUGPRINTSTRING(p,l) {\
 			int _i;\
 			for (_i=0; _i < (l); _i++)\
 				printf("%c",*((u1*)(p)+_i));\
-		} printf(" ");
-		#define DEBUGPRINTLNSTRING(p,l)	DEBUGPRINTSTRING(p,l); printf("\n")
+		 printf(" ");}
+		#define DEBUGPRINTLNSTRING(p,l)	if (TR==actualThreadCB->tid){DEBUGPRINTSTRING(p,l); printf("\n");}
 	#else
 		#define	DEBUGPRINT1(s)	
 		#define	DEBUGPRINT2(f,a)

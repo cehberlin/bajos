@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 
-
-#define CLASSPATH 			"/home/SWPROJEKTE/bajosavr"
-#define BOOTCLASSPATH	CLASSPATH"/bajosboot/classes"
+#define APPCLASSPATH 	"/home/Desktop/bajosavr/javatests"
+#define CLASSPATH 			"/home/Desktop/bajosavr"
+#define BOOTCLASSPATH	CLASSPATH"/BAJOSBOOT/classes"
 #define LANG					BOOTCLASSPATH"/java/lang"
 #define IO 						BOOTCLASSPATH"/java/io"
 #define UTIL						BOOTCLASSPATH"/java/util"
@@ -13,17 +13,28 @@
 #define NUMCLASSES		(sizeof(classFiles)/sizeof(classFiles[0]))
 
 int main(int argc, char* argv[])	{
-char* classFiles[] ={  						LANG"/String.class", LANG"/Object.class" , 
-						PLATFORM"/Charon.class",
+const char* classFiles[] ={  LANG"/String.class",
+						LANG"/Object.class" , 
+						PLATFORM"/PlatForm.class",
  						LANG"/System.class",
  						LANG"/Thread.class",
  						LANG"/Math.class",
  						LANG"/Throwable.class",
  						LANG"/Exception.class",
+						LANG"/Error.class",
+						LANG"/CharSequence.class",  
+						LANG"/ArithmeticException.class",
+						LANG"/ClassCastException.class", 
  						LANG"/Integer.class",
  						LANG"/StringBuilder.class", 
+//						LANG"/StringBuffer.class", 
+						LANG"/StringUtils.class", 
+						LANG"/Runtime.class",
+						LANG"/RuntimeException.class",  
+						LANG"/InterruptedException.class", 
 						IO"/OutStream.class",
-  	 					IO"/InStream.class"	};
+  	 					IO"/InStream.class"
+  	 					};
 
 FILE*  readFile,*writeFile;
 unsigned int  length=NUMCLASSES;	// 4 Bytes
@@ -33,6 +44,7 @@ if ((writeFile=fopen(argv[1],"w")) < 0) {perror("can not open");exit(-2);}
 fwrite(&length,sizeof(int),1,writeFile);		// NUMCLASSES
 for (int i=0; i< NUMCLASSES; i++)	{
 if ((readFile=fopen(classFiles[i],"r")) < 0) {perror("can not open");exit(-3);}
+printf("%d %s\n",i,classFiles[i]);
 fseek(readFile,0L,SEEK_END);
 length=ftell(readFile);
 rewind(readFile);

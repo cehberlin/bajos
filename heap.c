@@ -13,8 +13,9 @@
 #include "heap.h"
 // heap 
 void heapInit()	{
-if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL)  printf("malloc error\n");			// heap fixed size!!
+if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("malloc error\n");exit(-1);}			// heap fixed size!!
 	while (heapTop > 0 )			*(heapBase+(--heapTop))= NULLOBJECT;
+DEBUGPRINTHEAP;
 }
 
 slot heapGetElement(u2 pos)			{	return *(heapBase + pos);	}
@@ -26,6 +27,7 @@ u2	getNextHeapObjectPos(u2 pos)	{
 											}
 
 u2 getFreeHeapSpace(u2 length)	{	// todo er muss genau einen Platz der Länge zurückgeben
+//printf("length %x \n",length);
 // todo verschmelzen von löchern
 // erkennnen circularer referencen on heap ohne bezug zu opstack
 if ((heapTop+length-1) < MAXHEAP) 	{
@@ -61,7 +63,7 @@ break;}
 else
 oldElementPos=nextElementPos;
 }
-// jetzt noch male Probieren
+// jetzt noch mal Probieren
 nextElementPos=0;
 do	{
 if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE) 
