@@ -50,7 +50,7 @@
 #include "compiler.h"
 #include "spi.h"
 #include "pwm.h"
-#include "../platform.h"
+
 /*! Write Command start byte */
 #define DIP204_WRITE_COMMAND             0xF8
 
