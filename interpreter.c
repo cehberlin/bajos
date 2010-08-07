@@ -861,7 +861,7 @@ u2 i;
 										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 											if (actualThreadCB->hasMutexLockForObject[i].UInt==opStackGetValue(local).UInt) break;
 										if (i==MAXLOCKEDTHREADOBJECTS) { // another thread has the lock
-											actualThreadCB->status=THREADMUTEXBLOCKED;	//mutex blocked
+											actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
 											actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
 											// thread sleeps, try it later
 											opStackSetSpPos(methodStackPop()+findNumArgs1+1);//(BYTECODEREF)+1); //native!!!
@@ -922,7 +922,7 @@ u2 i;
 										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 										if (actualThreadCB->hasMutexLockForObject[i].UInt==cs[cN].classInfo.UInt) break;
 										if (i==MAXLOCKEDTHREADOBJECTS) {
-										actualThreadCB->status=THREADMUTEXBLOCKED;	//mutex blocked
+										actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
 										actualThreadCB->isMutexBlockedOrWaitingForObject=cs[cN].classInfo;
 										// thread sleeps, try it later
 										opStackSetSpPos(methodStackPop()+findNumArgs1);//(BYTECODEREF));
@@ -976,8 +976,8 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
 						myTCB=myTCB-> succ;
 						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==mySlot.UInt)&&
-											(myTCB->status==THREADMUTEXBLOCKED))	{
-							myTCB->status=THREADNOTBLOCKED; //!!
+											(myTCB->state==THREADMUTEXBLOCKED))	{
+							myTCB->state=THREADNOTBLOCKED; //!!
 							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
 														}
 								}										}
@@ -1127,7 +1127,7 @@ opStackPush((slot)(u4)mySlot.stackObj.arrayLength);
 										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 										if (actualThreadCB->hasMutexLockForObject[i].UInt==mySlot.UInt) break;
 										if (i==MAXLOCKEDTHREADOBJECTS) {
-										actualThreadCB->status=THREADMUTEXBLOCKED;	//mutex blocked
+										actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
 										actualThreadCB->isMutexBlockedOrWaitingForObject=mySlot;
 										// thread sleeps, try it later
 										opStackSetSpPos(methodStackPop()+findNumArgs(BYTECODEREF)+1);
@@ -1150,7 +1150,7 @@ opStackPush((slot)(u4)mySlot.stackObj.arrayLength);
 						for (i=0; i < numThreads; i++)	{	// alle wecken!
 						myTCB=myTCB-> succ;
 						if  (myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(mySlot.stackObj.pos).UInt)	{
-						myTCB->status=THREADNOTBLOCKED; //!!
+						myTCB->state=THREADNOTBLOCKED; //!!
 //						myTCB->isMutexBlockedForObjectOrWaiting=NULLOBJECT.UInt;								
 }
 															}
