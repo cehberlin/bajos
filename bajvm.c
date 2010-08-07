@@ -83,7 +83,6 @@ int main(int argc,char* argv[]){
 if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
-			printf("cN %d\n",cN);
 			run();			}	
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
