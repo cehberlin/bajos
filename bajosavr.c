@@ -116,6 +116,7 @@ apClassFileBase=STK1000_SDRAM_BASE;	// app classes in sdram
 classFileBase=(u1*)0x00040000;  // boot classes in flash
 apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
+
 #if (LINUX||AVR8)
 	if ((classFileBase=(u1*)malloc((size_t)MAXBYTECODE))==NULL)
 	 {printf("malloc error\n");exit(-1);}
@@ -130,6 +131,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 			analyzeClass(&cs[cN]);	
 			length+=cs[cN].classFileLength;	}
 #endif
+
 #if (NGW100||STK1000|| EVK1100)
 // analysieren der bootklassen, welche mit jtag-programming schon im flash stehen
 u1* addr;
@@ -156,10 +158,7 @@ length=0;
 			cs[cN].classFileStartAddress=apClassFileBase+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
 			printf("\n");
-//			for (length=0; length < 16;length++)
-//			printf("%2x ",*(cs[cN].classFileStartAddress+length));
 			length+=cs[cN].classFileLength;
-//			if (cs[cN].classFileLength ==0) break;
 			analyzeClass(&cs[cN]);
 			printf("noch eine Klasse (y)");
 			if (conIn()!='y') break;
