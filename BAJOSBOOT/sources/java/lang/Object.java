@@ -4,11 +4,15 @@ package java.lang;
  * All classes extend this one, implicitly.
  */
 public class Object	{
+	public Object() {
+	}
+
   public boolean equals (Object aOther)	{
     return this == aOther;					}
 
-  public int hashCode()						{
-    return getDataAddress (this);			}
+/*	public int hashCode() {
+    return getDataAddress (this);
+	} */
 
   /**
    * Wake up one thread blocked on a wait(). Must be synchronized on
@@ -42,31 +46,18 @@ public class Object	{
    * </ol>
    * @param timeout maximum time in milliseconds to wait. Zero means forever.
    */
- //h  public final native void wait(long timeout) throws InterruptedException	{
   
-  public final void wait(/*long*/int timeout) {//bhthrows InterruptedException	{
+  public final void wait(int timeout) {
   waitTime(timeout);
   }
   
-  
- public native void waitTime(int timeout);
-  /**
-   * Returns the empty string. It's here to satisfy javac.
-   */
+	public native void waitTime(int timeout);
+
   public String toString()
   {
-    return "";
+    return "Object@?"; // + getDataAddress(this);
   }
 
-  /**
-   * Returns <code>null</code>. It's here to satisfy javac.
-   */
- /*bh public final Class getClass()
-  {
-    return null;
-  }
-*/
   private native static int getDataAddress (Object obj);
 }
-
 

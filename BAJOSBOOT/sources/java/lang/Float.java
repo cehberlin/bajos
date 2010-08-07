@@ -36,7 +36,7 @@ this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
-// bearbeitet für bajos von Jascha Radziewski, FHW-Berlin/BA Inf06
+// bearbeitet fuer bajos von Jascha Radziewski, FHW-Berlin/BA Inf06
 // Deutsche Post IT Service GmbH
 package java.lang;
 

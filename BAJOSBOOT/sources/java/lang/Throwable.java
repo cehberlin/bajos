@@ -7,9 +7,4 @@ public class Throwable
 {
   public Throwable() {
   }
-    
-  public String getMessage()
-  {
-    return "xxxxxxxxxxx";
-  }
 }
