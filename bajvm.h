@@ -6,8 +6,8 @@
 // a jvm for 8 Bit MC !!, e.g. atmega128 CharonII and linux and avr32
 // version 0.1 vom 1.10.07
 
-#ifndef __BAJOSAVR__
-#define __BAJOSAVR__
+#ifndef __BAJVM__
+#define __BAJVM__
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -67,5 +67,13 @@ GLOBAL u1	timeOut 	INIT__(0);
 //GLOBAL u2	endBajos	INIT__(0);
 #ifdef AVR8
 GLOBAL FILE 	uartAVR8;
-#endif
-#endif
+#endif //AVR8
+#ifdef DEBUGOPSTACK
+u2 maxOpStack		INIT__(0);
+#endif // DEBUGOPSTACK
+#ifdef DEBUGMETHODSTACK
+u2 maxMethodStack	INIT__(0);
+#endif // DEBUGMETHODSTACK
+
+
+#endif // __BAJVM
