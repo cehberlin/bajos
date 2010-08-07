@@ -19,7 +19,7 @@ t->methodSpPos=(numThreads==0)?0:5;
 t->tid=tid++;
 t->priority=(actualThreadCB==NULL) ?NORMPRIORITY:actualThreadCB->priority;
 t->numTicks=0;
-t->status=THREADNOTBLOCKED;
+t->state=THREADNOTBLOCKED;
 t->pred=(actualThreadCB==NULL)?t:actualThreadCB;
 t->succ=(actualThreadCB==NULL)?t:actualThreadCB->succ;
 t->pred->succ=t;
@@ -66,7 +66,7 @@ numThreads--;
 
 void scheduler(void)	{
 u1 i;
-if ((numThreads==1)/*&&((actualThreadCB->status)==THREADNOTBLOCKED)*/) return;
+if ((numThreads==1)/*&&((actualThreadCB->state)==THREADNOTBLOCKED)*/) return;
 // scheduling -> next thread
 // gegenwärtig thread wechsel nach jedem jvm befehl
 methodStackPush(local);
@@ -75,21 +75,21 @@ methodStackPush(mN);
 methodStackPush(pc);
 methodStackPush((u2)(opStackGetSpPos()));
 actualThreadCB->methodSpPos=methodStackGetSpPos();//methodSp;
-//printf("th %d %d %d %d\n",numThreads,actualThreadCB->status,actualThreadCB->succ->status,THREADMUTEXBLOCKED);
+//printf("th %d %d %d %d\n",numThreads,actualThreadCB->state,actualThreadCB->succ->state,THREADMUTEXBLOCKED);
 do {
 actualThreadCB=actualThreadCB->succ;
-//printf(":::: %d    stat %d\n",actualThreadCB->tid,actualThreadCB->status);
-if ((actualThreadCB->status)==THREADNOTBLOCKED) break;
-//if ((actualThreadCB->status)==THREADMUTEXBLOCKED) ;
-if ((actualThreadCB->status)==THREADMUTEXBLOCKED) continue;
-if ((actualThreadCB->status)==THREADWAITBLOCKED) continue;
-if (((actualThreadCB->status)==THREADWAITAWAKENED) && 
-	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).status)==MUTEXBLOCKED))
+//printf(":::: %d    stat %d\n",actualThreadCB->tid,actualThreadCB->state);
+if ((actualThreadCB->state)==THREADNOTBLOCKED) break;
+//if ((actualThreadCB->state)==THREADMUTEXBLOCKED) ;
+if ((actualThreadCB->state)==THREADMUTEXBLOCKED) continue;
+if ((actualThreadCB->state)==THREADWAITBLOCKED) continue;
+if (((actualThreadCB->state)==THREADWAITAWAKENED) && 
+	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex)==MUTEXBLOCKED))
 	continue;
 // awakened and mutexnotblocked
-if ((actualThreadCB->status)==THREADWAITAWAKENED)	{
-HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).status=MUTEXBLOCKED;
-actualThreadCB->status=THREADNOTBLOCKED;
+if ((actualThreadCB->state)==THREADWAITAWAKENED)	{
+HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
+actualThreadCB->state=THREADNOTBLOCKED;
 /*	for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 				if (actualThreadCB->hasMutexLockForObject[i].UInt!=NULLOBJECT.UInt)continue;else break;
 				if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(251);	}
@@ -97,10 +97,9 @@ actualThreadCB->status=THREADNOTBLOCKED;
 				actualThreadCB->hasMutexLockForObject[i]=(actualThreadCB->isMutexBlockedOrWaitingForObject);
 				actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 */
-
+actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 break;
 }
-
 
 } while (1);
 
