@@ -69,6 +69,9 @@ scheduler
 
 int main(int argc,char* argv[]){
 	initHW();
+	printf("jetzt gehts los\n");
+//	printf_P(PSTR("uuuuuuuuuuuuuiiiiiiiiiinnBajos starting\n"));
+	printf("ljetzt gehts los\n");
 #ifdef LINUX
 	initVM(argc-1,argv);	
 #else
@@ -79,6 +82,7 @@ int main(int argc,char* argv[]){
 #else
 	printf("Bajos starting\n");
 #endif
+printf("Bajos startingxxxxx\n");
 
 	createThread();			/* for main*/
 	opStackBase = actualThreadCB->opStackBase;
