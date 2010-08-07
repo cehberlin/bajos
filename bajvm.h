@@ -10,8 +10,8 @@
 #ifndef __BAJOSAVR__
 #define __BAJOSAVR__
 #include <stdlib.h>
-#include <stdlib.h>
-
+#include <stdio.h>
+#include <stdarg.h>
 #include "typedefinitions.h"
 #include "limits.h"
 #include "definitions.h"
