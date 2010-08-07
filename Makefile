@@ -85,7 +85,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(LANG)/Thread.java $(LANG)/Throwable.java \
 			$(LANG)/Math.java $(LANG)/Float.java \
-			$(LANG)/Boolean.java \
+			$(LANG)/Boolean.java $(LANG)/Byte.java\
 			$(LANG)/Integer.java $(UTIL)/Random.java \
 			$(LANG)/Exception.java  $(LANG)/Error.java \
 			$(LANG)/ArithmeticException.java $(LANG)/ClassCastException.java \
@@ -305,10 +305,14 @@ FLASH		= internal@0x80000000,512Kb
 # Clock source to use when programming: [{xtal|extclk|int}]
 PROG_CLOCK	= xtal
 DEFS		= -D BOARD=EVK1100
-
+ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 # Linker script file if any
 #LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
+DEFS+= -D WITHMON
+LINKER_SCRIPT = $(APPPATH)EVK1100/link_uc3a0512withmon.lds
+else
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
+endif
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
 WARNINGS	= -Wall
@@ -334,6 +338,8 @@ LDFLAGS		= -march=$(ARCH) -mpart=$(PART) \
 		$(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
 LOADLIBES	= -lc
 LDLIBS		= $(LIBS:%=-l%)
+withmon:	
+	@:
 
 evk1100:
 	@:
@@ -343,6 +349,8 @@ compile: $(TARGETFILE)
 $(TARGETFILE): $(OBJFILES)
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $(TARGETFILE)
+	@echo $(MSG_BINARY_IMAGE)
+	$(OBJCOPY) -O binary $(TARGETFILE)  $(TARGETFILE).bin
 	$(VERBOSE_NL)
 
 # Preprocess, compile & assemble: create object files from C source files.
@@ -371,8 +379,8 @@ program: $(TARGETFILE)
 	sleep 2
 
 progbootpack:
-	@printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
-	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
+	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
+	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
 	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp
 	@$(SLEEP) $(SLEEPUSB)
 endif
@@ -788,6 +796,12 @@ compADC:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/ADC.java
 
+Inp:	 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/InpTest.class
+
+compInp:
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+		$(APPCLASSPATH)/InpTest.java
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES
