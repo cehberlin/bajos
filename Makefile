@@ -301,7 +301,7 @@ avr8app:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -mtiny-stack -o $@ $< 
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -O3 -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -mtiny-stack -o $@ $< 
 
 %o : %asm
 	@echo $(MSG_COMPILING)
@@ -314,7 +314,7 @@ OBJFILES	= $(BAJOSSOURCES:.c=.o) $(ARDUINOMEGASOURCES:.c=.o) $(ARDUINOMEGAASMSOU
 ARCH		= AVR5
 PART		= atmega1280
 DEFS = -DAVR8 -DAM -DF_CPU=16000000
-OPTIMIZATION	= -O2
+OPTIMIZATION	= -O3
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 # Linker script file if any
 #LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
@@ -555,7 +555,7 @@ progbootpack:
 
 
 #with an without monitor
-progbootpackevk1104:	bootpack
+burnbootpackevk1104:	bootpack
 	avr32program  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
 
 #with monitor
