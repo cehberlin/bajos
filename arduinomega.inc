@@ -83,13 +83,13 @@ burnbajos:
 	$(PROGRAM) -p m1280 -c avrispmkII -D -e -P usb  -Uflash:w:bajos.bin:a
 
 
-.PHONY:	writeFusesM
+.PHONY:	writeFusesM		# arduinoMega with monitor starts at 0xf000
 writeFusesM:	# 4 k word boot section, start from boot section after reset
 	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
 	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd8:m
 	$(PROGRAM) -p m1280 -c avrispmkII -P usb  -Uefuse:w:0xf5:m
 
-.PHONY:	writeFusesA
+.PHONY:	writeFusesA		# arduinoMega without monitpts starts at 0x0000
 writeFusesA:	# 4 k word boot section, start from address 0000 after reset
 	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
 	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd9:m
