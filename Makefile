@@ -109,7 +109,6 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 #			$(LANG)/StringBuilder.java \
 #			$(UTIL)/RandomAccess.java \
 
-
 # a small subset of java system sources for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
@@ -117,7 +116,8 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			$(LANG)/ArrayIndexOutOfBoundsException.java 
+			$(LANG)/ArrayIndexOutOfBoundsException.java \
+			javatests/Temperature.java
 
 #			$(LANG)/Throwable.java $(LANG)/Math.java \
 #$(LANG)/StringBuilder.java
@@ -218,7 +218,7 @@ compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800900,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff,--defsym=__stack=0x800800    -Wl,-u,vfprintf -lprintf_flt -lm -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800900,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff,--defsym=__stack=0x800800    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
 # ... <- stack 0x1100 data -> bss ->  0x2200 heap->
 	@echo $(MSG_BINARY_IMAGE)
