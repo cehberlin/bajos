@@ -45,7 +45,6 @@ static u2 nameLength;
 static u1* descr;		// field or method
 static u2 descrLength;
 static u2 i;
-							
 void run(){	// in: classNumber,  methodNumber
 u1 code, byte1, byte2;
 pc	= getStartPC();	
@@ -101,7 +100,7 @@ do {		//while(1)
 											mySlot.stackObj.type=STACKCPSTRING;
 											opStackPush(mySlot);									}
 										else	opStackPush(( slot)getU4(CP(cN,byte1)+1));	// int or float const value on stack
-										DEBUGPRINTLN2("ldc  push\t...,=> x%x\n",opStackPeek().UInt);
+										DEBUGPRINTLN2("ldc  push\t...,=> x%x",opStackPeek().UInt);
 										DEBUGPRINTSTACK;
 										DEBUGPRINTHEAP;
 		CASE	LDC_W:				if (getU1(CP(cN,getU2(0))) == CONSTANT_String)
@@ -167,12 +166,11 @@ cN=(u1)(mySlot.stackObj.pos >>8);
 cN=oldcN;
 									}
 									else arrayLength=mySlot.stackObj.arrayLength;
-								
 								if	(index < 0 
 									|| arrayLength < index
 									||index > (MAXHEAPOBJECTLENGTH-1))	{
 									ARRAYINDEXOUTOFBOUNDEXCEPTION;}
-								opStackPoke(( slot)heapGetElement((u2)mySlot.UInt+index+1));
+								opStackPoke(( slot)heapGetElement((u2)mySlot.stackObj.pos/*UInt*/+index+1));
 #ifdef DEBUG
 		switch (code)		{
 		case   IALOAD:		DEBUGPRINTLN2("iaload  %x,=> ",mySlot.UInt);
@@ -207,7 +205,7 @@ cN=oldcN;
 		CASE	ISTORE_0:
 		case	ISTORE_1:
 		case	ISTORE_2:
-		case	ISTORE_3:		DEBUGPRINTLN3("ISTORE_%d pop -> local   %x=>,",byte1,opStackPeek().UInt);
+		case	ISTORE_3:		DEBUGPRINTLN3("ISTORE_%d pop -> local   %x=>,",code-ISTORE_0,opStackPeek().UInt);
 									opStackSetValue(local + code - ISTORE_0,opStackPop());
 									DEBUGPRINTSTACK;	
 									DEBUGPRINTLOCALS;	
@@ -219,7 +217,7 @@ cN=oldcN;
 		CASE	FSTORE_0:
 		case	FSTORE_1:
 		case	FSTORE_2:
-		case	FSTORE_3:		DEBUGPRINTLN2("FSTORE_%d pop -> local   =>,",byte1);
+		case	FSTORE_3:		DEBUGPRINTLN2("FSTORE_%d pop -> local   =>,",code - FSTORE_0);
 									opStackSetValue(local+code - FSTORE_0,opStackPop());
 									DEBUGPRINTSTACK;
 									DEBUGPRINTLOCALS;
@@ -239,9 +237,15 @@ cN=oldcN;
 		case	AASTORE:
 		case	BASTORE:
 		case	CASTORE:
-		case	SASTORE:		{	slot value = opStackPop();
-									s2 index = (s2)opStackPop().Int;
+		case	SASTORE:		{
+									DEBUGPRINTSTACK;
+
+
+	slot value = opStackPop();
+
+									s2 index = (s2)(opStackPop().Int);
 									mySlot = opStackPop();
+//	printf("myindex: %d %04x\n",index,mySlot);	
 									u2 arrayLength;
 									if (mySlot.stackObj.type==STACKCPSTRING) {
 									u1 oldcN=cN;
@@ -254,7 +258,7 @@ cN=oldcN;
 									if	(index < 0 
 											|| arrayLength < index
 											||index > (MAXHEAPOBJECTLENGTH-1))	{
-											printf("index: %d",index);								
+//											printf("index: %d %04x",index,mySlot);								
 											ARRAYINDEXOUTOFBOUNDEXCEPTION;}
 									heapSetElement(value,mySlot.stackObj.pos+index+1);
 									DEBUGPRINTSTACK;
@@ -370,13 +374,13 @@ cN=oldcN;
 								DEBUGPRINTSTACK;	//mb jf
 		CASE	DMUL:		PRINTSEXIT("DMUL",nry,4);
 		CASE	IDIV:			DEBUGPRINTLN1("IDIV");
-						mySlot = opStackPop();		//mb fj changed divident order
+						mySlot = opStackPop();		//mb fj changed dividend order
 						if(mySlot.Int == 0)	{ARITHMETHICEXCEPTION;}
 						opStackPoke(( slot)( opStackPeek().Int / mySlot.Int));
 						DEBUGPRINTSTACK;
 		CASE	LDIV:			PRINTSEXIT("LDIV",nry,4);
 		CASE	FDIV:			DEBUGPRINTLN1("FDIV");
-						mySlot = opStackPop();		//mb fj changed divident order
+						mySlot = opStackPop();		//mb fj changed dividend order
 						if(mySlot.Float == 0.0)	{ARITHMETHICEXCEPTION;}
 						opStackPoke(( slot)(opStackPeek().Float / mySlot.Float));
 						DEBUGPRINTSTACK;
@@ -671,7 +675,7 @@ int  i;
 								}
 							}
 						}	// got position in constant pool --> results in position on heap
-						DEBUGPRINTSTRING(fieldName,fieldNameLength);
+						DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
 	opStackPush(heapGetElement( cs[cN].classInfo.stackObj.pos+i+1));
 						pc += 2;
 						cN = methodStackPop();
@@ -696,7 +700,7 @@ int  i;
 							+3))
 							+3);		// bytes
 						u2 fieldDescriptorNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length
-//						DEBUGPRINTSTRING(fieldDescriptorName,fieldDescriptorNameLength);
+//						DEBUGPRINTLNSTRING(fieldDescriptorName,fieldDescriptorNameLength);
 						findClass(
 								(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 								getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
@@ -720,6 +724,7 @@ u2 i;
 					}
 
 		CASE	GETFIELD:	DEBUGPRINTLN1("getfield ->   heap to stack:");
+							DEBUGPRINTSTACK;
 						methodStackPush(cN);
 						{u2 objRef=(u2)opStackPop().stackObj.pos;
 							u1* fieldName = (u1*)getAddr(
@@ -752,10 +757,9 @@ u2 i;
 							// jetzt hab ich alles
 							// den Typ
 							// die Stelle auf dem heap
-							DEBUGPRINTSTRING(fieldName,fieldNameLength);
-							DEBUGPRINTSTACK;
+							DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
+
 							opStackPush(( slot)heapGetElement(objRef + i +1).Int);//bh2007!!!!!!!
-							DEBUGPRINTSTACK;
 							pc += 2;
 							cN = methodStackPop();
 							DEBUGPRINTSTACK;
@@ -824,7 +828,7 @@ u2 i;
 						//  get method from cN or superclasses
 						methodName = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
 						methodNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+1);
-						DEBUGPRINTSTRING(methodName,methodNameLength);
+						DEBUGPRINTLNSTRING(methodName,methodNameLength);
 						DEBUGPRINTLNSTRING(methodDescr,methodDescrLength);		
 						methodDescr = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
 						methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
@@ -838,11 +842,12 @@ u2 i;
 								className = (u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
 								classNameLength = getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1);
 																}
-						DEBUGPRINTSTRING(className,classNameLength);											
+						DEBUGPRINTLNSTRING(className,classNameLength);											
 						cN = findMethod(className,classNameLength,methodName,methodNameLength,methodDescr,methodDescrLength);	// out cN,mN
 						opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
 								if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 									if ( HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
+//printf("invoke sync %04x\n",opStackGetValue(local));
 									// mutex is free, I /the thread) have not the mutex and I can get the mutex for the object
 									actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 									HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
@@ -870,7 +875,10 @@ u2 i;
 										break;								// let the scheduler work
 											}
 										else // yes I have lock
+{
+//printf("invoke sync %04x\n",opStackGetValue(local));
 										actualThreadCB->lockCount[i]++;	// count
+}
 										}	
 									};
 // no synchronized,or I have the lock
@@ -902,9 +910,11 @@ u2 i;
 						findMethod(	className,classNameLength,methodName,methodNameLength,
 										methodDescr,methodDescrLength);
 						DEBUGPRINTLNSTRING(methodName,methodNameLength);
-						DEBUGPRINTSTRING(className,classNameLength);		
+						DEBUGPRINTLNSTRING(className,classNameLength);		
 						opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
 								if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
+//printf("invoke sync static %04x %d %d\n",cs[cN].classInfo,cN,mN);
+
 									if ( HEAPOBJECTMARKER(cs[cN].classInfo.stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
 									actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 									HEAPOBJECTMARKER(cs[cN].classInfo.stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
@@ -958,9 +968,11 @@ nativeVoidReturn:	DEBUGPRINTLN1("native ");
 case	RETURN:	DEBUGPRINTLN1("return");
 						if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 						// have I always the lock ?
+
 						if(getU2(METHODBASE(cN,mN))&ACC_STATIC)
 								mySlot=cs[cN].classInfo;
 						else	mySlot=opStackGetValue(local);	
+//printf("ret sync %04x\n",mySlot);
 						for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	// must be in
 							if ((actualThreadCB->hasMutexLockForObject[i]).UInt==mySlot.UInt) break;
 						if (actualThreadCB->lockCount[i]>1)	actualThreadCB->lockCount[i]--; // fertig
@@ -980,7 +992,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 															}
 								}														}
 						if (methodStackEmpty())	{
-							printf("empty method stack\n");
+							//printf("empty method stack\n");
 							if(strncmp("<clinit>",(char*)findMethodByMethodNumber(),8) == 0){	//mb jf if not <clinit> you're done :-D
 							DEBUGPRINTLN1(" from <clinit>");
 							DEBUGPRINTSTACK;
@@ -1008,7 +1020,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 										getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)))	// classNameLength
-							printf("not found");
+							printf("not found %d %d",cN,mN);
 						heapPos=getFreeHeapSpace(findNumFields()+ 1);	// + marker
 						mySlot.stackObj.pos=heapPos;
 						mySlot.stackObj.magic=OBJECTMAGIC;
@@ -1031,11 +1043,14 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						DEBUGPRINTHEAP;
 						mN = methodStackPop();
 						cN = methodStackPop();
-						DEBUGPRINTSTRING(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
+						DEBUGPRINTLNSTRING(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 							getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1));
 		CASE	NEWARRAY:	DEBUGPRINTLN1("newarray");	// mb jf
 					{
-						s2 count = opStackPop().Int;
+DEBUGPRINTSTACK;
+//printf("na %x \n",opStackPeek());
+						s2 count = (s2)opStackPop().UInt;
+
 						if(count < 0){	NEGATIVEARRAYSIZEEXCEPTION;}
 			if (count > (MAXHEAPOBJECTLENGTH-1))	{
 			ARRAYINDEXOUTOFBOUNDEXCEPTION;}
@@ -1068,7 +1083,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 		CASE	ANEWARRAY:	DEBUGPRINTLN1("anewarray");	// mb jf
 					{
 					exit(-77);
-						s2 count = opStackPop().Int;
+						s2 count =(s2) opStackPop().Int;
 						if(count < 0)								NEGATIVEARRAYSIZEEXCEPTION;
 						if (count > (MAXHEAPOBJECTLENGTH-1))	{ARRAYINDEXOUTOFBOUNDEXCEPTION;}
 						// resolve type of array / interface /.stackObject from constant pool at index
@@ -1277,7 +1292,7 @@ void handleException(){
 	u1 classNumberInCodeExceptionTable=cN;
 		mN=methodStackPop();
 		cN=methodStackPop();
-		DEBUGPRINTSTRING((u1*)getAddr(CP(cN, getU2(CP(cN,getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i))+1))+3),
+		DEBUGPRINTLNSTRING((u1*)getAddr(CP(cN, getU2(CP(cN,getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i))+1))+3),
 					getU2(CP(cN, getU2(CP(cN,getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i))+1))+1));
 
 //		if(!&&  isASubClassException(getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i)))-> exit
