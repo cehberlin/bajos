@@ -1144,14 +1144,21 @@ nativeVoidReturn:
 					actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 					HEAPOBJECTMARKER(first.stackObj.pos).mutex=MUTEXNOTBLOCKED;
 					ThreadControlBlock* myTCB=actualThreadCB;
-					for (i=1; i < numThreads; i++)	{	/* alle blocked for object wecken!*/
-						myTCB=myTCB-> succ;
-						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==first.UInt)&&
-						        (myTCB->state==THREADMUTEXBLOCKED))	{
-							myTCB->state=THREADNOTBLOCKED; /*!!*/
-							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
-						}
-					}
+
+					u1 k,max;
+										
+					for(i=0;i<(MAXPRIORITY);i++){
+						max=(threadPriorities[i].count);
+						myTCB=threadPriorities[i].cb;
+						for(k=0;k<max;k++){
+							if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==first.UInt)&&
+								(myTCB->state==THREADMUTEXBLOCKED))	{
+								myTCB->state=THREADNOTBLOCKED; /*!!*/
+								myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+							}							
+							myTCB=myTCB->succ;
+						}	
+					}				
 				}
 			}
 			if (methodStackEmpty())	{
@@ -1340,13 +1347,19 @@ findClass
 				actualThreadCB->lockCount[i]=0;
 				actualThreadCB->hasMutexLockForObject[i]=NULLOBJECT; /* give lock free*/
 				HEAPOBJECTMARKER(opStackGetValue(first.stackObj.pos).UInt).mutex=MUTEXNOTBLOCKED;
-				ThreadControlBlock* myTCB=actualThreadCB;
-				for (i=0; i < numThreads; i++)	{	/* alle wecken!*/
-					myTCB=myTCB-> succ;
-					if  (myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(first.stackObj.pos).UInt)	{
-						myTCB->state=THREADNOTBLOCKED; /*!!*/
-/*						myTCB->isMutexBlockedForObjectOrWaiting=NULLOBJECT.UInt;*/
-					}
+
+				ThreadControlBlock* myTCB;
+				u2 max,k;
+				for(i=0;i<(MAXPRIORITY);i++){
+					max=(threadPriorities[i].count);
+					myTCB=threadPriorities[i].cb;
+					for(k=0;k<max;k++){
+						if  (myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(first.stackObj.pos).UInt)	{
+							myTCB->state=THREADNOTBLOCKED; /*!!*/
+	/*						myTCB->isMutexBlockedForObjectOrWaiting=NULLOBJECT.UInt;*/
+						}						
+						myTCB=myTCB->succ;
+					}	
 				}
 			}
 

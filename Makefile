@@ -80,7 +80,12 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 # BAJOS C-SOURCES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 BAJOSCSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
-		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
+		nativedispatch.c \
+		$(APPPATH)JAVALANGNATIVE/float.c \
+		$(APPPATH)JAVALANGNATIVE/lock.c \
+		$(APPPATH)JAVALANGNATIVE/object.c \
+		$(APPPATH)JAVALANGNATIVE/string.c \
+		$(APPPATH)JAVALANGNATIVE/thread.c \
 
 # java system sources -> subset of java system sources for the small controller, add more sources later
 JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\

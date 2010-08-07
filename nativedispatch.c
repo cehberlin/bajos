@@ -10,7 +10,11 @@
 /* look at methods in the *.java or *.class file in increasing order */
 /* if method is non native -> insert NULL, otherwise pointer to nativce C-function*/
 
-#include "JAVALANGNATIVE/langnative.h"
+#include "JAVALANGNATIVE/object.h"
+#include "JAVALANGNATIVE/string.h"
+#include "JAVALANGNATIVE/thread.h"
+#include "JAVALANGNATIVE/lock.h"
+#include "JAVALANGNATIVE/float.h"
 /* fill this array with classes containing native methods*/
 
 const char*	nativeClassNames[] =		{
