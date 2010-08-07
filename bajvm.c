@@ -69,7 +69,6 @@ int main(int argc,char* argv[]){
 	methodStackBase	= actualThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
 #ifdef AVR8
-	//WHY DOES NOT WORK WITH PSTR?
 	printf_P(PSTR("SP: %x cFB: %x hB: %x oPSB: %x mSB: %x cs: %x\n"), 
 			256*SPH+SPL,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase,cs);
 #endif
@@ -84,13 +83,10 @@ int main(int argc,char* argv[]){
 if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
-			run();				}
-	for (cN=0; cN < numClasses;cN++)
-	if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
-			run();								}	
+			printf("cN %d\n",cN);
+			run();			}	
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
-
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("  -> run <main> :\n"));
 #else
@@ -100,12 +96,11 @@ if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
 	run(); 				/*  run main*/
-	return 0;
-}
+	return 0;						}
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	errorExit(1,PSTR("no main found %d %d\n"),numClasses);
+	errorExit(1,PSTR("\nno main found %d"),numClasses);
 #else
-	errorExit(1,"no main found %d %d\n",numClasses);
+	errorExit(1,"\nno main found %d",numClasses);
 #endif													
 	
 	return 1;
