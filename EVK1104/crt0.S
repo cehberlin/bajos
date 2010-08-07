@@ -74,13 +74,14 @@ _start:
 _stext:
   // Set initial stack pointer.
   lda.w   sp, _estack
-
+#ifndef WITHMON
   // Set up EVBA so interrupts can be enabled.
   lda.w   r0, _evba
   mtsr    AVR32_EVBA, r0
 
   // Enable the exception processing.
   csrf    AVR32_SR_EM_OFFSET
+#endif
 
   // Load initialized data having a global lifetime from the data LMA.
   lda.w   r0, _data
@@ -107,12 +108,12 @@ udata_clear_loop:
   cp      r0, r1
   brlo    udata_clear_loop
 udata_clear_loop_end:
-
+#ifndef WITHMON
 #ifdef CONFIG_FRAME_POINTER
   // Safety: Set the default "return" @ to the exit routine address.
   lda.w   lr, exit
 #endif
-
+#endif
   // Start the show.
   lda.w   pc, main
 
