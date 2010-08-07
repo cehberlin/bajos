@@ -29,6 +29,128 @@ void 	iterateOverThreads2(){
 }
 */
 
+/*
+ * notifys a waiting blocked thread for given object by ceh
+ */
+void notifyThread(slot obj){
+	u1 i,k;
+	u1 max;
+	ThreadControlBlock* cb;
+
+	for(i=0;i<(MAXPRIORITY);i++){
+		max=(threadPriorities[i].count);
+		cb=threadPriorities[i].cb;
+		for(k=0;k<max;k++){
+			if ((cb->state==THREADWAITBLOCKED)&&
+			    ((cb->isMutexBlockedOrWaitingForObject).UInt==obj.UInt)){	
+				cb->state=THREADWAITAWAKENED;	
+				return;
+			}	
+			cb=cb->succ;
+		}
+	}	
+}
+
+/*
+ * notifys a waiting blocked thread for given object by ceh
+ */
+void awakeThreadFromMutex(slot obj){
+	u1 i,k;
+	u1 max;
+	ThreadControlBlock* cb;
+
+	for(i=0;i<(MAXPRIORITY);i++){
+		max=(threadPriorities[i].count);
+		cb=threadPriorities[i].cb;
+		for(k=0;k<max;k++){
+			if ((cb->state==THREADMUTEXBLOCKED)&&
+			    ((cb->isMutexBlockedOrWaitingForObject).UInt==obj.UInt)){	
+				cb->state=MUTEXNOTBLOCKED;				
+				printf("awaked %d\n",cb->tid);
+				setMutexOnObject(cb,obj);
+				return;
+			}	
+			cb=cb->succ;
+		}
+	}	
+}
+
+
+/*
+ * release Mutex on given object and given thread by ceh
+ */
+void releaseMutexOnObject(ThreadControlBlock* t,slot obj){
+	if (HEAPOBJECTMARKER(obj.stackObj.pos).mutex!=MUTEXBLOCKED)	{ 
+			printf("Not locked\n");
+	 		return; //object is not locked!
+	}
+	u2 i;
+			for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	/* must be in*/
+				if (t->hasMutexLockForObject[i].UInt==obj.UInt) break;
+			if (i==MAXLOCKEDTHREADOBJECTS) {
+						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+							errorExit(-1, PSTR("Unlock Exception\n"));
+						#else
+							errorExit(-1, "Unlock Exception\n");
+						#endif	
+				return;
+						
+			}
+			t->lockCount[i]--;
+			if (!t->lockCount[i])	
+			{
+				t->hasMutexLockForObject[i]=NULLOBJECT; /* give lock free*/
+				HEAPOBJECTMARKER(obj.stackObj.pos).mutex=MUTEXNOTBLOCKED;
+
+				//awake a blocked thread
+				awakeThreadFromMutex(obj);
+			}
+}
+
+/*
+ * set Mutex on given object and given thread by ceh
+ */
+void setMutexOnObject(ThreadControlBlock* t,slot obj){
+u2 i;
+				if ( HEAPOBJECTMARKER(obj.stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
+					/* mutex is free, I (the thread) have not the mutex and I can get the mutex for the object*/
+					t->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+					HEAPOBJECTMARKER(obj.stackObj.pos).mutex=MUTEXBLOCKED;	/* get the lock*/
+					/* I had not the mutex for this object (but perhaps for others), now I have the look*/
+					for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)
+						if (t->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;
+						else break;
+					if (i==MAXLOCKEDTHREADOBJECTS) {
+						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+							errorExit(-1, PSTR("too many locks\n"));
+						#else
+							errorExit(-1, "too many locks\n");
+						#endif	
+						
+					}
+					printf("locked %d\n",t->tid);
+					/* entry for this object in the array of mutexed objects for the thread*/
+					t->lockCount[i]=1;		/* count (before 0)*/
+					t->hasMutexLockForObject[i]=obj;
+				}
+				else	{	/* mutex is blocked, is it my mutex ? have I always the lock ?*/
+					printf("blocked %d\n",t->tid);
+					for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)
+						if (t->hasMutexLockForObject[i].UInt==obj.UInt) break;
+					if (i==MAXLOCKEDTHREADOBJECTS) { /* another thread has the lock*/
+						t->state=THREADMUTEXBLOCKED;	/*mutex blocked*/
+						t->isMutexBlockedOrWaitingForObject=obj;
+						//force scheduling
+						t->numTicks=0;					
+					}		/* let the scheduler work*/
+					else /* yes I have lock*/
+						t->lockCount[i]++;	/* count*/
+				}
+}
+
+/*
+ * generates a new thread by ceh
+ */
 void	createThread(void)			{
   if (numThreads == MAXTHREADS)	{
 	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!

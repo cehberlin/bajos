@@ -12,6 +12,10 @@
 #define MAXPRIORITY 10
 #define MINPRIORITY 1 
 
+void notifyThread(slot obj);
+void awakeThreadFromMutex(slot obj);
+void setMutexOnObject(ThreadControlBlock* t,slot obj);
+void releaseMutexOnObject(ThreadControlBlock* t,slot obj);
 void createThread(void);
 void deleteThread(void);
 void scheduler(void);

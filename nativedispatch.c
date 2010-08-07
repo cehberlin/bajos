@@ -7,7 +7,7 @@
 #include "typedefinitions.h"
 /* insert and update here functionForNativeMethodType-arrays for classes with native methods*/
 /* array length ->  at least up to last native method < methods_count*/
-/* lock at methods in the *.java or *.class file in increasing order */
+/* look at methods in the *.java or *.class file in increasing order */
 /* if method is non native -> insert NULL, otherwise pointer to nativce C-function*/
 
 #include "JAVALANGNATIVE/langnative.h"
@@ -18,6 +18,7 @@ const char*	nativeClassNames[] =		{
 			"java/lang/Object",
 			"java/lang/String",
 			"java/lang/Thread",
+			"java/util/concurrent/Lock",
 			"java/lang/Float"	
 };
 
@@ -223,11 +224,19 @@ functionForNativeMethodType functionForNativeObjectMethod[] =	{
 	getDataAddress
 };
 
+functionForNativeMethodType functionForNativeLockMethod[] =	{
+	NULL,//default not visible constructor
+	lock,
+	unlock,
+	tryLock
+};
+
 /* insert array of function pointer*/
 const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativePlatFormMethod,
 	functionForNativeObjectMethod,
 	functionForNativeStringMethod,
 	functionForNativeThreadMethod,
+	functionForNativeLockMethod,
 	functionForNativeFloatMethod					
 };

@@ -35,7 +35,7 @@ JAVABOOTSOURCES		+= 	$(LANG)/Math.java  \
 			$(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \
 			$(UTIL)/Collection.java $(UTIL)/List.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
-			$(LANG)/Runtime.java 
+			$(LANG)/Runtime.java $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
 
 # only for stk1000!!!
 ifeq  ($(TARGETHW), avr32-linux)
@@ -132,6 +132,13 @@ compSchedulerTest:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/SchedulerTest.java
 
+LockTest:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Buffer.class \
+		$(APPCLASSPATH)/LockTest.class 
+
+compLockTest:
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+		$(APPCLASSPATH)/LockTest.java
 
 ADC:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/ADC.class

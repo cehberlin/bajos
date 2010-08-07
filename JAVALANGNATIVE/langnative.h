@@ -22,6 +22,11 @@ char sleep();
 char jointimeout();
 char nativeSleep();
 
+//Lock
+char lock();
+char unlock();
+char tryLock();
+
 // Object
 char nativeWait();
 char notify();

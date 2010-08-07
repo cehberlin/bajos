@@ -68,6 +68,7 @@ IO		= ${BOOTCLASSPATH}java/io
 UTIL		= ${BOOTCLASSPATH}java/util
 JPLATFORM	= ${BOOTCLASSPATH}platform
 GRAPHICS	= ${BOOTCLASSPATH}java/graphics
+CONCURRENT	= ${BOOTCLASSPATH}java/util/concurrent
 
 #java binaries and flags
 JAVACOMP		= javac

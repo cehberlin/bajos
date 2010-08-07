@@ -104,31 +104,41 @@ char  join(){return 0; }
 
 char jointimeout(){return 0; }
 
+char lock(){
+	setMutexOnObject(actualThreadCB,opStackGetValue(local));
+	return 0;
+}
+
+char unlock(){
+	releaseMutexOnObject(actualThreadCB,opStackGetValue(local));
+
+	//force scheduling
+	actualThreadCB->numTicks=0;
+
+	return 0; 
+}
+
+char tryLock(){
+	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXBLOCKED)	{
+		opStackPush((slot)0); 
+	}else{
+		lock();
+		opStackPush((slot)1);
+	}
+
+	return 1;
+}
+
 /* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
 char notify() {
 	u1 i,k;
-	u1 max,breakNested;
+	u1 max;
 	ThreadControlBlock* cb;
 	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
  		exit(253);
 	}
-	//can not be ->IllegalMonitorStateException
-//iterate over all other threads than current one
-	for(i=0;i<(MAXPRIORITY);i++){
-		max=(threadPriorities[i].count);
-		breakNested=0;
-		cb=threadPriorities[i].cb;
-		for(k=0;k<max;k++){
-			if (/*(cb!=actualThreadCB)&&*/(cb->state==THREADWAITBLOCKED)&&
-			    ((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt)){	
-				cb->state=THREADWAITAWAKENED;
-				breakNested=1;
-				break;
-			}	
-			cb=cb->succ;
-		}
-		if(breakNested)break;	
-	}	
+	
+	notifyThread(opStackGetValue(local));
 	return 0; 
 }
 
@@ -143,7 +153,7 @@ char notifyAll() {
 		max=(threadPriorities[i].count);
 		cb=threadPriorities[i].cb;
 		for(k=0;k<max;k++){
-			if (/*(cb!=actualThreadCB)&&*/(cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
+			if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
 				cb->state=THREADWAITAWAKENED;
 			cb=cb->succ;
 		}	
@@ -158,9 +168,7 @@ char nativeWait() {
 		exit(254);
 	}
 	/*can not be ->IllegalMonitorStateException*/
-	HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; /* lock abgeben*/
-	actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
-	actualThreadCB->state=THREADWAITBLOCKED;
+	HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; /* free lock for another thread and lock this */ 
 	
 	ThreadControlBlock* myTCB;
 	for(i=0;i<(MAXPRIORITY);i++){
@@ -168,7 +176,7 @@ char nativeWait() {
 		myTCB=threadPriorities[i].cb;
 		for(k=0;k<max;k++){
 			//alle blocked for object wecken!
-			if  (/*(myTCB!=actualThreadCB)&&*/(myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
+			if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
 					(myTCB->state==THREADMUTEXBLOCKED)){
 				myTCB->state=THREADNOTBLOCKED; //!!
 				myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		
@@ -176,7 +184,10 @@ char nativeWait() {
 			
 			myTCB=myTCB->succ;
 		}	
-	}	
+	}
+	//its better to change own state after notify, to avoid cycles
+	actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
+	actualThreadCB->state=THREADWAITBLOCKED;	
 						
 	return 0; 
 }
