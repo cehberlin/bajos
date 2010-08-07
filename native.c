@@ -34,7 +34,7 @@
 #include "EVK1100/rtcuc3a.h"
 #include "EVK1100/intcuc3a.h"
 #include "iobinding.h"
-#endif 
+#endif
 #ifdef AVR8
 #include "AVR8/lcd.h"
 #include "AVR8/thermo.h"
@@ -56,7 +56,7 @@ const char*	nativePlatForm[]={
 		"nativeCharIn",
 		"getButtons",
 		"setOnBoardLEDs",
-		"charLCDOut", 
+		"charLCDOut",
 		"controlLCD",
 		"currentTimeMillis",
 		"exit",
@@ -120,7 +120,7 @@ const char*	nativeFloat[]={"java/lang/Float",
 		"floatToCharArray",NULL};
 
 // fill this array
-const char**	nativeNames[]={	
+const char**	nativeNames[]={
 			nativePlatForm,
 			nativeString,
 			nativeThread,
@@ -142,7 +142,7 @@ u2 	i;
 #endif
 
 char	nativeDispatch()	{
-for(i=0;i<numMethods;i++)	
+for(i=0;i<numMethods;i++)
 	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
 	case	0: return nativeCharOut();
@@ -150,7 +150,7 @@ switch(i)					{
 	case	2: return getButtons();
 	case	3: return setOnBoardLEDs();
 	case	4: return charLCDOut();
-	case	5: return controlLCD(); 
+	case	5: return controlLCD();
 	case	6: return currentTimeMillis();
 	case	7: return javaExit();
 	case	8: return getTemperature();
@@ -221,11 +221,11 @@ getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)
 			methodDescr=NULL;
 			if (findMethodByName(*nativeName,strlen(*nativeName),methodDescr,methodDescrLength)) 	{
 				*(nativeCNMN+numMethods++)=(u1)cN;
-				*(nativeCNMN+numMethods++)=(u1)mN;											
+				*(nativeCNMN+numMethods++)=(u1)mN;
 		}
-												}	
-											}	
-												
+												}
+											}
+
 												}	}
 numMethods/=2;				}
 
@@ -247,7 +247,7 @@ struct termios oldt,newt;
 	ch = getchar();
 	tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
 opStackPush((slot)(u4)ch);
-return 1;	
+return 1;
 }
 #endif
 
@@ -301,7 +301,7 @@ cN=(u1)(mySlot.stackObj.classNumber);
 opStackPush((slot)(u4)getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos)+1 )) +1 ));
 cN=methodStackPop();
 }
-else	
+else
 opStackPush((slot)(u4)0xffff);
 return 1;
 }
@@ -314,7 +314,7 @@ cN=(u1)(mySlot.stackObj.classNumber);
 opStackPush((slot)(u4)getU1(CP(cN,getU2(CP(cN,mySlot.stackObj.pos) + 1))+3+(u2)opStackGetValue(local+1).UInt));
 cN=methodStackPop();
 }
-else	
+else
 opStackPush((slot)(u4)0);
 return 1;
 }
@@ -412,10 +412,10 @@ char	getButtons() {
 	int buttons[8] = {GPIO_PUSH_BUTTON_0, GPIO_PUSH_BUTTON_1, GPIO_PUSH_BUTTON_2, GPIO_JOYSTICK_PUSH, GPIO_JOYSTICK_UP, GPIO_JOYSTICK_RIGHT, GPIO_JOYSTICK_DOWN, GPIO_JOYSTICK_LEFT};
 	u1 n = 0;
 	u1 ch = 0;
-	for (; n < 8 ; ++n) 
+	for (; n < 8 ; ++n)
 		gpio_enable_pin_glitch_filter(buttons[n]);
 
-	for (n = 0 ; n < 8 ; ++n) 
+	for (n = 0 ; n < 8 ; ++n)
 		ch = (ch << 1) | !gpio_get_pin_value(buttons[n]);
 
 	opStackPush((slot) (u4) ch);
@@ -454,7 +454,7 @@ char controlLCD() {
 	int control = opStackGetValue(local+1).UInt;
 	switch (control)
 	{
-		case 0x0000: dip204_clear_display(); 
+		case 0x0000: dip204_clear_display();
 		CASE 0x0001: dip204_show_cursor();
 		CASE 0x0002: dip204_hide_cursor(); break;
 		/* Parameters of set_cursor_position: lower 2 Byte and higher 2 Byte of control */
@@ -530,7 +530,7 @@ slot mySlot=opStackGetValue(local); // the char array
 char buf[mySlot.stackObj.arrayLength];
 f4 f;
 u4 i;
-for (i=0;i<mySlot.stackObj.arrayLength;i++) 
+for (i=0;i<mySlot.stackObj.arrayLength;i++)
 buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
 buf[mySlot.stackObj.arrayLength]=0;
 sscanf(buf,"%f",&f);
@@ -584,8 +584,8 @@ return 1;
 char drawPointRGB()
 {
 	//public native void drawPointRGB(int x,int y, int color);
-	lcdSetPixelRGB(opStackGetValue(local+1).UInt, 
-					opStackGetValue(local+2).UInt, 
+	lcdSetPixelRGB(opStackGetValue(local+1).UInt,
+					opStackGetValue(local+2).UInt,
 					opStackGetValue(local+3).UInt);
 	return 0;
 }
@@ -593,21 +593,21 @@ char drawPointRGB()
 char drawFillRectRGB()
 {
 	//public native void drawFillRectRGB(int x1, int y1, int x2, int y2, int color);
-	lcdFillRect(opStackGetValue(local+1).UInt, 
-				opStackGetValue(local+2).UInt, 
-				opStackGetValue(local+3).UInt, 
+	lcdFillRect(opStackGetValue(local+1).UInt,
+				opStackGetValue(local+2).UInt,
+				opStackGetValue(local+3).UInt,
 				opStackGetValue(local+4).UInt,
 				opStackGetValue(local+5).UInt);
-	
+
 	return 0;
 }
 
 char drawRectangleRGB()
 {
 	//public native void drawRectangleRGB(int x1, int y1, int x2, int y2, int fgcolor, int bkcolor);
-	lcdRectangle(opStackGetValue(local+1).UInt, 
+	lcdRectangle(opStackGetValue(local+1).UInt,
 				opStackGetValue(local+2).UInt,
-				opStackGetValue(local+3).UInt, 
+				opStackGetValue(local+3).UInt,
 				opStackGetValue(local+4).UInt,
 				opStackGetValue(local+5).UInt,
 				opStackGetValue(local+6).UInt);
@@ -625,7 +625,7 @@ char drawRoundRectRGB()
 {
 	//public native void drawRoundRectRGB(int x1, int y1, int x2, int y2, int a, int b, int fgcolor, int bkcolor);
 	lcdRoundRect(opStackGetValue(local+1).UInt,
-					opStackGetValue(local+2).UInt, 
+					opStackGetValue(local+2).UInt,
 					opStackGetValue(local+3).UInt,
 					opStackGetValue(local+4).UInt,
 					opStackGetValue(local+5).UInt,
@@ -670,22 +670,30 @@ char drawLineRGB()
 }
 char drawPointHSB()
 {
-	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
+	/*slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point p)
-	
+
 	lcdSetPixelHSB(heapGetElement(mySlot.stackObj.pos+1).Float,	//x
 			heapGetElement(mySlot.stackObj.pos+2).Float,	//y
 			heapGetElement(mySlot.stackObj.pos+4).Float,	//h
 			heapGetElement(mySlot.stackObj.pos+5).Float,	//s
 			heapGetElement(mySlot.stackObj.pos+6).Float);	//b
-			
+	*/
+
+	//public native void drawPointHSB(float x, float y, float h, float s, float b);
+	lcdSetPixelHSB(opStackGetValue(local+1).Float,
+					opStackGetValue(local+2).Float,
+					opStackGetValue(local+3).Float,
+					opStackGetValue(local+4).Float,
+					opStackGetValue(local+5).Float);
+
 	return 0;
 }
 
 char drawLineHSB()
 {
-	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
                                                     // mySlot is a reference to heap object (Point p)
 
@@ -703,14 +711,33 @@ char drawLineHSB()
 	p2.h=heapGetElement(mySlot.stackObj.pos+4).Float;	//h
 	p2.s=heapGetElement(mySlot.stackObj.pos+5).Float;	//s
 	p2.b=heapGetElement(mySlot.stackObj.pos+6).Float;	//b
-	
+
 	lcdDDALine(p1, p2);
+*/
+
+	//public native void drawLineHSB(float x1, float y1, float h1, float s1, float b1, float x2, float y2, float h2, float s2, float b2);
+	lcdLinePoint_t p1;
+	p1.x=opStackGetValue(local+1).Float;	//x
+	p1.y=opStackGetValue(local+2).Float;	//y
+	p1.h=opStackGetValue(local+3).Float;	//h
+	p1.s=opStackGetValue(local+4).Float;	//s
+	p1.b=opStackGetValue(local+5).Float;	//b
+
+	lcdLinePoint_t p2;
+	p2.x=opStackGetValue(local+6).Float;	//x
+	p2.y=opStackGetValue(local+7).Float;	//y
+	p2.h=opStackGetValue(local+8).Float;	//h
+	p2.s=opStackGetValue(local+9).Float;	//s
+	p2.b=opStackGetValue(local+10).Float;	//b
+
+	lcdDDALine(p1, p2);
+
 	return 0;
 }
 
 char drawTriangleFill()
 {
-	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
                                                     // mySlot is a reference to heap object (Point p)
 
@@ -736,9 +763,34 @@ char drawTriangleFill()
 	p3.h=heapGetElement(mySlot.stackObj.pos+4).Float;	//h
 	p3.s=heapGetElement(mySlot.stackObj.pos+5).Float;	//s
 	p3.b=heapGetElement(mySlot.stackObj.pos+6).Float;	//b
-	
-	lcdTriangleFill(p1, p2, p3);
 
+	lcdTriangleFill(p1, p2, p3);
+*/
+
+	//public native void drawTriangleFill(float x1, float y1, float h1, float s1, float b1, float x2, float y2, float h2, float s2, float b2, float x3, float y3, float h3, float s3, float b3);
+
+	lcdLinePoint_t p1;
+	p1.x=opStackGetValue(local+1).Float;	//x
+	p1.y=opStackGetValue(local+2).Float;	//y
+	p1.h=opStackGetValue(local+3).Float;	//h
+	p1.s=opStackGetValue(local+4).Float;	//s
+	p1.b=opStackGetValue(local+5).Float;	//b
+
+	lcdLinePoint_t p2;
+	p2.x=opStackGetValue(local+6).Float;	//x
+	p2.y=opStackGetValue(local+7).Float;	//y
+	p2.h=opStackGetValue(local+8).Float;	//h
+	p2.s=opStackGetValue(local+9).Float;	//s
+	p2.b=opStackGetValue(local+10).Float;	//b
+
+	lcdLinePoint_t p3;
+	p3.x=opStackGetValue(local+11).Float;	//x
+	p3.y=opStackGetValue(local+12).Float;	//y
+	p3.h=opStackGetValue(local+13).Float;	//h
+	p3.s=opStackGetValue(local+14).Float;	//s
+	p3.b=opStackGetValue(local+15).Float;	//b
+
+	lcdTriangleFill(p1, p2, p3);
 	return 0;
 }
 
@@ -750,7 +802,7 @@ char clearZBuffer()
 
 char drawPointHSBZBuffer()
 {
-	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
+	/*slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
                                                     // mySlot is a reference to heap object (Point p)
 
@@ -762,12 +814,23 @@ char drawPointHSBZBuffer()
 	p.s=heapGetElement(mySlot.stackObj.pos+5).Float;	//s
 	p.b=heapGetElement(mySlot.stackObj.pos+6).Float;	//b
 
+	lcdDrawZBufferPoint(p);*/
+
+	//public native void drawPointHSBZBuffer(float x, float y, float z, float h, float s, float b);
+	lcdLinePoint_t p;
+	p.x=opStackGetValue(local+1).Float;	//x
+	p.y=opStackGetValue(local+2).Float;	//y
+	p.z=opStackGetValue(local+3).Float;	//z
+	p.h=opStackGetValue(local+4).Float;	//h
+	p.s=opStackGetValue(local+5).Float;	//s
+	p.b=opStackGetValue(local+6).Float;	//b
+
 	lcdDrawZBufferPoint(p);
 	return 0;
 }
 char drawLineHSBZBuffer()
 {
-	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);       // in static methods the first Arg on Stack
         					      // otherwise local+1
                                                     // mySlot is a reference to heap object (Point p)
 
@@ -787,7 +850,27 @@ char drawLineHSBZBuffer()
 	p2.h=heapGetElement(mySlot.stackObj.pos+4).Float;	//h
 	p2.s=heapGetElement(mySlot.stackObj.pos+5).Float;	//s
 	p2.b=heapGetElement(mySlot.stackObj.pos+6).Float;	//b
-	
+
+	lcdDDALineZBuffer(p1, p2);
+*/
+
+	//public native void drawLineHSBZBuffer(float x1, float y1, float z1, float h1, float s1, float b1, float x2, float y2, float z2, float h2, float s2, float b2);
+	lcdLinePoint_t p1;
+	p1.x=opStackGetValue(local+1).Float;	//x
+	p1.y=opStackGetValue(local+2).Float;	//y
+	p1.z=opStackGetValue(local+3).Float;	//z
+	p1.h=opStackGetValue(local+4).Float;	//h
+	p1.s=opStackGetValue(local+5).Float;	//s
+	p1.b=opStackGetValue(local+6).Float;	//b
+
+	lcdLinePoint_t p2;
+	p2.x=opStackGetValue(local+7).Float;	//x
+	p2.y=opStackGetValue(local+8).Float;	//y
+	p2.z=opStackGetValue(local+9).Float;	//z
+	p2.h=opStackGetValue(local+10).Float;	//h
+	p2.s=opStackGetValue(local+11).Float;	//s
+	p2.b=opStackGetValue(local+12).Float;	//b
+
 	lcdDDALineZBuffer(p1, p2);
 	return 0;
 }
@@ -800,10 +883,10 @@ char setFont()
 
 char setFontWindow()
 {
-	lcdSetRect(lcd_Window, 
+	lcdSetRect(lcd_Window,
 		opStackGetValue(local+1).UInt,
-		opStackGetValue(local+2).UInt, 
-		opStackGetValue(local+3).UInt, 
+		opStackGetValue(local+2).UInt,
+		opStackGetValue(local+3).UInt,
 		opStackGetValue(local+4).UInt); //Schrift-Fenster
 	return 0;
 }
@@ -811,7 +894,7 @@ char setFontWindow()
 char setFontAutoLineFeed()
 {
 	if (opStackGetValue(local+1).UInt>0)
-	{	
+	{
 		lcd_Flags.AutoLineFeed=1;
 	}
 	else
@@ -824,7 +907,7 @@ char setFontAutoLineFeed()
 char setFontFixedFont()
 {
 	if (opStackGetValue(local+1).UInt>0)
-	{	
+	{
 		lcd_Flags.FixedFont=1;
 	}
 	else
@@ -882,7 +965,7 @@ char drawFillRectRGB(){printf("native drawFillRectRGB\n"); return 0;}
 char drawRectangleRGB(){printf("native drawRectangleRGB\n"); return 0;}
 char clearScreenRGB()
 {
-	printf("native clearScreenRGB\n"); 
+	printf("native clearScreenRGB\n");
 	printf("Screen Color:: %d\n",opStackGetValue(local+1).UInt);
 	return 0;
 }
@@ -893,9 +976,9 @@ char drawLineRGB(){printf("native drawLineRGB\n"); return 0;}
 
 char drawPointHSB()
 {
-	printf("native drawPointHSB\n"); 
+	printf("native drawPointHSB\n");
 
-	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point pa)
 	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -910,19 +993,21 @@ char drawPointHSB()
 	printf("point, s koordinate: %f\n",s);
 	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b);
-	
-/*mySlot=opStackGetValue(local+1);         // in static methods the second Arg on Stack
-                                                              // otherwise local+2
-// mySlot is a reference to heap object (Point pe)
-x=heapGetElement(mySlot.stackObj.pos+1).Float;
-printf("point pe, x koordinate: %f",x);*/
+*/
+	printf("point, x koordinate: %f\n", opStackGetValue(local+1).Float);
+	printf("point, y koordinate: %f\n", opStackGetValue(local+2).Float);
+	printf("point, h koordinate: %f\n", opStackGetValue(local+3).Float);
+	printf("point, s koordinate: %f\n", opStackGetValue(local+4).Float);
+	printf("point, b koordinate: %f\n", opStackGetValue(local+5).Float);
+
 	return 0;
 }
+
 char drawLineHSB()
 {
-	printf("native drawLineHSB\n"); 
+	printf("native drawLineHSB\n");
 
-	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point pa)
 	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -937,7 +1022,7 @@ char drawLineHSB()
 	printf("point, s koordinate: %f\n",s);
 	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b);
-	
+
 	mySlot=opStackGetValue(local+2);         // in static methods the second Arg on Stack
                                                               // otherwise local+2
 	f4 x2=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -952,14 +1037,27 @@ char drawLineHSB()
 	printf("point, s koordinate: %f\n",_s2);
 	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b2);
+*/
+
+	printf("point, x1 koordinate: %f\n", opStackGetValue(local+1).Float);
+	printf("point, y1 koordinate: %f\n", opStackGetValue(local+2).Float);
+	printf("point, h1 koordinate: %f\n", opStackGetValue(local+3).Float);
+	printf("point, s1 koordinate: %f\n", opStackGetValue(local+4).Float);
+	printf("point, b1 koordinate: %f\n", opStackGetValue(local+5).Float);
+
+	printf("point, x2 koordinate: %f\n", opStackGetValue(local+5).Float);
+	printf("point, y2 koordinate: %f\n", opStackGetValue(local+6).Float);
+	printf("point, h2 koordinate: %f\n", opStackGetValue(local+7).Float);
+	printf("point, s2 koordinate: %f\n", opStackGetValue(local+8).Float);
+	printf("point, b2 koordinate: %f\n", opStackGetValue(local+9).Float);
 
 	return 0;
 }
 char drawTriangleFill()
 {
-	printf("native drawTriangleFill\n"); 
+	printf("native drawTriangleFill\n");
 
-	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+/*	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point pa)
 	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -974,7 +1072,7 @@ char drawTriangleFill()
 	printf("point, s koordinate: %f\n",s);
 	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b);
-	
+
 	mySlot=opStackGetValue(local+2);         // in static methods the second Arg on Stack
                                                               // otherwise local+2
 	f4 x2=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -1004,14 +1102,33 @@ char drawTriangleFill()
 	printf("point, s koordinate: %f\n",s3);
 	f4 b3=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b3);
+*/
+
+	printf("point, x1 koordinate: %f\n", opStackGetValue(local+1).Float);
+	printf("point, y1 koordinate: %f\n", opStackGetValue(local+2).Float);
+	printf("point, h1 koordinate: %f\n", opStackGetValue(local+3).Float);
+	printf("point, s1 koordinate: %f\n", opStackGetValue(local+4).Float);
+	printf("point, b1 koordinate: %f\n", opStackGetValue(local+5).Float);
+
+	printf("point, x2 koordinate: %f\n", opStackGetValue(local+5).Float);
+	printf("point, y2 koordinate: %f\n", opStackGetValue(local+6).Float);
+	printf("point, h2 koordinate: %f\n", opStackGetValue(local+7).Float);
+	printf("point, s2 koordinate: %f\n", opStackGetValue(local+8).Float);
+	printf("point, b2 koordinate: %f\n", opStackGetValue(local+9).Float);
+
+	printf("point, x3 koordinate: %f\n", opStackGetValue(local+10).Float);
+	printf("point, y3 koordinate: %f\n", opStackGetValue(local+11).Float);
+	printf("point, h3 koordinate: %f\n", opStackGetValue(local+12).Float);
+	printf("point, s3 koordinate: %f\n", opStackGetValue(local+13).Float);
+	printf("point, b3 koordinate: %f\n", opStackGetValue(local+14).Float);
 
 	return 0;
 }
 char clearZBuffer(){printf("native clearZBuffer\n"); return 0;}
 char drawPointHSBZBuffer()
 {
-	printf("native drawPointHSBZBuffer\n"); 
-	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+	printf("native drawPointHSBZBuffer\n");
+/*	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point pa)
 	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -1026,13 +1143,22 @@ char drawPointHSBZBuffer()
 	printf("point, s koordinate: %f\n",s);
 	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b);
+*/
+
+	printf("point, x koordinate: %f\n", opStackGetValue(local+1).Float);
+	printf("point, y koordinate: %f\n", opStackGetValue(local+2).Float);
+	printf("point, z koordinate: %f\n", opStackGetValue(local+3).Float);
+	printf("point, h koordinate: %f\n", opStackGetValue(local+4).Float);
+	printf("point, s koordinate: %f\n", opStackGetValue(local+5).Float);
+	printf("point, b koordinate: %f\n", opStackGetValue(local+6).Float);
+
 	return 0;
 }
 char drawLineHSBZBuffer()
 {
-	printf("native drawLineHSBZBuffer\n"); 
-	
-	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+	printf("native drawLineHSBZBuffer\n");
+
+/*	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
                                                     // otherwise local+1
                                                     // mySlot is a reference to heap object (Point pa)
 	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -1047,7 +1173,7 @@ char drawLineHSBZBuffer()
 	printf("point, s koordinate: %f\n",s);
 	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b);
-	
+
 	mySlot=opStackGetValue(local+2);         // in static methods the second Arg on Stack
                                                               // otherwise local+2
 	f4 x2=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
@@ -1062,6 +1188,20 @@ char drawLineHSBZBuffer()
 	printf("point, s koordinate: %f\n",_s2);
 	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b2);
+*/
+	printf("point, x1 koordinate: %f\n", opStackGetValue(local+1).Float);
+	printf("point, y1 koordinate: %f\n", opStackGetValue(local+2).Float);
+	printf("point, z1 koordinate: %f\n", opStackGetValue(local+3).Float);
+	printf("point, h1 koordinate: %f\n", opStackGetValue(local+4).Float);
+	printf("point, s1 koordinate: %f\n", opStackGetValue(local+5).Float);
+	printf("point, b1 koordinate: %f\n", opStackGetValue(local+6).Float);
+
+	printf("point, x2 koordinate: %f\n", opStackGetValue(local+7).Float);
+	printf("point, y2 koordinate: %f\n", opStackGetValue(local+8).Float);
+	printf("point, z2 koordinate: %f\n", opStackGetValue(local+9).Float);
+	printf("point, h2 koordinate: %f\n", opStackGetValue(local+10).Float);
+	printf("point, s2 koordinate: %f\n", opStackGetValue(local+11).Float);
+	printf("point, b2 koordinate: %f\n", opStackGetValue(local+12).Float);
 	return 0;
 }
 
@@ -1073,7 +1213,7 @@ char setFont()
 }
 char setFontWindow()
 {
-	printf("native setFontWindow\n"); 
+	printf("native setFontWindow\n");
 	printf("%d\n", opStackGetValue(local+1).UInt);
 	printf("%d\n", opStackGetValue(local+2).UInt);
 	printf("%d\n", opStackGetValue(local+3).UInt);
@@ -1099,7 +1239,7 @@ char getCharWidth(){printf("native getCharWidth\n"); return 0;}
 #ifdef AVR8
 // added 2009 by: Hannes Walz, FHW-BA Berlin
 // Berliner Stadtreinigung
-char getTemperature() 	{		
+char getTemperature() 	{
 	opStackPush((slot) (f4) nativeGetTemperature());
 	return 1;
 }
