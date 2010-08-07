@@ -1,17 +1,17 @@
-package java.io; 
+package java.io;
 import platform.*;
-//import java.lang.*;
+import java.lang.*;
 
 
 public class InStream	{
-//PlatForm platform;
-/*
+PlatForm platform;
+
 public InStream(PlatForm platform)	{
 this.platform=platform;
 }
-*/
+
 public char read()	{
-return PlatForm.nativeCharIn();
+return platform.nativeCharIn();
 
 }
 }

@@ -1,7 +1,5 @@
 package java.graphics;
 
-import platform.PlatForm;
-
 public class Display implements DisplayKonstanten
 {
 	//static int xMax		= 320;
@@ -31,7 +29,7 @@ public class Display implements DisplayKonstanten
     public void drawPoint(int i, int j) 
     {
     	System.out.println ("Display.drawPoint()");
-    	PlatForm.drawPointRGB(i, j, color);		
+    	System.platform.drawPointRGB(i, j, color);		
 	}
 
     public void drawRectangle(int x1, int y1, int x2, int y2)
@@ -39,44 +37,44 @@ public class Display implements DisplayKonstanten
     	System.out.println ("Display.drawRectangle()");
     	System.out.println(color);
     	System.out.println(bgColor);
-    	PlatForm.drawRectangleRGB(x1, y1, x2, y2, color, bgColor);
+    	System.platform.drawRectangleRGB(x1, y1, x2, y2, color, bgColor);
     }
 
     public void drawFillRect(int x1, int y1, int x2, int y2)
     {
     	System.out.println ("Display.drawFillRect()");
-    	PlatForm.drawFillRectRGB(x1, y1, x2, y2, color);
+    	System.platform.drawFillRectRGB(x1, y1, x2, y2, color);
     }
 
     public void drawClearRect(int x1, int y1, int x2, int y2)
     {
     	System.out.println ("Display.drawClearRect()");
-    	PlatForm.drawFillRectRGB(x1, y1, x2, y2, bgColor);  	
+    	System.platform.drawFillRectRGB(x1, y1, x2, y2, bgColor);  	
     }
 
     public void clearDisplay()
     {
     	System.out.println ("clearDisplay() ...");
     	System.out.println(bgColor);
-    	PlatForm.clearScreenRGB(bgColor);
+    	System.platform.clearScreenRGB(bgColor);
     }
     
     public void drawRoundRect(int x1, int y1, int x2, int y2, int a, int b)
     {
     	System.out.println ("Display.drawRoundRect()");
-    	PlatForm.drawRoundRectRGB(x1, y1, x2, y2, a, b, color, bgColor);
+    	System.platform.drawRoundRectRGB(x1, y1, x2, y2, a, b, color, bgColor);
     }
     
     public void drawEllipse(int x1, int y1, int x2, int y2)
     {
     	System.out.println ("Display.drawEllipse()");
-    	PlatForm.drawEllipseRGB(x1, y1, x2, y2, color, bgColor);
+    	System.platform.drawEllipseRGB(x1, y1, x2, y2, color, bgColor);
     }
     
     public void drawCircle(int x, int y, int r)
     {
     	System.out.println ("Display.drawCircle()");
-    	PlatForm.drawCircleRGB(x, y, r, color, bgColor);
+    	System.platform.drawCircleRGB(x, y, r, color, bgColor);
     }
           
     /*public void drawLine(int x0, int y0, int x1, int y1)
@@ -115,6 +113,6 @@ public class Display implements DisplayKonstanten
     {
     	//native Aufruf, nicht nach DDA, mit RGB-Farben
     	System.out.println ("Display.drawLine()");
-    	PlatForm.drawLineRGB(x1, y1, x2, y2, color);
+    	System.platform.drawLineRGB(x1, y1, x2, y2, color);
     }
 }
