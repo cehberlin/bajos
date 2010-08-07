@@ -49,14 +49,20 @@ students of informatics at the HWR-Berlin/Berufsakademie
 #include "classfile.h"
 #include "interpreter.h"
 #include "scheduler.h"
-
+#ifdef AVR8 
+#include <avr/pgmspace.h>
+#endif
 #if !(AVR32LINUX||LINUX || AM || CH || NGW100||STK1000||EVK1100)
 #error ein Zielsystem muß es doch geben?
 #endif
 
 int main(int argc,char* argv[]){
 	initHW();
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("Bajos starting\n"));
+#else
 	printf("Bajos starting\n");
+#endif
 	initVM(argc-1,argv);	
 	createThread();			/* for main*/
 	opStackBase = actualThreadCB->opStackBase;
@@ -67,23 +73,22 @@ int main(int argc,char* argv[]){
 	printf("SP: %x cFB: %x hB: %x oPSB: %x mSB: %x cs: %x\n", 
 			256*SPH+SPL,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase,cs);
 #endif
-	printf("start clinit\n");
+	printf("start clinit");
 	for (cN=0; cN < numClasses;cN++)
 	if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
-			run();				}	
+			run();								}
 	for (cN=0; cN < numClasses;cN++)
 	if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 	printf("  -> run <main> :\n");
 	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
 	run(); 				/*  run main*/
-	return 0;;							}
+	return 0;;													}
 	errorExit(1,"no main found %d %d\n",numClasses);
 	return 1;
 }
-
 
 void errorExit(char nr,const char *format, ...)	{
 	va_list list;
