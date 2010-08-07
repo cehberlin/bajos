@@ -28,6 +28,7 @@ Erweiterungen von:
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #ifdef AVR8
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -104,6 +105,7 @@ DEBUGPRINTHEAP;
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u2 length;
 // use malloc!!
+printf("nun los\n");
 #ifdef EVK1100
 classFileBase=(u1*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
 apClassFileBase=(u1*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
@@ -147,15 +149,23 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #if (NGW100||STK1000|| EVK1100)
 // analysieren der bootklassen, welche mit jtag-programming schon im flash stehen
 u1* addr;
-numClasses=*classFileBase;	// erstmal die boot klassen
+u4 temp;
+char buf[5];
+strncpy(buf,classFileBase,4);
+buf[4]=0;
+sscanf(buf,"%4d",&temp);
+numClasses=(u1)temp;	// erstmal die boot klassen
 addr=classFileBase+4; // after numclasses
 for (cN=0; cN<numClasses;cN++)	{
 printf("Klasse: %d\n",cN);
+strncpy(buf,addr,4);
+sscanf(buf,"%4d",&temp);
 cs[cN].classFileStartAddress=addr+4;	// after length of class
-cs[cN].classFileLength=(u1)(*addr)+256*(u1)(*(addr+1));
+cs[cN].classFileLength=temp;//(u1)(*addr)+256*(u1)(*(addr+1));
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 }
+
 cN=numClasses;
 // das waren die boot klassen
 // jetzt die Anwenderklassen
@@ -216,3 +226,13 @@ DEBUGPRINTHEAP;
 initNativeDispatch();
 printf("initNativeDispatch\n");
 }
+
+
+
+void errorExit(char nr,const char *format, ...)	 {
+va_list list;
+va_start(list,format);
+vprintf(format,list);
+va_end(list);
+exit(nr);
+ }
