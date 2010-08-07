@@ -18,7 +18,7 @@ static slot* 	opSp;
 static u2* 		methodSp;
 
 void opStackInit(slot** m)	{		// per thread, fixed size 
-#if (LINUX||AVR8)
+#if (LINUX||AVR8||AVR32LINUX)
 	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL)
 			{printf("malloc error\n");exit(-1);}			
 #else
@@ -48,7 +48,7 @@ u2 opStackGetSpPos()					{  	return (opSp-opStackBase);		}
 void opStackSetSpPos(u2 pos)			{	opSp=pos+opStackBase;			}
 
 void methodStackInit(u2** m)				{
-#if (LINUX||AVR8)
+#if (LINUX||AVR8||AVR32LINUX)
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL){printf("malloc error\n");exit(-1);}
 #else
 *m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
