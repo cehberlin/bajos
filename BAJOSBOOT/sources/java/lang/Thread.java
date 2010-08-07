@@ -7,9 +7,9 @@ package java.lang;
 public abstract class Thread
 {
   /**
-   * The minimum priority that a thread can have. The value is 1.
+   * The minimum priority that a thread can have. The value is 0.
    */
-  public final static int MIN_PRIORITY = 1;
+  public final static int MIN_PRIORITY = 0;
 
  /**
   * The priority that is assigned to the primordial thread. The value is 5.
@@ -27,29 +27,15 @@ public abstract class Thread
   // if classes.h is changed accordingly. Needless
   // to say, they are read-only.
 
-  private Thread _TVM_nextThread;
+ 
   public final static int MAX_PRIORITY = 10;
-
-  private int _TVM_waitingOn;
-  private int _TVM_sleepUntil;
-  private int _TVM_stackFrameArray;
-  private int _TVM_stackArray;
-  private byte _TVM_stackFrameArraySize;
-  private byte _TVM_monitorCount;
-  private byte _TVM_threadId; 
-  private byte _TVM_state; 
-  private byte _TVM_priority; 
-  private byte _TVM_interrupted; 
-  private byte _TVM_daemon; 
+ 
 
   // Extra instance state follows:
   
   private String name;
 
-  public final boolean isAlive()
-  {
-    return _TVM_state > 1;
-  }    
+  public final native boolean isAlive();
 	  
   public Thread()
   {

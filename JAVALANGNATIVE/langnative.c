@@ -50,6 +50,11 @@ opStackPush((slot)(u4)0);
 return 1;
 }
 
+char isAlive()	{//by ceh
+//TODO
+	return 1;
+}
+
 char start()	{
 cN=opStackGetValue(local).stackObj.classNumber;
 createThread();

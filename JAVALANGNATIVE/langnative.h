@@ -7,6 +7,7 @@ char nativeCharAt();
 char nativeStringLength();
 
 // Thread
+char isAlive();
 char start();
 char yield();
 char currentThread();

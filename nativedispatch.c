@@ -172,7 +172,7 @@ functionForNativeMethodType functionForNativeStringMethod[] =	{
 };
 
 functionForNativeMethodType functionForNativeThreadMethod[] =	{
-	NULL,
+	isAlive,
 	NULL,
 	NULL,
 	NULL,
