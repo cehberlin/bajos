@@ -69,6 +69,7 @@ Unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8,
 #>make clean target				// clean all objects and executable
 #>make clean compile target			// generate target executable
 #>make clean debug compile verbose target 	// generate target executable for debugging
+#>make all target
 
 PREPARATION OF DEVELOPMENT BOARD
 CHARONII WITH ATMEGA128
@@ -103,7 +104,7 @@ native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefin
 These are in the first row related to the memory partioning and the serial communication line binding.
 
 COMPILING JAVA SOURCES FOR BAJOS
-Since BAJOSBOOT is not fully J2SE compatible, it is necessary to compile java classes against BAJOSBOOT. A corresponding call of javac might look like
+Since BAJOSBOOT is not J2SE compatible yet , it is necessary to compile java classes against BAJOSBOOT. A corresponding call of javac might look like
 > javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
 where $(BAJOSBOOT) is the directory containing the BAJOSBOOT classes (currently "BAJOSBOOT/sources" below Bajos root) and $(TARGET) and $(SOURCES) point to the application's binary and source directories.
 
