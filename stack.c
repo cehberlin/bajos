@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef AVR8 
+#include <avr/pgmspace.h>
+#endif
 
 #include "bajvm.h"
 #include "definitions.h"
@@ -14,8 +17,8 @@
 
 /* op stack holds  locals and operanden*/
 /* method stack holds globale variable (cN, mN, local,..)*/
-static slot* 	opSp;
-static u2* 	methodSp;
+slot* 	opSp;
+u2* 	methodSp;
 
 void opStackInit(slot** m)	{		/* per thread, fixed size */
 #if (LINUX||AVR8||AVR32LINUX)
@@ -27,6 +30,7 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 *m=(slot*)((u4)appClassFileBase+MAXBYTECODE+4*MAXHEAP+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE));
 #endif
 }
+#ifndef AVR8 //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void opStackPush( slot val)	{	*(opSp++)=val;			}	
 /*  sp grothws with increasing addresses*/
 /* and shows to TOS -> first free place*/
@@ -39,13 +43,14 @@ slot  opStackPeek()		{	return *(opSp-1);		}
 void opStackPoke( slot val)	{	*(opSp-1)=val;			}
 
 void opStackSetValue(u2 pos, slot val)	{*(opStackBase+pos)=val;	}
- 
+
 slot opStackGetValue(u2  pos)	{	return *(opStackBase+pos);	}
 
-u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}	
-/* relative to actual base*/
+u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}
 
-void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}
+/* relative to actual base*/
+void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}	
+#endif
 
 void methodStackInit(u2** m)	{
 #if (LINUX||AVR8||AVR32LINUX)
@@ -55,15 +60,18 @@ void methodStackInit(u2** m)	{
 *m=(u2*)((u4)(appClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
 #endif
 									}
-
+#ifndef AVR8 //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void methodStackPush(u2 val)	{	*(methodSp++)=val;		}
 u2 methodStackPop()		{	return *(--methodSp);		}
 u2 methodStackPeek()		{	return *(methodSp-1);		}
-u1 methodStackEmpty()		{	return (methodSp==methodStackBase) ? 1:0;	}
 u2 methodStackGetSpPos()	{  	return (methodSp-methodStackBase);		}
+
 /* relative to actual base*/
-void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	
-}
+void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	}
+
+u1 methodStackEmpty()		{	return (methodSp==methodStackBase) ? 1:0;	}
+#endif
+
 /*//BH
 void dummy(void)	{
 char* s1,*s2;

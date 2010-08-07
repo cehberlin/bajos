@@ -11,7 +11,13 @@
 #include "heap.h"
 
 void	createThread(void)			{
-if (numThreads == MAXTHREADS) errorExit(-2,"zu viele Threads\n");
+if (numThreads == MAXTHREADS){
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	errorExit(-2,PSTR("zu viele Threads\n"));
+#else
+	errorExit(-2,"zu viele Threads\n");
+#endif
+} 
 ThreadControlBlock* t=(ThreadControlBlock*) malloc(sizeof(ThreadControlBlock));
 opStackInit(&(t->opStackBase));
 methodStackInit(&(t->methodStackBase));

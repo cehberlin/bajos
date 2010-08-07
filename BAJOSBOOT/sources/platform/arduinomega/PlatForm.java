@@ -7,7 +7,7 @@
 //			Adrian Lang,FHW-BA Berlin; Fritz-Haber-Institut
 //			Stephan Bauer; FHW-BA Berlin; Bayer Schering Pharma AG
 //	    13.02.2009; Sebastian Starroske; FHW-BA Berlin; Bayer Schering Pharma AG
-//	    09.03.2009; Friedrich Große; FHW-BA Berlin; Deutsche Post IT-Services
+//	    09.03.2009; Friedrich Grosse; FHW-BA Berlin; Deutsche Post IT-Services
 //			Rainer Kirchhoff ; FHW-BA Berlin; MSA Auer GmbH
 
 package platform;

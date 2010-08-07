@@ -1,7 +1,6 @@
-#define fq		16000000				// arduino atmega1280
 #define baud		115200
-#define	OCR1ATIME	(fq/1000)
-#define	bdteiler	(fq/(16*baud))		  	// Baud-Divider
+#define	OCR1ATIME	(F_CPU/1000)
+#define	bdteiler	(F_CPU/(16*baud))		  	// Baud-Divider
 
 #define		MYUDR		UDR0		// usart data reg 0/1
 #define		MYUDRE		UDRE0

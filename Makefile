@@ -130,8 +130,8 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/ArrayIndexOutOfBoundsException.java
 
 
-#AVR8APPSOURCES	= 	javatests/AM.java
-AVR8APPSOURCES	= 	javatests/Charon.java
+AVR8APPSOURCES	= 	javatests/AM.java
+#AVR8APPSOURCES	= 	javatests/Charon.java
 
 #			javatests/Temperature.java
 #			 $(LANG)/Math.java \
@@ -156,7 +156,7 @@ CHARONSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON
 CHARONASMSOURCES = $(APPPATH)CHARON/routines.asm
 
 ARDUINOMEGASOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
-ARDUINOMEGAASMSOURCES = $(APPPATH)ARDUINOMEGA/routines.asm
+ARDUINOMEGAASMSOURCES = $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
 
 UC3ASOURCES	= $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c 
 
@@ -313,7 +313,8 @@ ifeq  ($(TARGETHW), AM)
 OBJFILES	= $(BAJOSSOURCES:.c=.o) $(ARDUINOMEGASOURCES:.c=.o) $(ARDUINOMEGAASMSOURCES:.asm=.o)
 ARCH		= AVR5
 PART		= atmega1280
-DEFS = -DAVR8 -DAM
+DEFS = -DAVR8 -DAM -DF_CPU=16000000
+OPTIMIZATION	= -O2
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 # Linker script file if any
 #LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
@@ -400,11 +401,12 @@ amapp:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall $(DEFS) ${DEBUGGEN}  -mmcu=$(PART) -mtiny-stack -o $@ $<
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall $(DEFS) ${DEBUGGEN} ${OPTIMIZATION} -mmcu=$(PART) -mtiny-stack -o $@ $<
 
 %o : %asm
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
+	@echo $(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall ${DEFS} ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
+	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall ${DEFS} ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
 endif #arduinoMega
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))

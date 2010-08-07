@@ -38,6 +38,7 @@ students of informatics at the HWR-Berlin/Berufsakademie
 
 #ifdef AVR8
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #endif
 
 #include "definitions.h"
@@ -49,9 +50,7 @@ students of informatics at the HWR-Berlin/Berufsakademie
 #include "classfile.h"
 #include "interpreter.h"
 #include "scheduler.h"
-#ifdef AVR8 
-#include <avr/pgmspace.h>
-#endif
+
 #if !(AVR32LINUX||LINUX || AM || CH || NGW100||STK1000||EVK1100)
 #error ein Zielsystem muß es doch geben?
 #endif
@@ -70,29 +69,52 @@ int main(int argc,char* argv[]){
 	methodStackBase	= actualThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
 #ifdef AVR8
-	printf("SP: %x cFB: %x hB: %x oPSB: %x mSB: %x cs: %x\n", 
+	//WHY DOES NOT WORK WITH PSTR?
+	printf_P(PSTR("SP: %x cFB: %x hB: %x oPSB: %x mSB: %x cs: %x\n"), 
 			256*SPH+SPL,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase,cs);
 #endif
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("start clinit"));
+#else
 	printf("start clinit");
+#endif
+
 	for (cN=0; cN < numClasses;cN++)
-	if (findMethodByName("<clinit>",8,"()V",3))	{
+if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
-			run();								}
-	for (cN=0; cN < numClasses;cN++)
-	if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
+			run();								}	
+for (cN=0; cN < numClasses;cN++)
+if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("  -> run <main> :\n"));
+#else
 	printf("  -> run <main> :\n");
+#endif
+
 	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
 	run(); 				/*  run main*/
-	return 0;;													}
+	return 0;
+}
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	errorExit(1,PSTR("no main found %d %d\n"),numClasses);
+#else
 	errorExit(1,"no main found %d %d\n",numClasses);
+#endif													
+	
 	return 1;
 }
 
 void errorExit(char nr,const char *format, ...)	{
 	va_list list;
 	va_start(list,format);
+#ifdef AVR8
+	vfprintf_P(stdout, format, list); //vprintf_P does not exist in current avr-libc
+#else
 	vprintf(format,list);
+#endif
 	va_end(list);
 	exit(nr);				}

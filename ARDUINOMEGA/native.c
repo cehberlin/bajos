@@ -21,6 +21,9 @@
 #include "../classfile.h"
 #include "../scheduler.h"
 #include "../heap.h"
+#ifdef AVR8 
+#include <avr/pgmspace.h>
+#endif
 #include "native.h"
 #include "platform.h"
 
@@ -40,7 +43,9 @@ return 1;		}
 
 char nativeCharOut()		{
 char val=opStackGetValue(local+1).UInt;
+
 	printf("%c",val);
+
 	return 0;		}
 
 

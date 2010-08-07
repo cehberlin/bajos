@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "/opt/cross/avr/include/avr/io.h"
-#include "/opt/cross/avr/include/avr/interrupt.h"
 #include "../definitions.h"
 #include "../typedefinitions.h"
 #include "../bajvm.h"
@@ -20,7 +18,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <util/delay.h>
 #include "arduinomega.h"
 
 void getCharsFromFlash(char*, u1, char*);
@@ -108,10 +105,22 @@ sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
 cs[cN].classFileStartAddress=addr+4;	// after length of class;
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
-printf("bootclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("bootclass: %x length:%x loaded\n"),cN,cs[cN].classFileLength);
+#else
+	printf("bootclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
+#endif
+
 }
 
-printf("load java application classes: \n");
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("load java application classes: \n"));
+#else
+	printf("load java application classes: \n");
+#endif
+
 #ifdef WITHMON
 addr=(char*)AVR8_FLASH_APP_BASE;
 #endif
@@ -125,20 +134,68 @@ sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
 cs[cN].classFileStartAddress=addr+4;	// after length of class
 analyzeClass(&cs[cN]);
 addr+=cs[cN].classFileLength+4;
-printf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("appclass: %x length:%x loaded\n"),numClasses,cs[cN].classFileLength);
+#else
+	printf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
+#endif
+
 }
 
 DEBUGPRINTHEAP;
 }
 
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
-    printf("%c",0x1b);
-    printf("%c",'[');
-/*  printf("%c",'4');*/
-    printf("%c",fgcolor);
-/*printf("%c",';');*/
-/*printf("%c",40 + bgcolor);*/
-    printf("%c",'m');
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),0x1b);
+#else
+	printf("%c",0x1b);
+#endif
+
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),'[');
+#else
+	printf("%c",'[');
+#endif
+
+/*
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),'4');
+#else
+	printf("%c",'4');
+#endif
+*/
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),fgcolor);
+#else
+	printf("%c",fgcolor);
+#endif
+
+/*
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),';');
+#else
+	printf("%c",';');
+#endif
+*/
+/*
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),40 + bgcolor);
+#else
+	printf("%c",40 + bgcolor);
+#endif
+*/
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("%c"),'m');
+#else
+	printf("%c",'m');
+#endif
+
 }
 
 void exit(int n)	{

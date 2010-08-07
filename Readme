@@ -85,9 +85,9 @@ javatests#> java ProducerConsumer
 PREPARATION OF DEVELOPMENT BOARDS
 
 ARDUINOMEGA WITH ATMEGA1280 as standalone application
-Install an appropriate terminal program for serial communication on your pc (e.g. kermit or minikermit from cs.ba-berlin.de).
-Download and unpack bajosV05.tar.gz.
-Connect your arduinoMega with a programming adapter (we user AVRispmkII) via usb cable with your pc.
+Install an appropriate terminal program for serial communication on your pc (e.g. kermit or minikermit from cs.ba-berlin.de, set the correct baudrate(115200baud) and interface ttyS0 or ttyUSB0 for your system).
+Download and unpack bajosV05.tar.gz. Maybe you must correct the termianl baudrate (115200) for your system in ARDUINOMEGA/arduinomega.h.
+Connect your arduinoMega with a programming adapter (we user AVRispmkII via usb cable) with your pc.
 Maybe you must set set atmega1280 fuses with:
 #> make writeFusesA am		# start at 0x0000 (boot section) after reset
 Type:
@@ -106,7 +106,7 @@ Maybe you must set set atmega1280 fuses with:
 #> make writeFusesM am		# start at 0xf000 (boot section) after reset
 Type:
 #> make all arduinoMega withmon
-in the bajos directory. This creates the file binary files bajvm.bin (jvm), avr8bootpack (bootclasses) and amapp (arduinoMega application classes).
+in the bajos directory. This creates the binary files bajvm.bin (jvm), avr8bootpack (bootclasses) and amapp (arduinoMega application classes).
 Install the terminal program for serial communication on your pc (minikermit from cs.ba-berlin.de)
 and start it. You see the monitor prompt after reset on the pc-terminal:
     ___________________BAMo128 Version:0.07 _________________
@@ -116,7 +116,7 @@ and start it. You see the monitor prompt after reset on the pc-terminal:
 now type 'w':
     BAMo128 #>name of cob (bin) -file for uploading:
 type here on the terminal the filename of the vm: bajvm.bin.
-After loading the vm you load the boot classes with the j-command and the flash
+After loading the vm you need to load the boot classes with the j-command and the flash
 word address B000.
 	Bamo128 #> j
 write flash words from 0000 to ff80(128 words pages):B000
@@ -129,24 +129,22 @@ between 0- ~9800 (bajvm) and the monitor f000-ffff.
 Now you can start bajvm with the monitor command
 	BAM0128#> g 0
 The application class javatests/AM.class is executed now and returns to the monitor prompt.
-
 You can only change the source file AM.java in javatests/ you compiles it to AM.class and generate
 the application class packages (amapp) with:
 #>make compAM amapp am
 and upload this packages with th j command from monitor.
-You can upload further boot classes and more than on application class by modification of the Makefile.
+You can upload further boot classes and more than one application class by modification of the Makefile.
 
 CHARONII WITH ATMEGA128
 We use the monitor program bamo128 (cs.ba-berlin.de). This monitor is burned in flash
 with uisp in the upper boot section (4kwords a 16 bit) at 0xF000 (word address).
 You can load with bamo128 programs and data ind the flash.
 Connect the CharonII (or equivalent board) with the PC over a serial communication line.
-For te atmega128 we store all classfiles in the ram, because the data acces to the flash
+For te atmega128 we store all classfiles in the ram, because the data access to the flash
 is to slowly. You can on the PC generate with:
 #>make all avr8
 the virtual machine bajvm.bin for the atmega128 processor and a file "avr8bootpack" (all bootclasses in one file), a small subset of bootclasses, which is used for upload the CharonII with the bootclasses and the application class package avr8app.
 Load this 3 files in the CharonII board described above.
-
 Then with
 BAMo128 #>g	0	# starts at address 0x0000
 you start bajvm and the aplication.
@@ -188,157 +186,3 @@ where $(BAJOSBOOT) is the directory containing the BAJOSBOOT classes (currently 
 
 KNOWN BUGS
 look at bugs ??...
-
-
-
-BAJOS ist eine Laufzeitumgebung für Mikrokontroller und besteht aus den Komponenten BAJVM, eine Java Virtual Maschine und aus BAJOSBOOT mit Java-Systemklassen und kann mit/ohne Betriebssystem
-in Eingebetteten Systemen verwendet werden.
-BAJOS wurde für den 8 Bit Controller atmega128, die 32 Bit Controller
-AVR32UC3A und AVR32AP7000 getestet und läuft auch unter Linux auf dem PC.
-Voraussetzung für die Installation von BAJOS ist:
-	- ein C-Compiler (gcc) auf einem Entwicklungs-PC
-	- eine (serielle) Schnittstelle zwischen PC und Entwicklungsboard
-	  zur Programmierung und Interaktion
-	- mindestens 80 KByte Programmspeicher auf dem Controllerboard
-	- mindestens 4 KByte Datenspeicher auf dem Controllerboard
-Die Bootklassen in BAJOSBOOT umfassen notwendige Klassen der
-JVM-Spezifikation, weitere nützliche Systemklassen sowie in
-der Klasse PlatForm.java die Anbindung der Laufzeitumgebung
-an die gegebene Hardware-Konfiguration.
-
-Eigenschaften und Grenzen von BAJOS
-BAJOS beinhaltet einen Bytecodeinterpreter, Exception Handling, Threadunterstützung,
-Unterstützung der Sychronisationsmechanismen von Java, native Methoden-Interface
-und einen Garbagecollector.
-Beim gegenwärtigen Stand ist BAJOS angelehnt oder besser "inspiriert"  von der JVM-Spezifikation
-(gegenwärtig nur < Version 1.6) mit Ausnahmen und Einschränkungen.
-Die bekanntesten Abweichungen sind:
-- kein long Datentyp
-- kein double Datentyp
-- keine Unicode-Unterstützung
-- keine Laufzeitauswertung einiger Klassen/Methoden/Field-Attribute
-- keine überladenen native Methoden
-- kein vollständiges Exception Handling
-- weniger als 256 Klassen;256 Methoden/Klasse; 256 lokale Vars. für Methoden
-- weniger als 16K Worte a 32 Bit auf dem Heap.
-- Arrays haben keine Typinformationen 
-- Die Handler für die *ASTORE-Bytecodes führen keine Typüberprüfung durch
-- *RETURN kann keine IllegalMonitorStateException auslösen
-- Stringkonstanten werden nicht automatisch in eine java.lang.String-Instanz verpackt. Insbesondere bei casting-Problemen sollte 'new String("STRINGCONSTANT")' anstelle von '"STRINGCONSTANT"' verwendet werden.
-- Keine Serialisierung, kein java.lang.Serializable
-- Keine hashCode()-Methoden
-- Keine System-Properties
-- Keine java.lang.Class, kein getClass()-Methoden
-- Keine java.lang.NumberFormatException, wird ersetzt durch java.lang.IllegalArgumentException
-- Kein java.lang.Number und keine shortValue()-, floatValue()-, byteValue()-, longValue()-Methoden in den Unterklassen.
-- Kein java.lang.Comparable, keine compareTo()-Methoden
-
-Der Umfang der verwendeten Boot- und Systemklassen und das
-programmspeicheraufwendige Exception-Handling muß dem vorhandenen
-Speicherplatz angepasst werden. 
-
-Javasoftware kann mit diesen Einschränkungen auf dem PC entwickelt
-und mit javac compiliert werden, Classfiles - auf Fremdmaschinen compiliert -
-eingebunden werden.
-
-Historie
-Zur Vertiefung von Vorlesungsinhalten (Programmierung in Java und C/C++,
-Betriebssysteme, Embedded Systems) enstand die Idee, eine JVM zu realisieren.
-Nach konzeptioneller Arbeit, in der die wichtigsten Datenstrukturen
-definiert wurden, entstand 2006 eine Version, welche auf Linux lauffähig
-war. Diese wurde relativ schnell auf Boards mit dem atmega128 portiert
-(Charon II mit 32 KByte externen Ram und wenig später auf den
-MICA2Dot der Firma Crossbow, welcher nur mit dem internen Mikrokontroller-Speicher
-auskommt). 2007/08 erfolgte eine Portierung auf die 32 Bit Prozessoren
-AVR32UC3A und AVR32AP7000 (unter Linux und als standalone Anwendung). Für das
-Entwicklungsboard STK1000 wird gegenwärtig eine grafische Bibliothek für das
-LCD-Display auf diesem Board entwickelt.
-Neben der intensiven Arbeit an der Erweiterung, Erhöhung der Stabilität und Verbesserung
-des Laufzeitverhaltens wird an der Weiterentwicklung (z.B.Verbesserung des Thread-Schedulers)
-und an der Realisierung von Applikationen (Steuerung von Robotern, ferngesteuerten Mobilen,..)
-gearbeitet.
-
-Installation und Inbetriebnahme
-
-Vorbereitung auf dem PC
-Installation die GNU-C-Entwicklungstools für die gewünschte Plattform
-(avrgcc oder avr32-gcc). In Suse10.3 sind die Tools bereits enthalten und können
-mit yast von der Installations-CD geladen werden. Für die AVR32-Prozessoren wurden
-die Suse10.1 Tools von atmel verwendet. Für spätere Versionen sind Anpassungen notwendig.
-Entpacken von BAJOS und BAJOSBOOT.
-Übersetzen von BAJOS für das Target (avr8, evk110, ngw100, stk1000, linux, avr32-linux)
-im Verzeichnis bajos.
-#>make clean target				// löscht alle Objekte und Executable
-#>make clean compile target			// erzeugt dassprechenden Zielexecutable
-#>make clean debug compile verbose target 	// erzeugt Executable für Debugging
-
-Vorbereitung des Entwicklungsboards
-CharonII mit atmega128
-Hier ist es zweckmäßig den Monitor bamo128 (cs.ba-berlin.de) mit einem
-Programmiergerät in die oberen 4 KWorte des Instruktionsspeichers (16Bit) zu brennen und den atmega128 zum Start auf der Bootloaderadresse 0xF000 (Wortadresse) zu programmieren.
-Dann kann mittels ISP-Programming über bamo128 und Terminalprogramms (minikermit von
-cs.ba-berlin.de) die JVM in den Instruktionsspeicher Mikrocontroller geladen werden.
-Nach Start von bajos werden die  Bootklassen (ca. 1 Dutzend Klassen, notwendig
-für die Java-Laufzeitumgebung) und anschließend die Anwenderklassen geladen.
-Die Class-Files werden hier in den RAM geladen. Die Anpassung von BAJOS an den vorhandenen
-Datenspeicher erfolgt vor dem Compilieren in limits.h.
-
-EVK1000, STK1000 und NGW100 mit AVR32UC3A/AR32AP7000
-Hier werden BAJOS und das Bootklassenpaket mit einem Programmiergerät in den
-Flashspeicher geschrieben, die Anwendungsklassen werden nach dem Start von BAJOS in den
-RAM nachgeladen.
-#> make program stk1000
-Lädt und startet die JVM und die Bootklassen  und startet die JVM. Diese
-lädt über die Terminalschnittstelle die Anwenderklassen nach und startet die Abarbeitung.
-
-Entwickelt und getestet wurde unter Suse10.3 mit den Atmel-GNU-Tools für Suse10.1 und den Treibern auf der Atmel-CD "STK1000_NGW_BSP_CD_Image_2.0.0". Neuere Softwareversionen erfordern eine mühsame Anpassung, da die firmenspezifischen Treiberbeispiele einer ständigen Änderung unterworfen sind.
-Gegenwärtig arbeitet der C-Compiler und Linker nur mit dem knappen internen Speicher und der Speicher für den Java-Heap, die Java-Stacks und die
-Anwendungs-Classfiles wird hart über Pointer (in bajvm.c -> eine unbefriedigende Lösung) an den großen externen RAM gebunden.
-Es wird für den AVR32UC3A auf dem Board EVK1100 an einem Monitor gearbeitet, der auch
-eine In-System-Programmierung des Flash ermöglicht und ein Laden der Class-Files
-nach dem Starten von BAJOS ermöglicht.
-
-Nach dem Starten von BAJOS und dem Laden aller Klassen ermöglicht jede Variante die
-Interaktion mit einem Terminal, in Linux das aufrufende Terminal und bei den Entwicklunsgboards über die serielle Schnittstelle mit einem Terminalprogramm (z.B. minikermit von cs.ba-berlin.de). Dazu ist erfolgt in Java die Anbindung in die Systemklassen OutStream und InStream, so daß Ein-/Ausgaben über System.out.println(..) und System.in.read() getätigt werden können.
-
-Tools
-Die Compilierung der Boot/Systemklassen erfolgt über make-Ziele plattformabhängig:
-#>make boot target (avr8 evk1100 ngw100 stk1000 linux)
-erzeugt die Boot-und Systemklassen.
-#> make A linux
-Startet die JVM unter Linux lädt automatisch alle im Makefile angegebenen notwendigen Klassen.
-#> make compA linux
-ist eine Hilfe zum Kompilieren der Anwenderklasse A.java
-Dieses und ähnliche Ziele wurde für Testzwecke eingeführt.
-
-Portieren auf andere Zielplattformen und Controller
-Aus den positiven Erfahrungen bei der Portierung auf 8-64 Bit Maschinen mit Datenspeicherung
-im big endian/little endian Mode sehen wir keine Probleme, BAJOS auf andere Hardwareplattformen mit der oben angegebenen Mindestspeicheraustattung zu portieren.
-Voraussetzung ist ein C-Compiler und der angegebene Mindestspeicherplatz für
-Programme und Daten. Anpassungen für einen ersten Test sind in den C-Files und Headers
-native.c
-platform.c
-stack.c
-heap.c
-classfile.c
-bajvm.c
-limits.h
-typedefinitions.h
-und betreffen im wesentlichen die Speicheraufteilung und die Anbindung
-der Schnittstelle zum PC (serial).
-
-FÜR BAJOS KOMPILIEREN
-Da BAJOSBOOT nicht J2SE-kompatibel ist, müssen Klassen gegen BAJOSBOOT kompiliert werden. Ein entsprechender javac-Aufruf könnte wie folgt aussehen:
-> javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
-Dabei ist $(BAJOSBOOT) das Verzeichnis, in dem sich die BAJOSBOOT-Klassen befinden (zur Zeit "BAJOSBOOT/sources" vom Bajos-Verzeichnis aus) und $(TARGET) und $(SOURCES) zeigen auf die Klassen- und Quell-Verzeichnisse der zu kompilierenden Anwendung.
-
-KNOWN BUGS
-look at bugs ??...
-
-Known Bugs
-many ???
-
-ToDo
-Anpassung an java 1.6
-Exception Handling für alle betroffenen Bytecodes realisieren/ oder auch nicht, wir bauen keinen mercedes!!
-....

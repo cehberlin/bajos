@@ -6,6 +6,10 @@
 #ifndef __DEFINITIONS__
 #define __DEFINITIONS__
 
+#ifdef AVR8 
+#include <avr/pgmspace.h>
+#endif
+
 #include "typedefinitions.h"
 //#ifdef AVR8
 //#define printf	printf_P
@@ -57,25 +61,49 @@
 #endif
 
 //mb jf
-#define ARRAYINDEXOUTOFBOUNDSEXCEPTION raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
-#define NEGATIVEARRAYSIZEEXCEPTION raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36)
-#define NULLPOINTEREXCEPTION raiseExceptionFromIdentifier("java/lang/NullPointerException", 30)
-#define ARITHMETICEXCEPTION raiseExceptionFromIdentifier("java/lang/ArithmeticException", 29)
-#define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
-#define ILLEGALMONITORSTATEEXCEPTION raiseExceptionFromIdentifier("java/lang/IllegalMonitorStateException", 38)
 
-#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
-#define CLASSNOTFOUNDERR(classname) errorExit(-3, "Class '%s' not found.\n", classname)
-#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
-#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
-#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)
-#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)
+	#define ARRAYINDEXOUTOFBOUNDSEXCEPTION raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
+	#define NEGATIVEARRAYSIZEEXCEPTION raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36)
+	#define NULLPOINTEREXCEPTION raiseExceptionFromIdentifier("java/lang/NullPointerException", 30)
+	#define ARITHMETICEXCEPTION raiseExceptionFromIdentifier("java/lang/ArithmeticException", 29)
+	#define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
+	#define ILLEGALMONITORSTATEEXCEPTION raiseExceptionFromIdentifier("java/lang/IllegalMonitorStateException", 38)
 
-#define PRINTSTRING(p,l) {\
-			int _i;\
-			for (_i=0; _i < (l); _i++)\
-			printf("%c",*((u1*)(p)+_i));\
-			} printf("\n")
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define DNOTSUPPORTED errorExit(-2, PSTR("Double precision primitive data types (double and long) are not supported.\n"))
+#else
+	#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
+#endif	
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define CLASSNOTFOUNDERR(classname) errorExit(-3, PSTR("Class '%s' not found.\n"), classname)
+#else
+	#define CLASSNOTFOUNDERR(classname) errorExit(-3, "Class '%s' not found.\n", classname)
+#endif	
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, PSTR("Unhandled exception of type '%s'.\n"), exceptionname)
+#else
+	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
+#endif	
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, PSTR("Field '%s' in class '%s' not found.\n"), fieldname, classname)
+#else
+	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
+#endif	
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, PSTR("Method '%s' in class '%s' not found.\n"), methodname, classname)
+#else
+	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)
+#endif	
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define MALLOCERR(count, target) errorExit(-7, PSTR("Malloc error while trying to allocate %d bytes for %s\n"), count, target)
+#else
+	#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)
+#endif	
 
 #define CASE				break;case
 #define DEFAULT				break;default
@@ -84,8 +112,6 @@
 #define BYTECODEREF			((byte1 << 8) | byte2)
 #define HEAPOBJECTMARKER(pos)		((*(heapBase+(pos))).heapObjMarker)
 #define HEAPOBJECT(pos)			(*(heapBase+pos))
-
-
 
 #define METHODBASE(cN,mN)		(cs[cN].method_info[mN])
 #define METHODACCESSFLAG(cN,mN)		getU2(METHODBASE(cN,mN))
@@ -136,6 +162,53 @@
 
 #ifdef DEBUG
 #define TR 0 //(actualThreadCB->tid)
+#ifdef AVR8
+
+		#define OUTSTREAM stdout
+		#define	DEBUGPRINT1(s)	if (TR==actualThreadCB->tid)printf_P(PSTR(s))
+		#define	DEBUGPRINT2(f,a) if (TR==actualThreadCB->tid) printf_P(PSTR(f),a)
+		#define	DEBUGPRINT3(f,a,b) if (TR==actualThreadCB->tid) printf_P(PSTR(f),a,b)
+		#define	DEBUGPRINTLN1(s) if (TR==actualThreadCB->tid) {printf_P(PSTR(s)); printf_P(PSTR("\n"));}
+		#define	DEBUGPRINTLN2(f,a) if (TR==actualThreadCB->tid) {printf_P(PSTR(f),a); printf_P(PSTR("\n"));}
+		#define	DEBUGPRINTLN3(f,a,b) if (TR==actualThreadCB->tid) {printf_P(PSTR(f),a,b); printf_P(PSTR("\n"));}
+		#define 	DEBUGPRINTE(x,f)	if (TR==actualThreadCB->tid) printf_P(PSTR(#x ": " "%"#f" "),x)
+		#define 	PRINTE(x,f)	if (TR==actualThreadCB->tid) printf_P(PSTR(#x ": " "%"#f" "),x)
+		#define DEBUGPRINTF(a,b,c)	if (TR==actualThreadCB->tid)printf_P(PSTR(a),b,c)
+		#define DEBUGPRINTSTACK if (TR==actualThreadCB->tid){\
+				int i;\
+				for (i= opStackGetSpPos() > 8 ? -8 : -opStackGetSpPos() ; i < 0 ; i++){\
+				printf_P(PSTR("%08x "),((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
+		} ;	printf_P(PSTR(":|_|stack\n"));}
+/*
+				VT102Attribute('0', COLOR_WHITE);printf_P(PSTR(" "));\
+				if (i==(opStackGetSpPos()))VT102Attribute ('4', COLOR_GREEN); else VT102Attribute('0', COLOR_WHITE);\
+*/
+		#define DEBUGPRINTLOCALS if (TR==actualThreadCB->tid){\
+				int i;\
+				printf_P(PSTR("|.| local:"));\
+				for (i=0; i < 8 && i < local; i++)\
+				printf_P(PSTR(" %08x"),opStackGetValue(local+i).UInt);\
+		 printf_P(PSTR("\n"));}
+		
+#define DEBUGPRINTHEAP 
+/*{\
+			int i,j;\
+			printf_P(PSTR("|#|  heap:\n"));\
+			for (j=0; j <33; j+=8){\
+			for (i=0; i < 8; i++)\
+				printf_P(PSTR(" %8x"),(*(heapBase+i+j)).UInt);printf_P(PSTR("\n"));}\
+		} printf_P(PSTR("\n"))
+*/
+		
+#define DEBUGPRINTSTRING(p,l) {\
+			int _i;\
+			for (_i=0; _i < (l); _i++)\
+			printf_P(PSTR("%c"),*((u1*)(p)+_i));\
+			 printf_P(PSTR(" "));}
+
+#define DEBUGPRINTLNSTRING(p,l)	if (TR==actualThreadCB->tid){DEBUGPRINTSTRING(p,l); printf_P(PSTR("\n"));}
+
+#else //not AVR8
 		#define OUTSTREAM stdout
 		#define	DEBUGPRINT1(s)	if (TR==actualThreadCB->tid)printf(s)
 		#define	DEBUGPRINT2(f,a) if (TR==actualThreadCB->tid) printf(f,a)
@@ -179,7 +252,7 @@
 			 printf(" ");}
 
 #define DEBUGPRINTLNSTRING(p,l)	if (TR==actualThreadCB->tid){DEBUGPRINTSTRING(p,l); printf("\n");}
-
+#endif
 #else
 
 #define	DEBUGPRINT1(s)	
@@ -205,9 +278,9 @@
 #define PRINTLN2(f,a)		printf(f,a)
 #define PRINTLN3(f,a,b)		printf(f,a,b)
 #ifdef AVR8
-#define PRINTEXITTHREAD(a,b) {printf(a,b);\
+#define PRINTEXITTHREAD(a,b) {printf_P(PSTR(a),b);\
 				if (numThreads==1)	{\
-				printf("tschüssi\n");\
+				printf_P(PSTR("tschüssi\n"));\
 				goto *0xf002; \
 				/*exit(0);*/}\
 				else {	deleteThread();}\

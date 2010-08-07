@@ -9,11 +9,20 @@
 #include "definitions.h"
 #include "bajvm.h"
 #include "stack.h"
+#ifdef AVR8 
+#include <avr/pgmspace.h>
+#endif
 #include "heap.h"
 /* heap */
 void heapInit()	{
 #if (AVR8||LINUX||AVR32LINUX)
-if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("malloc error\n");exit(-1);}			/* heap fixed size!!*/
+if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) {
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("malloc error\n"));
+#else
+	printf("malloc error\n");
+#endif
+exit(-1);}			/* heap fixed size!!*/
 #else
 /* make it better*/
 heapBase=(slot*)((u4)(appClassFileBase+MAXBYTECODE));
@@ -31,7 +40,13 @@ u2	getNextHeapObjectPos(u2 pos)	{
 									}
 
 u2 getFreeHeapSpace(u2 length)	{	/* todo er muss genau einen Platz der Länge zurückgeben !!*/
-/*printf("length %x \n",length);*/
+/*
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("length %x \n"),length);
+#else
+	printf("length %x \n",length);
+#endif
+*/
 /* erkennnen circularer referencen on heap ohne bezug zu opstack !!*/
 if ((heapTop+length-1) < MAXHEAP) 	{
 	HEAPOBJECTMARKER(heapTop).length=length;
@@ -55,7 +70,13 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 
 /* verschmelzen*/
 int schmelz;
-printf("verschmelzen\n");
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("verschmelzen\n"));
+#else
+	printf("verschmelzen\n");
+#endif
+
 for ( schmelz=0; schmelz < 20; schmelz++)	{	
 nextElementPos=0;
 u2 oldElementPos=0;
@@ -78,7 +99,13 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 	}	while  ((nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
 }
 /* alles umsonst*/
-printf(" no free heap space for object/array of length: 0x%x  _> tschüß",length);
+
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR(" no free heap space for object/array of length: 0x%x  _> tschüß"),length);
+#else
+	printf(" no free heap space for object/array of length: 0x%x  _> tschüß",length);
+#endif
+
 exit(-1);
 }
 
