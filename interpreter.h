@@ -220,9 +220,8 @@
 void run();
 u2 getStartPC();
 u1 checkInstance(u2 target);
-void handleException();
-void handleArithmeticException();
 void raiseExceptionFromIdentifier(char identifier[], u1 length);
+void handleException();
 
 slot createDims(u4 dimsLeft, u2 *count);
 #endif

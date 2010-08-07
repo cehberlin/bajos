@@ -44,10 +44,10 @@
 #endif
 
 //mb jf
-#define ARRAYINDEXOUTOFBOUNDEXCEPTION	PRINTEXIT("ArrayIndexOutOfBoundException %d\n",0)
-#define NEGATIVEARRAYSIZEEXCEPTION	PRINTEXIT("NegativeArraySizeException %d\n",0)
-#define NULLPOINTEREXCEPTION		 PRINTEXIT("NullPointerException %d\n",0)
-#define ARITHMETICEXCEPTION		PRINTEXIT("ArithmeticException Division by Zero ->  delete Thread: %d\n",actualThreadCB->tid)
+#define ARRAYINDEXOUTOFBOUNDSEXCEPTION	raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
+#define NEGATIVEARRAYSIZEEXCEPTION		raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 35)
+#define NULLPOINTEREXCEPTION			raiseExceptionFromIdentifier("java/lang/NullPointerException", 29)
+#define ARITHMETICEXCEPTION				raiseExceptionFromIdentifier("java/lang/ArithmeticException", 28)
 
 #define PRINTSTRING(p,l) {\
 			int _i;\

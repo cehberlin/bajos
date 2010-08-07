@@ -41,7 +41,7 @@ static slot	first;
 static slot	second;
 static slot	third;
 static slot 	fourth;
-static char*	className;;
+static char*	className;
 static u2 	classNameLength;
 static char* 	name;		// field or method
 static u2 	nameLength;
@@ -163,8 +163,8 @@ switch (code)	{
 						/* a string is not an array!!!*/
 			lengthArray=first.stackObj.arrayLength;
 			if (count < 0 || lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
-				raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
-			opStackPoke(( slot)heapGetElement((u2)first.stackObj.pos/*UInt*/+count+1));
+				ARRAYINDEXOUTOFBOUNDSEXCEPTION;
+			opStackPoke(heapGetElement((u2)first.stackObj.pos/*UInt*/+count+1));
 #ifdef DEBUG
 			switch (code)								{
 				case IALOAD:	DEBUGPRINTLN2("iaload %x,=>",first.UInt);
@@ -235,12 +235,12 @@ switch (code)	{
 			count = (s2)(opStackPop().Int);
 			first = opStackPop();
 			lengthArray=first.stackObj.arrayLength;				
-			if(first.UInt==((slot)NULLOBJECT).UInt)						{
+			if(first.UInt==(NULLOBJECT).UInt)						{
 				printf("count %d %d\n",count,lengthArray);
-				raiseExceptionFromIdentifier("java/lang/NullPointerException", 30);
+				NULLPOINTEREXCEPTION;
 			}
 			if	(count < 0 	|| lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
-				raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
+				ARRAYINDEXOUTOFBOUNDSEXCEPTION;
 			heapSetElement(second,first.stackObj.pos+count+1);
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
@@ -347,18 +347,18 @@ switch (code)	{
 	CASE	DMUL:	PRINTSEXIT("DMUL",nry,4);
 	CASE	IDIV:	DEBUGPRINTLN1("IDIV");
 			first = opStackPop();		//mb fj changed dividend order
-			if(first.Int == 0)	handleArithmeticException();
+			if(first.Int == 0)	ARITHMETICEXCEPTION;
 			else 			opStackPush(( slot)( opStackPop().Int / first.Int));
 			DEBUGPRINTSTACK;
 	CASE	LDIV:	PRINTSEXIT("LDIV",nry,4);
 	CASE	FDIV:	DEBUGPRINTLN1("FDIV");
 			first = opStackPop();		//mb fj changed dividend order
-			if(first.Float == 0.0)	handleArithmeticException();
+			if(first.Float == 0.0)	ARITHMETICEXCEPTION;
 			else			opStackPoke(( slot)(opStackPeek().Float / first.Float));
 			DEBUGPRINTSTACK;
 	CASE	DDIV:	PRINTSEXIT("DDIV",nry,4);		
 	CASE	IREM:	DEBUGPRINTLN1("IREM");
-			if (( (first=opStackPop()).Int)==0)	ARITHMETICEXCEPTION	// ohne Semikolon!!
+			if (( (first=opStackPop()).Int)==0)	ARITHMETICEXCEPTION;
 			else					opStackPoke((slot)(opStackPeek().Int % first.Int));
 			DEBUGPRINTSTACK;
 	CASE	LREM:	PRINTSEXIT("LREM",nry,4);
@@ -1127,8 +1127,8 @@ cN=methodStackPop();
 						count = (s2)opStackPop().UInt;
 						if(count < 0){	NEGATIVEARRAYSIZEEXCEPTION;}
  						if (count > (MAXHEAPOBJECTLENGTH-1)) {
- 							raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
- 						}
+							ARRAYINDEXOUTOFBOUNDSEXCEPTION; 
+						}
 
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
 						first.stackObj.pos=heapPos;
@@ -1155,9 +1155,9 @@ cN=methodStackPop();
 		CASE	ANEWARRAY:	DEBUGPRINTLN1("anewarray");	// mb jf
 						count =(s2) opStackPop().Int;
  						if (count < 0) {
- 							raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36);
- 						} else if (count > (MAXHEAPOBJECTLENGTH-1)) {
- 							raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 39);
+							NEGATIVEARRAYSIZEEXCEPTION; 
+						} else if (count > (MAXHEAPOBJECTLENGTH-1)) {
+							ARRAYINDEXOUTOFBOUNDSEXCEPTION;
 						} else {
 						// resolve type of array / interface /.stackObject from constant pool at index
 						// check access flags (public etc.) ... --> VM specs
@@ -1243,7 +1243,7 @@ else*/
         CASE    CHECKCAST: DEBUGPRINTLN1("checkcast");
 					pc += 2;
                     first = opStackPop();
-                    if (first.UInt != ((slot)NULLOBJECT).UInt) {
+                    if (first.UInt != (NULLOBJECT).UInt) {
 						methodStackPush(cN);
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
@@ -1266,7 +1266,7 @@ else*/
         CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
 					pc += 2;
                     first = opStackPop();
-                    if (first.UInt != ((slot)NULLOBJECT).UInt) {
+                    if (first.UInt != (NULLOBJECT).UInt) {
 						methodStackPush(cN);
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
@@ -1389,9 +1389,9 @@ slot createDims(u4 dimsLeft, u2 *count){
 		*count = (s2) opStackPop().Int;
 	}
 	if (*count < 0) {
-		raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36);
+		NEGATIVEARRAYSIZEEXCEPTION;
 	} else if (*count > (MAXHEAPOBJECTLENGTH-1)) {
-		raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 39);
+		ARRAYINDEXOUTOFBOUNDSEXCEPTION;
 	} else {
 		heapPos=getFreeHeapSpace(*count + 1); // + marker
 		first.stackObj.pos=heapPos;
@@ -1403,7 +1403,7 @@ slot createDims(u4 dimsLeft, u2 *count){
 		u2 *cnt = (u2 *) malloc(sizeof(u2));
 		*cnt = 0;
 		for ( i = 0 ; i < *count ; ++i) {
-			heapSetElement((slot) createDims(dimsLeft - 1, cnt), heapPos++);
+			heapSetElement(createDims(dimsLeft - 1, cnt), heapPos++);
 		}
 	}
 	return first;
@@ -1412,10 +1412,6 @@ slot createDims(u4 dimsLeft, u2 *count){
 /*
 ** Realizes a interpreter-raised ArithmeticException
 */
-
-void handleArithmeticException() {
-	raiseExceptionFromIdentifier("java/lang/ArithmeticException", 29);
-}
 
 void raiseExceptionFromIdentifier(char identifier[], u1 length) {
 
