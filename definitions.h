@@ -7,7 +7,11 @@
 #define __DEFINITIONS__
 
 #include "typedefinitions.h"
-// RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 java class base
+//#ifdef AVR8
+//#define printf	printf_P
+//#endif
+// RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 (words) java class base 
+// 0x10000 + 0x06000 in bytes
 // bamo128 -> 0xE000 to 0xFFFF
 #define AVR8_FLASH_JAVA_BASE	0x6000	// 20k boot classes in flash	-> 0xB000
 #define AVR8_FLASH_APP_BASE 	0xB000	// 12k application classes	-> 0xD800
