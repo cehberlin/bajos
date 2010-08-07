@@ -11,4 +11,9 @@
 // jan08 synchronized, wait notify
 // 11.11.08 ein dicker vererbungsfehler für fields new getfield putfield
 // getstatic putstatic xaload xastore
-My FFF
+// 12.12.08 bh generatebootclasspackage.c und packer.c sind nicht mehr notwendig
+// -> alles im Makefile $(BOOTSOURCES)
+// -> es musste auch bajvm.c angepasst werden, weil ascii numClasses und length in mytemp(mbc)
+// Funktion errorExit(Fehlernummer, formatstring für printf) in bajvm.c eingefügt
+// make A jetzt -> make A java
+// make compA jetzt -> make compA java
