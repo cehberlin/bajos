@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef AVR8 
+#if AVR8 && (!XPLAIN) 
 #include <avr/pgmspace.h>
 #endif
 #include "typedefinitions.h"
@@ -23,7 +23,7 @@
 #include "interpreter.h"
 #include "scheduler.h"
 
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 #define GETSTARTPC(offset)	((strncmpRamFlash(	"Code",\
 			getAddr( cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+offset)]+3	),\
 			4)==0)? (u2)METHODBASE(cN,mN)+8+14+offset :\
@@ -135,7 +135,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 			DEBUGPRINTLN2(",=> x%x",opStackPeek().UInt);
 
 		CASE	LDC_W:
-			#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+			#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 				errorExit(-4, PSTR("LDC_W not yet realized\n"));
 			#else
 				errorExit(-4, "LDC_W not yet realized\n");
@@ -207,7 +207,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 			CASE SALOAD: DEBUGPRINTLN1("saload");
 			}
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("%x, =>"),first.UInt);
 #else
 	printf("%x, =>",first.UInt);
@@ -752,7 +752,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 			                         + 1);		/* length*/
 			if (!
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 findClassFlash
 #else
 findClass
@@ -790,7 +790,7 @@ findClass
 			                 +3);		/* bytes*/
 			fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1); /* length*/
 			if (!
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 findClassFlash
 #else
 
@@ -829,7 +829,7 @@ findClass
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 			                         + 1);		/* length*/
 /*
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x"),first,cN,numFields);
 #else
 	printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN,numFields);
@@ -870,7 +870,7 @@ findClass
 				fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	/* length*/
 				/*kann weg*/
 				if (!
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 findClassFlash(
 				    getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))
@@ -901,7 +901,7 @@ findClass(
 					/* die Stelle auf dem heap*/
 
 					if (
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 strncmpRamFlash( "B",fieldDescr, 1)
 #else
 strncmp( "B",fieldDescr, 1)
@@ -911,7 +911,7 @@ strncmp( "B",fieldDescr, 1)
 						first.Int = first.Int & 0x000000ff;
 					}
 /*
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("classnumber: %d nummer %d was von stack %d\n"),cN,i,val);
 #else
 	printf("classnumber: %d nummer %d was von stack %d\n",cN,i,val);
@@ -985,7 +985,7 @@ strncmp( "B",fieldDescr, 1)
 						if (actualThreadCB->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;
 						else break;
 					if (i==MAXLOCKEDTHREADOBJECTS) {
-						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+						#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 							errorExit(-1, PSTR("too many locks\n"));
 						#else
 							errorExit(-1, "too many locks\n");
@@ -1022,7 +1022,7 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 				else				goto nativeVoidReturn;
 			}
 			else	{
-				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+				#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-3,PSTR("native method not found cN: %d mN: %d"),cN,mN);
 				#else
 					errorExit(-3,"native method not found cN: %d mN: %d",cN,mN);
@@ -1054,7 +1054,7 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 			opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
 			if (getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 /*
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("invoke sync static %04x %d %d\n"),cs[cN].classInfo,cN,mN);
 #else
 	printf("invoke sync static %04x %d %d\n",cs[cN].classInfo,cN,mN);
@@ -1068,7 +1068,7 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 						if (actualThreadCB->hasMutexLockForObject[i].UInt!=NULLOBJECT.UInt)continue;
 						else break;
 					if (i==MAXLOCKEDTHREADOBJECTS) {
-						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+						#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 							errorExit(-1, PSTR("too many locks\n"));
 						#else
 							errorExit(-1, "too many locks\n");
@@ -1105,7 +1105,7 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 				else				goto nativeVoidReturn;
 			}
 			else{
-				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+				#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-3,PSTR("native method not found cN: %d mN: %d"),cN,mN);
 				#else
 					errorExit(-3,"native method not found cN: %d mN: %d",cN,mN);
@@ -1163,14 +1163,14 @@ nativeVoidReturn:
 			}
 			if (methodStackEmpty())	{
 				/*
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("empty method stack\n"));
 #else
 	printf("empty method stack\n");
 #endif
 */
 				if (
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 strncmpRamFlash
 #else
 strncmp
@@ -1202,7 +1202,7 @@ strncmp
 			methodStackPush(cN);
 			methodStackPush(mN);
 			if (!
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 findClassFlash
 #else
 findClass
@@ -1313,7 +1313,7 @@ findClass
 						continue;
 					else break;
 				if (i==MAXLOCKEDTHREADOBJECTS) {
-					#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+					#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 						errorExit(-1, PSTR("too many locks\n"));
 					#else
 						errorExit(-1, "too many locks\n");
@@ -1572,7 +1572,7 @@ findClass
 		scheduler();
 	} while (1);/*do*/
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("schluss\n"));
 #else
 	printf("schluss\n");
@@ -1586,7 +1586,7 @@ findClass
 void subCheck (u2 target, u2 addr) {
 	u2 super_class = cs[cN].constant_pool[getU2(cs[cN].constant_pool[addr]+1)];
 	methodStackPush(cN);
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 	findClassFlash(getAddr(super_class+3), getU2(super_class+1));
 #else
 	findClass(getAddr(super_class+3), getU2(super_class+1));
@@ -1659,7 +1659,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 #ifdef DEBUG
 	if (strlen(identifier) != length) {
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("ERROR: Wrong length for %s\n"), identifier);
 #else
 	printf("ERROR: Wrong length for %s\n", identifier);
@@ -1691,7 +1691,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 			METHODNOTFOUNDERR("<init>", identifier);
 		}
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("running <init> of %s\n"), identifier);
 #else
 	printf("running <init> of %s\n", identifier);
@@ -1736,7 +1736,7 @@ void handleException() {
 		/* checking whether the catch's catched class is in the code exception table*/
 		methodStackPush(cN);
 		if (
-#ifdef AVR8
+#if AVR8 && (!XPLAIN)
 findClassFlash
 #else
 findClass
