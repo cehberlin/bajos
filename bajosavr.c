@@ -7,11 +7,13 @@
 // version 0.2 vom 15.3.08
 /********************************************************************************************
 Erweiterungen von:
-2006 Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering AG
-22.02.2008	Anna Maria Damm, Bayer Schering Pharma AG
-	 		H.-Christian Hecht, CoMedServ GmbH
-			Adrian Lang,Fritz-Haber-Institut
-			Stephan Bauer, Bayer Schering Pharma AG		
+2006 Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
+2008 Anna Maria Damm, Bayer Schering Pharma AG
+ 	 H.-Christian Hecht, CoMedServ GmbH
+	 Adrian Lang,Fritz-Haber-Institut
+	 Stephan Bauer, Bayer Schering Pharma AGstudent
+	 Christopher Hartl, Alcatel-Lucent AG
+	 Jascha Radziewski, DP-IT-Service GmbH
  Studenten der Informatik an der FHW-Berlin/Fachbereich Berufsakademie	
 ********************************************************************************************/
 // no double, no long
