@@ -417,7 +417,7 @@ $(TARGETFILE): 	$(OBJFILES)
 	@echo
 
 
-all:	clean compile  bootclasses bootgraphic  program logo progbootpack
+all:	clean compile  bootclasses bootgraphic  program logo
 
 #program your avr32 device
 logo:
