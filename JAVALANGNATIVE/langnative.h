@@ -11,6 +11,8 @@ char start();
 char yield();
 char currentThread();
 char getPriority();
+char getPriority_static();
+char setPriority_static();
 char setPriority();
 char interrupt();
 char interrupted();

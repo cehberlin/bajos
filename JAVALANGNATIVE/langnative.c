@@ -56,20 +56,32 @@ createThread();
 return 0;
 }
 /*6*/
-char yield()	{return 0; }
+char yield()	{//by ceh
+	//force scheduling!
+	actualThreadCB->numTicks=0;
+	return 0; 
+}
 /*7*/
 char currentThread(){return 1; }
 /*8*/
-char getPriority(){
+char getPriority(){ //by ceh
 	opStackPush((slot)(u4)actualThreadCB->priority);
 	return 1; 
 }
 /*9*/
-char setPriority(){
-	slot prio;
-	prio=opStackGetValue(local+1);
-	if(prio.bytes[0]>=MINPRIORITY && prio.bytes[0]<=MAXPRIORITY){
-		actualThreadCB->priority=prio.bytes[0];
+char setPriority(){ //by ceh
+	u1 newPrio;
+	u1 currentPrio;
+	newPrio=opStackGetValue(local+1).UInt;
+	currentPrio=actualThreadCB->priority;
+	if(newPrio>=MINPRIORITY && newPrio<=MAXPRIORITY && newPrio!=currentPrio){
+		removeThreadFromPriorityList(actualThreadCB);
+		actualThreadCB->priority=newPrio;
+		insertThreadIntoPriorityList(actualThreadCB);
+		//if priority was decreased the scheduling for next bytecode is forced
+		if(currentPrio>newPrio){
+			actualThreadCB->numTicks=0;
+		}
 	}
 	return 0; 
 }

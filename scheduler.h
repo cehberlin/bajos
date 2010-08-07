@@ -10,9 +10,11 @@
 // number of byte code instructions, counter
 #define NORMPRIORITY 5
 #define MAXPRIORITY 10
-#define MINPRIORITY 0
+#define MINPRIORITY 0 //must be 0 do not edit!!!
 
 void createThread(void);
 void deleteThread(void);
 void scheduler(void);
+void insertThreadIntoPriorityList(ThreadControlBlock* t);
+void removeThreadFromPriorityList(ThreadControlBlock* t);
 #endif
