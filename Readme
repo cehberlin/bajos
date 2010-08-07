@@ -1,23 +1,23 @@
 23.11.08 
 BAJOS is a run-time environment for microcontroller. It consists of BAJVM, a Java Virtual Machine
 and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system.
-The system ist tested for 8 Bit and 32 AVR controllers on different development boards and works under Linux on PC or Linux for Embedded Systems.
-Requierements for installation of Bajos are:
+The system has been tested for 8 Bit and 32 AVR controllers on different development boards and works under Linux on PC or Linux for Embedded Systems.
+Installation of Bajos requires:
 	- C-compiler (gcc) on a cross development PC
 	- (serial) interface between PC and development board for programming and interaction
 	- at least 80 kbyte programm memory on the controller board
-	- at least 4 kbyte data memory aon the controller board
+	- at least 4 kbyte data memory on the controller board
 Boot classes in BAJOSBOOT include necessary classes of the JVM-specification, other useful system
 classes as well as the class PlatForm.java for binding the run time environment to the hardware
 configuration.
 
 BAJOS is developed under Suse10.3 with the atmel tools for Suse10.1 and drivers from 
-STK1000_NGW_BSP_CD_Image_2.0.0. Newer AVR32-software releases require cumbersome adaptations because the company-specific driver examples are permanently changed. Currently works the C-compiler and the linker for AVR32 processors with the tight internal ram. Memories for classfiles, heap, stack,.. are hard wired with the external ram.
-each variant allow after starting the interaction with a terminal program (RS232-serial communication)
+STK1000_NGW_BSP_CD_Image_2.0.0. Newer AVR32-software releases require cumbersome adaptations because the company-specific driver examples are permanently changed. The C-compiler and the linker for AVR32 processors currently work with the tight internal ram. Memories for classfiles, heap, stack,.. are hard wired with the external ram.
+Every variant allows the interaction with a terminal program (RS232-serial communication) after starting.
 FEATURES AND LIMITS OF BAJOS
 BAJOS contains a byte code interpreter, exception handling, multithreading and the
 java synchonization mechanism, a garbage collected heap and a native code interface.
-Currently BAJOS is bases or better "inspired" on the JVM-specification (currently only < version 1.6)
+Currently BAJOS is based or better "inspired" on the JVM-specification (nowtoday only < version 1.6)
 with exceptions and limits. 
 Known differences are:
 - no long data type
@@ -30,18 +30,18 @@ Known differences are:
 - less than 16 kwords (32 bit) on heap
 The amount of used boot- and system-classes und the complexity of exception handling
 must be adapted on the available memory space on your target system.
-Java software can be developed with this limits on a PC and compiled with javac,
-classfiles -compiled on external machines- can be included.
+Java software can be developed with these limits on a PC and compiled with javac.
+Classfiles -compiled on external machines- can be included.
 
 HISTORY
 The project is used in an academic environment for a deeper understanding of
 lectures in C++/java-programming, unix-system programming ,embedded systems and operating systems.
-First version is created in 2006 for PC-linux and quickly ported for atmega128
+First version was created in 2006 for PC-linux and quickly ported for atmega128
 (development board CharonII with 32 kbyte ram and mica2dot only with internal flash/ram).
-In 2007/08 BAJOS works on the AVR32 processors UC3A (stand alone application) and AP7000
+Since 2007/08 BAJOS works on the AVR32 processors UC3A (stand alone application) and AP7000
 (stand alone and linux). Currently a graphical library is adapted for the
 lcd graphic display on the stk1000 development board.
-BAJOS is used nowtoday for controlling of peripheral equipment of embedded systems.
+BAJOS is used currently for controlling of peripheral equipment of embedded systems.
 It is planned to improve the binding of BAJOS at the AVR32 development boards, the processing
 of java1.6 compiled classfiles, the porting to other processor architectures, to improve
 the run time behavior of BAJOS, to develop better scheduler, .....
@@ -49,19 +49,19 @@ the run time behavior of BAJOS, to develop better scheduler, .....
 INSTALLATION AND INITIALIZATION
 PREPARATIONS ON PC
 Installation of the GNU-C-development tools for the platform.
-The actual BAJOS-version ist compiled under Suse10.3 for AVR8 with the Tools shipped by Suse
-und for AVR32 with the atmel tools for Suse10.1. Later software versions require
+The actual BAJOS-version was compiled under Suse10.3 for AVR8 with the Tools shipped by Suse
+and for AVR32 with the atmel tools for Suse10.1. Later software versions require
 BAJOS software adjustment.
-unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8, evk1100, stk1000, ngw100, linux, avr32-linux) in the BAJOS directory
+Unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8, evk1100, stk1000, ngw100, linux, avr32-linux) in the BAJOS directory
 #>make clean target				// remake all objects and executable
 #>make clean compile target			// generate target executable
 #>make clean debug compile verbose target 	// generate target executable for debugging
 
 PREPARATION OF DEVELOPMENT BOARD
 CHARONII WITH ATMEGA128
-We use here the monitor program bamo128 (cs.ba-berlin.de). this monitor is burnded in flash
+We use the monitor program bamo128 (cs.ba-berlin.de). This monitor is burned in flash
 with uisp in the upper boot section (4kwords a 16 bit) at 0xF000 (word address).
-With minikermit on the PC (cs.ba-berlin.de) now you can load with ISP-programming and
+With minikermit on the PC (cs.ba-berlin.de) you can now load with ISP-programming and
 the w-command of bamo128 the compiled BAJVM in the atmega128 flash memory (address 0x80 in words).
 Then with
 #>g 80
@@ -81,10 +81,10 @@ The application classes you can load in a x-terminal program after starting of m
 After this starts the java program execution with the main interaction over the terminal program. 
 
 PORTING ON OTHER TARGET PLATFORMS
-We have ported BAJOS on 8 Bit up to 64 Bit processors with little endian/big endian data memory access. Therefore it seems to have not a great effort, to port BAJOS on other platforms with the indiceted
-memory equipment and a C-compiler. Adaptations are to carried out in the files:
+We have ported BAJOS on 8 Bit up to 64 Bit processors with little endian/big endian data memory access. Therefore it seems to have not a great effort to port BAJOS on other platforms with the indiceted
+memory equipment and a C-compiler. Adaptations are to be carried out in the files:
 native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefinitions.h
-and are related considerably the memory partioning and the serial communication line binding.
+These are in the first row related to the memory partioning and the serial communication line binding.
 
 KNOWN BUGS
 look at bugs ??...
