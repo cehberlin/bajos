@@ -22,7 +22,8 @@
 
 // UC3A is evk1100
 #define UC3A_FLASH_BASE		0x80000000	// internal 512 KB flash
-#define UC3A_FLASH_JAVA_BASE	0x80040000	// boot classes in flash
+//#define UC3A_FLASH_JAVA_BASE	0x80040000	// boot classes in flash
+#define UC3A_FLASH_JAVA_BASE	0x80038000	// boot classes in flash
 #define UC3A_SDRAM_BASE		0xD0000000
 #define UC3A_SDRAM_JAVA_BASE	0xD0200000	// application classes, heap, opstack methodstack
 
