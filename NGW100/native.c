@@ -23,21 +23,22 @@
 #include "native.h"
 #include "platform.h"
 
-char nativeCharOut()		{
+char nativeCharOut()	{
 char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
-	return 0;							}
+	return 0;	}
 
 char	nativeCharIn()	{
 char ch=conIn();
-opStackPush((slot)(u4)ch);
-return 1;}
+	opStackPush((slot)(u4)ch);
+	return 1;	}
 
-char currentTimeMillis(){opStackPush((slot) (u4) timerMilliSec);
-	return 1;};
+char currentTimeMillis(){
+	opStackPush((slot) (u4) timerMilliSec);
+	return 1;	}
 
 char nativeExit(int status)	{
-//asm("  lda.w   pc, 0");
+asm("  lda.w   pc, 0");
 //asm("  mov   pc, 0");
 //goto *0x00000000;
 return 0;
