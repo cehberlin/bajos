@@ -25,7 +25,9 @@ OPTIMIZATION		=
 # -O3
 
 # JAVA SOURCES
-JAVAAPPSOURCES		= javatests/Charon.java
+#JAVAAPPSOURCES		= javatests/Charon.java
+JAVAAPPSOURCES		= javatests/SchedulerTest.java
+
 PLATFORMCSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON/ds182x.c \
 			$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
 PLATFORMASMSOURCES 	= $(APPPATH)CHARON/routines.asm $(APPPATH)CHARON/routines_stack.asm
