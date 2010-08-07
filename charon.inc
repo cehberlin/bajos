@@ -71,7 +71,7 @@ app:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} -c -Wall $(DEFS) ${DEBUGGEN} ${OPTIMIZATION} -mmcu=$(PART) -mtiny-stack -o $@ $<
+	$(VERBOSE_CMD) ${CC} -c -Wall $(DEFS) ${DEBUGGEN} ${OPTIMIZATION} -mmcu=$(PART)  -o $@ $< # -mtiny-stack
 
 %o : %asm
 	@echo $(MSG_COMPILING)
