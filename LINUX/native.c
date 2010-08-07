@@ -30,6 +30,22 @@
 // array length ->  at least up to last native method < methods_count
 // lock at methods in the *.java or *.class file in increasing order 
 // if method is non native -> insert NULL, otherwise pointer to nativce C-function
+void conOut(char val)	{
+printf("%c",val);
+}
+
+char conIn()	{
+	struct termios oldt,newt;
+	int ch;
+	tcgetattr( STDIN_FILENO, &oldt );
+	newt = oldt;
+	newt.c_lflag &= ~( ICANON | ECHO );
+	tcsetattr( STDIN_FILENO, TCSANOW, &newt );
+	ch = getchar();
+	tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
+return ch;
+}
+
 
 char nativeCharOut()		{
 	char val=opStackGetValue(local+1).UInt;
@@ -55,6 +71,6 @@ char nativeExit()	{
 char currentTimeMillis()	{
 	struct timeval timerstart;
 	gettimeofday(&timerstart,NULL);
-	opStackPush((slot)(u4)((timerstart.tv_sec*1000+timerstart.tv_usec/1000)&0xFFFFFFFF));
+	opStackPush((slot)(u4)((timerstart.tv_sec*1000+timerstart.tv_usec/1000)&0x7FFFFFFF));
 	return 1;		}
 
