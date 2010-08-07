@@ -3,7 +3,7 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 #ifndef __LIMITS__
-#define __LIMITS
+#define __LIMITS__
 #ifdef AVR8
 	#define MAXCLASSES 			20
 	#define MAXBYTECODE 			0x5000 	//!!! class file bytes in flash!!
@@ -33,8 +33,8 @@
 	#define OPSTACKSIZE 			48	// u4	
 	#define METHODSTACKSIZE			24	// u2	
 	#define MAXNATIVEMETHODS		40
-#endif
-#endif
+#endif  //XPLIAQN
+#endif  //AVR8
 #if (!AVR8)
 	#define MAXCLASSES 			45 //30
 	#define MAXBYTECODE 			52768	// 16384 !!! class file bytes < 16 kB	
@@ -45,5 +45,5 @@
 	#define OPSTACKSIZE 			(328+96)// u4
 	#define METHODSTACKSIZE			164	// u2
 	#define MAXNATIVEMETHODS		80
-#endif
-#endif
+#endif //!AVR8
+#endif //__LIMITS__
