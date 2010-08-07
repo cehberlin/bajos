@@ -47,7 +47,6 @@ public class Display implements DisplayKonstanten
 
     public void clearDisplay()
     {
-    	System.out.println(bgColor);
     	System.platform.clearScreenRGB(bgColor);
     }
     
