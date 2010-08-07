@@ -85,7 +85,6 @@ GRAPHICS	= ${BOOTCLASSPATH}java/graphics
 # java system sources
 BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
-			$(LANG)/StringBuilder.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(LANG)/Thread.java $(LANG)/Throwable.java \
 			$(LANG)/Math.java $(LANG)/Float.java \
@@ -108,6 +107,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
 
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
+#			$(LANG)/StringBuilder.java \
 
 # a small subset for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
@@ -444,6 +444,8 @@ endif
 .PHONY: clobber
 
 clobber: clean
+	-$(VERBOSE_CMD)$(RM) *bootpack
+	-$(VERBOSE_CMD)$(RM) *.class
 
 clean:
 	@echo $(MSG_CLEANING)
@@ -453,11 +455,9 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(LSS)
 	-$(VERBOSE_CMD)$(RM) $(TARGETFILE)
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
-	-$(VERBOSE_CMD)$(RM) *.o
-	-$(VERBOSE_CMD)$(RM) */*.o
-	-$(VERBOSE_CMD)$(RM) */*/*.o
+	-$(VERBOSE_CMD)$(RM)  *.o
 	$(VERBOSE_NL)
-
+	
 # Rebuild the project.
 .PHONY: rebuild
 rebuild: clean $(TARGETFILE)
