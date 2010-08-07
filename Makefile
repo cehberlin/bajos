@@ -136,7 +136,7 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
 AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
-		$(APPPATH)AVR8/thermo.c $(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
+		$(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
 UC3ASOURCES 	= $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
 		$(APPPATH)EVK1100/rtc.c $(APPPATH)EVK1100/pwm.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
