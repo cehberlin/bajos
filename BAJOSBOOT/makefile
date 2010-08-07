@@ -28,6 +28,9 @@ charon:
 arduinomega:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/arduinomega/PlatForm.java 
 
+xplain:
+	javac  $(JARGS) ./BAJOSBOOT/sources/platform/xplain/PlatForm.java 
+
 
 evk1100:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1100/PlatForm.java
