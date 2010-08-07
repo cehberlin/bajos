@@ -156,8 +156,7 @@ STK1000SOURCES	= $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
 ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S \
-
-#		$(APPPATH)/EVK1100/crt0.S
+		$(APPPATH)/EVK1100/crt0.S
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
@@ -321,10 +320,10 @@ WARNINGS	= -Wall
 DEBUG		= -g
 # Options that control optimization: [-O[0|1|2|3|s]]...
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
-OPTIMIZATION	= -O0 -ffunction-sections -fdata-sections
+OPTIMIZATION	= -O3 -ffunction-sections -fdata-sections
 # Extra flags to use when linking
 #LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
-LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
 
 CPPFLAGS	= -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
             $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
@@ -796,12 +795,12 @@ compADC:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/ADC.java
 
-Inp:	 
-	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/InpTest.class
+Intp:	 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/IntpTest.class
 
-compInp:
+compIntp:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
-		$(APPCLASSPATH)/InpTest.java
+		$(APPCLASSPATH)/IntpTest.java
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES
