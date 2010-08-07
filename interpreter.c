@@ -1404,6 +1404,8 @@ else*/
                         // Do some check here
                     }
 
+					opStackPush(first);
+
         CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
                     u1 class_cp3 = getU1(cs[cN].constant_pool[getU2(0)]);
                     if (class_cp3 != CONSTANT_Class) {
