@@ -77,8 +77,8 @@ char nativeWait() {
 		}	
 	}
 	//its better to change own state after notify, to avoid cycles
-	actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
-	actualThreadCB->state=THREADWAITBLOCKED;	
+	currentThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
+	currentThreadCB->state=THREADWAITBLOCKED;	
 						
 	return 0; 
 }

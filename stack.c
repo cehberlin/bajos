@@ -12,7 +12,7 @@
 #endif
 
 #ifdef DEBUGSTACK
-#define PRINTMAXSTACK     { if ((opSp-opStackBase) >= OPSTACKSIZE) { printf("stack error tid: %d max: %d\n",actualThreadCB->tid,OPSTACKSIZE);}}
+#define PRINTMAXSTACK     { if ((opSp-opStackBase) >= OPSTACKSIZE) { printf("stack error tid: %d max: %d\n",currentThreadCB->tid,OPSTACKSIZE);}}
 #else
 #define PRINTMAXSTACK
 #endif

@@ -32,12 +32,12 @@ return 0;
 
 char yield()	{//by ceh
 	//force scheduling!
-	actualThreadCB->numTicks=0;
+	currentThreadCB->numTicks=0;
 	return 0; 
 }
 
 char currentThread(){
-  opStackPush((slot)(actualThreadCB->obj));
+  opStackPush((slot)(currentThreadCB->obj));
   return 1; 
 }
 

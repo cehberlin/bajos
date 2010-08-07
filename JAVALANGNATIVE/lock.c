@@ -24,12 +24,12 @@
 #include "lock.h"
 
 char lock(){
-	setMutexOnObject(actualThreadCB,opStackGetValue(local));
+	setMutexOnObject(currentThreadCB,opStackGetValue(local));
 	return 0;
 }
 
 char unlock(){
-	releaseMutexOnObject(actualThreadCB,opStackGetValue(local),NULL);
+	releaseMutexOnObject(currentThreadCB,opStackGetValue(local),NULL);
 	return 0; 
 }
 
