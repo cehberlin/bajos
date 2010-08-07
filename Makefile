@@ -3,7 +3,12 @@
 # atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
 # goals
 # avr8 linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
-# avr8 debug
+# make clean goal
+# make compile goal
+# make debig comile verbose goal
+# make A linux
+# make compA linux
+# make boot goal
 # ...
 # avr8 dump
 # ....
@@ -30,20 +35,14 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK COMMAND LINE
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
-$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100 java,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
+$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
 
-java:	
-	@:
-
-
-ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS)))"
+ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
 $(error only one target hardware accepted)
 endif
 
-
-
 TARGETHW = noTarget
-ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS)))"
+ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
 TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS))
 endif
 
@@ -88,8 +87,8 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(LANG)/Thread.java $(LANG)/Throwable.java \
 			$(LANG)/Math.java $(LANG)/Float.java \
-			$(LANG)/Integer.java $(UTIL)/Random.java \
 			$(LANG)/Boolean.java \
+			$(LANG)/Integer.java $(UTIL)/Random.java \
 			$(LANG)/Exception.java  $(LANG)/Error.java \
 			$(LANG)/ArithmeticException.java $(LANG)/ClassCastException.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java \
@@ -606,17 +605,16 @@ debug:
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#$(BOOTCLASSES): $(BOOTSOURCES)
-#	make -f BAJOSBOOT/makefile
 
-$(BOOTPACK): packer $(BOOTCLASSES)
-	./packer $(BOOTPACK) $(BOOTCLASSES)
+boot:
+	make -f ./BAJOSBOOT/makefile boot
+	make -f ./BAJOSBOOT/makefile $(TARGETHW)
 
-packer: packer.c
-	g++ packer.c -o packer
+
+
 # examples 
-# make java A
-# make java compA
+# make linux A
+# make linux compA
 
 A:
 	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/A.class 
