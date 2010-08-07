@@ -1,4 +1,39 @@
-// übelster stil
+// its a bad hack
+/* ************************************************************************ *\
+
+Copyright (c) 2006, Atmel Corporation All rights reserved. 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the 
+following disclaimer. 
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. The name of ATMEL may not be used to endorse or promote products 
+derived from this software without specific prior written permission.  
+
+THIS SOFTWARE IS PROVIDED BY ATMEL ``AS IS'' AND ANY EXPRESS 
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+PARTICULAR PURPOSE ARE EXPRESSLY AND SPECIFICALLY 
+DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY 
+WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+
+POSSIBILITY OF SUCH DAMAGE. 
+
+\* ************************************************************************ */
+
 #if (AVR32UC3A||AVR32AP7000)
 #include "iobinding.h"
 #endif 
@@ -29,17 +64,18 @@ unsigned long sdram_init(const struct sdram_info *info);
 #endif
 #include "platform.h"
 #ifdef AVR8
+// development board CharonII
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "AVR8/lcd.h"
-#define		BYTES(word)			((word)*2)
-#define		STRING(a,b)				#a" "#b
-#define		INLINEASM(a,b)			STRING(a,b)
-#define		LARGEBOOTSTART	0xf000
-#define		BOARDRAMEND	0x8000
-#define		MONSTART	LARGEBOOTSTART
-#define 	MONRAM		CHARONRAMEND-0x100
-// Monitorfunktionen (bamo128)
+#define		BYTES(word)		((word)*2)
+#define		STRING(a,b)		#a" "#b
+#define		INLINEASM(a,b)		STRING(a,b)
+#define		LARGEBOOTSTART		0xf000
+#define		BOARDRAMEND		0x8000
+#define		MONSTART		LARGEBOOTSTART
+#define 	MONRAM			CHARONRAMEND-0x100
+// Monitor  functions (bamo128 -> cs.ba-berlin.de)
 #define		mainLoop		BYTES(LARGEBOOTSTART+2)	// Ruecksprung in Monitor aus Programm mit goto
 #define		saveCPU		BYTES(LARGEBOOTSTART+62)	//Time2Comp	// BOOTSTART+62		
 FILE uartAVR8 = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
@@ -49,16 +85,13 @@ SIGNAL(SIG_OUTPUT_COMPARE2) {asm volatile  (INLINEASM(jmp,saveCPU));} // monitor
 
 
 #ifdef STK1000
-// dmabaseaddr 0x1000 0000
 #include <string.h>
 #include "STK1000/usart.h"
 #include "STK1000/pio.h"
 #include "STK1000/spi.h"
 #include "STK1000/lcdc.h"
 #include "STK1000/utils.h"
-#include "STK1000/at32stk1000.h"
-void myfill(lcdc_conf_t *lcdc_conf);
-void setPixelRGB(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue)	;
+#include "STK1000/at32stk1000.h"	;
 extern void ltv350qv_power_on(volatile avr32_spi_t * spi, unsigned char chip_select);
 extern int display_virtual_bm(lcdc_conf_t *lcdc_conf, void * bm_file);
 extern void usdelay(unsigned long usec);
@@ -69,9 +102,6 @@ void lcd_pio_config(void);
 void init_spiMaster(volatile avr32_spi_t * spi);
 void print(volatile struct avr32_usart_t * usart, char *str);
 #endif
-
-
-
 
 void initHW(){
 #ifdef AVR8
