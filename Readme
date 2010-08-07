@@ -15,6 +15,9 @@ BAJOS is developed under Suse10.3 with the atmel tools for Suse10.1 and drivers 
 STK1000_NGW_BSP_CD_Image_2.0.0. Newer AVR32-software releases require cumbersome adaptations because the company-specific driver examples are permanently changed. The C-compiler and the linker for AVR32 processors currently work with the tight internal ram. Memories for classfiles, heap, stack,.. are hard wired with the external ram.
 Every variant allows the interaction with a terminal program (RS232-serial communication) after starting.
 
+GOALS OF BAJOS
+The main motivation for developing BAJOS is to create an open source software for education of computer science students at an advanced technical college. Students are to be able to translate the theroretical knowledge in pratical exercises. Java is appropiate for that particularly because the java run time environment includes elements of operating systems and the java specification lets students go way for creative ideas here. The combination of application software development in java, the programming of the jvm and native code device drivers in C/C++, the use of gnu development tools, the working in groups for an extensive software system and the use of an version control system under linux prepare the students for their job as software developers.
+
 FEATURES AND LIMITS OF BAJOS
 BAJOS contains a byte code interpreter, exception handling, multithreading and the
 java synchonization mechanism, a garbage collected heap and a native code interface.
@@ -56,7 +59,7 @@ Since 2007/08 BAJOS works on the AVR32 processors UC3A (stand alone application)
 lcd graphic display on the stk1000 development board.
 BAJOS is used currently for controlling of peripheral equipment of embedded systems.
 It is planned to improve the binding of BAJOS at the AVR32 development boards, the processing
-of java1.6 compiled classfiles, the porting to other processor architectures, to improve
+of java 1.6 compiled classfiles, the porting to other processor architectures, to improve
 the run time behavior of BAJOS, to develop better scheduler, .....
 
 INSTALLATION AND INITIALIZATION
