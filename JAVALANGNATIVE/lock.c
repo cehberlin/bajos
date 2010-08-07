@@ -29,7 +29,7 @@ char lock(){
 }
 
 char unlock(){
-	releaseMutexOnObject(actualThreadCB,opStackGetValue(local));
+	releaseMutexOnObject(actualThreadCB,opStackGetValue(local),NULL);
 	return 0; 
 }
 

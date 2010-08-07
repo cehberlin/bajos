@@ -76,44 +76,50 @@ EEE:
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/EEE.class
 
 compEEE:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/EEE.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+	$(APPCLASSPATH)/EEE.java
 
 FFF:
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) ${GRAPHICS}/Font.class 
 
 compFFF:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/FFF.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+	$(APPCLASSPATH)/FFF.java
 
 GGG:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/GGG.class
 
 compGGG:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/GGG.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+	$(APPCLASSPATH)/GGG.java
 
 HHH:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) 	$(APPCLASSPATH)/HHH.class
 
 compHHH:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/HHH.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+	$(APPCLASSPATH)/HHH.java
 
 My:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/My.class $(APPCLASSPATH)/Ball.class
 
 compMy:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  \
+	$(APPCLASSPATH)/My.java
 
 Temp:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Temperature.class
 
 compTemp:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/Temperature.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+	$(APPCLASSPATH)/Temperature.java
 
 
 T:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
 
 compT:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 	  	$(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
 	
 PC:	 
@@ -121,7 +127,7 @@ PC:
 		$(APPCLASSPATH)/ProducerConsumer.class 
 
 compPC:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/ProducerConsumer.java
 
 SchedulerTest:	 
@@ -129,27 +135,35 @@ SchedulerTest:
 		$(APPCLASSPATH)/SchedulerTest.class 
 
 compSchedulerTest:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/SchedulerTest.java
+
+LockSimple:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
+		$(APPCLASSPATH)/LockSimple.class 
+
+compLockSimple:
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+		$(APPCLASSPATH)/LockSimple.java
 
 LockTest:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
 		$(APPCLASSPATH)/LockTest.class $(APPCLASSPATH)/SpinLockTest.class 
 
 compLockTest:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/LockTest.java $(APPCLASSPATH)/SpinLockTest.java
 
 ADC:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/ADC.class
 
 compADC:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/ADC.java
 
 Interpreter:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/InterpreterTest.class $(APPCLASSPATH)/InpTest.class $(APPCLASSPATH)/ParamTest.class
 
 compInterpreter:
-	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/InterpreterTest.java

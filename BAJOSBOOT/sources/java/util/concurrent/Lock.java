@@ -11,4 +11,8 @@ public class Lock {
 
 	public native boolean tryLock();
 
+	public native static void lock(Object obj);
+
+	public native static void unlock(Object obj);
+
 }

@@ -7,4 +7,3 @@
 char lock(void);
 char unlock(void);
 char tryLock(void);
-

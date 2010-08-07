@@ -11,3 +11,5 @@ char nativeExit();
 char nativeConStat();
 char nativeSetData(); // from sdram
 char nativeGetData();
+
+char initTimer8bit();

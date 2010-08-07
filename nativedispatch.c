@@ -77,7 +77,8 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	currentTimeMillis,
 	nativeConStat,
 	nativeSetData,
-	nativeGetData
+	nativeGetData,
+	initTimer8bit
 };
 #endif
 
@@ -250,11 +251,12 @@ functionForNativeMethodType functionForNativeLockMethod[] =	{
 	NULL,//default not visible constructor
 	lock,
 	unlock,
-	tryLock
+	tryLock,
+	lock, //the cloning is correct!
+	unlock //the cloning is correct!
 };
 
 functionForNativeMethodType functionForNativeInterruptThreadMethod[] =	{
-	execInterrupt,
 	sei,
 	cli
 };

@@ -19,20 +19,26 @@
 CC		= avr-gcc
 OBJCOPY		= avr-objcopy
 PROGRAM	= avrdude
+# flasher means the avrdude device which you are using for flashing
+FLASHER = stk200 
+#FLASHER = avrispmkII -P usb 
 
 # DEVICE
 ARCH			= AVR5
 PART			= atmega1280
 DEFS 			= -DAVR8 -DAM -DF_CPU=16000000
 
-OPTIMIZATION		= 
+OPTIMIZATION		= -Os 
 
 # for standalone application
 CLASSFILEBASE		= 0xB000
 # fix address for class files (in words), make it better
 
 # JAVA SOURCES
-JAVAAPPSOURCES		= javatests/AM.java
+JAVAAPPSOURCES		= javatests/LockSimple.java
+
+# JAVA SOURCES
+JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
 
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
 PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
@@ -82,20 +88,20 @@ AM:
 	@:
 
 burnbajos:
-	$(PROGRAM) -p m1280 -c avrispmkII -D -e -P usb  -Uflash:w:bajos.bin:a
+	$(PROGRAM) -p m1280 -c $(FLASHER) -D -e -Uflash:w:bajos.bin:a
 
 
 .PHONY:	writeFusesM		# arduinoMega with monitor starts at 0xf000
 writeFusesM:	# 4 k word boot section, start from boot section after reset
-	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
-	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd8:m
-	$(PROGRAM) -p m1280 -c avrispmkII -P usb  -Uefuse:w:0xf5:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Ulfuse:w:0xff:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Uhfuse:w:0xd8:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Uefuse:w:0xf5:m
 
 .PHONY:	writeFusesA		# arduinoMega without monitpts starts at 0x0000
 writeFusesA:	# 4 k word boot section, start from address 0000 after reset
-	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
-	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd9:m
-	$(PROGRAM) -p m1280 -c avrispmkII  -P usb  -Uefuse:w:0xf5:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Ulfuse:w:0xff:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Uhfuse:w:0xd9:m
+	$(PROGRAM) -p m1280 -c $(FLASHER) -Uefuse:w:0xf5:m
 
 .PHONY:	bootpack
 bootpack:

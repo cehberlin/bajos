@@ -25,7 +25,7 @@
 #include "thread.h"
 
 char start()	{
- cN=opStackGetValue(local).stackObj.classNumber;
+  cN=opStackGetValue(local).stackObj.classNumber;
   createThread();
 return 0;
 }
@@ -38,7 +38,8 @@ char yield()	{//by ceh
 
 char currentThread(){
   opStackPush((slot)(actualThreadCB->obj));
-  return 1; }
+  return 1; 
+}
 
 char nativeSetPriority() { //by ceh
 // thread is alive -> thread control block exists
@@ -48,17 +49,12 @@ char nativeSetPriority() { //by ceh
   slot soi = opStackGetValue(local);
   cN = soi.stackObj.classNumber;	// of object, which calls the method 
   if (!findFieldByRamName("priority",8,"I",1)) errorExit(78,"field priority not found");
+
   pCurrentPrio= (u4*)(heapBase+soi.stackObj.pos+fNO+1); 	// position of int field priority of the thread creating object
   if (newPrio == (*pCurrentPrio)) return 0; // nothing to do
-    // search thread control block af calling object
-ThreadControlBlock*	found=NULL;
-u1 i,k;
-  for(i=0;i<(MAXPRIORITY);i++)							{
-    if (found!=NULL) break;
-    for(k=0;k<(threadPriorities[i].count);k++)			{
-      if ((threadPriorities[i].cb->obj).UInt == soi.UInt) { found=threadPriorities[i].cb; break;}
-      threadPriorities[i].cb=threadPriorities[i].cb->succ;	}		}
-  if (found==NULL) errorExit(78,"thread not found");
+  // search thread control block af calling object
+  ThreadControlBlock* found=findThreadCB(soi);
+
   removeThreadFromPriorityList(found);
   *(found->pPriority)=newPrio;
   insertThreadIntoPriorityList(found);

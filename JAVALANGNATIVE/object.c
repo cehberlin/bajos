@@ -25,9 +25,6 @@
 
 /* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
 char notify() {
-	u1 i,k;
-	u1 max;
-	ThreadControlBlock* cb;
 	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
  		exit(253);
 	}

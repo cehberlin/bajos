@@ -30,6 +30,24 @@ void 	iterateOverThreads2(){
 */
 
 /*
+ * finds corresponding ThreadCB to java object by ceh
+ */
+ThreadControlBlock* findThreadCB(slot obj){
+u1 i,k;
+	  for(i=0;i<(MAXPRIORITY);i++){
+	  	for(k=0;k<(threadPriorities[i].count);k++){
+		      	if ((threadPriorities[i].cb->obj).UInt == obj.UInt) {
+				return threadPriorities[i].cb;
+			}
+		      	threadPriorities[i].cb=threadPriorities[i].cb->succ;	
+		}		
+	}
+
+	errorExit(78,"thread not found");
+	return NULL;
+}
+
+/*
  * notifys a waiting blocked thread for given object by ceh
  */
 void notifyThread(slot obj){
@@ -77,8 +95,10 @@ void awakeThreadFromMutex(slot obj){
 
 /*
  * release Mutex on given object and given thread by ceh
+ * t is in general the current running thread; obj is the object which should be locked and awakeThread could be defined, if you know which
+ * thread must be awaked (is needed for interrupt); if it is necessary to search for awakeThread, set it to NULL
  */
-void releaseMutexOnObject(ThreadControlBlock* t,slot obj){
+void releaseMutexOnObject(ThreadControlBlock* t,slot obj,ThreadControlBlock* awakeThread){
 	if (HEAPOBJECTMARKER(obj.stackObj.pos).mutex!=MUTEXBLOCKED)	{ 
 	 		return; //object is not locked!
 	}
@@ -101,7 +121,12 @@ void releaseMutexOnObject(ThreadControlBlock* t,slot obj){
 				HEAPOBJECTMARKER(obj.stackObj.pos).mutex=MUTEXNOTBLOCKED;
 
 				//awake a blocked thread
-				awakeThreadFromMutex(obj);
+				if(awakeThread){
+					awakeThread->state=THREADNOTBLOCKED;
+					setMutexOnObject(awakeThread,obj);
+				}else{
+					awakeThreadFromMutex(obj);
+				}		
 			}
 }
 
@@ -132,7 +157,7 @@ u2 i;
 					t->lockCount[i]=1;		/* count (before 0)*/
 					t->hasMutexLockForObject[i]=obj;
 				}
-				else	{	/* mutex is blocked, is it my mutex ? have I always the lock ?*/
+				else	{	// mutex is blocked
 						t->state=THREADMUTEXBLOCKED;	/*mutex blocked*/
 						t->isMutexBlockedOrWaitingForObject=obj;
 						//force scheduling
@@ -179,7 +204,7 @@ void	createThread(void)			{
 		   // position of int field priority of the thread creating object, next field is aLive
 		  cN=opStackGetValue(local).stackObj.classNumber;  // restore class number of object
 		  t->obj=opStackGetValue(local);
-		}
+	}
 	*((t->pPriority)+1)=(u4)1;		// isALive == true
 	t->numTicks=*(t->pPriority);
 	insertThreadIntoPriorityList(t);
@@ -295,7 +320,7 @@ void scheduler(void)	{
 		continue;
 	  for (n=0; n < threadPriorities[p].count; n++){
 		     found=found->succ;
-		     //printf("in sched prio: %d, n: %d, t->state: %d\n",p,n,found->state); 
+		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
 		     if ((found->state)==THREADNOTBLOCKED) {
 				threadFound=1;//signal nested loop break
 				break;

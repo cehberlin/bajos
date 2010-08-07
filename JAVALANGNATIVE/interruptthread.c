@@ -31,7 +31,3 @@ char cli(){
 	return 0; 
 }
 
-char execInterrupt(){
-	return 0;
-}
-
