@@ -1,5 +1,5 @@
 /*
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // fuer lehrzwecke,...
@@ -50,11 +50,10 @@ u2 		loadInSram(char* addr)		{
 #include "STK1000/platform.h"
 #endif
 #include "classfile.h"
-#include "nativedispatch.h"
 
-
-extern const char* nativeClassNames[NUMNATIVECLASSES];
-extern const functionForNativeMethodType* funcArray[NUMNATIVECLASSES];
+extern const char* nativeClassNames[];
+extern u2 numNativeClassNames;
+extern const functionForNativeMethodType* funcArray[];
 extern functionForNativeMethodType functionForNativePlatFormMethod[];
 
 // classSTA and pc are global variables for actual class and method
@@ -397,7 +396,7 @@ c->nativeFunction=NULL;
 a=getU2(pc+6);
 pc+=8;		
 		if (a==0) {
-for (i=0; i < (sizeof(nativeClassNames)/sizeof(char*)); i++)
+for (i=0; i < (/*sizeof(nativeClassNames)/sizeof(char*)*/numNativeClassNames); i++)
 	if (!strncmp(nativeClassNames[i],
 		(char*)getAddr(c->constant_pool[getU2(c->constant_pool[getU2(c->this_class)]+1)]+3),
 		getU2(c->constant_pool[getU2(c->constant_pool[getU2(c->this_class)]+1)]+1)))
@@ -535,7 +534,7 @@ perror(fileName);
 while (read(fd,addr++,1));
 return classFileLength+=(long)addr;
 #endif
-
+//bh
 #ifdef AVR8
 u2 classFileLength=0;
 printf("\nload application class - type  'w'\n"); 
@@ -544,7 +543,7 @@ classFileLength=(*loadInSram)(addr);
 return classFileLength;
 #endif
 
-#if (AVR32UC3A||AVR32AP7000)
+#if (AVR32LINUX||AVR32UC3A||AVR32AP7000)
 int i;
 char c=conIn(); // dummy w
 if (c =='w')	{
@@ -573,4 +572,5 @@ else	{
 	return (u2) 0;
 }
 #endif
+
 }
