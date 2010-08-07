@@ -33,7 +33,7 @@ students of informatics at the HWR-Berlin/Berufsakademie
 /* ignore some attributes*/
 /* no classloader*/
 /* no ...*/
-/* and errors ........................................................................
+/* and errors ........................................................................*/
 /*
 but include are:
 garbage collector
