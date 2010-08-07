@@ -20,9 +20,7 @@
 #include "../classfile.h"
 #include "../heap.h"
 
-void initVM(int argc, char* argv[]);
-void initHW();
-void initVM();
+
 #ifndef WITHMON
 void startTimer1();
 void startUart0();
