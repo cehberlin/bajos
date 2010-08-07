@@ -11,6 +11,6 @@
 	#define MAXHEAPOBJECTLENGTH 		4096
 	#define MAXTHREADS			16
 	#define MAXLOCKEDTHREADOBJECTS 		8
-	#define OPSTACKSIZE 			((128+96))	// u4	896 bytes
+	#define OPSTACKSIZE 			(4*(128+96))	// u4	896 bytes
 	#define METHODSTACKSIZE			((64))			// u2	128 bytes
 #endif
