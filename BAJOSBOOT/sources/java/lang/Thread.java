@@ -4,64 +4,59 @@ package java.lang;
  * A thread of execution (or task). Now handles priorities, daemon threads
  * and interruptions.
  */
-public abstract class Thread
-{
+public abstract class Thread	{
   /**
    * The minimum priority that a thread can have. The value is 0.
    */
-  public final static int MIN_PRIORITY = 0;
+//bh  public final static int MIN_PRIORITY = 0;
 
  /**
   * The priority that is assigned to the primordial thread. The value is 5.
   */
-  public final static int NORM_PRIORITY = 5;
+//bh  public final static int NORM_PRIORITY = 5;
 
   /**
    * The maximum priority that a thread can have. The value is 10.
    */
  
-  // Note 1: This class cannot have a static initializer.
-
-  // Note 2: The following fields are used by the VM.
-  // Their sizes and location can only be changed
-  // if classes.h is changed accordingly. Needless
-  // to say, they are read-only.
-
  
-  public final static int MAX_PRIORITY = 10;
+//bh  public final static int MAX_PRIORITY = 10;
  
 
   // Extra instance state follows:
   
-  private String name;
+  private String name;			// field 0
+  private int priority = 5;		// field 1
+  private boolean isAlive = false;	// field 2
 
-  public final native boolean isAlive();
 	  
-  public Thread()
-  {
-    //bhthis ("");
-  }
+  public Thread()  	{	// method 0
+    this ("");		}
 
-  public Thread (String name)
-  {/*bh
-  	Thread t = currentThread();
-	if (t == null)
-		setPriority(NORM_PRIORITY);
-	else
-		setPriority(t.getPriority());	
+  public Thread (String name)	{	// method 1
+//      setPriority(currentThread().getPriority());	
+//setPriority(5);
     this.name = name;
-  */
   }
 
-  public abstract void run();
+//bh a thread is alive after start and upto deleteThread
+  public final boolean isAlive()	{
+	  return isAlive;		}	// method 2
+
+  public abstract void run();		// method 3
   
-  public final native void start();
-  public static native void yield();
+// create thread, register pointer to priority in native treadControlBlock, execute run, set isALive
+
+  public native void start();	// methode 4
+
+  public static native void yield();	// method 5
  //bh public static native void sleep (long aMilliseconds) throws InterruptedException;
-  public static native void sleep (int aMilliseconds) throws InterruptedException;
+  public static native void sleep (int aMilliseconds) throws InterruptedException;		// method 6
  
-  public static native Thread currentThread();
-  public final native int getPriority();
+  public static native Thread currentThread();		// method 7
+
+  public final int getPriority()	{		// method 8
+    return priority;			}
   /**
    * Set the priority of this thread. Higher number have higher priority.
    * The scheduler will always run the highest priority thread in preference
@@ -76,33 +71,34 @@ public abstract class Thread
    *
    * @param priority must be between MIN_PRIORITY and MAX_PRIORITY.
    */
-  public final native void setPriority(int priority);
-  
+  public  final void setPriority(int priority)	{ 	// method 9
+    if ( isAlive)	nativeSetPriority(priority);
+    else		this.priority=((priority>0)&& (priority <=10))?priority:5;
+ }
+
   /**
    * Set the interrupted flag. If we are asleep we will wake up
    * and an InterruptedException will be thrown.
    */
-  public native void interrupt();
-  public static native boolean interrupted();
-  public final native boolean isInterrupted();
+  public native void interrupt();		// method 10
+  public static native boolean interrupted();	// method 11
+  public final native boolean isInterrupted();	// method 12
   
   /**
    * Set the daemon flag. If a thread is a daemon thread its existence will
    * not prevent a JVM from exiting.
    */
-  public final native boolean isDaemon();
-  public final native void setDaemon(boolean on);
+//bh  public final native boolean isDaemon();
+//bh  public final native void setDaemon(boolean on);
   
   /**
    * Join not yet implemented
    */
-  public final native void join() throws InterruptedException;
+public native void nativeSetPriority(int priority);		// method 13
+ public final native void join() throws InterruptedException;	// method 14
 //bh  public final native void join(long timeout) throws InterruptedException;
   //public final  void join(int timeout) 	{
 //jointimeout1(timeout);
 //}
 //public native void jointimeout1(int timeout);//throws InterruptedException;
 }
-
-
-
