@@ -22,24 +22,27 @@ void opStackInit(slot** m)	{		// per thread, fixed size
 	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL)
 			{printf("malloc error\n");exit(-1);}			
 #else
+// classfiles - heap - (opstack methodstack)/ per thread
 //make it better
 *m=(slot*)((u4)apClassFileBase+MAXBYTECODE+MAXHEAP+numThreads*(OPSTACKSIZE+METHODSTACKSIZE));
 #endif
 }
-void opStackPush( slot val)				{	*(opSp++)=val;						}	//  sp grothws with increasing addresses
-																								// and shows to TOS first free place
+void opStackPush( slot val)				{	*(opSp++)=val;						}	
+//  sp grothws with increasing addresses
+// and shows to TOS first free place
 
- slot opStackPop()							{	return *(--opSp);						}	// operand stack stores 4 bytes
+ slot opStackPop()						{	return *(--opSp);					}	
+// operand stack stores 4 bytes
 
- slot  opStackPeek()							{	return *(opSp-1);					}
+ slot  opStackPeek()					{	return *(opSp-1);					}
 
 void opStackPoke( slot val)				{	*(opSp-1)=val;						}
 
-void opStackSetValue(u2 pos, slot val)	{	*(opStackBase+pos)=val;			}
+void opStackSetValue(u2 pos, slot val)	{	*(opStackBase+pos)=val;				}
  
- slot opStackGetValue(u2  pos)			{	return *(opStackBase+pos);		}
+slot opStackGetValue(u2  pos)			{	return *(opStackBase+pos);			}
 
- u2 opStackGetSpPos()						{  	return (opSp-opStackBase);		}	// relative to actual base
+u2 opStackGetSpPos()					{  	return (opSp-opStackBase);		}	// relative to actual base
 
 void opStackSetSpPos(u2 pos)			{	opSp=pos+opStackBase;			}
 
@@ -54,10 +57,10 @@ void methodStackInit(u2** m)				{
 void methodStackPush(u2 val)		{	*(methodSp++)=val;					}
 
 u2 methodStackPop()					{	return *(--methodSp);				}
-u2 methodStackPeek()					{	return *(methodSp-1);				}
-u1 methodStackEmpty()										{	
-	return (methodSp==methodStackBase) ? 1:0;			}
+u2 methodStackPeek()				{	return *(methodSp-1);				}
+u1 methodStackEmpty()				{	return (methodSp==methodStackBase) ? 1:0;	}
 
-u2 methodStackGetSpPos()			{  	return (methodSp-methodStackBase);		}	// relative to actual base
+u2 methodStackGetSpPos()			{  	return (methodSp-methodStackBase);		}
+// relative to actual base
 
 void methodStackSetSpPos(u2 pos)	{	methodSp=pos+methodStackBase;			}
