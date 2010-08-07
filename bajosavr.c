@@ -130,7 +130,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 		for (cN=0; cN < argc; cN++)			{
 			cs[cN].classFileStartAddress=classFileBase+length;
 			cs[cN].classFileLength=readClassFile((u1*)argv[cN+1],cs[cN].classFileStartAddress);
-			analyzeClass(&cs[cN]);	
+			analyzeClass(&cs[cN]);
 			length+=cs[cN].classFileLength;	}
 #endif
 
