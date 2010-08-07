@@ -19,15 +19,19 @@ all:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/*.java
 
 
-CH:
+charon:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/charon/PlatForm.java 
 
-AM:
+arduinomega:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/arduinomega/PlatForm.java 
 
 
 evk1100:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1100/PlatForm.java
+
+
+evk1104:
+	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1104/PlatForm.java
 
 linux:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/linux/PlatForm.java
