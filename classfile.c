@@ -45,7 +45,7 @@ u2 readClassFileneu(u1* fileName,u1* addr)		{
 #ifdef LINUX
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
-if ((fd=open((char*)fileName,O_RDONLY))==-1) perror("no such file");
+if ((fd=open((char*)fileName,O_RDONLY))==-1) perror(fileName);
 while (read(fd,addr++,1));
 return classFileLength+=(long)addr;
 #endif
@@ -582,7 +582,7 @@ u2 readClassFile(u1* fileName,u1* addr)		{
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
 if ((fd=open((char*)fileName,O_RDONLY))==-1) 
-perror("no such file");
+perror(fileName);
 while (read(fd,addr++,1));
 return classFileLength+=(long)addr;
 #endif
