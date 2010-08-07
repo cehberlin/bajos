@@ -211,7 +211,7 @@ switch (code)	{
 	CASE	LSTORE_0:
 	case	LSTORE_1:
 	case	LSTORE_2:
-	case	LSTORE_3:PRINT1EXIT("LSTORE_%d nicht realisiert\n",code - LSTORE_0,4);
+	case	LSTORE_3: DNOTSUPPORTED;
 	CASE	FSTORE_0:
 	case	FSTORE_1:
 	case	FSTORE_2:
@@ -1093,29 +1093,37 @@ cN=methodStackPop();
 					handleException();
 
         CASE    CHECKCAST: DEBUGPRINTLN1("checkcast");
-						first = opStackPop();
-						if (first.UInt != NULLOBJECT.UInt) {
+					first = opStackPop();
+					if (first.UInt != NULLOBJECT.UInt) {
 						methodStackPush(cN);
 						methodStackPush(mN);
 						u2 targetclass = getU2(0);
-						if (!findClass(getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3),	// className 
-							getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
-							printf("class not found %d %d",cN,mN); exit(-1);
-						}
-						u2 target = cN;
-						cN = first.stackObj.classNumber;
-						if (!checkInstance(target)) {
-							mN=methodStackPop();
-							cN=methodStackPop();
-							CLASSCASTEXCEPTION;
-						} else {	
+						if ('[' != *(char *)getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3)) {
+							if (!findClass(getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3),	// className 
+								getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
+								mN = methodStackPop();
+								cN = methodStackPop();
+								printf("class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
+								exit(-3);
+							}
+							u2 target = cN;
+							cN = first.stackObj.classNumber;
+							if (!checkInstance(target)) {
+								mN=methodStackPop();
+								cN=methodStackPop();
+								CLASSCASTEXCEPTION;
+							} else {	
+								mN=methodStackPop();
+								cN=methodStackPop();
+							}
+						} else {
 							mN=methodStackPop();
 							cN=methodStackPop();
 						}
 					}
 					opStackPush(first);
-						DEBUGPRINTSTACK;
-						DEBUGPRINTLOCALS;
+					DEBUGPRINTSTACK;
+					DEBUGPRINTLOCALS;
 
         CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
 						first = opStackPop();

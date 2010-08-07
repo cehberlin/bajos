@@ -51,7 +51,7 @@
 #define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
 
 
-#define DNOTSUPPORTED printf("Double precision primitive data types (double and long) are not supported.\n"); exit (-2);
+#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n");
 
 
 #define PRINTSTRING(p,l) {\
