@@ -19,8 +19,12 @@ all:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/*.java
 
 
-avr8:
-	javac  $(JARGS) ./BAJOSBOOT/sources/platform/avr8/PlatForm.java 
+CH:
+	javac  $(JARGS) ./BAJOSBOOT/sources/platform/charon/PlatForm.java 
+
+AM:
+	javac  $(JARGS) ./BAJOSBOOT/sources/platform/arduinomega/PlatForm.java 
+
 
 evk1100:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1100/PlatForm.java
