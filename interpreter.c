@@ -47,7 +47,7 @@ static u1* 	name;		// field or method
 static u2 	nameLength;
 static u1* 	descr;		// field or method
 static u2	descrLength;
-static u1	numFields;
+// static u1	numFields; <-- not used?
 static u2 	i,j,k;
 static s2	count;
 
@@ -118,7 +118,7 @@ switch (code)	{
 			DEBUGPRINTSTACK;
 			DEBUGPRINTLOCALS;
 	CASE	LLOAD:	PRINTSEXIT("LLOAD",nry,4);
-	CASE	FLOAD:	DEBUGPRINTLN3("FLOAD -> local(%d) -> push\t...,=>",byte1,getU1(byte1));
+	CASE	FLOAD:	DEBUGPRINTLN3("FLOAD -> local(%d: %d) -> push\t...,=>",byte1,getU1(byte1));
 			opStackPush(opStackGetValue(local+getU1(0)));	
 			DEBUGPRINTSTACK;
 			DEBUGPRINTLOCALS;
@@ -1421,8 +1421,8 @@ else*/
 		CASE	WIDE:		DEBUGPRINTLN1("wide (not tested)");	// mb jf
 					{
 						// not tested because so many locals are hard to implement on purpose  14.12.2006
-						u2 nextOp = getU2(pc++);	// which operation to extend?
-						count = (u2)(getU1(pc++)<<8 | getU1(pc++));
+						u2 nextOp = getU2(0);	// which operation to extend?
+						count = getU2(0);
 
 						if(ILOAD <= nextOp && nextOp <= DLOAD){	// if load operation...
 							opStackPush(opStackGetValue(local+count));	// embedded op code for load
@@ -1529,7 +1529,7 @@ void raiseExceptionFromIdentifier(char identifier[], u1 length) {
 
 	// Create a class of the given type
 	if (findClass(identifier, length) == 0) {
-		if (identifier != "java/lang/Error") {
+		if (length != 15 || !strncmp(identifier, "java/lang/Error", 15)) {
 			raiseExceptionFromIdentifier("java/lang/Error", 15);
 		} else {
 			printf("cannot find and therefore not raise java/lang/Error\n");

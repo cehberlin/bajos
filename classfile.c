@@ -315,7 +315,7 @@ void analyzeClass(classStructure* c)	{
 		analyseConstantPool(c);
 		c->access_flags=pc;
 #ifdef DEBUG	
-		printf("cf\taccess_flags: %d\n",getU2(pc));
+		printf("cf\taccess_flags: %x\n",getU2(pc));
 #endif
 		pc+=2;
 		c->this_class=pc;	
@@ -535,11 +535,6 @@ void analyzeFields(classStructure* c){
 			}
 
 			if (getU2(attribute_name + 1) == 13 && strncmp("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
-				if (getU2(c->field_info[n]) & 0x0008 == 0) {
-					printf("error while reading class file, ConstantValue for nonstatic field\n");
-					exit(-1);
-				}
-
 				if (attribute_length != 2) {
 					printf("error while reading class file, ConstantValue_attribute should have a length of 2\n");
 					exit(-1);
@@ -547,7 +542,6 @@ void analyzeFields(classStructure* c){
 				u2 constantvalue_index = getU2(0);
 				u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
 				if (getU1(constantvalue) == CONSTANT_String) {
-					/*string to do*/;
                     u1 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
                     if (getU1(utf8) != CONSTANT_Utf8) {
                         printf("error while reading class file, CONSTANT_String target is no Utf8 entry\n");
@@ -557,7 +551,7 @@ void analyzeFields(classStructure* c){
                     u2 space = getFreeHeapSpace(getU2(utf8+1));
                     int i;
                     for (i = 0 ; i < getU2(utf8+1) ; ++i) {
-                        *((u2*)space) = getU2(utf8+1+1+i);
+                        heapSetElement((slot)(u4)getU2(utf8+1+1+i), space++);
                     }
 				} else {
 					heapSetElement((slot)getU4(constantvalue+1),heapTop-1); //   n+1 !!no double, float
