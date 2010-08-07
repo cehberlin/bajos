@@ -208,7 +208,7 @@
 #else
 #define PRINTEXITTHREAD(a,b) {printf(a,b);\
 				if (numThreads==1)	{\
-				printf("tschüssi\n");\
+				printf("tschüssi\n"); \
 				exit(0);}\
 				else {	deleteThread();}\
 							}
