@@ -23,7 +23,7 @@ public class AffineMatrix
 	{// m=I
 		for (int i=0; i < 4;i++)
 			for (int j=0; j < 4;j++) 
-				m[i][j]= ((i==j)?1:0);
+				m[i][j]= ((i==j)?1f:0f);
 	}
 
 	public void pushMatrix()
@@ -46,8 +46,13 @@ public class AffineMatrix
 		for (int i=0; i < 4; i++)
 		{
 			for (int j=0;j < 4; j++)
-				s+=(m[i][j]+"\t");
-			s+=("\n");
+			{
+				//s+=(new Float(m[i][j]).toString()+"\t");
+				System.out.print(m[i][j]);
+				System.out.print(' ');
+			}
+				
+			System.out.print('\n');
 		}
 		return s;
 	}
@@ -62,7 +67,7 @@ public class AffineMatrix
 	public void mult(AffineMatrix n)
 	{// m=m*n
 		AffineMatrix r =new AffineMatrix();
-		r.m[0][0]=r.m[1][1]=r.m[2][2]=r.m[3][3]=0;// alles 0
+		r.m[0][0]=r.m[1][1]=r.m[2][2]=r.m[3][3]=0f;// alles 0
 		for (int i=0; i < 4;i++)
 			for (int j=0; j < 4;j++)
 				for (int k=0; k < 4;k++)
@@ -110,11 +115,11 @@ public class AffineMatrix
 		float cow0=x/l;
 		float cow1=y/l;
 		float cow2=z/l;
-		float emcot=1-Math.cos(alpha*Math.PI/180);
-		float sit=-Math.sin(alpha*Math.PI/180);
-		h.m[0][0]=cow0*cow0*emcot-emcot+1;
-		h.m[1][1]=cow1*cow1*emcot-emcot+1;
-		h.m[2][2]=cow2*cow2*emcot-emcot+1;
+		float emcot=1f-Math.cos(alpha*Math.PI/180f);
+		float sit=Math.sin(alpha*Math.PI/180f)*-1f;
+		h.m[0][0]=cow0*cow0*emcot-emcot+1f;
+		h.m[1][1]=cow1*cow1*emcot-emcot+1f;
+		h.m[2][2]=cow2*cow2*emcot-emcot+1f;
 		h.m[0][1]=cow0*cow1*emcot+cow2*sit;
 		h.m[0][2]=cow0*cow2*emcot-cow1*sit;
 		h.m[1][0]=cow1*cow0*emcot-cow2*sit;
@@ -138,7 +143,7 @@ public class AffineMatrix
 		// aff=m(tr)*m(r,s)
 		// aff-1=m(r,s)-1 * m(tr)-1
 		AffineMatrix inv=new AffineMatrix();
-		float quot=1;
+		float quot=1f;
 		inv.m[0][0] = m[2][2]*m[1][1]-m[1][2]*m[2][1];
 		inv.m[0][1] = m[2][1]*m[0][2]-m[0][1]*m[2][2];
 		inv.m[0][2] = m[0][1]*m[1][2]-m[0][2]*m[1][1];
