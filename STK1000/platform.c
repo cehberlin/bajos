@@ -37,8 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 \* ************************************************************************ */
 #include <avr32/io.h>
-#include "../definitions.h"
-#include "platform.h"
 #include <string.h>
 #include "usart.h"
 #include "pio.h"
@@ -48,6 +46,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 #include "sdram.h"
 #include "mt481c2m32b2tg.h"
+#include "../typedefinitions.h"
+#include "../definitions.h"
+#include "../bajvm.h"
+#include "../heap.h"
+#include "../classfile.h"
+#include "platform.h"
 
 extern void ltv350qv_power_on(volatile avr32_spi_t * spi, unsigned char chip_select);
 extern int display_virtual_bm(lcdc_conf_t *lcdc_conf, void * bm_file);
@@ -57,87 +61,6 @@ extern void usart_printHex(volatile avr32_usart_t * usart, const unsigned long n
 #include <stdlib.h>
 #include <stdio.h>
 #include "pm.h"
-
-char conIn()	{
-	return (char) usart_getchar(&AVR32_USART1);
-}
-
-#define FAILURE -1
-#define SUCCESS 0
-void conOut(char c)	 {
-	usart_bw_write_char(&AVR32_USART1, (int) c);
-}
-
-void	hexConOut(char c)	{
-	conOut(0x30+(( c < 10)?c:(c+'A'-'0'-10)));
-}
-
-void	byteConOut(char c)	{
-	hexConOut((c&0xF0) >>4);
-	hexConOut(c&0x0F);
-}
-
-void	wordConOut(int c)	{
-	byteConOut((char)((c&0xFF000000) >>24));
-	byteConOut((char)((c&0x00FF0000) >>16));
-	byteConOut((char)((c&0x0000FF00) >>8));
-	byteConOut((char)(c&0x000000FF ));
-}
-char ascii2Hex(char c)	{
-	return ((c<='9')?(c-'0'):((c<'G')?(c-'A'+10):(c-'a'+10)));
-}
- 
-int __attribute__((weak)) _read (int file, char * ptr, int len){
-int i;
-//if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
-//if (file != 0)return unimplemented_syscall("_read with filedes != 0");
-for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
-return len;
-}
-
-/**
-* Low-level write command.
-* When newlib buffer is full or fflush is called, this will output
-* data to correct location.
-* 1 and 2 is stdout and stderr which goes to usart
-* 3 is framebuffer
-*/
-int __attribute__((weak)) _write (int file, char * ptr, int len){
-int i;
-//if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);
-//if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");
-/* if(file==3){
-for(i = 0 ; i < len; i++){
-avr32fb_putchar(ptr[i]);
-}
-} else */{
-for ( i = 0; i < len; i++ ){
-conOut(ptr[i]);
-if (ptr[i]=='\n') conOut('\r');
-}
-}
-return len;
-} 
-
-
-void stdIOInit()	{	
-//To configure standard I/O streams as unbuffered, you can simply:
-setbuf(stdin, NULL);
-setbuf(stdout, NULL); 
-}
-
-
-
-
-
-
-
-
-void init_spiMaster(volatile avr32_spi_t * spi);
-int increment_frame_base(lcdc_conf_t *lcdc_conf, int pixel, int line);
-void lcd_pio_config(void);
-void init_spiMaster(volatile avr32_spi_t * spi);
-void print(volatile struct avr32_usart_t * usart, char *str);
 
 
 void initHW(){
@@ -250,6 +173,174 @@ lcdc_conf_t ltv350qv_conf ={
 
 stdIOInit();
 }
+
+
+
+
+/* all class files stored for linux in DS (malloc)*/
+/* for avr8 all class files in flash */
+/* for uc3a and standalone ap7000:	bootclasses in flash*/
+/* 		application classes  DS(Ram) -> hard coded !!!*/
+void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+	u4 length;
+	u1 i=0;
+char* addr;
+u4 temp;
+char buf[5];
+
+#ifdef STK1000
+classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  	/* boot classes in flash*/
+appClassFileBase=STK1000_SDRAM_JAVA_BASE;	/* app classes in sdram*/
+#endif
+
+#if (AVR32LINUX||LINUX)
+    classFileBase=(char*)malloc((size_t) MAXBYTECODE);
+    if (classFileBase==NULL)
+        errorExit(-1,"malloc error while trying to allocate %d bytes for class files.\n", MAXBYTECODE);
+#endif
+
+	heapInit();	/* linux avr8 malloc , others hard coded!*/
+	length=0;
+#if LINUX|| AVR32LINUX
+    if (argc > MAXCLASSES)
+        errorExit(-1,"ERROR: trying to load %d classes, MAXCLASSES is %d\n", argc, MAXCLASSES);
+		for (cN=0; cN < argc; cN++)			{
+			cs[cN].classFileStartAddress=classFileBase+length;
+			cs[cN].classFileLength=readClassFile(argv[cN+1], cs[cN].classFileStartAddress);
+			analyzeClass(&cs[cN]);
+			length+=cs[cN].classFileLength;
+	        if (length > MAXBYTECODE) 				{
+    	        	printf("MAXBYTECODE reached!\n"); exit(-1);	}
+								}
+#endif
+
+#if (NGW100||STK1000|| EVK1100)
+/* analyze bootclasses, which are programmed in flash*/
+strncpy(buf,classFileBase,4);
+buf[4]=0;
+sscanf(buf,"%4d",&temp);
+numClasses=(u1)temp;
+addr=classFileBase+4; /* after numclasses*/
+for (cN=0; cN<numClasses;cN++)	{
+strncpy(buf,addr,4);
+sscanf(buf,"%4d",&temp);
+cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
+cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
+analyzeClass(&cs[cN]);	
+addr+=cs[cN].classFileLength+4;
+}
+printf("%d bootclasses are loaded\n",cN);
+cN=numClasses;
+/* thats to boot classes*/
+/* now the application classes*/
+cN--;
+addr=appClassFileBase;
+length=0;
+		do
+		{
+		printf("load application classes-> type \"w\" \n");
+			cN++;
+			cs[cN].classFileStartAddress=addr+length;
+			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
+			printf("\n");
+			length+=cs[cN].classFileLength;
+			analyzeClass(&cs[cN]);
+			printf("still another appl. class ? (y) \n");
+			if (conIn()!='y') break;
+		} 
+		while(cs[cN].classFileLength !=0);
+/*!!*/
+cN++;
+#endif
+DEBUGPRINTHEAP;
+}
+
+
+
+
+char conIn()	{
+	return (char) usart_getchar(&AVR32_USART1);
+}
+
+#define FAILURE -1
+#define SUCCESS 0
+void conOut(char c)	 {
+	usart_bw_write_char(&AVR32_USART1, (int) c);
+}
+
+void	hexConOut(char c)	{
+	conOut(0x30+(( c < 10)?c:(c+'A'-'0'-10)));
+}
+
+void	byteConOut(char c)	{
+	hexConOut((c&0xF0) >>4);
+	hexConOut(c&0x0F);
+}
+
+void	wordConOut(int c)	{
+	byteConOut((char)((c&0xFF000000) >>24));
+	byteConOut((char)((c&0x00FF0000) >>16));
+	byteConOut((char)((c&0x0000FF00) >>8));
+	byteConOut((char)(c&0x000000FF ));
+}
+char ascii2Hex(char c)	{
+	return ((c<='9')?(c-'0'):((c<'G')?(c-'A'+10):(c-'a'+10)));
+}
+ 
+int __attribute__((weak)) _read (int file, char * ptr, int len){
+int i;
+//if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
+//if (file != 0)return unimplemented_syscall("_read with filedes != 0");
+for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
+return len;
+}
+
+/**
+* Low-level write command.
+* When newlib buffer is full or fflush is called, this will output
+* data to correct location.
+* 1 and 2 is stdout and stderr which goes to usart
+* 3 is framebuffer
+*/
+int __attribute__((weak)) _write (int file, char * ptr, int len){
+int i;
+//if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);
+//if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");
+/* if(file==3){
+for(i = 0 ; i < len; i++){
+avr32fb_putchar(ptr[i]);
+}
+} else */{
+for ( i = 0; i < len; i++ ){
+conOut(ptr[i]);
+if (ptr[i]=='\n') conOut('\r');
+}
+}
+return len;
+} 
+
+
+void stdIOInit()	{	
+//To configure standard I/O streams as unbuffered, you can simply:
+setbuf(stdin, NULL);
+setbuf(stdout, NULL); 
+}
+
+
+
+
+
+
+
+
+void init_spiMaster(volatile avr32_spi_t * spi);
+int increment_frame_base(lcdc_conf_t *lcdc_conf, int pixel, int line);
+void lcd_pio_config(void);
+void init_spiMaster(volatile avr32_spi_t * spi);
+void print(volatile struct avr32_usart_t * usart, char *str);
+
+
+
 
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
     printf("%c",0x1b);
@@ -395,4 +486,45 @@ int increment_frame_base(lcdc_conf_t *lcdc_conf, int pixel, int line){
 	/* update DMA configuration DMAUPDT */
 	plcdc->dmacon |=  (1 << AVR32_LCDC_DMACON_DMAUPDT_OFFSET);
 	return 0;
+}
+
+
+u2 readClassFile(char* fileName,char* addr)		{
+
+#if LINUX||AVR32LINUX
+int fd;
+u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
+if ((fd=open(fileName,O_RDONLY))==-1) 
+perror(fileName);
+while (read(fd,addr++,1));
+return classFileLength+=(long)addr;
+#endif
+#if (AVR32UC3A||AVR32AP7000)
+int i;
+char c=conIn(); /* dummy w*/
+if (c =='w')	{
+conOut(4);		/*turn off echo*/
+c=conIn();		/*s*/
+while ((c=conIn())=='p'){ 
+/*if (c=='p) 	// apage comes*/
+c=conIn();
+c=conIn();		/* address*/
+conOut('w');
+for (i=0; i < 256;i++) *(addr++)=conIn();
+conOut('w');}
+conOut(5);		/* turn on echo uploadend*/
+while((c=conIn())==' ');
+i=0;
+do
+{ i+=16*i+ ((c<='9')? (c-'0'): (c-'a'+10));
+conOut(c);}
+while ((c=conIn())!= 0xa);
+return (u2)i;
+}
+else	{
+/*uploadends2*/
+	conOut(5); /* turn on echo*/
+	return (u2) 0;
+}
+#endif
 }
