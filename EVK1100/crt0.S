@@ -72,14 +72,14 @@ _start:
 _stext:
   // Set initial stack pointer.
   lda.w   sp, _estack
-
+#ifndef WITHMON
   // Set up EVBA so interrupts can be enabled.
   lda.w   r0, _evba
   mtsr    AVR32_EVBA, r0
 
   // Enable the exception processing.
   csrf    AVR32_SR_EM_OFFSET
-
+#endif
   // Load initialized data having a global lifetime from the data LMA.
   lda.w   r0, _data
   lda.w   r1, _edata
