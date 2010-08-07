@@ -113,10 +113,10 @@ public class D
 	public void filledDraw(Polyline pl)
 	{// back face culling
 		if(	(
-			(mv.mult(pl).pointAt(0).x-mv.mult(pl).pointAt(1).x)*
-			(mv.mult(pl).pointAt(2).y-mv.mult(pl).pointAt(1).y)-
-			(mv.mult(pl).pointAt(0).y-mv.mult(pl).pointAt(1).y)*
-			(mv.mult(pl).pointAt(2).x-mv.mult(pl).pointAt(1).x)
+			(mv.mult(pl).pointAt(0).getX()-mv.mult(pl).pointAt(1).getX())*
+			(mv.mult(pl).pointAt(2).getY()-mv.mult(pl).pointAt(1).getY())-
+			(mv.mult(pl).pointAt(0).getY()-mv.mult(pl).pointAt(1).getY())*
+			(mv.mult(pl).pointAt(2).getX()-mv.mult(pl).pointAt(1).getX())
 			)>=0f
 		) return;
 		dp.scanFill(mv.mult(pl));
