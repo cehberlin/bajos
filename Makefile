@@ -97,12 +97,15 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(UTIL)/Collection.java $(UTIL)/List.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
 			$(LANG)/Runtime.java \
-			$(IO)/OutStream.java $(IO)/InStream.java \
-			${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
+			$(IO)/OutStream.java $(IO)/InStream.java 
+ifeq  ($(TARGETHW), stk1000)
+BOOTSOURCES+=		${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
 			${GRAPHICS}/DisplayZBuffer.java ${GRAPHICS}/DisplayKonstanten.java \
 			${GRAPHICS}/Point.java ${GRAPHICS}/Font.java \
 			${GRAPHICS}/Line.java ${GRAPHICS}/Polyline.java \
 			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
+endif
+
 
 #			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
@@ -110,17 +113,17 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 #			$(UTIL)/RandomAccess.java \
 
 # a small subset of java system sources for the small controller
-AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
+AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			$(LANG)/ArrayIndexOutOfBoundsException.java \
-			javatests/Temperature.java
+			$(LANG)/ArrayIndexOutOfBoundsException.java
 
-#			$(LANG)/Throwable.java $(LANG)/Math.java \
-#$(LANG)/StringBuilder.java
+#			javatests/Temperature.java
+#			 $(LANG)/Math.java \
+#			$(LANG)/StringBuilder.java
 
 BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
 AVR8BOOTCLASSES	= $(AVR8BOOTSOURCES:.java=.class)
@@ -132,26 +135,26 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # C-SOURCES AND TARGETS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c native.c \
-		  scheduler.c platform.c
+BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
+		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
 AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
-		$(APPPATH)AVR8/thermo.c
-
+		$(APPPATH)AVR8/thermo.c $(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
 UC3ASOURCES 	= $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c \
-		$(APPPATH)EVK1100/rtcuc3a.c \
+		$(APPPATH)EVK1100/rtcuc3a.c $(APPPATH)EVK1100/pwm.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
-		$(APPPATH)EVK1100/gpiouc3a.c \
+		$(APPPATH)EVK1100/gpiouc3a.c $(APPPATH)EVK1100/adc.c\
 		$(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c \
-		$(APPPATH)EVK1100/sdramc.c iobinding.c
-AP7000SOURCES	= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
-NGW100SOURCES	= $(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
+		$(APPPATH)EVK1100/sdramc.c $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c
+AP7000SOURCES	= $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
+NGW100SOURCES	= $(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c \
+		$(APPPATH)NGW100/platform.c $(APPPATH)NGW100/native.c
 STK1000SOURCES	= $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
 		$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c \
 		$(APPPATH)STK1000/ltv350qv.c \
 		$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
 		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
-		$(APPPATH)STK1000/bmplib.c
-
+		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
+LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
 ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
@@ -240,7 +243,7 @@ endif #avr8
 
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
-OBJFILES	= $(BAJOSSOURCES:.c=.o)
+OBJFILES	= $(BAJOSSOURCES:.c=.o) $(LINUXSOURCES:.c=.o) 
 ifeq  ($(TARGETHW), linux)
 CC		= gcc
 CPPFLAGS	= -DLINUX
@@ -249,6 +252,8 @@ endif
 ifeq  ($(TARGETHW), avr32-linux)
 CC		= avr32-linux-gcc
 CPPFLAGS	= -DAVR32LINUX
+all: clean compile bootclasses bootgraphic bootpack 
+
 
 bootpack:
 	@echo -n generate file: avr32bootpack\; numClasses: 
@@ -258,9 +263,11 @@ bootpack:
 else
 bootpack:
 	@:
+
+all: clean compile bootclasses  bootpack 
+
 endif
 
-all: clean compile bootclasses bootgraphic bootpack 
 
 compile: $(TARGETFILE)
 
@@ -347,7 +354,7 @@ $(TARGETFILE): $(OBJFILES)
 	@touch $@
 	$(VERBOSE_NL)
 
-all:	clean compile bootclasses bootgraphic program progbootpack
+all:	clean compile bootclasses  program progbootpack
 
 # Program MCU memory from ELF output file.
 .PHONY: program
@@ -421,6 +428,7 @@ all:	clean compile  bootclasses bootgraphic  program logo
 
 #program your avr32 device
 logo:
+	sleep 2
 	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x700000  -f@0x00700000,512Kb  -e -v -R STK1000/logo.bmp
 
 .PHONY: program
