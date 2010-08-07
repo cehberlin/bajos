@@ -186,7 +186,9 @@ functionForNativeMethodType functionForNativeThreadMethod[] =	{
 	interrupted,
 	isInterrupted,
 	nativeSetPriority,
-	join
+	join,
+	NULL,
+	NULL
 };
 
 functionForNativeMethodType functionForNativeFloatMethod[] =	{
