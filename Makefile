@@ -302,6 +302,12 @@ $(TGTFILE):	$(OBJFILES)
 	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
 	@echo
 
+all:
+	make compB
+	cd BAJOSBOOT; make; cd ..
+	./a.out mbc
+	$(MAKE) program
+
 #program your avr32 device
 .PHONY: program
 program:	
@@ -513,7 +519,9 @@ A:
  	${LANG}/Thread.class \
  	${LANG}/Float.class \
  	${LANG}/System.class \
+ 	${LANG}/Math.class \
  	 ${LANG}/String.class \
+	${LANG}/StringBuffer.class \
   	 ${IO}/OutStream.class \
   	 ${IO}/InStream.class \
   	 ${LANG}/Integer.class \
