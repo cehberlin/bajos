@@ -45,7 +45,7 @@ ENTRY(_start)
 
 MEMORY
 {
-  FLASH (rxai!w) : ORIGIN = 0x80000000, LENGTH = 0x00080000
+  FLASH (rxai!w) : ORIGIN = 0x80020000, LENGTH = 0x00060000
   INTRAM (wxa!ri) : ORIGIN = 0x00000004, LENGTH = 0x0000FFFC
   USERPAGE : ORIGIN = 0x80800000, LENGTH = 0x00000200
 }
@@ -72,7 +72,8 @@ SECTIONS
   __stack_size__ = DEFINED(__stack_size__) ? __stack_size__ : 4K;
 
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = 0x80000000); . = 0x80000000;
+/*  PROVIDE (__executable_start = 0x80000000); . = 0x80000000;*/
+  PROVIDE (__executable_start = 0x80020000); . = 0x80020000;
   .interp         : { *(.interp) } >FLASH AT>FLASH :FLASH
   .reset : {  *(.reset) } >FLASH AT>FLASH :FLASH
   .hash           : { *(.hash) } >FLASH AT>FLASH :FLASH

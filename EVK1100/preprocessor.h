@@ -1,18 +1,17 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
-/*This file has been prepared for Doxygen automatic documentation generation.*/
+/*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
  *
- * \brief Cycle counter driver.
+ * \brief Preprocessor utils.
  *
  * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
- * - Supported devices:  All AVR32UC devices.
- * - AppNote:
+ * - Supported devices:  All AVR32 devices can be used.
  *
  * \author               Atmel Corporation: http://www.atmel.com \n
  *                       Support and FAQ: http://support.atmel.no/
  *
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Copyright (c) 2007, Atmel Corporation All rights reserved.
  *
@@ -42,44 +41,12 @@
  */
 
 
-#ifndef _CYCLE_COUNTER_H_
-#define _CYCLE_COUNTER_H_
+#ifndef _PREPROCESSOR_H_
+#define _PREPROCESSOR_H_
 
-#include "compiler.h"
-
-
-#if __GNUC__ || __ICCAVR32__
-#  define Get_sys_count()     ( Get_system_register(AVR32_COUNT)        )
-#  define Set_sys_count(x)    ( Set_system_register(AVR32_COUNT,   (x)) )
-#  define Get_sys_compare()   ( Get_system_register(AVR32_COMPARE)      )
-#  define Set_sys_compare(x)  ( Set_system_register(AVR32_COMPARE, (x)) )
-
-#else
-/*!
- * \brief Returns the system counter value
- */
-extern   U32 get_sys_count( void );
-
-/*!
- * \brief Set the system counter value
- */
-extern   void set_sys_count( U32 x );
-
-/*!
- * \brief Returns the system compare value
- */
-extern   U32 get_sys_compare( void );
-
-/*!
- * \brief Set the system compare value
- */
-extern   void set_sys_compare( U32 x );
-
-#  define Get_sys_count()     ( get_sys_count()    )
-#  define Set_sys_count(x)    ( Set_sys_count(x)   )
-#  define Get_sys_compare()   ( get_sys_compare()  )
-#  define Set_sys_compare(x)  ( set_sys_compare(x) )
-#endif
+#include "tpaste.h"
+#include "stringz.h"
+#include "mrepeat.h"
 
 
-#endif // _CYCLE_COUNTER_H_
+#endif  // _PREPROCESSOR_H_

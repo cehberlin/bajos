@@ -1,18 +1,12 @@
-/* This file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
  *
- * \brief AVR32 UC3 ISP trampoline.
+ * \brief Preprocessor stringizing utils.
  *
- * In order to be able to program a project with both BatchISP and JTAGICE mkII
- * without having to take the general-purpose fuses into consideration, add this
- * file to the project and change the program entry point to _trampoline.
- *
- * The pre-programmed ISP will be erased if JTAGICE mkII is used.
- *
- * - Compiler:           GNU GCC for AVR32
- * - Supported devices:  All AVR32UC devices can be used.
+ * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
+ * - Supported devices:  All AVR32 devices can be used.
  *
  * \author               Atmel Corporation: http://www.atmel.com \n
  *                       Support and FAQ: http://support.atmel.no/
@@ -47,30 +41,32 @@
  */
 
 
-#include "conf_isp.h"
+#ifndef _STRINGZ_H_
+#define _STRINGZ_H_
 
 
-//! @{
-//! \verbatim
+/*! \brief Stringize.
+ *
+ * Stringize a preprocessing token, this token being allowed to be \#defined.
+ *
+ * May be used only within macros with the token passed as an argument if the token is \#defined.
+ *
+ * For example, writing STRINGZ(PIN) within a macro \#defined by PIN_NAME(PIN)
+ * and invoked as PIN_NAME(PIN0) with PIN0 \#defined as A0 is equivalent to
+ * writing "A0".
+ */
+#define STRINGZ(x)                                #x
+
+/*! \brief Absolute stringize.
+ *
+ * Stringize a preprocessing token, this token being allowed to be \#defined.
+ *
+ * No restriction of use if the token is \#defined.
+ *
+ * For example, writing ASTRINGZ(PIN0) anywhere with PIN0 \#defined as A0 is
+ * equivalent to writing "A0".
+ */
+#define ASTRINGZ(x)                               STRINGZ(x)
 
 
-  // This must be linked @ 0x80000000 if it is to be run upon reset.
-.section  .reset, "ax", @progbits
-
-
-  .global _trampoline
-  .type _trampoline, @function
-_trampoline:
-
-  // Jump to program start.
-  rjmp    program_start
-
-
-  .org  PROGRAM_START_OFFSET
-program_start:
-  // Jump to the C runtime startup routine.
-  lda.w   pc, _stext
-
-
-//! \endverbatim
-//! @}
+#endif  // _STRINGZ_H_

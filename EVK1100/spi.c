@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -9,7 +9,7 @@
  * devices.
  *
  * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
- * - Supported devices:  All AVR32 devices with a USART module can be used.
+ * - Supported devices:  All AVR32 devices with an SPI module can be used.
  * - AppNote:
  *
  * \author               Atmel Corporation: http://www.atmel.com \n
@@ -120,11 +120,7 @@ static int getBaudDiv(const spi_options_t *options, unsigned int pba_hz)
 {
   int baudDiv = 0;
 
-  if (!options->fdiv) {
-    baudDiv = pba_hz / (options->baudrate);
-  } else {
-    baudDiv = pba_hz / (32 * options->baudrate);
-  }
+  baudDiv = pba_hz / (options->baudrate);
 
   if (baudDiv <= 0 || baudDiv > 255) {
     return -SPI_ERROR_ARGUMENT;
@@ -187,7 +183,6 @@ int spi_initMaster(volatile avr32_spi_t *spi, const spi_options_t *options)
   // Master Mode.
   u_avr32_spi_mr.mr = spi->mr;
   u_avr32_spi_mr.MR.mstr = 1;
-  u_avr32_spi_mr.MR.fdiv = options->fdiv;
   u_avr32_spi_mr.MR.modfdis = options->modfdis;
   u_avr32_spi_mr.MR.llb = 0;
   u_avr32_spi_mr.MR.pcs = (1 << AVR32_SPI_MR_PCS_SIZE) - 1;
@@ -249,6 +244,14 @@ int spi_selectChip(volatile avr32_spi_t *spi, unsigned char chip)
 
 int spi_unselectChip(volatile avr32_spi_t *spi, unsigned char chip)
 {
+  unsigned int timeout = SPI_TIMEOUT;
+
+  while (!(spi->sr & AVR32_SPI_SR_TXEMPTY_MASK)) {
+    if (!timeout--) {
+      return SPI_ERROR_TIMEOUT;
+    }
+  }
+
   // Assert all lines; no peripheral is selected.
   spi->mr |= AVR32_SPI_MR_PCS_MASK;
 
@@ -283,7 +286,7 @@ int spi_setupChipReg(volatile avr32_spi_t *spi,
 
   // Will use CSR0 offsets; these are the same for CSR0 to CSR3.
   u_avr32_spi_csr.csr = 0;
-  u_avr32_spi_csr.CSR.cpol = (unsigned int)options->spi_mode >> 1;
+  u_avr32_spi_csr.CSR.cpol = options->spi_mode >> 1;
   u_avr32_spi_csr.CSR.ncpha = (options->spi_mode & 0x1) ^ 0x1;
   u_avr32_spi_csr.CSR.csaat = options->stay_act;
   u_avr32_spi_csr.CSR.bits = options->bits - 8;
@@ -333,6 +336,12 @@ void spi_enable(volatile avr32_spi_t *spi)
 void spi_disable(volatile avr32_spi_t *spi)
 {
   spi->cr = AVR32_SPI_CR_SPIDIS_MASK;
+}
+
+
+int spi_is_enabled(volatile avr32_spi_t *spi)
+{
+  return (spi->sr & AVR32_SPI_SR_SPIENS_MASK) != 0;
 }
 
 
@@ -415,11 +424,11 @@ unsigned char spi_getStatus(volatile avr32_spi_t *spi)
   unsigned char ret = 0;
   unsigned long sr = spi->sr;
 
-  if (!(sr & AVR32_SPI_SR_OVRES_MASK)) {
+  if (sr & AVR32_SPI_SR_OVRES_MASK) {
     ret = SPI_ERROR_OVERRUN;
   }
 
-  if (!(sr & AVR32_SPI_SR_MODF_MASK)) {
+  if (sr & AVR32_SPI_SR_MODF_MASK) {
     ret += SPI_ERROR_MODE_FAULT;
   }
 

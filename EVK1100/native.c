@@ -20,21 +20,20 @@
 #include "../classfile.h"
 #include "../scheduler.h"
 #include "../heap.h"
-#include "../nativedispatch.h"
 #include "native.h"
 #include "compiler.h"
-#include "gpiouc3a.h"
+#include "gpio.h"
 #include "evk1100.h"
 #include "dip204.h"
-#include "countuc3a.h"
-#include "rtcuc3a.h"
-#include "intcuc3a.h"
+#include "rtc.h"
+#include "intc.h"
 #include "usart.h"
 #include "pwm.h"
 #include "adc.h"
 #include "platform.h" 
-// its the evk1100
 
+
+// its the evk1100
 
 //DEFINES FOR EVK1100 (Steffen Kalisch)
 // Connection of the temperature sensor
@@ -49,13 +48,9 @@
 #  define EXAMPLE_ADC_POTENTIOMETER_CHANNEL   1
 #  define EXAMPLE_ADC_POTENTIOMETER_PIN       AVR32_ADC_AD_1_PIN
 #  define EXAMPLE_ADC_POTENTIOMETER_FUNCTION  AVR32_ADC_AD_1_FUNCTION
+
 // Note: Corresponding defines are defined in /BOARDS/EVK1100/evk1100.h.
 // These are here for educational purposes only.
-
-
-
-
-
 
 char nativeCharOut()		{
 char val=opStackGetValue(local+1).UInt;
@@ -77,6 +72,14 @@ while (!usart_tx_ready(&AVR32_USART0));
 usart_write_char(&AVR32_USART0, (int)c);
 }
 
+char  conStat()	{
+if (!usart_test_hit(&AVR32_USART0))opStackPush((slot)(u4)66);
+if (!usart_tx_ready(&AVR32_USART0))opStackPush((slot)(u4)77);
+opStackPush((slot)(u4)0);
+return 1;		}
+
+
+// Robert Vietzke HMI Berlin-Wannsee 2009
 //gpio_clr_gpio_pin(unsigned int pin)
 //gpio_set_gpio_pin(unsigned int pin)
 #define MYRTS AVR32_PIN_PA08
@@ -97,13 +100,14 @@ char ser1DTR()	{
 //if (opStackGetValue(local+1).UInt==0)
 //AVR32_USART1.cr |=AVR32_USART_CR_DTRDIS_MASK;
 //else AVR32_USART1.cr |=AVR32_USART_CR_DTREN_MASK;
-printf("jetzt dtr\n");
+//printf("jetzt dtr\n");
 if (opStackGetValue(local+1).UInt==0)
-{printf("jetzt dtr clean\n");
+{
+//printf("jetzt dtr clean\n");
 gpio_clr_gpio_pin(MYDTR);
 }
 else {
-printf("jetzt dtr set\n");
+//printf("jetzt dtr set\n");
 gpio_set_gpio_pin(MYDTR);
 }
 return 0;	}
@@ -172,7 +176,6 @@ char	setOnBoardLEDs() {
 char charLCDOut() {
 	char c = opStackGetValue(local+1).UInt;
 	dip204_write_data(c);
-printf("%c",c);
 	return 0;
 }
 
@@ -209,6 +212,8 @@ char nativeExit()	{
 goto *0x80000000;
 }
 
+
+//			Felix Fehlberg; FHW-BA Berlin; Berliner Volksbank eG
 char pwmStart(){
 int channel = opStackGetValue(local+1).UInt;
 int pulseLength = opStackGetValue(local+2).UInt;
@@ -217,7 +222,7 @@ int frequency = opStackGetValue(local+3).UInt;
 pwm_opt_t pwm_opt;                // PWM option config.
 avr32_pwm_channel_t pwm_channel;  // One channel config.
 
-gpio_enable_module_pin(AVR32_PWM_PWM_0_PIN, AVR32_PWM_PWM_0_FUNCTION);
+gpio_enable_module_pin(AVR32_PWM_0_PIN, AVR32_PWM_0_FUNCTION);
 
 // PWM controller configuration.
 pwm_opt.diva = AVR32_PWM_DIVA_CLK_OFF;

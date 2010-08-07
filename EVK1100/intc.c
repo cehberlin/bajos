@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -55,8 +55,13 @@ extern const unsigned int ipr_val[AVR32_INTC_NUM_INT_LEVELS];
 
 //! Creates a table of interrupt line handlers per interrupt group in order to optimize RAM space.
 //! Each line handler table contains a set of pointers to interrupt handlers.
+#if __GNUC__
 #define DECL_INT_LINE_HANDLER_TABLE(GRP, unused) \
 static volatile __int_handler _int_line_handler_table_##GRP[Max(AVR32_INTC_NUM_IRQS_PER_GRP##GRP, 1)];
+#elif __ICCAVR32__
+#define DECL_INT_LINE_HANDLER_TABLE(GRP, unused) \
+static volatile __no_init __int_handler _int_line_handler_table_##GRP[Max(AVR32_INTC_NUM_IRQS_PER_GRP##GRP, 1)];
+#endif
 MREPEAT(AVR32_INTC_NUM_INT_GRPS, DECL_INT_LINE_HANDLER_TABLE, ~);
 #undef DECL_INT_LINE_HANDLER_TABLE
 
@@ -105,7 +110,7 @@ __int_handler _get_interrupt_handler(unsigned int int_lev)
   // ICR3 is mapped first, ICR0 last.
   // Code in exception.S puts int_lev in R12 which is used by AVR32-GCC to pass
   // a single argument to a function.
-  unsigned int int_grp = (&AVR32_INTC.icr3)[INT3 - int_lev];
+  unsigned int int_grp = AVR32_INTC.icr[AVR32_INTC_INT3 - int_lev];
   unsigned int int_req = AVR32_INTC.irr[int_grp];
 
   // As an interrupt may disappear while it is being fetched by the CPU
@@ -174,7 +179,7 @@ void INTC_init_interrupts(void)
     // Set the interrupt group priority register to its default value.
     // By default, all interrupt groups are linked to the interrupt priority
     // level 0 and to the interrupt vector _int0.
-    AVR32_INTC.ipr[int_grp] = ipr_val[INT0];
+    AVR32_INTC.ipr[int_grp] = ipr_val[AVR32_INTC_INT0];
   }
 }
 
@@ -193,5 +198,5 @@ void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned i
   // system.
   // NOTE: The _intx functions are intermediate assembly functions between the
   // core interrupt system and the user interrupt handler.
-  AVR32_INTC.ipr[int_grp] = ipr_val[int_lev & (AVR32_INTC_IPR0_INTLEV_MASK >> AVR32_INTC_IPR0_INTLEV_OFFSET)];
+  AVR32_INTC.ipr[int_grp] = ipr_val[int_lev & (AVR32_INTC_IPR_INTLEVEL_MASK >> AVR32_INTC_IPR_INTLEVEL_OFFSET)];
 }

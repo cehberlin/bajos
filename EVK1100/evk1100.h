@@ -1,9 +1,9 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
  *
- * \brief AT32UC3A EVK1100 board header file.
+ * \brief AT32UC3A EVK1100 evk1100.header file.
  *
  * This file contains definitions and services related to the features of the
  * EVK1100 board.
@@ -62,18 +62,18 @@
 // RCOsc has no custom calibration by default. Set the following definition to
 // the appropriate value if a custom RCOsc calibration has been applied to your
 // part.
-//#define FRCOSC          115200    //!< RCOsc frequency: Hz.
+//#define FRCOSC          AVR32_PM_RCOSC_FREQUENCY              //!< RCOsc frequency: Hz.
 
-#define FOSC32          32768     //!< Osc32 frequency: Hz.
-#define OSC32_STARTUP   3         //!< Osc32 startup time: RCOsc periods.
+#define FOSC32          32768                                 //!< Osc32 frequency: Hz.
+#define OSC32_STARTUP   AVR32_PM_OSCCTRL32_STARTUP_8192_RCOSC //!< Osc32 startup time: RCOsc periods.
 
-#define FOSC0           12000000  //!< Osc0 frequency: Hz.
-#define OSC0_STARTUP    3         //!< Osc0 startup time: RCOsc periods.
+#define FOSC0           12000000                              //!< Osc0 frequency: Hz.
+#define OSC0_STARTUP    AVR32_PM_OSCCTRL0_STARTUP_2048_RCOSC  //!< Osc0 startup time: RCOsc periods.
 
 // Osc1 crystal is not mounted by default. Set the following definitions to the
 // appropriate values if a custom Osc1 crystal is mounted on your board.
-//#define FOSC1           12000000  //!< Osc1 frequency: Hz.
-//#define OSC1_STARTUP    3         //!< Osc1 startup time: RCOsc periods.
+//#define FOSC1           12000000                              //!< Osc1 frequency: Hz.
+//#define OSC1_STARTUP    AVR32_PM_OSCCTRL1_STARTUP_2048_RCOSC  //!< Osc1 startup time: RCOsc periods.
 
 //! @}
 
@@ -182,10 +182,10 @@
 #define LED1_PWM_FUNCTION   (-1)
 #define LED2_PWM_FUNCTION   (-1)
 #define LED3_PWM_FUNCTION   (-1)
-#define LED4_PWM_FUNCTION   AVR32_PWM_PWM_0_FUNCTION
-#define LED5_PWM_FUNCTION   AVR32_PWM_PWM_1_FUNCTION
-#define LED6_PWM_FUNCTION   AVR32_PWM_PWM_2_FUNCTION
-#define LED7_PWM_FUNCTION   AVR32_PWM_PWM_3_FUNCTION
+#define LED4_PWM_FUNCTION   AVR32_PWM_0_FUNCTION
+#define LED5_PWM_FUNCTION   AVR32_PWM_1_FUNCTION
+#define LED6_PWM_FUNCTION   AVR32_PWM_2_FUNCTION
+#define LED7_PWM_FUNCTION   AVR32_PWM_3_FUNCTION
 //! @}
 
 /*! \name Color Identifiers of LEDs to Use with LED Functions
@@ -270,7 +270,7 @@
  */
 //! @{
 #define DIP204_SPI                  (&AVR32_SPI1)
-#define DIP204_SPI_CS               2
+#define DIP204_SPI_NPCS             2
 #define DIP204_SPI_SCK_PIN          AVR32_SPI1_SCK_0_PIN
 #define DIP204_SPI_SCK_FUNCTION     AVR32_SPI1_SCK_0_FUNCTION
 #define DIP204_SPI_MISO_PIN         AVR32_SPI1_MISO_0_PIN
@@ -286,8 +286,8 @@
 //! @{
 #define DIP204_BACKLIGHT_PIN        AVR32_PIN_PB18
 #define DIP204_PWM_CHANNEL          6
-#define DIP204_PWM_PIN              AVR32_PWM_PWM_6_PIN
-#define DIP204_PWM_FUNCTION         AVR32_PWM_PWM_6_FUNCTION
+#define DIP204_PWM_PIN              AVR32_PWM_6_PIN
+#define DIP204_PWM_FUNCTION         AVR32_PWM_6_FUNCTION
 //! @}
 
 
@@ -312,7 +312,7 @@
 #define SD_MMC_CARD_DETECT_PIN      AVR32_PIN_PA02
 #define SD_MMC_WRITE_PROTECT_PIN    AVR32_PIN_PA07
 #define SD_MMC_SPI                  (&AVR32_SPI1)
-#define SD_MMC_SPI_CS               1
+#define SD_MMC_SPI_NPCS             1
 #define SD_MMC_SPI_SCK_PIN          AVR32_SPI1_SCK_0_PIN
 #define SD_MMC_SPI_SCK_FUNCTION     AVR32_SPI1_SCK_0_FUNCTION
 #define SD_MMC_SPI_MISO_PIN         AVR32_SPI1_MISO_0_PIN
@@ -321,6 +321,33 @@
 #define SD_MMC_SPI_MOSI_FUNCTION    AVR32_SPI1_MOSI_0_FUNCTION
 #define SD_MMC_SPI_NPCS_PIN         AVR32_SPI1_NPCS_1_PIN
 #define SD_MMC_SPI_NPCS_FUNCTION    AVR32_SPI1_NPCS_1_FUNCTION
+//! @}
+
+
+/*! \name TWI Connections of the Spare TWI Connector
+ */
+//! @{
+#define SPARE_TWI                   (&AVR32_TWI)
+#define SPARE_TWI_SCL_PIN           AVR32_TWI_SCL_0_0_PIN
+#define SPARE_TWI_SCL_FUNCTION      AVR32_TWI_SCL_0_0_FUNCTION
+#define SPARE_TWI_SDA_PIN           AVR32_TWI_SDA_0_0_PIN
+#define SPARE_TWI_SDA_FUNCTION      AVR32_TWI_SDA_0_0_FUNCTION
+//! @}
+
+
+/*! \name SPI Connections of the Spare SPI Connector
+ */
+//! @{
+#define SPARE_SPI                   (&AVR32_SPI0)
+#define SPARE_SPI_NPCS              0
+#define SPARE_SPI_SCK_PIN           AVR32_SPI0_SCK_0_PIN
+#define SPARE_SPI_SCK_FUNCTION      AVR32_SPI0_SCK_0_FUNCTION
+#define SPARE_SPI_MISO_PIN          AVR32_SPI0_MISO_0_PIN
+#define SPARE_SPI_MISO_FUNCTION     AVR32_SPI0_MISO_0_FUNCTION
+#define SPARE_SPI_MOSI_PIN          AVR32_SPI0_MOSI_0_PIN
+#define SPARE_SPI_MOSI_FUNCTION     AVR32_SPI0_MOSI_0_FUNCTION
+#define SPARE_SPI_NPCS_PIN          AVR32_SPI0_NPCS_0_PIN
+#define SPARE_SPI_NPCS_FUNCTION     AVR32_SPI0_NPCS_0_FUNCTION
 //! @}
 
 

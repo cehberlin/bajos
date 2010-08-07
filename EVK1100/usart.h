@@ -489,7 +489,7 @@ extern int usart_read_char(volatile avr32_usart_t *usart, int *c);
  *
  * \return The received character, or \ref USART_FAILURE upon error.
  */
-extern int usart_getchar(volatile avr32_usart_t *usart);
+/*bhextern*/ int usart_getchar(volatile avr32_usart_t *usart);
 
 /*! \brief Writes one character string to the USART.
  *

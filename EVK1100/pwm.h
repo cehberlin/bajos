@@ -1,4 +1,4 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -125,21 +125,27 @@ extern int pwm_start_channels(unsigned long channels_bitmask);
  */
 extern int pwm_stop_channels(unsigned long channels_bitmask);
 
-/*! \brief Update channel register CPRDx or CDTYx with the polling method. This function uses the CUPDx register
- * as a double buffer for the period or the duty cycle. Only the first 20 bits of cupd are significant.
+/*! \brief Update channel register CPRDx or CDTYx by forcing synchronization with the PWM period.
+ * This function uses the CUPDx register as a double buffer for the period or the duty cycle.
+ * Only the first 20 bits of cupd are significant.
  * \param channel_id The channel identifier (0 to max channel-1)
  * \param *pwm_channel Pointer to PWM channel struct avr32_pwm_channel_t
  * \return PWM_SUCCESS or PWM_INVALID_INPUT
+ * \note This update function should be preferred when updating a PWM channel by polling.
  */
-extern int pwm_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel);
+extern int pwm_sync_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel);
 
-/*! \brief Update channel register CPRDx or CDTYx with the interrupt method. This function uses the CUPDx register
- * as a double buffer for the period or the duty cycle. Only the first 20 bits of cupd are significant.
+/*! \brief Update channel register CPRDx or CDTYx without synchronizing with the PWM period.
+ * This function uses the CUPDx register as a double buffer for the period or the duty cycle.
+ * Only the first 20 bits of cupd are significant.
  * \param channel_id The channel identifier (0 to max channel-1)
  * \param *pwm_channel Pointer to PWM channel struct avr32_pwm_channel_t
  * \return PWM_SUCCESS or PWM_INVALID_INPUT
+ * \warning Calling this function several times in a row may result in some update values never being
+ * issued to PWM if some external synchronizing mechanism like an interrupt is not used.
+ * \note This update function should be preferred when updating a PWM channel from an interrupt handler.
  */
-extern int pwm_interrupt_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel);
+extern int pwm_async_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel);
 
 
 #endif  // _PWM_H_

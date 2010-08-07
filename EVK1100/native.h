@@ -1,5 +1,6 @@
 char nativeCharIn();
 char nativeCharOut();
+char conStat();
 char getButtons();
 char setOnBoardLEDs();
 char charLCDOut();

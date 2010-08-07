@@ -1,4 +1,4 @@
-/* This file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -45,7 +45,6 @@
 
 
 #include <avr32/io.h>
-#include "intc.h"
 
 
 //! @{
@@ -191,7 +190,7 @@ _int0:
   // CPU upon interrupt entry.
 #if 1 // B1832: interrupt stack changed to exception stack if exception is detected.
   mfsr    r12, AVR32_SR
-  bfextu  r12, r12, AVR32_SR_M0_OFFSET, AVR32_SR_M0_SIZE + AVR32_SR_M1_SIZE + AVR32_SR_M2_SIZE
+  bfextu  r12, r12, AVR32_SR_M_OFFSET, AVR32_SR_M_SIZE
   cp.w    r12, 0b110
   brlo    _int0_normal
   lddsp   r12, sp[0 * 4]
@@ -214,7 +213,7 @@ _int1:
   // CPU upon interrupt entry.
 #if 1 // B1832: interrupt stack changed to exception stack if exception is detected.
   mfsr    r12, AVR32_SR
-  bfextu  r12, r12, AVR32_SR_M0_OFFSET, AVR32_SR_M0_SIZE + AVR32_SR_M1_SIZE + AVR32_SR_M2_SIZE
+  bfextu  r12, r12, AVR32_SR_M_OFFSET, AVR32_SR_M_SIZE
   cp.w    r12, 0b110
   brlo    _int1_normal
   lddsp   r12, sp[0 * 4]
@@ -237,7 +236,7 @@ _int2:
   // CPU upon interrupt entry.
 #if 1 // B1832: interrupt stack changed to exception stack if exception is detected.
   mfsr    r12, AVR32_SR
-  bfextu  r12, r12, AVR32_SR_M0_OFFSET, AVR32_SR_M0_SIZE + AVR32_SR_M1_SIZE + AVR32_SR_M2_SIZE
+  bfextu  r12, r12, AVR32_SR_M_OFFSET, AVR32_SR_M_SIZE
   cp.w    r12, 0b110
   brlo    _int2_normal
   lddsp   r12, sp[0 * 4]
@@ -260,7 +259,7 @@ _int3:
   // CPU upon interrupt entry.
 #if 1 // B1832: interrupt stack changed to exception stack if exception is detected.
   mfsr    r12, AVR32_SR
-  bfextu  r12, r12, AVR32_SR_M0_OFFSET, AVR32_SR_M0_SIZE + AVR32_SR_M1_SIZE + AVR32_SR_M2_SIZE
+  bfextu  r12, r12, AVR32_SR_M_OFFSET, AVR32_SR_M_SIZE
   cp.w    r12, 0b110
   brlo    _int3_normal
   lddsp   r12, sp[0 * 4]
@@ -289,10 +288,10 @@ _int3_normal:
   .global ipr_val
   .type ipr_val, @object
 ipr_val:
-  .word (INT0 << AVR32_INTC_IPR0_INTLEV_OFFSET) | (_int0 - _evba),\
-        (INT1 << AVR32_INTC_IPR0_INTLEV_OFFSET) | (_int1 - _evba),\
-        (INT2 << AVR32_INTC_IPR0_INTLEV_OFFSET) | (_int2 - _evba),\
-        (INT3 << AVR32_INTC_IPR0_INTLEV_OFFSET) | (_int3 - _evba)
+  .word (AVR32_INTC_INT0 << AVR32_INTC_IPR_INTLEVEL_OFFSET) | (_int0 - _evba),\
+        (AVR32_INTC_INT1 << AVR32_INTC_IPR_INTLEVEL_OFFSET) | (_int1 - _evba),\
+        (AVR32_INTC_INT2 << AVR32_INTC_IPR_INTLEVEL_OFFSET) | (_int2 - _evba),\
+        (AVR32_INTC_INT3 << AVR32_INTC_IPR_INTLEVEL_OFFSET) | (_int3 - _evba)
 
 
 //! \endverbatim

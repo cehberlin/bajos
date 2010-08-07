@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -396,20 +396,20 @@ void flashc_lock_all_regions(Bool lock)
 
 Bool flashc_read_gp_fuse_bit(unsigned int gp_fuse_bit)
 {
-  return ((AVR32_FLASHC.fgpfr & AVR32_FLASHC_FGPFR_GPF00_MASK << (gp_fuse_bit & 0x1F)) != 0);
+  return ((AVR32_FLASHC.fgpfr << (gp_fuse_bit & 0x1F)) != 0);
 }
 
 
 U32 flashc_read_gp_fuse_bitfield(unsigned int pos, unsigned int width)
 {
-  return AVR32_FLASHC.fgpfr >> (AVR32_FLASHC_FGPFR_GPF00_OFFSET + (pos & 0x1F)) &
+  return AVR32_FLASHC.fgpfr >> (pos & 0x1F) &
          ((1 << min(width, 32)) - 1);
 }
 
 
 U8 flashc_read_gp_fuse_byte(unsigned int gp_fuse_byte)
 {
-  return AVR32_FLASHC.fgpfr >> (AVR32_FLASHC_FGPFR_GPF00_OFFSET + ((gp_fuse_byte & 0x03) << 3));
+  return AVR32_FLASHC.fgpfr >> ((gp_fuse_byte & 0x03) << 3);
 }
 
 
@@ -751,33 +751,25 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
     // If destination does not point to the beginning of the current flash page...
     if (!Test_align((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE))
     {
-      // If page erase is requested...
-      if (erase)
-      {
-        // Fill the beginning of the page buffer with the current flash page data.
-        for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
-             tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
-             tmp.u64ptr++)
-          *tmp.u64ptr = *tmp.u64ptr;
-      }
+      // Fill the beginning of the page buffer with the current flash page data.
+      // This is required by the hardware, even if page erase is not requested,
+      // in order to be able to write successfully to erased parts of flash
+      // pages that have already been written to.
+      for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
+           tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
+           tmp.u64ptr++)
+        *tmp.u64ptr = *tmp.u64ptr;
 
       // If destination is not 64-bit aligned...
       if (!Test_align((U32)dest.u8ptr, sizeof(U64)))
       {
-        // If page erase is requested...
-        if (erase)
-        {
-          // Fill the beginning of the flash double-word buffer with the current flash page data.
-          for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
-            flash_dword.u8[i] = *tmp.u8ptr++;
-        }
-        // If page erase is not requested...
-        else
-        {
-          // Erase the beginning of the flash double-word buffer.
-          for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
-            flash_dword.u8[i] = 0xFF;
-        }
+        // Fill the beginning of the flash double-word buffer with the current
+        // flash page data.
+        // This is required by the hardware, even if page erase is not
+        // requested, in order to be able to write successfully to erased parts
+        // of flash pages that have already been written to.
+        for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
+          flash_dword.u8[i] = *tmp.u8ptr++;
 
         // Align the destination pointer with its 64-bit boundary.
         dest.u64ptr = (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
@@ -799,8 +791,9 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
     // If the current destination page has an incomplete end...
     if (incomplete_flash_page_end)
     {
-      // If page erase is requested...
-      if (erase)
+      // This is required by the hardware, even if page erase is not requested,
+      // in order to be able to write successfully to erased parts of flash
+      // pages that have already been written to.
       {
         tmp.u8ptr = (volatile U8 *)dest_end.u8ptr;
 
@@ -818,16 +811,6 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
         // Fill the end of the page buffer with the current flash page data.
         for (; !Test_align((U32)tmp.u64ptr, AVR32_FLASHC_PAGE_SIZE); tmp.u64ptr++)
           *tmp.u64ptr = *tmp.u64ptr;
-      }
-      // If page erase is not requested but end of destination is not 64-bit aligned...
-      else if (!Test_align((U32)dest_end.u8ptr, sizeof(U64)))
-      {
-        // Erase the end of the flash double-word buffer.
-        for (i = Get_align((U32)dest_end.u8ptr, sizeof(U64)); i < sizeof(U64); i++)
-          flash_dword.u8[i] = 0xFF;
-
-        // Write the flash double-word buffer to the page buffer.
-        *dest.u64ptr++ = flash_dword.u64;
       }
     }
 
@@ -936,33 +919,25 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
     // If destination does not point to the beginning of the current flash page...
     if (!Test_align((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE))
     {
-      // If page erase is requested...
-      if (erase)
-      {
-        // Fill the beginning of the page buffer with the current flash page data.
-        for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
-             tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
-             tmp.u64ptr++)
-          *tmp.u64ptr = *tmp.u64ptr;
-      }
+      // Fill the beginning of the page buffer with the current flash page data.
+      // This is required by the hardware, even if page erase is not requested,
+      // in order to be able to write successfully to erased parts of flash
+      // pages that have already been written to.
+      for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
+           tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
+           tmp.u64ptr++)
+        *tmp.u64ptr = *tmp.u64ptr;
 
       // If destination is not 64-bit aligned...
       if (!Test_align((U32)dest.u8ptr, sizeof(U64)))
       {
-        // If page erase is requested...
-        if (erase)
-        {
-          // Fill the beginning of the flash double-word buffer with the current flash page data.
-          for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
-            flash_dword.u8[i] = *tmp.u8ptr++;
-        }
-        // If page erase is not requested...
-        else
-        {
-          // Erase the beginning of the flash double-word buffer.
-          for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
-            flash_dword.u8[i] = 0xFF;
-        }
+        // Fill the beginning of the flash double-word buffer with the current
+        // flash page data.
+        // This is required by the hardware, even if page erase is not
+        // requested, in order to be able to write successfully to erased parts
+        // of flash pages that have already been written to.
+        for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
+          flash_dword.u8[i] = *tmp.u8ptr++;
 
         // Fill the end of the flash double-word buffer with the source data.
         for (; i < sizeof(U64); i++)
@@ -1021,8 +996,9 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
           flash_dword.u8[i] = *source.u8ptr++;
       }
 
-      // If page erase is requested...
-      if (erase)
+      // This is required by the hardware, even if page erase is not requested,
+      // in order to be able to write successfully to erased parts of flash
+      // pages that have already been written to.
       {
         tmp.u8ptr = (volatile U8 *)dest_end.u8ptr;
 
@@ -1040,16 +1016,6 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
         // Fill the end of the page buffer with the current flash page data.
         for (; !Test_align((U32)tmp.u64ptr, AVR32_FLASHC_PAGE_SIZE); tmp.u64ptr++)
           *tmp.u64ptr = *tmp.u64ptr;
-      }
-      // If page erase is not requested but end of destination is not 64-bit aligned...
-      else if (!Test_align((U32)dest_end.u8ptr, sizeof(U64)))
-      {
-        // Erase the end of the flash double-word buffer.
-        for (; i < sizeof(U64); i++)
-          flash_dword.u8[i] = 0xFF;
-
-        // Write the flash double-word buffer to the page buffer.
-        *dest.u64ptr++ = flash_dword.u64;
       }
     }
 

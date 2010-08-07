@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -44,12 +44,14 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "board.h"
+
+#include "evk1100.h"
 #include "dip204.h"
 #include "gpio.h"
 #include "compiler.h"
 #include "spi.h"
 #include "pwm.h"
+
 
 /*! Write Command start byte */
 #define DIP204_WRITE_COMMAND             0xF8
@@ -63,48 +65,52 @@
 /*! Read Data from DDRAM */
 #define DIP204_READ_DATA                 0xFE
 
-#define DIP204_PERIOD_MAX          50
+#define DIP204_PERIOD_MAX               50
+
+#define DIP204_CGRAM_BASE_ADDR          0x40
 
 
-static void dip204_write_byte(unsigned short byte);
-static void dip204_read_byte(unsigned short * byte);
+static void dip204_write_byte(unsigned char byte);
+static void dip204_read_byte(unsigned char *byte);
 static void dip204_select(void);
 static void dip204_unselect(void);
 static void dip204_wait_busy(void);
+extern void delay_ms(unsigned short time_ms);
 
 
 /*! the duty cycle that will be updated to change backlight power */
-unsigned short pwm_duty;
+static unsigned short pwm_duty;
 
 /*! the PWM channel config */
-avr32_pwm_channel_t pwm_channel;
+static avr32_pwm_channel_t pwm_channel;
 
 /*! The channel number */
-int channel_id = -1;
+static int channel_id = -1;
+
 
 /****************************** global functions *****************************/
 
-void dip204_init(backlight_options option)
+void dip204_init(backlight_options option, Bool backlight_on)
 {
   pwm_opt_t pwm_opt;  // pwm option config
 
   if (option == backlight_PWM)
   {
-/*    channel_id = DIP204_PWM_CHANNEL;
-    gpio_enable_module_pin(AVR32_PWM_PWM_6_PIN, AVR32_PWM_PWM_6_FUNCTION);
+    channel_id = DIP204_PWM_CHANNEL;
+    gpio_enable_module_pin(AVR32_PWM_6_PIN, AVR32_PWM_6_FUNCTION);
 
     // PWM controller configuration
-    pwm_opt.diva=1;
+    pwm_opt.diva=0;
     pwm_opt.divb=0;
     pwm_opt.prea=0;
     pwm_opt.preb=0;
 
     pwm_init(&pwm_opt);
-    pwm_duty = DIP204_PERIOD_MAX - 1;
+    pwm_duty = (backlight_on) ? DIP204_PERIOD_MAX - 1 : 1;
     pwm_channel.CMR.calg = PWM_MODE_LEFT_ALIGNED;   // channel mode
     pwm_channel.CMR.cpol = PWM_POLARITY_LOW;   // channel polarity
     pwm_channel.CMR.cpd = PWM_UPDATE_PERIOD;   // not used the first time
-    pwm_channel.CMR.cpre = 8;   // channel prescaler
+    pwm_channel.CMR.cpre = AVR32_PWM_CPRE_MCK_DIV_256;   // channel prescaler
     pwm_channel.cdty = pwm_duty;  // channel duty cycle, should be < CPRD
     pwm_channel.cprd = DIP204_PERIOD_MAX;  // channel period
     pwm_channel.cupd = 0;  // channel update is not used here.
@@ -112,11 +118,17 @@ void dip204_init(backlight_options option)
     pwm_channel_init(channel_id, &pwm_channel);
     // start PWM
     pwm_start_channels(1 << channel_id);
-*/
   }
   else
   {
-    gpio_clr_gpio_pin(DIP204_BACKLIGHT_PIN);
+    if (backlight_on)
+    {
+      gpio_clr_gpio_pin(DIP204_BACKLIGHT_PIN);
+    }
+    else
+    {
+      gpio_set_gpio_pin(DIP204_BACKLIGHT_PIN);
+    }
   }
   // delay for power on
   delay_ms(20);
@@ -153,27 +165,42 @@ void dip204_init(backlight_options option)
   dip204_unselect();
 }
 
+
 void dip204_set_backlight(backlight_power power)
 {
-  if ((power == backlight_power_decrease) && (channel_id != -1))
+  if (channel_id != -1)
   {
-    // update channel duty cycle using double buffering to prevent unexpected waveform.
-    pwm_duty = Max((pwm_duty - (DIP204_PERIOD_MAX / 10)) , 1);
-    pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
-    // new duty cycle
-    pwm_channel.cupd = pwm_duty;
-    // set channel configuration.
-    pwm_update_channel (channel_id, &pwm_channel);
+    if (power == backlight_power_decrease)
+    {
+      // update channel duty cycle using double buffering to prevent unexpected waveform.
+      pwm_duty = Max(pwm_duty - (DIP204_PERIOD_MAX / 10), 1);
+      pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
+      // new duty cycle
+      pwm_channel.cupd = pwm_duty;
+      // set channel configuration.
+      pwm_sync_update_channel(channel_id, &pwm_channel);
+    }
+    else if (power == backlight_power_increase)
+    {
+      // update channel duty cycle using double buffering to prevent unexpected waveform.
+      pwm_duty = Min(pwm_duty + (DIP204_PERIOD_MAX / 10), DIP204_PERIOD_MAX - 1);
+      pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
+      // new duty cycle
+      pwm_channel.cupd = pwm_duty;
+      // set channel configuration.
+      pwm_sync_update_channel(channel_id, &pwm_channel);
+    }
   }
-  else if ((power == backlight_power_increase) && (channel_id != -1))
+  else
   {
-    // update channel duty cycle using double buffering to prevent unexpected waveform.
-    pwm_duty = Min((pwm_duty + (DIP204_PERIOD_MAX / 10)) , (DIP204_PERIOD_MAX-1));
-    pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
-    // new duty cycle
-    pwm_channel.cupd = pwm_duty;
-    // set channel configuration.
-    pwm_update_channel (channel_id, &pwm_channel);
+    if (power == backlight_power_decrease)
+    {
+      gpio_set_gpio_pin(DIP204_BACKLIGHT_PIN);
+    }
+    else if (power == backlight_power_increase)
+    {
+      gpio_clr_gpio_pin(DIP204_BACKLIGHT_PIN);
+    }
   }
 }
 
@@ -218,13 +245,12 @@ void dip204_write_data(unsigned char data)
 }
 
 
-void dip204_read_data(unsigned short *data)
+void dip204_read_data(unsigned char *data)
 {
   dip204_select();
   /* Send Read Data Start-Byte */
   dip204_write_byte(DIP204_READ_DATA);
   /* read SPI data */
-  *data = 0;
   dip204_read_byte(data);
   /* wait for LCD */
   dip204_wait_busy();
@@ -232,15 +258,58 @@ void dip204_read_data(unsigned short *data)
 }
 
 
-void dip204_set_cursor_position(unsigned char row, unsigned char line)
+void dip204_create_char(char ascii_code, const unsigned char data[8])
 {
-unsigned char address = 0;
+  unsigned char i;
+  unsigned char column, line;
+
+  /* select the LCD chip */
+  dip204_select();
+
+  /* save cursor position */
+  /* Send Read Command Start-Byte */
+  dip204_write_byte(DIP204_READ_COMMAND);
+  /* Read status */
+  dip204_read_byte(&i);
+  /* Extract and save line and column cursor information */
+  line = ((i&0x60) >> 5) + 1;
+  column = (i&0x1F) + 1;
+
+  /* Send Command Start Byte */
+  dip204_write_byte(DIP204_WRITE_COMMAND);
+  /* Send CGRAM Address Set command */
+  dip204_write_byte(DIP204_CGRAM_BASE_ADDR + ((ascii_code << 3)&0x38));
+  /* wait for LCD */
+  dip204_wait_busy();
+
+  /* To proceed the 8 lines */
+  for(i=0; i<8; i++)
+  {
+    /* Send Data Start Byte */
+    dip204_write_byte(DIP204_WRITE_DATA);
+    /* send data */
+    dip204_write_byte(data[i] & 0x1F); //data[i]);
+    /* wait for LCD */
+    dip204_wait_busy();
+  }
+
+  /* unselect chip */
+  dip204_unselect();
+
+  /* Reset cursor position */
+  dip204_set_cursor_position(column, line);
+}
+
+
+void dip204_set_cursor_position(unsigned char column, unsigned char line)
+{
+  unsigned char address = 0;
 
   dip204_select();
-  if ((row <= 20) && (line <= 4))
+  if ((column <= 20) && (line <= 4))
   {
     /* Calculate DDRAM address from line and row values */
-    address = ( (line-1) * 32 ) + ( row-1 ) + 128;
+    address = ( (line-1) * 32 ) + ( column-1 ) + 128;
   }
   /* Send Command Start Byte */
   dip204_write_byte(DIP204_WRITE_COMMAND);
@@ -264,9 +333,10 @@ void dip204_clear_display(void)
   dip204_unselect();
 }
 
+
 void dip204_write_string(const char *string)
 {
-unsigned char i=0;
+  unsigned char i=0;
 
   dip204_select();
   /* for all chars in string */
@@ -283,6 +353,7 @@ unsigned char i=0;
   dip204_unselect();
 }
 
+
 /****************************** local functions ******************************/
 
 /*! \brief function to select the LCD
@@ -290,16 +361,18 @@ unsigned char i=0;
  */
 static void dip204_select(void)
 {
-  spi_selectChip(DIP204_SPI, DIP204_SPI_CS);
+  spi_selectChip(DIP204_SPI, DIP204_SPI_NPCS);
 }
+
 
 /*! \brief function to unselect the LCD
  *
  */
 static void dip204_unselect(void)
 {
-  spi_unselectChip(DIP204_SPI, DIP204_SPI_CS);
+  spi_unselectChip(DIP204_SPI, DIP204_SPI_NPCS);
 }
+
 
 /*! \brief hardware abstraction layer to send a byte to LCD
  *         depends if LCD is plugged on SPI or on EBI
@@ -307,10 +380,10 @@ static void dip204_unselect(void)
  *  \param  byte  Input. byte to write to the LCD (D7 .. D0)
  *
  */
-static void dip204_write_byte(unsigned short byte)
+static void dip204_write_byte(unsigned char byte)
 {
-unsigned short i;
-unsigned short reverse = 0x00;
+  unsigned char reverse;
+
   switch (byte)
   {
     /* MSB first for command */
@@ -324,16 +397,10 @@ unsigned short reverse = 0x00;
       break;
     }
     /* LSB first for all other data */
-    default :
+    default:
     {
       /* reverse byte */
-      for (i = 0 ; i < 8 ; i++)
-      {
-        if (Tst_bits(byte, (1 << i)))
-        {
-          Set_bits(reverse, (1 << (7-i)));
-        }
-      }
+      reverse = bit_reverse8(byte);
       /* send D0 to D3 */
       spi_write(DIP204_SPI, (reverse & 0xF0));
       /* send D4 to D7 */
@@ -343,37 +410,33 @@ unsigned short reverse = 0x00;
   }
 }
 
+
 /*! \brief hardware abstraction layer to read a byte from LCD
  *         depends if LCD is plugged on SPI or on EBI
  *
  *  \param  byte  Input. byte read from the LCD (D7 .. D0)
  *
  */
-static void dip204_read_byte(unsigned short * byte)
+static void dip204_read_byte(unsigned char *byte)
 {
-unsigned short reverse = 0x00;
-unsigned short i;
+  unsigned short reverse = 0x00;
+
   /* dummy write */
   spi_write(DIP204_SPI, 0x00);
   /* read RSR register */
   spi_read(DIP204_SPI, &reverse);
-  *byte = 0;
   /* Revert received byte (issued LSB first by the LCD) */
-  for (i = 0 ; i < 8 ; i++)
-  {
-    if (Tst_bits(reverse, (1 << i)))
-    {
-      Set_bits(*byte, (1 << (7-i)));
-    }
-  }
+  *byte = bit_reverse8(reverse);
 }
+
 
 /*! \brief function to wait for LCD becomes not busy
  *
  */
 static void dip204_wait_busy(void)
 {
-unsigned short status = 0x00;
+  unsigned char status = 0x00;
+
   /* send read commd to LCD */
   dip204_write_byte(DIP204_READ_COMMAND);
   /* read next byte */

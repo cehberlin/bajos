@@ -1,4 +1,4 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -54,16 +54,7 @@
 #define AVR32_INTC_MAX_NUM_IRQS_PER_GRP             32
 
 //! Number of interrupt priority levels.
-#define AVR32_INTC_NUM_INT_LEVELS                   (1 << AVR32_INTC_IPR0_INTLEV_SIZE)
-
-/*! \name Interrupt Priority Levels
- */
-//! @{
-#define INT0          0 //!< Lowest interrupt priority level.
-#define INT1          1
-#define INT2          2
-#define INT3          3 //!< Highest interrupt priority level.
-//! @}
+#define AVR32_INTC_NUM_INT_LEVELS                   (1 << AVR32_INTC_IPR_INTLEVEL_SIZE)
 
 
 #ifdef __AVR32_ABI_COMPILER__ // Automatically defined when compiling for AVR32, not when assembling.

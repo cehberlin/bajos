@@ -1,4 +1,4 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -89,13 +89,13 @@ extern int gpio_enable_module(const gpio_map_t gpiomap, unsigned int size);
  * \param pin The pin number.\n
  *            Refer to the product header file `uc3x.h' (where x is the part
  *            number; e.g. x = a0512) for module pins. E.g., to enable a PWM
- *            channel output, the pin number can be AVR32_PWM_PWM_3_PIN for PWM
+ *            channel output, the pin number can be AVR32_PWM_3_PIN for PWM
  *            channel 3.
  * \param function The pin function.\n
  *                 Refer to the product header file `uc3x.h' (where x is the
  *                 part number; e.g. x = a0512) for module pin functions. E.g.,
  *                 to enable a PWM channel output, the pin function can be
- *                 AVR32_PWM_PWM_3_FUNCTION for PWM channel 3.
+ *                 AVR32_PWM_3_FUNCTION for PWM channel 3.
  *
  * \return \ref GPIO_SUCCESS or \ref GPIO_INVALID_ARGUMENT.
  */
@@ -114,7 +114,7 @@ extern void gpio_enable_gpio(const gpio_map_t gpiomap, unsigned int size);
  *            Refer to the product header file `uc3x.h' (where x is the part
  *            number; e.g. x = a0512) for pin definitions. E.g., to enable the
  *            GPIO mode of PX21, AVR32_PIN_PX21 can be used. Module pins such as
- *            AVR32_PWM_PWM_3_PIN for PWM channel 3 can also be used to release
+ *            AVR32_PWM_3_PIN for PWM channel 3 can also be used to release
  *            module pins for GPIO.
  */
 extern void gpio_enable_gpio_pin(unsigned int pin);

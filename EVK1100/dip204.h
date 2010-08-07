@@ -1,4 +1,4 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -48,7 +48,7 @@
 #ifndef _AVR32_DIP204_H_
 #define _AVR32_DIP204_H_
 
-#include <avr32/io.h>
+#include "compiler.h"
 
 
 /*! type for Backlight options : use PWM or IO to drive the backlight
@@ -72,27 +72,25 @@ typedef enum {
  *         (need void delay_ms(unsigned short time_ms) function to perform active wait)
  *
  * \param option backlight_IO if no PWM needed, backlight_PWM if PWM needed...
+ * \param backlight_on Whether to start with backlight on or off.
  */
-extern void dip204_init(backlight_options option);
+extern void dip204_init(backlight_options option, Bool backlight_on);
 
 /*! Change the backlight power
  *
- * \param power increase or decrease the backlight ...
+ * \param power increase or decrease the backlight...
  */
 extern void dip204_set_backlight(backlight_power power);
-
 
 /*! Show blinking cursor
  *
  */
 extern void dip204_show_cursor(void);
 
-
 /*! Hide cursor
  *
  */
 extern void dip204_hide_cursor(void);
-
 
 /*! Write a byte at current position
  *
@@ -101,23 +99,28 @@ extern void dip204_hide_cursor(void);
  */
 extern void dip204_write_data(unsigned char data);
 
-
 /*! Read data at current position
  *
  * \param  data   Output. data read at current position
  *
  */
-extern void dip204_read_data(unsigned short *data);
+extern void dip204_read_data(unsigned char *data);
 
+/*! Create a new ASCII character
+ *
+ * \param  ascii_code   Input. ascii code of the new character. Must fit in the range [0; 7].
+ * \param  data         Input. pixel map of the character. It is composed of 5 columns and 8 lines.
+ *
+ */
+extern void dip204_create_char(char ascii_code, const unsigned char data[8]);
 
 /*! Set cursor to given position
  *
- * \param  row   Input. row where to set cursor (from 1 to 20)
- * \param  line  Input. line where to set cursor (from 1 to 4)
+ * \param  column   Input. Column where to set cursor (from 1 to 20).
+ * \param  line     Input. Line where to set cursor (from 1 to 4).
  *
  */
-extern void dip204_set_cursor_position(unsigned char row, unsigned char line);
-
+extern void dip204_set_cursor_position(unsigned char column, unsigned char line);
 
 /*! Clear the LCD screen
  *         (need void delay_ms(unsigned short time_ms) function to perform active wait)
@@ -125,12 +128,12 @@ extern void dip204_set_cursor_position(unsigned char row, unsigned char line);
  */
 extern void dip204_clear_display(void);
 
-
 /*! Write a string
  *
  * \param  string   Input. null terminated string to display
  *
  */
 extern void dip204_write_string(const char *string);
+
 
 #endif // _AVR32_DIP204_H_

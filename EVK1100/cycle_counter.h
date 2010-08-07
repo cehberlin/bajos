@@ -1,18 +1,18 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
-/*This file is prepared for Doxygen automatic documentation generation.*/
+/*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
  *
- * \brief SDRAMC on EBI driver for AVR32 UC3.
+ * \brief Cycle counter driver.
  *
  * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
- * - Supported devices:  All AVR32 devices with an SDRAMC module can be used.
+ * - Supported devices:  All AVR32UC devices.
  * - AppNote:
  *
  * \author               Atmel Corporation: http://www.atmel.com \n
  *                       Support and FAQ: http://support.atmel.no/
  *
- ******************************************************************************/
+ *****************************************************************************/
 
 /* Copyright (c) 2007, Atmel Corporation All rights reserved.
  *
@@ -42,44 +42,16 @@
  */
 
 
-#ifndef _SDRAMC_H_
-#define _SDRAMC_H_
+#ifndef _CYCLE_COUNTER_H_
+#define _CYCLE_COUNTER_H_
 
-#include <avr32/io.h>
-#include "evk1100.h"
-
-#ifdef SDRAM_PART_HDR
-  #include "mt48lc16m16a2tg7e.h"
-  //bh#include SDRAM_PART_HDR
-#else
-  #error No SDRAM header file defined
-#endif
+#include "compiler.h"
 
 
-//! Pointer to SDRAM.
-#define SDRAM           ((void *)AVR32_EBI_CS1_ADDRESS)
-
-//! SDRAM size.
-#define SDRAM_SIZE      (1 << (SDRAM_BANK_BITS + \
-                               SDRAM_ROW_BITS  + \
-                               SDRAM_COL_BITS  + \
-                               (SDRAM_DBW >> 4)))
+#define Get_sys_count()     ( Get_system_register(AVR32_COUNT)        )
+#define Set_sys_count(x)    ( Set_system_register(AVR32_COUNT,   (x)) )
+#define Get_sys_compare()   ( Get_system_register(AVR32_COMPARE)      )
+#define Set_sys_compare(x)  ( Set_system_register(AVR32_COMPARE, (x)) )
 
 
-/*! \brief Initializes the AVR32 SDRAM Controller and the connected SDRAM(s).
- *
- * \param hsb_hz HSB frequency in Hz (the HSB frequency is applied to the SDRAMC
- *               and to the SDRAM).
- *
- * \note HMATRIX and SDRAMC registers are always read with a dummy load
- *       operation after having been written to, in order to force write-back
- *       before executing the following accesses, which depend on the values set
- *       in these registers.
- *
- * \note Each access to the SDRAM address space validates the mode of the SDRAMC
- *       and generates an operation corresponding to this mode.
- */
-extern void sdramc_init(unsigned long hsb_hz);
-
-
-#endif  // _SDRAMC_H_
+#endif // _CYCLE_COUNTER_H_

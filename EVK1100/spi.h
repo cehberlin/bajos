@@ -1,4 +1,4 @@
-/* This header file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file is prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -9,7 +9,7 @@
  * devices.
  *
  * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
- * - Supported devices:  All AVR32 devices with a USART module can be used.
+ * - Supported devices:  All AVR32 devices with an SPI module can be used.
  * - AppNote:
  *
  * \author               Atmel Corporation: http://www.atmel.com \n
@@ -182,7 +182,11 @@ extern int spi_selectChip(volatile avr32_spi_t *spi, unsigned char chip);
  *              to 14).
  *
  * \return Status.
- *   \retval SPI_OK Success.
+ *   \retval SPI_OK             Success.
+ *   \retval SPI_ERROR_TIMEOUT  Time-out.
+ *
+ * \note Will block program execution until time-out occurs if last transmission
+ *       is not complete. Invoke \ref spi_writeEndCheck beforehand if needed.
  */
 extern int spi_unselectChip(volatile avr32_spi_t *spi, unsigned char chip);
 
@@ -221,6 +225,14 @@ extern void spi_enable(volatile avr32_spi_t *spi);
  * \warning This may cause data loss if used on a slave SPI.
  */
 extern void spi_disable(volatile avr32_spi_t *spi);
+
+/*! \brief Tests if the SPI is enabled.
+ *
+ * \param spi Base address of the SPI instance.
+ *
+ * \return \c 1 if the SPI is enabled, otherwise \c 0.
+ */
+extern int spi_is_enabled(volatile avr32_spi_t *spi);
 
 /*! \brief Checks if there is no data in the transmit register.
  *

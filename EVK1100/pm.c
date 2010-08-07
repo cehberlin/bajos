@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -43,6 +43,7 @@
  */
 
 
+#include "compiler.h"
 #include "pm.h"
 
 
@@ -161,7 +162,9 @@ void pm_enable_osc0_ext_clock(volatile avr32_pm_t *pm)
 
 void pm_enable_osc0_crystal(volatile avr32_pm_t *pm, unsigned int fosc0)
 {
-  pm_set_osc0_mode(pm, (fosc0 < 8000000) ? AVR32_PM_OSCCTRL0_MODE_CRYSTAL_G2 :
+  pm_set_osc0_mode(pm, (fosc0 <  900000) ? AVR32_PM_OSCCTRL0_MODE_CRYSTAL_G0 :
+                       (fosc0 < 3000000) ? AVR32_PM_OSCCTRL0_MODE_CRYSTAL_G1 :
+                       (fosc0 < 8000000) ? AVR32_PM_OSCCTRL0_MODE_CRYSTAL_G2 :
                                            AVR32_PM_OSCCTRL0_MODE_CRYSTAL_G3);
 }
 
@@ -222,7 +225,9 @@ void pm_enable_osc1_ext_clock(volatile avr32_pm_t *pm)
 
 void pm_enable_osc1_crystal(volatile avr32_pm_t *pm, unsigned int fosc1)
 {
-  pm_set_osc1_mode(pm, (fosc1 < 8000000) ? AVR32_PM_OSCCTRL1_MODE_CRYSTAL_G2 :
+  pm_set_osc1_mode(pm, (fosc1 <  900000) ? AVR32_PM_OSCCTRL1_MODE_CRYSTAL_G0 :
+                       (fosc1 < 3000000) ? AVR32_PM_OSCCTRL1_MODE_CRYSTAL_G1 :
+                       (fosc1 < 8000000) ? AVR32_PM_OSCCTRL1_MODE_CRYSTAL_G2 :
                                            AVR32_PM_OSCCTRL1_MODE_CRYSTAL_G3);
 }
 
@@ -472,7 +477,12 @@ void pm_bod_enable_irq(volatile avr32_pm_t *pm)
 
 void pm_bod_disable_irq(volatile avr32_pm_t *pm)
 {
+  Bool global_interrupt_enabled = Is_global_interrupt_enabled();
+
+  if (global_interrupt_enabled) Disable_global_interrupt();
   pm->idr = AVR32_PM_IDR_BODDET_MASK;
+  pm->isr;
+  if (global_interrupt_enabled) Enable_global_interrupt();
 }
 
 

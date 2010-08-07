@@ -1,4 +1,4 @@
-/* This source file is part of the ATMEL AT32UC3A-SoftwareFramework-1.1.1 Release */
+/* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 /*! \file *********************************************************************
@@ -45,18 +45,23 @@
  */
 
 
+#include "compiler.h"
 #include "pwm.h"
 
 
 int pwm_init(const pwm_opt_t *opt)
 {
   volatile avr32_pwm_t *pwm = &AVR32_PWM;
+  Bool global_interrupt_enabled = Is_global_interrupt_enabled();
 
   if (opt == 0 ) // Null pointer.
     return PWM_INVALID_INPUT;
 
   // Disable interrupt.
-  pwm->idr = ((1 << (AVR32_PWM_PWM_LINES_MSB + 1)) - 1) << AVR32_PWM_IDR_CHID0_OFFSET;
+  if (global_interrupt_enabled) Disable_global_interrupt();
+  pwm->idr = ((1 << (AVR32_PWM_LINES_MSB + 1)) - 1) << AVR32_PWM_IDR_CHID0_OFFSET;
+  pwm->isr;
+  if (global_interrupt_enabled) Enable_global_interrupt();
 
   // Set PWM mode register.
   pwm->mr =
@@ -76,7 +81,7 @@ int pwm_channel_init( unsigned int channel_id, const avr32_pwm_channel_t *pwm_ch
 
   if (pwm_channel == 0) // Null pointer.
     return PWM_INVALID_ARGUMENT;
-  if (channel_id > AVR32_PWM_PWM_LINES_MSB) // Control input values.
+  if (channel_id > AVR32_PWM_LINES_MSB) // Control input values.
     return PWM_INVALID_INPUT;
 
   pwm->channel[channel_id].cmr= pwm_channel->cmr;   // Channel mode.
@@ -89,7 +94,7 @@ int pwm_channel_init( unsigned int channel_id, const avr32_pwm_channel_t *pwm_ch
 
 int pwm_start_channels(unsigned long channels_bitmask)
 {
-  if (channels_bitmask & ~((1 << (AVR32_PWM_PWM_LINES_MSB + 1)) - 1))
+  if (channels_bitmask & ~((1 << (AVR32_PWM_LINES_MSB + 1)) - 1))
     return PWM_INVALID_INPUT;
 
   AVR32_PWM.ena = channels_bitmask; // Enable channels.
@@ -100,7 +105,7 @@ int pwm_start_channels(unsigned long channels_bitmask)
 
 int pwm_stop_channels(unsigned long channels_bitmask)
 {
-  if (channels_bitmask & ~((1 << (AVR32_PWM_PWM_LINES_MSB + 1)) - 1))
+  if (channels_bitmask & ~((1 << (AVR32_PWM_LINES_MSB + 1)) - 1))
     return PWM_INVALID_INPUT;
 
   AVR32_PWM.dis = channels_bitmask; // Disable channels.
@@ -109,11 +114,11 @@ int pwm_stop_channels(unsigned long channels_bitmask)
 }
 
 
-int pwm_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel)
+int pwm_sync_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel)
 {
   volatile avr32_pwm_t *pwm = &AVR32_PWM;
 
-  if (channel_id > AVR32_PWM_PWM_LINES_MSB)
+  if (channel_id > AVR32_PWM_LINES_MSB)
      return PWM_INVALID_INPUT;
 
   AVR32_PWM.isr;                                    // Acknowledgement and clear previous register state.
@@ -125,11 +130,11 @@ int pwm_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_c
 }
 
 
-int pwm_interrupt_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel)
+int pwm_async_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *pwm_channel)
 {
   volatile avr32_pwm_t *pwm = &AVR32_PWM;
 
-  if (channel_id > AVR32_PWM_PWM_LINES_MSB)
+  if (channel_id > AVR32_PWM_LINES_MSB)
      return PWM_INVALID_INPUT;
 
   pwm->channel[channel_id].cmr= pwm_channel->cmr;   // Channel mode register: update of the period or duty cycle.
