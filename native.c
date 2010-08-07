@@ -52,7 +52,8 @@ char*	nativePlatForm[]={"platform/PlatForm",
 		"charLCDOut", 
 		"controlLCD",
 		"currentTimeMillis",
-		"exit",NULL}
+		"exit",
+		"drawPoint",NULL}
 ;char* nativeString[]={"java/lang/String",
 		"nativeCharAt",
 		"nativeStringLength",NULL};
@@ -113,16 +114,17 @@ switch(i)					{
 	case	5: return controlLCD(local); 
 	case	6: return currentTimeMillis();
 	case	7: return javaExit(local);
-	case	8: return nativeCharAt(local);
-	case	9: return nativeStringLength(local);
-	case	10: return start(local);
-	case	22: return notify(local);
-	case	23: return notifyAll(local);
-	case	24: return wait(local);	// ???
-	case	27: return nativeParseFloat(local);
-	case 	28: return typeConvert(local);
-	case	29: return typeConvert(local);
-	case	30: return floatToCharArray(local);
+	case	8: return drawPoint(local);
+	case	9: return nativeCharAt(local);
+	case	10: return nativeStringLength(local);
+	case	11: return start(local);
+	case	23: return notify(local);
+	case	24: return notifyAll(local);
+	case	25: return wait(local);	// ???
+	case	26: return nativeParseFloat(local);
+	case 	27: return typeConvert(local);
+	case	28: return typeConvert(local);
+	case	39: return floatToCharArray(local);
 	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
 			   exit(-1);		}							}
 
@@ -511,6 +513,7 @@ return 0;
 char charLCDOut(u2 local){return 0;}
 char controlLCD(u2 local){return 0;}
 void timer_Init()	{}
+
 char currentTimeMillis()	{
 struct timeval start;
 gettimeofday(&start,NULL);
@@ -518,3 +521,22 @@ opStackPush((slot)(u4)((start.tv_sec*1000+start.tv_usec/1000)&0xFFFFFFFF));
 return 1;
 }
 #endif
+#ifdef STK1000
+char drawPoint(u2 local)	{
+
+setPixelRGB(opStackGetValue(local+1).UInt,opStackGetValue(local+2).UInt,
+opStackGetValue(local+3).UInt>>16,(opStackGetValue(local+3).UInt>>8)&0xff,
+opStackGetValue(local+3).UInt&0xff);
+
+//setPixelRGB(100,100,0xff,0xff,0xff);
+return 0;
+}
+#endif
+
+#if AVR8||NGW100||LINUX||EVK1100
+char drawPoint(u2 local)	{
+
+return 0;
+}
+#endif
+
