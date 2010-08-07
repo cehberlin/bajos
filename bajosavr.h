@@ -16,23 +16,8 @@
 #include "definitions.h"
 
 	void initVM(int argc, char* argv[]);
-	void initHW();
 	void executeClInits();
-	void VT102Attribute (u1 fgcolor, u1 bgcolor)	;
-	#ifdef AVR8
-u2 loadInSram1(unsigned char* addr);
-	/* CPU frequency */
-	//#define F_CPU 1000000UL
-	#define F_CPU 14745000UL
-	
-	/* UART baud rate */
-	//#define UART_BAUD  9600
-	#define UART_BAUD  115200
-	void exit(int n);
-	void uart_init(void);	
-	int uart_putchar(char c, FILE *stream);
-	int uart_getchar(FILE *stream);
-	#endif
+
 
 #ifdef __DEF_GLOBALS__
 		#define GLOBAL
@@ -61,7 +46,10 @@ GLOBAL u1		numThreads	INIT__(0);
 GLOBAL u1		tid INIT__(0);
 GLOBAL classStructure cs[MAXCLASSES];				// class structure decl und def Verschwendung!!
 GLOBAL char* 	nry	INIT__(" ->  not realized yet\n");
+GLOBAL u4 timerSec INIT__(0);
+GLOBAL u4 timerMilliSec INIT__(0);
+GLOBAL u1 timeOut INIT__(0);
 #ifdef AVR8
-GLOBAL 	 FILE uart_str;
+GLOBAL 	 FILE uartAVR8;
 #endif
 #endif
