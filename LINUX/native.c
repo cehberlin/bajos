@@ -79,27 +79,18 @@ char currentTimeMillis()	{
 ThreadControlBlock* testInterruptThread=NULL;
 
 char forceTestInterrupt(){
-	if(testInterruptThread){
-		//force scherduling
-		actualThreadCB->numTicks=0;
-		releaseMutexOnObject(testInterruptThread,testInterruptThread->obj,testInterruptThread);
-	}
+	INTERRUPT_THREAD(testInterruptThread);
 	return 0;
 }
 
 char initTestInterrupt(){
-
-  slot threadObj = opStackGetValue(local+1);
-
-  testInterruptThread=findThreadCB(threadObj);
- 
-  return 0;
+	INIT_INTERRUPT_THREAD(testInterruptThread);
+  	return 0;
 }
 
 char removeTestInterrupt(){
-  deleteNotCurrentThread(testInterruptThread);
-  testInterruptThread=NULL;
-  return 0;
+	deleteNotCurrentThread(&testInterruptThread);
+  	return 0;
 }
 
 

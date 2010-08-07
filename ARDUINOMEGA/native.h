@@ -12,4 +12,5 @@ char nativeConStat();
 char nativeSetData(); // from sdram
 char nativeGetData();
 
-char initTimer8bit();
+char initTestInterrupt();
+char removeTestInterrupt();

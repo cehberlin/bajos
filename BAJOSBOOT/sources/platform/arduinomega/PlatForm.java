@@ -21,6 +21,7 @@ public native int  currentTimeMillis();
 public native byte nativeConStat();
 public native void nativeSetData(int addr, byte value);	// sdram
 public native byte nativeGetData(int addr);				// sdram
-public native void initTestInterrupt(InterruptThread thread);
+public native void initTestInterrupt(InterruptThread t);
+public native void removeTestInterrupt();
 public PlatForm()	{}
 }

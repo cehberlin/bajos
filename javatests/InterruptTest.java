@@ -8,7 +8,8 @@ import java.util.concurrent.InterruptThread;
 public class InterruptTest extends InterruptThread {
 
 	public void isr(){
-		System.out.println("Interrupt Occured in Java!!");
+		System.platform.nativeSetData(0x25, (byte)(System.platform.nativeGetData(0x25)^0x80));
+		//System.out.println("Interrupt Occured in Java!!");
 	}
 
 
@@ -18,7 +19,9 @@ public class InterruptTest extends InterruptThread {
 
 		System.platform.initTestInterrupt(inter);
 
-		System.platform.forceTestInterrupt();	
+		for(int i=0;i<10000000;i++){
+		//System.platform.forceTestInterrupt();	//comment out for arduino; comment in for linux!
+		}
 
 		System.platform.removeTestInterrupt();
 

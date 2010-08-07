@@ -89,41 +89,42 @@ char nativeGetData() { //sdarm
 	return 1;
 }
 
-ThreadControlBlock* timer8bitThread=NULL;
-
 /*
-Der Overflow Interrupt Handler
-wird aufgerufen, wenn TCNT0A von
-255 auf 0 wechselt (256 Schritte),
+Example of implementing an interrupt handler
+for later implementation the initialisation of the mcu ports could be done in java
 */
-ISR (TIMER0_OVF_vect)
-{
-	printf("Interrupt occured\n");
-	//yet not tested!!
-	if(timer8bitThread){
-		releaseMutexOnObject(timer8bitThread,timer8bitThread->obj,timer8bitThread);
-	}
-}
+ThreadControlBlock* testInterruptThread=NULL;
 
-//overflow
-char initTimer8bit(){
+char initTestInterrupt(){
+
+  INIT_INTERRUPT_THREAD(testInterruptThread);
 
   cli();
 
-  slot threadObj = opStackGetValue(local+1);
+  TCCR0A = 0; //normal increment with overflow
 
-  printf("prescaler 1024\n");
-  TCCR0A = (1<<CS02)| (1<<CS00); // Prescaler 1024
+  TCCR0B |= (1<<CS02) | (1<<CS00); // Prescaler 1024
 
-  printf("Thread suchen\n");
-  timer8bitThread=findThreadCB(threadObj);
- 
-  // Overflow Interrupt erlauben
+  // enable Overflow Interrupt 
   TIMSK0 |= (1<<TOIE0);
- 
-  // Global Interrupts aktivieren
-  sei();
 
+  DDRB |= 0x80;
+ 
+  //enable Global Interrupts
+  sei();
+ 
   return 0;
+}
+
+char removeTestInterrupt(){
+   deleteNotCurrentThread(&testInterruptThread);
+   return 0;
+}
+
+ISR (TIMER0_OVF_vect)
+{
+	//PORTB = ~PORTB; //to indicate occurence of interrupts
+	INTERRUPT_THREAD(testInterruptThread);
+	return 0;
 }
 

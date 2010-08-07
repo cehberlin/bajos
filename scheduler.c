@@ -121,11 +121,12 @@ void releaseMutexOnObject(ThreadControlBlock* t,slot obj,ThreadControlBlock* awa
 			t->lockCount[i]--;
 			if (!t->lockCount[i])	
 			{
-				t->hasMutexLockForObject[i]=NULLOBJECT; /* give lock free*/
+				t->hasMutexLockForObject[i]=NULLOBJECT; /* free lock*/
 				HEAPOBJECTMARKER(obj.stackObj.pos).mutex=MUTEXNOTBLOCKED;
 
 				//awake a blocked thread
 				if(awakeThread){
+					printf("released\n");
 					awakeThread->state=THREADNOTBLOCKED;
 					setMutexOnObject(awakeThread,obj);
 				}else{
@@ -290,11 +291,12 @@ void removeThreadFromPriorityList(ThreadControlBlock* t){
 /*
  * Delete one thread, which is not actualThread by Christopher-Eyk Hrabia
  */
-void deleteNotCurrentThread(ThreadControlBlock* t){
-	removeThreadFromPriorityList(t);
-	free(t->methodStackBase);
-	free(t->opStackBase);
-	free(t);
+void deleteNotCurrentThread(ThreadControlBlock** t){
+	removeThreadFromPriorityList(*t);
+	free((*t)->methodStackBase);
+	free((*t)->opStackBase);
+	free((*t));
+	*t=NULL;
 	numThreads--;
 }
 

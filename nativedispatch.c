@@ -104,7 +104,8 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeConStat,
 	nativeSetData,
 	nativeGetData,
-	initTimer8bit
+	initTestInterrupt,
+	removeTestInterrupt,
 };
 #endif
 
