@@ -71,9 +71,9 @@ int main(int argc,char* argv[]){
 	printf("<clinit> 's executed");
 	if (findMain() == 0)		{printf("no main found %d %d\n",numClasses,cN);return 1;	}	
 	printf("  -> run <main> :\n");
-	opStackPush((slot) (u4)0);				// args parameter to main (should be a string array)
+	opStackPush((slot) (u4)0);	// args parameter to main (should be a string array)
 	opStackSetSpPos(findMaxLocals());
-	run(); 							//  run main
+	run(); 				//  run main
 	return 0;
 }
 
