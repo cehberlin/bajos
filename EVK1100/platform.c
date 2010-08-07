@@ -107,8 +107,6 @@ sdramc_init(48000000);/*FOSC0) bh not with monitor*/
 #endif
 }
 
-
-
 /* all class files stored for linux in DS (malloc)*/
 /* for avr8 all class files in flash */
 /* for uc3a and standalone ap7000:	bootclasses in flash*/
@@ -124,7 +122,6 @@ classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	/* boot classes in flash*/
 appClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	/* app classes in sdram*/
 	heapInit();	/* linux avr8 malloc , others hard coded!*/
 	length=0;
-#if (NGW100||STK1000|| EVK1100)
 /* analyze bootclasses, which are programmed in flash*/
 strncpy(buf,classFileBase,4);
 buf[4]=0;
@@ -139,38 +136,30 @@ cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 }
-printf("%d bootclasses are loaded\n",cN);
-cN=numClasses;
+printf("%x bootclasses are loaded\n",cN);
 /* thats to boot classes*/
 /* now the application classes*/
-cN--;
 addr=appClassFileBase;
 length=0;
 		do
 		{
 		printf("load application classes-> type \"w\" \n");
-			cN++;
 			cs[cN].classFileStartAddress=addr+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
 			printf("\n");
 			length+=cs[cN].classFileLength;
 			analyzeClass(&cs[cN]);
+			cN++;
 			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
 /*!!*/
-cN++;
-#endif
+numClasses=cN;
+printf("numclasses %x\n",numClasses);
 
 DEBUGPRINTHEAP;
 }
-
-
-
-
-
-
 
 
 #ifndef WITHMON
