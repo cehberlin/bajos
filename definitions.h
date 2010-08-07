@@ -17,8 +17,8 @@
 // RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 (words) java class base 
 // 0x10000 + 0x06000 in bytes
 // bamo128 -> 0xE000 to 0xFFFF
-#define AVR8_FLASH_JAVA_BASE	0x6000	// 20k boot classes in flash	-> 0xB000
-#define AVR8_FLASH_APP_BASE 	0xB000	// 12k application classes	-> 0xD800
+#define AVR8_FLASH_JAVA_BASE	0x8900	// +rampz;16k boot classes in flash	-> 0xc480 in words
+#define AVR8_FLASH_APP_BASE 	0xc900	// +rampz;12k application classes	-> 0xe480
 
 // UC3A is evk1100
 #define UC3A_FLASH_BASE		0x80000000	// internal 512 KB flash
@@ -77,9 +77,9 @@
 #endif	
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define CLASSNOTFOUNDERR(classname) errorExit(-3, PSTR("Class '%s' not found.\n"), classname)
+	#define CLASSNOTFOUNDERR(classname,classnamelength) { printStringFromFlash(classname,classnamelength);errorExit(-3, PSTR("Class '%s' not found.\n"), classname);}
 #else
-	#define CLASSNOTFOUNDERR(classname) errorExit(-3, "Class '%s' not found.\n", classname)
+	#define CLASSNOTFOUNDERR(classname,classnamelength) errorExit(-3, "Class '%s' not found.\n", classname)
 #endif	
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
