@@ -1,5 +1,6 @@
 package java.graphics;
-public class Graphics	{
+// not intantionable, but extendable
+public class Graphics	implements Konstanten {
 
 public static float r;		// globale Farben für Zustandsmaschine
 public static float g;
@@ -40,4 +41,8 @@ void hsv2rgb( int h, int s, int v)
             }
 }
 */
+
+void drawPoint(Point p)	{
+PlatForm.drawPoint(p.x,p.y,p.r,p.g,p.b);
+}
 }
