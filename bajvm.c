@@ -8,12 +8,13 @@
 /* version 0.3 - 15.1.09*/
 /* version 0.4 - 15.6.09*/
 /* version 0.5 - 15.1.10 */
+/* version 0.6.- 15.6.10 */
 /********************************************************************************************
 Erweiterungen von:
 2006	Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
 2008	Anna Maria Damm, Stephan Bauer, Bayer Schering Pharma AG
-	H.-Christian Hecht, CoMedServ GmbH
-	Adrian Lang, Fritz-Haber-Institut
+	Hans-Christian Hecht, CoMedServ GmbH
+	Adrian Mikosch Lang, Fritz-Haber-Institut
 	Christopher Hartl, Alcatel-Lucent AG
 	Jascha Radziewski, DP-IT-Service GmbH
 2009	Rainer Kirchhoff, MSA-Auer
@@ -22,6 +23,7 @@ Erweiterungen von:
 	Chris Engel, CONTROL
 	Felix Fehlberg, Berliner Volksbank
 	Steffen Kalisch, COMED
+2010	Christopher-Eyk Hrabia BTC
 students of informatics at the HWR-Berlin/Berufsakademie	
 ********************************************************************************************/
 /* speed is not our primary goal!!!*/
@@ -31,8 +33,17 @@ students of informatics at the HWR-Berlin/Berufsakademie
 /* ignore some attributes*/
 /* no classloader*/
 /* no ...*/
-/* and errors ........................................................................*/
-/*AVR8(arduinoMega and CharonII) EVK1100 NGW100 STK1000 LINUX AVR32-LINUX -> Target Systems*/
+/* and errors ........................................................................
+/*
+but include are:
+garbage collector
+threads
+synchronized constructs
+native methods interface
+exception handling
+scheduler
+*/
+/*AVR8(arduinoMega and CharonII) EVK1100 EVK1104 NGW100 STK1000 LINUX AVR32-LINUX -> Target Systems*/
 
 #include <stdio.h>
 
@@ -79,7 +90,7 @@ int main(int argc,char* argv[]){
 	printf("start clinit");
 #endif
 
-	for (cN=0; cN < numClasses;cN++)
+for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
