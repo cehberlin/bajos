@@ -7,10 +7,13 @@
 .global strncmpFlashFlash
 .global strncmpRamFlash
 .global getCharsFromFlash
+.global printStringFromFlash
 
 #ifndef WITHMON
 .global startUart0
 #endif
+
+.extern	conOut
 
 /* RAMPZ ist set to 1 in platform.c init()*/
 // assume : Z ist free; RAMPZ never changed
@@ -85,6 +88,13 @@ startUart0:		lds	r24, MYUCSRA	;sbis	_SFR_IO_ADDR(UCSRA), UDRE
 			sts	MYUCSRB,r24;out		_SFR_IO_ADDR(UCSRB), argVL
 			ldi	r24, (1<<MYUSBS)|(3<<MYUCSZ)	/* Set frame format: 8data, 2stop bit */
 			sts	MYUCSRC ,r24
+			ret
+// from r24, n r22, n!==0 !!!!
+printStringFromFlash:	movw	ZL,r24
+printStringFromFlash1:	elpm	r24,Z+
+			call 	0xf006
+			dec	r22
+			brne	printStringFromFlash1
 			ret
 .ascii		"end of world"
 .align 1
