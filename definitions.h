@@ -162,7 +162,7 @@
 #define		T_LONG    			0xb    // aaray type boolean		
 
 #ifdef DEBUG
-#define TR 0 //(actualThreadCB->tid)
+#define TR (actualThreadCB->tid) // 1
 #ifdef AVR8
 
 		#define OUTSTREAM stdout
