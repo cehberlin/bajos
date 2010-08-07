@@ -34,8 +34,6 @@ public abstract class Thread	{
     this ("");		}
 
   public Thread (String name)	{	// method 1
-//      setPriority(currentThread().getPriority());	
-//setPriority(5);
     this.name = name;
   }
 
