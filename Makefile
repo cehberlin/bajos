@@ -48,7 +48,7 @@ endif
 #the serial communication lines
 TTY		= /dev/ttyS0
 
-APPPATH = /home/Desktop/bajosavr/
+APPPATH = /repos/bajos/
 
 AVR8ROOT=
 AVR32ROOT=/usr/bin/
@@ -76,9 +76,6 @@ AP7000SOURCES= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100
 NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
 STK1000SOURCES=$(APPPATH)STK1000/mt481c2m32b2tg.c $(APPPATH)STK1000/sdram.c $(APPPATH)STK1000/gpiostk1000.c
 # verrückt
-
-# Assembler source files
-#ASSRCS = crt0.S trampoline.S  exception.S
 ASSSOURCESUC3A =  $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
 TARGET		=  $(basename $(call FirstWord,$(BAJOSSOURCES)))
 TGTTYPE   = $(suffix $(TARGET))
@@ -197,6 +194,24 @@ OPTIMIZATION = -O0 -ffunction-sections -fdata-sections
 # Extra flags to use when linking
 #LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
 LD_EXTRA_FLAGS = -Wl,--gc-sections  -Wl,-e,_trampoline
+
+CPPFLAGS  = -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
+            $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
+
+#CC        = avr32-gcc
+CFLAGS    = $(DEBUGGEN) $(OPTIMIZATION) $(C_EXTRA_FLAGS) \
+            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+
+ASFLAGS   = $(DEBUGGEN) \
+            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+
+LDFLAGS   = -march=$(ARCH) -mpart=$(PART) \
+            $(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
+
+LOADLIBES = -lc
+LDLIBS    = $(LIBS:%=-l%)
+
+
 .PHONY:	evk1100
 evk1100:	$(TGTFILE)
 $(TGTFILE): $(OBJFILES)
@@ -217,23 +232,6 @@ $(TGTFILE): $(OBJFILES)
 	$(VERBOSE_CMD)$(CC) -c $(CPPFLAGS) $(ASFLAGS) -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
-
-CPPFLAGS  = -march=$(ARCH) -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
-            $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
-
-#CC        = avr32-gcc
-CFLAGS    = $(DEBUGGEN) $(OPTIMIZATION) $(C_EXTRA_FLAGS) \
-            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
-
-ASFLAGS   = $(DEBUGGEN) \
-            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
-
-LDFLAGS   = -march=$(ARCH) -mpart=$(PART) \
-            $(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
-
-LOADLIBES = -lc
-LDLIBS    = $(LIBS:%=-l%)
-
 
 # Program MCU memory from ELF output file.
 .PHONY: program
