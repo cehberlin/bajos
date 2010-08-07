@@ -8,7 +8,7 @@
 	typedef unsigned char	u1;
 	typedef signed char		s1;
 	typedef float			f4;
-	#if (LINUX || AVR32UC3A|| AVR32AP7000)
+	#if (LINUX || AVR32UC3A|| AVR32AP7000||AVR32LINUX)
 	#if ( __i386__ || AVR32UC3A|| AVR32AP7000 || AVR32LINUX ) 
 		typedef  unsigned short		u2;
 		typedef  unsigned int		u4;
