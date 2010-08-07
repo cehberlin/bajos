@@ -1451,7 +1451,6 @@ else*/
 					}
 		CASE	MULTIANEWARRAY:	DEBUGPRINTLN1("multianewarray");	// mb jf
 					{
-				//	exit(-77);
  						u2 index = getU2(0); // index into the constant_pool
  						u1 dim = getU1(0);	// dimensions
 

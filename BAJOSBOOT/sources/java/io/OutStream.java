@@ -27,6 +27,10 @@ public class OutStream {
 		print(Float.toString(f));
 	}
 
+	public synchronized void print(boolean b) {
+		print(Boolean.toString(b));
+	}
+
 	public synchronized void println() {
 		print('\n');
 	}
@@ -48,6 +52,11 @@ public class OutStream {
 
 	public synchronized void println(float f) {
 		print(f);
+		println();
+	}
+
+	public synchronized void println(boolean b) {
+		print(b);
 		println();
 	}
 }

@@ -89,6 +89,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/Thread.java $(LANG)/Throwable.java \
 			$(LANG)/Math.java $(LANG)/Float.java \
 			$(LANG)/Integer.java $(UTIL)/Random.java \
+			$(LANG)/Boolean.java \
 			$(LANG)/Exception.java  $(LANG)/Error.java \
 			$(LANG)/ArithmeticException.java $(LANG)/ClassCastException.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java \
