@@ -286,12 +286,21 @@
 				else {	deleteThread();}\
 							}
 #else
+#ifdef LINUX
+#define PRINTEXITTHREAD(a,b) {printf(a,b);\
+				if (numThreads==1)	{\
+				printf("Bajos terminated\n"); \
+				linuxExit(0);}\
+				else {	deleteThread();}\
+							}
+#else
 #define PRINTEXITTHREAD(a,b) {printf(a,b);\
 				if (numThreads==1)	{\
 				printf("Bajos terminated\n"); \
 				exit(0);}\
 				else {	deleteThread();}\
 							}
+#endif //LINUX
 #endif
 #define  COLOR_BLACK     0     /* VT102 Color Codes                                  */
 #define  COLOR_RED       1
