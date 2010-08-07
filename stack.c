@@ -11,6 +11,12 @@
 #include <avr/pgmspace.h>
 #endif
 
+#ifdef DEBUGSTACK
+#define PRINTMAXSTACK     { if ((opSp-opStackBase) >= OPSTACKSIZE) { printf("stack error tid: %d max: %d\n",actualThreadCB->tid,OPSTACKSIZE);}}
+#else
+#define PRINTMAXSTACK
+#endif
+
 #include "bajvm.h"
 #include "definitions.h"
 #include "stack.h"
@@ -25,6 +31,7 @@ slot* 	opSp;
 u2* 	methodSp;
 #endif
 void opStackInit(slot** m)	{		/* per thread, fixed size */
+
 #if (LINUX||AVR8||AVR32LINUX)
 	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL)
 			MALLOCERR(OPSTACKSIZE * sizeof(slot), "op stack");			
@@ -36,7 +43,9 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 }
 
 #ifndef AVR8  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
-void opStackPush( slot val)	{	*(opSp++)=val;			}	
+void opStackPush( slot val)	{	*(opSp++)=val;
+PRINTMAXSTACK;
+}	
 /*  sp grothws with increasing addresses*/
 /* and shows to TOS -> first free place*/
 
@@ -47,14 +56,15 @@ slot  opStackPeek()		{	return *(opSp-1);		}
 
 void opStackPoke( slot val)	{	*(opSp-1)=val;			}
 
-void opStackSetValue(u2 pos, slot val)	{*(opStackBase+pos)=val;	}
+void opStackSetValue(u2 pos, slot val)	{ *(opStackBase+pos)=val;	 }
 
 slot opStackGetValue(u2  pos)	{	return *(opStackBase+pos);	}
 
 u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}
 
 /* relative to actual base*/
-void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}	
+void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;
+PRINTMAXSTACK;}	
 #endif
 
 
