@@ -1,6 +1,5 @@
 package java.lang;
 
-// Burkhart Holznagel (burkhart.holznagel@ba-berlin.de)
 /**
  * Mathematical functions.
  *
