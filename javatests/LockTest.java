@@ -33,6 +33,6 @@ public class LockTest extends Thread	{
 		//t2.setPriority(7);	
 		t1.start();
 		t2.start();	
-		while(true){}
+		//while(true){}
 	}
 }
