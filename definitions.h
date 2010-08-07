@@ -8,7 +8,9 @@
 #ifndef __DEFINITIONS__
 #define __DEFINITIONS__
 
-#include "typedefinitions.h"	
+#include "typedefinitions.h"
+#define STK1000_SDRAM_BASE 0xB0000000
+#define NGW_SDRAM_BASE 0x10000000	
 	#define	HEAPFREESPACE								0
 	#define	HEAPALLOCATEDSTATICCLASSOBJECT	1
 	#define	HEAPALLOCATEDNEWOBJECT				2
