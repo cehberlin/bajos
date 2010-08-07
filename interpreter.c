@@ -1414,9 +1414,9 @@ else*/
                     first = opStackPop();
                     if (first.UInt != ((slot)NULLOBJECT).UInt) {
                         // Do some check here
-                        opStackPush((slot) 1);
+                        opStackPush((slot) (u4)1);
                     } else {
-                        opStackPush((slot) 0);
+                        opStackPush((slot) (u4)0);
                     }
 
 		CASE	WIDE:		DEBUGPRINTLN1("wide (not tested)");	// mb jf
@@ -1485,7 +1485,7 @@ printf("schluss\n");
 // not tested yet
 slot createDims(u4 dimsLeft, u2 *count){
 	if (dimsLeft == 0) {
-		return (slot)0;
+		return (slot)(u4)0;
 	}
 	u4 heapPos; u2 i; slot first;
 	if (*count == 0) {
