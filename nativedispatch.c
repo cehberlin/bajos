@@ -101,6 +101,19 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 };
 #endif
 
+#ifdef EVK1104
+#include "EVK1104/native.h"
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
+	NULL,
+	nativeCharIn,	/* for our board only TXD,RXD works correct on UART0*/
+	nativeCharOut,
+	conStat,
+	nativeExit,
+	currentTimeMillis
+};
+#endif
+
 #ifdef NGW100
 #include "NGW100/native.h"
 functionForNativeMethodType functionForNativePlatFormMethod[] = {
