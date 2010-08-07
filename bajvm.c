@@ -6,6 +6,7 @@
 // version 0.1 - 1.10.07
 // version 0.2 - 15.3.08
 // version 0.3 - 15.1.09
+// version 0.4 - 15.6.09
 /********************************************************************************************
 Erweiterungen von:
 2006	Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
