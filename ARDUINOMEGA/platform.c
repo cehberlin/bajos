@@ -15,10 +15,6 @@
 #include "platform.h"
 #include "native.h"
 #include <ctype.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "arduinomega.h"
 
