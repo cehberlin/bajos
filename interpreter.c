@@ -733,8 +733,10 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			                             + 3);		// bytes
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 			                         + 1);		// length
-			findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
+			if (!findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1))) {
+				CLASSNOTFOUNDERR(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
+			}
 
 			if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 				FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
@@ -763,9 +765,11 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 			                        +3))
 			                 +3);		// bytes
 			fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1); // length
-			findClass(getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
-			          getU2(CP(cN,getU2(CP(cN,
-			                               getU2(CP(cN,BYTECODEREF)+1))+1))+1));
+			if (!findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1))) {
+				CLASSNOTFOUNDERR(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
+			}	
+
 			if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 				FIELDNOTFOUNDERR(fieldName, getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
@@ -828,9 +832,11 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 				                 +3);		// bytes
 				fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length
 				/*kann weg*/
-				findClass(
+				if (!findClass(
 				    getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
-				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
+				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))) {
+					CLASSNOTFOUNDERR( getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3));
+				}
 
 				first = opStackPop();	//mb jf doesn't work without variable ?!?!
 				second =opStackPop();

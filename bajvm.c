@@ -103,7 +103,7 @@ DEBUGPRINTHEAP;
 // 	bootclassen im flash
 // 	anwendungsklassen im DS(Ram) -> hard coded
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
-	u2 length;
+	u4 length;
 // use malloc!!
 #ifdef EVK1100
 classFileBase=(u1*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
