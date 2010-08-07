@@ -9,5 +9,5 @@ char nativeCharIn();
 char currentTimeMillis();
 char nativeExit();
 char nativeConStat();
-char nativeSetPort();
-char nativeGetPort();
+char nativeSetData(); // from sdram
+char nativeGetData();

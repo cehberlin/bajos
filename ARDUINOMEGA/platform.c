@@ -94,36 +94,40 @@ stdout = stdin=stderr = &uartAVR8;
 /* for avr8 all class files in flash */
 void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
 char* addr;
-u4 temp;
+char buf[4];
 heapInit();	/* linux avr8 malloc , others hard coded!*/
-getCharsFromFlash((char*)AVR8_FLASH_JAVA_BASE,4,(void*)&temp);
-sscanf((char*)&temp,"%4d",(int*)&numClasses);
-addr=(char*)AVR8_FLASH_JAVA_BASE+4;
-for (cN=0; cN<numClasses;cN++)			{
-	getCharsFromFlash(addr,4,(void*)&temp);
-	sscanf((char*)&temp,"%4d",(int*)&(cs[cN].classFileLength));
-	cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
-	analyzeClass(&cs[cN]);	
-	addr+=cs[cN].classFileLength+4;
-	printf("bootclass: %x loaded\n",cN);	}
+// all classes in flash for arduinoMega and CharonII
+addr=(u1*) AVR8_FLASH_JAVA_BASE;
+buf[4]=0;
+getCharsFromFlash(addr,4,buf);
+sscanf(buf,"%4d",(char*)&numClasses);
+addr+=4; // after numclasses*
+for (cN=0; cN<numClasses;cN++)	{
+getCharsFromFlash(addr,4,buf);
+sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
+cs[cN].classFileStartAddress=addr+4;	// after length of class;
+analyzeClass(&cs[cN]);	
+addr+=cs[cN].classFileLength+4;
+printf("bootclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
+}
 
 printf("load java application classes: \n");
-
 #ifdef WITHMON
 addr=(char*)AVR8_FLASH_APP_BASE;
 #endif
-
-getCharsFromFlash(addr,4,&temp);	// num classes
-addr+=4;
-sscanf((char*)&temp,"%4d",(int*)&numClasses);
+getCharsFromFlash(addr,4,buf);
+sscanf(buf,"%4d",(char*)&numClasses);
 numClasses+=cN;
-for (;cN<numClasses;cN++)				{
-	getCharsFromFlash(addr,4,(void*)&temp);	// bytes
-	sscanf((char*)&temp,"%4d",(int*)&(cs[cN].classFileLength));
-	cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
-	analyzeClass(&cs[cN]);	
-	addr+=cs[cN].classFileLength+4;
-	printf("application class: %x loaded\n",cN);	}
+addr+=4; // after numclasses
+for (;cN<numClasses;cN++)	{
+getCharsFromFlash(addr,4,buf);
+sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
+cs[cN].classFileStartAddress=addr+4;	// after length of class
+analyzeClass(&cs[cN]);
+addr+=cs[cN].classFileLength+4;
+printf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
+}
+
 DEBUGPRINTHEAP;
 }
 

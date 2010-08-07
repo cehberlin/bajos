@@ -60,11 +60,11 @@ char currentTimeMillis()	{
 /* added 2009 by: Friedrich Große & Rainer Kirchhoff, FHW-BA Berlin*/
 /* Deutsche Post IT-Services GmbH & MSA Auer GmbH*/
 char nativeConStat() {
-	opStackPush((slot) (u4)  0);//((UCSR0A>>RXC0)&0x01));	
+	opStackPush((slot) (u4)  ((UCSR0A>>RXC0)&0x01));	
 	return 1;
 }
 
-char nativeSetPort() {
+char nativeSetData() { //sdram
 	/*Get possible 16-Bit adr.*/
 	u2 portAddr = opStackGetValue(local+1).bytes[0];
 	portAddr |= (opStackGetValue(local+1).bytes[1]<<8);
@@ -75,7 +75,7 @@ char nativeSetPort() {
 	return 0;
 }
 
-char nativeGetPort() {
+char nativeGetData() { //sdarm
 	/*Get possible 16-Bit adr.*/
 	u2 portAddr = opStackGetValue(local+1).bytes[0];
 	portAddr |= opStackGetValue(local+1).bytes[1]<<8;
