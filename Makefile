@@ -1,3 +1,4 @@
+#trampoline,linkerscript 
 # Hey -  this is a -*- makefile -*- -> for BAJOS
 # FHW/Fachbereich Berufsakademie (BA) - Java Operating System for Microcontroller
 # atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
@@ -66,8 +67,8 @@ AVR8INC		=
 AVR32ROOT	= /usr/bin/
 AVR32BIN 	= $(AVR32DIR)
 #AVR32INC	= $(AVR32ROOT)INCLUDES
-AVR32UC3AINC	= $(APPPATH)AVR32UC3AINC
-AVR32AP7000INC	= $(APPPATH)AVR32AP7000INC
+#AVR32UC3AINC	= $(APPPATH)AVR32UC3AINC
+#AVR32AP7000INC	= $(APPPATH)AVR32AP7000INC
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # JAVA-SOURCES AND TARGETS
@@ -139,23 +140,24 @@ BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
 AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
 		$(APPPATH)AVR8/thermo.c $(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
-UC3ASOURCES 	= $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c \
-		$(APPPATH)EVK1100/rtcuc3a.c $(APPPATH)EVK1100/pwm.c \
+UC3ASOURCES 	= $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
+		$(APPPATH)EVK1100/rtc.c $(APPPATH)EVK1100/pwm.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
-		$(APPPATH)EVK1100/gpiouc3a.c $(APPPATH)EVK1100/adc.c\
-		$(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c \
+		$(APPPATH)EVK1100/gpio.c $(APPPATH)EVK1100/adc.c\
+		$(APPPATH)EVK1100/flashc.c $(APPPATH)EVK1100/usart.c \
 		$(APPPATH)EVK1100/sdramc.c $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c
-AP7000SOURCES	= $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
-NGW100SOURCES	= $(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c \
-		$(APPPATH)NGW100/platform.c $(APPPATH)NGW100/native.c
-STK1000SOURCES	= $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
+NGW100SOURCES	= $(APPPATH)NGW100/pio.c  $(APPPATH)NGW100/gpiongw100.c \
+		$(APPPATH)NGW100/hsdramc.c \
+		$(APPPATH)NGW100/usart.c \
+		$(APPPATH)NGW100/platform.c  $(APPPATH)NGW100/native.c
+STK1000SOURCES	= $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/usart.c\
 		$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c \
 		$(APPPATH)STK1000/ltv350qv.c \
 		$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
 		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
-ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
+ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
@@ -292,16 +294,16 @@ endif #linux avr32-linux
 ifeq  ($(TARGETHW), evk1100)
 OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
 CC		= $(AVR32BIN)avr32-gcc
-ARCH		= uc
+ARCH		= ucr1
 # Part: {none|ap7xxx|uc3xxxxx}
-PART		= uc3a0512
+#PART		= uc3a0512
+PART = uc3a0512es
 # Flash memories: [{cfi|internal}@address,size]...
 FLASH		= internal@0x80000000,512Kb
 # Clock source to use when programming: [{xtal|extclk|int}]
 PROG_CLOCK	= xtal
 DEFS		= -D BOARD=EVK1100
-# Include path
-INC_PATH	= $(AVR32UC3AINC)
+
 # Linker script file if any
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
@@ -322,9 +324,9 @@ CPPFLAGS	= -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEF
 
 #CC        = avr32-gcc
 CFLAGS		= $(DEBUGGEN) $(OPTIMIZATION) $(C_EXTRA_FLAGS) \
-		$(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+		$(PLATFORM_INC_PATH:%=-Wa,-I%)  $(AS_EXTRA_FLAGS)
 ASFLAGS		= $(DEBUGGEN) \
-		$(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+		$(PLATFORM_INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
 LDFLAGS		= -march=$(ARCH) -mpart=$(PART) \
 		$(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
 LOADLIBES	= -lc
@@ -376,13 +378,20 @@ endif
 
 
 ifeq  ($(TARGETHW), ngw100)
-OBJFILES	= $(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(NGW100SOURCES:.c=.o) 
+OBJFILES	=  $(BAJOSSOURCES:.c=.o) $(NGW100SOURCES:.c=.o) 
 PLATFORM	= NGW100
+
+all:	clean compile  bootclasses program
+
 endif
 
 ifeq  ($(TARGETHW), stk1000)
-OBJFILES	= $(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o) 
+OBJFILES	=  $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o) 
 PLATFORM	= STK1000
+
+all:	clean compile  bootclasses bootgraphic  program logo
+
+
 endif
 
 ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
@@ -420,11 +429,10 @@ $(TARGETFILE): 	$(OBJFILES)
 # Compile: create object files from C source files.
 %.o: %.c	
 	@echo $(MSG_COMPILING)
-	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
+	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -o $@ $<
 	@echo
 
 
-all:	clean compile  bootclasses bootgraphic  program logo
 
 #program your avr32 device
 logo:
@@ -440,9 +448,10 @@ program:
 	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
 	sleep 2
 	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R mytemp
-	sleep 3 
 	@rm mytemp
-	$(VERBOSE_CMD) $(PROGRAM)   run
+
+
+#	$(VERBOSE_CMD) $(PROGRAM)   run
 endif
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
@@ -662,6 +671,15 @@ A:
 
 #	$(APPCLASSPATH)/Aparent.class
 
+NGW:
+	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/NGW.class 
+
+#	$(APPCLASSPATH)/Aparent.class
+
+compNGW:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/NGW.java
+
+
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
 	
@@ -743,6 +761,14 @@ PC:
 compPC:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/ProducerConsumer.java
+
+ADC:	 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/ADC.class
+
+compADC:
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+		$(APPCLASSPATH)/ADC.java
+
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES

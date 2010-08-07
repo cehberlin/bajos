@@ -23,12 +23,13 @@
 //bh
 #define NULL 0
 #define uint32_t unsigned int
-#include <asm/io.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/memory-map.h>
+#include <avr32/io.h>
+#include "gpio.h"
+#include "memory-map.h"
 
 #include "pio2.h"
-
+#define __raw_writel(v,a)       (*(volatile unsigned int   *)(a) = (v))
+#define writel(v,a)          __raw_writel(v,a)
 void gpio_select_periph_A(unsigned int pin, int use_pullup)
 {
 	void *base = gpio_pin_to_addr(pin);

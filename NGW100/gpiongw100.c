@@ -21,9 +21,9 @@
  */
 //#include <common.h>
 #define NULL 0
-#include <asm/arch/chip-features.h>
-#include <asm/arch/gpio.h>
-
+#include "chip-features.h"
+#include "gpio.h"
+#include "pio.h"
 /*
  * Lots of small functions here. We depend on --gc-sections getting
  * rid of the ones we don't need.
@@ -142,3 +142,55 @@ void gpio_enable_mmci(void)
 	gpio_select_periph_A(GPIO_PIN_PA15, 0);	/* DATA3 */
 }
 #endif
+
+void pio_enable_module(avr32_piomap_t piomap, int size)
+{
+	int i;
+
+	for(i=0; i<size; i++){
+		pio_setup_pin(**piomap, *(*piomap+1) );
+		piomap++;
+	}
+}
+
+int pio_setup_pin(int pin, int function)
+{
+	volatile avr32_pio_t *pio = pioGetHandle(pin/32);
+
+
+	/* Disable pio control */
+	pio->pdr |= (1<<(pin%32));
+	pio->pudr |= (1<<(pin%32));
+
+	/* Enable the correct function */
+	switch(function){
+		case 0:
+			pio->asr |= (1<<(pin%32));
+			break;
+		case 1:
+			pio->bsr |= (1<<(pin%32));
+			break;
+		default:
+			return PIO_INVALID_ARGUMENT;
+	}
+	return PIO_SUCCESS;
+}
+
+volatile avr32_pio_t *pioGetHandle(int port)
+{
+	switch (port) {
+		case 0:
+			return &AVR32_PIOA;
+		case 1:
+			return &AVR32_PIOB;
+		case 2:
+			return &AVR32_PIOC;
+		case 3:
+			return &AVR32_PIOD;
+		case 4:
+			return &AVR32_PIOE;
+		default :
+			break;
+	}
+        return (avr32_pio_t *) -1;
+}

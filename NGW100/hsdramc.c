@@ -22,16 +22,25 @@
 //bh#include <common.h>
 //#define CFG_HSDRAMC
 //#ifdef CFG_HSDRAMC
-#include <configs/atngw100.h>
-#include <asm/io.h>
-#include <asm/sdram.h>
+#include "atngw100.h"
+#include <avr32/io.h>
+#include "sdram.h"
 
-#include <asm/arch/clk.h>
-#include <asm/arch/memory-map.h>
-#include <asm/io.h>
+#include "clk.h"
+#include "memory-map.h"
+//#include <asm/io.h>
 #include <stdlib.h>
 
 #include "hsdramc1.h"
+static void sdram_delay(int us);
+#define __raw_readl(a)          (*(volatile unsigned int   *)(a))
+#define readl(a)              __raw_readl(a)
+#define __raw_writel(v,a)       (*(volatile unsigned int   *)(a) = (v))
+#define writel(v,a)          __raw_writel(v,a)
+#define P2SEG              0xa0000000
+#define P2SEGADDR(a) ((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | P2SEG))
+
+#define uncached(addr) ((void *)P2SEGADDR(addr))
 
 unsigned long sdram_init(const struct sdram_info *info)
 {
@@ -69,8 +78,8 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 * 1. A minimum pause of 200 us is provided to precede any
 	 *    signal toggle.
 	 */
-	udelay(200);
-
+//	udelay(200);
+sdram_delay(200);
 	/*
 	 * 2. A Precharge All command is issued to the SDRAM
 	 */
@@ -141,3 +150,13 @@ unsigned long sdram_init(const struct sdram_info *info)
 }
 
 //#endif /* CFG_HSDRAMC */
+
+static void sdram_delay(int us)
+{
+  int i, loop_limit;
+
+  loop_limit = us * 20;
+
+  for (i=0; i<loop_limit;i++);
+
+}

@@ -123,7 +123,6 @@ typedef unsigned long long u_longlong;
 /*! \brief Void pointer */
 typedef void * HANDLE;
 
-#define DEBUG
 
 #ifdef DEBUG
   #define dbg_printf	printf

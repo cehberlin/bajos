@@ -1,5 +1,6 @@
-/* ************************************************************************ *\
 
+// a bad and ugly hack!!
+/* ************************************************************************ *\
 Copyright (c) 2006, Atmel Corporation All rights reserved. 
 
 Redistribution and use in source and binary forms, with or without
@@ -32,24 +33,66 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. 
 
 \* ************************************************************************ */
- 
 #include <avr32/io.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "compiler.h"
-#include <asm-avr32/arch-at32ap700x/gpio.h>
-#include <pm.h>
-#include <../AVR32AP7000/usartap7000.h>
+#include "pio.h"
+#include "usart.h"
+#include "sdram.h"
 #include "hsdramc1.h"
-#include <asm/io.h>
-#include <asm/sdram.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/hmatrix2.h>
+#include "hmatrix2.h"
+#include "platform.h"
+
+#define __raw_writel(v,a)       (*(volatile unsigned int   *)(a) = (v))
+#define writel(v,a)               __raw_writel(v,a)
+#define HMATRIX_BASE                               0xFFF00800
+#define __raw_readl(a)          (*(volatile unsigned int   *)(a))
+#define readl(a)              __raw_readl(a)
+#define P2SEG              0xa0000000
+#define P2SEGADDR(a) ((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | P2SEG))
+#define uncached(addr) ((void *)P2SEGADDR(addr))
+
 #include "../definitions.h"
 
-unsigned long sdram_init(const struct sdram_info *info);
+void initHW(){
+usartInit();
+stdIOInit();
 
+static const struct sdram_info sdram = {
+	.phys_addr	= NGW_SDRAM_BASE,
+	.row_bits	= 13,
+	.col_bits	= 9,
+	.bank_bits	= 2,
+	.cas		= 3,
+	.twr		= 2,
+	.trc		= 7,
+	.trp		= 2,
+	.trcd		= 2,
+	.tras		= 5,
+	.txsr		= 5,		};
+
+/*
+static const struct sdram_info sdram = {
+	.physical_address	= NGW_SDRAM_BASE,
+	.rows	= 13,
+	.cols	= 9,
+	.banks	= 2,
+	.cas		= 3,
+	.twr		= 2,
+	.trc		= 7,
+	.trp		= 2,
+	.trcd		= 2,
+	.tras		= 5,
+	.txsr		= 5,
+};
+*/
+//MT481C2M16B2TG SDRAM 
+
+	hmatrix2_writel(SFR4, 1 << 1);
+	gpio_enable_ebi();
+sdram_init(&sdram);
+}
 
 char conIn()	{
 return (char) usart_getchar(&AVR32_USART1);
@@ -61,14 +104,11 @@ void conOut(char c)	 {
 usart_bw_write_char(&AVR32_USART1, (int) c);
 }
 
-int __attribute__((weak
-)) _read (int file, char * ptr, int len){
+int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
 //if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
 //if (file != 0)return unimplemented_syscall("_read with filedes != 0");
-for ( i = 0; i < len; i++ ){
-ptr[i] = (char)conIn();
-}
+for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
 return len;
 }
 
@@ -96,25 +136,16 @@ if (ptr[i]=='\n') conOut('\r');
 return len;
 } 
 
-
 void stdIOInit()	{	
 //To configure standard I/O streams as unbuffered, you can simply:
 setbuf(stdin, NULL);
 setbuf(stdout, NULL); 
 }
 
-
-typedef unsigned char avr32_piomap_t[][2];
-
-/* enable output on pins */
-int pio_enable_module(avr32_piomap_t piomap, unsigned int size);
-
 void usartInit()	{
 int cpu_hz = 20000000;
   struct usart_options_t opt;
-
   volatile struct avr32_usart_t *usart = &AVR32_USART1;
-
   avr32_piomap_t usart_piomap = {				   \
     {AVR32_USART1_RXD_0_PIN, AVR32_USART1_RXD_0_FUNCTION}, \
     {AVR32_USART1_TXD_0_PIN, AVR32_USART1_TXD_0_FUNCTION}   \
@@ -126,102 +157,9 @@ int cpu_hz = 20000000;
   opt.paritytype = USART_NO_PARITY;
   opt.stopbits = USART_1_STOPBIT;
   opt.channelmode = USART_NORMAL_CHMODE;
-
+//pm_reset();
   // Initialize it in RS232 mode
   usart_init_rs232(usart, &opt, cpu_hz);
-
-  // Setup pio for USART
-  pio_enable_module(usart_piomap, 2);
+pio_enable_module(usart_piomap,
+                      sizeof(usart_piomap) / sizeof(usart_piomap[0]));
 }
-
-
-int pio_enable_module(avr32_piomap_t piomap, unsigned int size)
-{
-  int i;
-  volatile struct avr32_pio_t *pio;
-
-  /* get the base address for the port */
-  switch (**piomap/32) {
-
-  case 0:
-    pio = &AVR32_PIOA;
-    break;
-  case 1:
-    pio = &AVR32_PIOB;
-    break;
-  case 2:
-    pio = &AVR32_PIOC;
-    break;
-  case 3:
-    pio = &AVR32_PIOD;
-    break;
-  case 4:
-    pio = &AVR32_PIOE;
-    break;
-  default :
-    return FAILURE;
-
-  }
-
-  for(i=0; i<size; i++){
-
-    pio->pdr |= ( 1<<( (**piomap) % 32) );
-    pio->pudr |= ( 1<<( (**piomap) % 32) );
-
-    switch( *(*piomap+1) ){    
-    case 0:
-      pio->asr |= ( 1<<( (**piomap) % 32) );
-      break;
-    case 1:
-      pio->bsr |= ( 1<<( (**piomap) % 32) );
-      break;
-    default:
-      return FAILURE;
-    }
-
-    ++piomap;
-
-  }
-  
-  return SUCCESS;
-}
-
-
-
-void initHW(){
-usartInit();
-stdIOInit();
-
-
-
-
-static const struct sdram_info sdram = {
-	.phys_addr	= NGW_SDRAM_BASE,
-	.row_bits	= 13,
-	.col_bits	= 9,
-	.bank_bits	= 2,
-	.cas		= 3,
-	.twr		= 2,
-	.trc		= 7,
-	.trp		= 2,
-	.trcd		= 2,
-	.tras		= 5,
-	.txsr		= 5,
-};
-	hmatrix2_writel(SFR4, 1 << 1);
-
-	gpio_enable_ebi();
-	gpio_enable_usart1();
-#define CONFIG_MACB
-#define CONFIG_MMC
-#if defined(CONFIG_MACB)
-	gpio_enable_macb0();
-	gpio_enable_macb1();
-#endif
-#if defined(CONFIG_MMC)
-	gpio_enable_mmci();
-#endif
-sdram_init(&sdram);
-}
-
-
