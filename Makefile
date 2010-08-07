@@ -1,7 +1,8 @@
-# Hey -  this is a -*- makefile -*-
-# for atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
+# Hey -  this is a -*- makefile -*- -> for BAJOS
+# FHW/Fachbereich Berufsakademie (BA) - Java Operating System for Microcontroller
+# atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
 # goals
-# avr8 evk1100 ngw100 stk1000 linux avr32-linux
+# avr8 linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
 # avr8 debug
 # ...
 # avr8 dump
@@ -29,107 +30,143 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK COMMAND LINE
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
-#$(if   $(filter avr8 linux uc3a ap7000 clean A,$(MAKECMDGOALS)), ,$(error wrong command line))
-TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS))
-ifdef $TARGETHW
-ifneq "1"  "$(words $(TARGETHW))"
+$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100  java clobber,$(MAKECMDGOALS)), ,$(error wrong command line))
+
+java:
+	@:
+
+ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux clobber java,$(MAKECMDGOALS)))"
 $(error only one target hardware accepted)
 endif
-endif
-
+	
+TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS))
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # ENVIRONMENT SETTINGS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 #the serial communication lines
 TTY		= /dev/ttyS0
+# C paths
+APPPATH 	= ./
+AVR8ROOT	=
+AVR32ROOT	= /usr/bin/
+AVR32BIN 	= $(AVR32DIR)
+#AVR32INC	= $(AVR32ROOT)INCLUDES
+AVR32UC3AINC	= $(APPPATH)AVR32UC3AINC
+AVR32AP7000INC	= $(APPPATH)AVR32AP7000INC
 
-APPPATH = ./
 
-AVR8ROOT=
-AVR32ROOT=/usr/bin/
-AVR32BIN = $(AVR32DIR)
-#AVR32INC = $(AVR32ROOT)INCLUDES
-AVR32UC3AINC = $(APPPATH)AVR32UC3AINC
-AVR32AP7000INC = $(APPPATH)AVR32AP7000INC
-# java-files
-CLASSPATH = $(APPPATH)
-APPCLASSPATH = $(CLASSPATH)javatests
-BOOTCLASSPATH=${CLASSPATH}BAJOSBOOT/classes/
-LANG= ${BOOTCLASSPATH}java/lang
-IO=${BOOTCLASSPATH}java/io
-UTIL= ${BOOTCLASSPATH}java/util
-PLATFORM= ${BOOTCLASSPATH}platform
+# ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
+# JAVA-SOURCES AND TARGETS
+# ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
+# java paths
+CLASSPATH	= $(APPPATH)
+APPCLASSPATH	= $(CLASSPATH)javatests
+BOOTCLASSPATH	= ${CLASSPATH}BAJOSBOOT/classes/
+LANG		= ${BOOTCLASSPATH}java/lang
+IO		= ${BOOTCLASSPATH}java/io
+UTIL		= ${BOOTCLASSPATH}java/util
+JPLATFORM	= ${BOOTCLASSPATH}platform
+GRAPHICS	= ${BOOTCLASSPATH}java/graphics
 
-BOOTSOURCES = $(LANG)/String.class $(LANG)/StringBuffer.java $(LANG)/System.java  $(LANG)/Thread.java $(LANG)/Math.java $(LANG)/Throwable.java $(LANG)/Exception.java  $(LANG)/Object.java $(LANG)/Error.java $(LANG)/ArithmeticException.java  $(LANG)/ClassCastException.java $(LANG)/Integer.java $(LANG)/StringBuilder.java \ $(LANG)/Runtime.java $(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \ $(PLATFORM)/PlatForm.java $(IO)/OutStream.java $(IO)/InStream.java \
-${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java 	${GRAPHICS}/DisplayZBuffer.java \
-${GRAPHICS}/Point.java ${GRAPHICS}/Font.java 
+# java system sources
+BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
+			$(LANG)/String.class $(LANG)/StringBuffer.java \
+			$(LANG)/StringBuilder.java \
+			$(LANG)/Object.java $(LANG)/System.java \
+			$(LANG)/Thread.java $(LANG)/Throwable.java \
+			$(LANG)/Math.java $(LANG)/Float.java \
+			$(LANG)/Integer.java $(UTIL)/Random.java \
+			$(LANG)/Exception.java  $(LANG)/Error.java \
+			$(LANG)/ArithmeticException.java $(LANG)/ClassCastException.java \
+			$(LANG)/ArrayIndexOutOfBoundsException.java \
+			$(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \
+			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
+			$(UTIL)/Collection.java $(UTIL)/List.java \
+			$(UTIL)/RandomAccess.java \
+			$(UTIL)/Stack.java $(UTIL)/Vector.java \
+			$(LANG)/Runtime.java \
+			$(IO)/OutStream.java $(IO)/InStream.java \
+			${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
+			${GRAPHICS}/DisplayZBuffer.java ${GRAPHICS}/DisplayKonstanten.java \
+			${GRAPHICS}/Point.java ${GRAPHICS}/Font.java \
+			${GRAPHICS}/Line.java ${GRAPHICS}/Polyline.java \
+			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
 
-BOOTCLASSES = $(BOOTSOURCES:.java=.class)
 
+#${LANG}/CharSequence.java $(LANG)/StringUtils.java 
+
+BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
+
+BOOTPACK = mbc
+#java binaries and flags
+JAVACOMP		= javac
+JAVACOMPFLAGS		= -g:none -source 1.4 -verbose
+JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/classes -extdirs .
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # C-SOURCES AND TARGETS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-BAJOSSOURCES=bajvm.c classfile.c interpreter.c heap.c stack.c native.c scheduler.c platform.c
-AVR8SOURCES=$(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c
-UC3ASOURCES = $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c $(APPPATH)EVK1100/rtcuc3a.c\
-$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c $(APPPATH)EVK1100/gpiouc3a.c\
-$(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c $(APPPATH)EVK1100/sdramc.c iobinding.c
-AP7000SOURCES= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
-NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
+BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c native.c \
+		  scheduler.c platform.c
+AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c
+UC3ASOURCES 	= $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c \
+		$(APPPATH)EVK1100/rtcuc3a.c \
+		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
+		$(APPPATH)EVK1100/gpiouc3a.c \
+		$(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c \
+		$(APPPATH)EVK1100/sdramc.c iobinding.c
+AP7000SOURCES	= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
+NGW100SOURCES	= $(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
+STK1000SOURCES	= $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
+		$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c \
+		$(APPPATH)STK1000/ltv350qv.c \
+		$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
+		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
+		$(APPPATH)STK1000/bmplib.c
 
-STK1000SOURCES=$(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
-$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c $(APPPATH)STK1000/ltv350qv.c \
-$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
-$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
-$(APPPATH)STK1000/bmplib.c
+ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
 
-# verrückt
-ASSSOURCESUC3A =  $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
+TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
-TARGET		=  $(basename $(call FirstWord,$(BAJOSSOURCES)))
-TGTTYPE   = $(suffix $(TARGET))
-TGTFILE   = $(TARGET)
 #$(PART)-$(TARGET)
-LSS       = $(TGTFILE:$(TGTTYPE)=.lss)
-SYM       = $(TGTFILE:$(TGTTYPE)=.sym)
-HEX       = $(TGTFILE:$(TGTTYPE)=.hex)
-BIN       = $(TGTFILE:$(TGTTYPE)=.bin)
+LSS		= $(TARGETFILE:$(TGTTYPE)=.lss)
+SYM		= $(TARGETFILE:$(TGTTYPE)=.sym)
+HEX		= $(TARGETFILE:$(TGTTYPE)=.hex)
+BIN		= $(TARGETFILE:$(TGTTYPE)=.bin)
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-# BINARIES
+# BINUTILS-BINARIES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-RM        = rm -Rf
+RM		= rm -Rf
 ifeq ($(findstring avr8,$(MAKECMDGOALS)),avr8)
-OBJDUMP	= $(AVR8ROOT)avr-objdump
-OBJCOPY	= $(AVR8ROOT)avr-objcopy
-SIZE    = $(AVR8ROOT)avr-size
+OBJDUMP		= $(AVR8ROOT)avr-objdump
+OBJCOPY		= $(AVR8ROOT)avr-objcopy
+SIZE		= $(AVR8ROOT)avr-size
 else
-OBJDUMP	= $(AVR32BIN)avr32-objdump
-OBJCOPY	= $(AVR32BIN)avr32-objcopy
-SIZE    = $(AVR32BIN)avr32-size
-PROGRAM	=$(AVR32BIN)avr32program
+OBJDUMP		= $(AVR32BIN)avr32-objdump
+OBJCOPY		= $(AVR32BIN)avr32-objcopy
+SIZE		= $(AVR32BIN)avr32-size
+PROGRAM		= $(AVR32BIN)avr32program
 endif
-
-SLEEP     = sleep
-SLEEPUSB  = 9
+SLEEP		= sleep
+SLEEPUSB	= 9
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 #  SOME FLAGS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-DEBUGGEN=$(if $(filter debug ,$(MAKECMDGOALS)), -DDEBUG,)
-ISPFLAGS  = -device at32$(PART) -hardware usb -operation
+DEBUGGEN	= $(if $(filter debug ,$(MAKECMDGOALS)), -DDEBUG,)
+ISPFLAGS	= -device at32$(PART) -hardware usb -operation
 
 # Display main executed commands.
 ifneq ($(findstring verbose,$(MAKECMDGOALS)),verbose)
 # Prefix displaying the following command if and only if verbose is a goal.
-VERBOSE_CMD = @
+VERBOSE_CMD	= @
 # New line displayed if and only if verbose is a goal.
-VERBOSE_NL  =
+VERBOSE_NL	=
 else
-VERBOSE_CMD = 
-VERBOSE_NL  = @echo
+VERBOSE_CMD	= 
+VERBOSE_NL	= @echo
 verbose:
 	@:
 endif
@@ -138,21 +175,22 @@ endif
 # THE RULES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 ifeq  ($(TARGETHW), avr8)
-OBJFILES  = $(BAJOSSOURCES:.c=.o) $(AVR8SOURCES:.c=.o)
-ARCH = AVR5
-PART=atmega128
-CC = $(AVR8ROOT)avr-gcc
+OBJFILES	= $(BAJOSSOURCES:.c=.o) $(AVR8SOURCES:.c=.o)
+ARCH		= AVR5
+PART		= atmega128
+CC		= $(AVR8ROOT)avr-gcc
 TEXTSEGMENT	= 0x100
 STACKSEGMENT	= 0x4000
 .PHONY: avr8
 	@:
+
 avr8:	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC}	 $(filter %.o,$+)     -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$(TGTFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
 	@echo $(MSG_BINARY_IMAGE)
-	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TGTFILE)  $(BIN)
-		@${CC} --version
+	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
+	@${CC} --version
 #		@rm ${EXE}
 # -Wl,-u,vfprintf -lprintf_flt
 
@@ -161,25 +199,30 @@ avr8:	${OBJFILES}
 	$(VERBOSE_CMD) ${CC}	-c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
 endif
 
-
 ifeq  ($(TARGETHW), linux)
-CC = gcc
+CC		= gcc
 endif
 
 ifeq  ($(TARGETHW), avr32-linux)
-CC=avr32-linux-gcc
-CPPFLAGS+=-DAVR32LINUX
+CC		= avr32-linux-gcc
+CPPFLAGS+	= -DAVR32LINUX
 endif
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
-#ifeq  ($(TARGETHW), linux) 
-OBJFILES  = $(BAJOSSOURCES:.c=.o)
-avr32-linux:	linux
+OBJFILES	= $(BAJOSSOURCES:.c=.o)
 
-linux:	${OBJFILES}
+
+$(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$(TGTFILE) 
-	
+	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$(TARGETFILE) 
+
+avr32-linux:	$(TARGETFILE)
+	@:
+
+linux:		$(TARGETFILE)
+	@:
+
+
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
 	@echo $(MSG_COMPILING)
@@ -189,59 +232,51 @@ linux:	${OBJFILES}
 endif
 
 
-
-
-
-
 ifeq  ($(TARGETHW), evk1100)
 OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
-CC=$(AVR32BIN)avr32-gcc
-ARCH = uc
+CC		= $(AVR32BIN)avr32-gcc
+ARCH		= uc
 # Part: {none|ap7xxx|uc3xxxxx}
-PART = uc3a0512
+PART		= uc3a0512
 # Flash memories: [{cfi|internal}@address,size]...
-FLASH = internal@0x80000000,512Kb
+FLASH		= internal@0x80000000,512Kb
 # Clock source to use when programming: [{xtal|extclk|int}]
-PROG_CLOCK = xtal
-DEFS = -D BOARD=EVK1100
+PROG_CLOCK	= xtal
+DEFS		= -D BOARD=EVK1100
 # Include path
-INC_PATH = $(AVR32UC3AINC)
+INC_PATH	= $(AVR32UC3AINC)
 # Linker script file if any
-LINKER_SCRIPT = $(APPPATH)EVK1100/link_uc3a0512.lds
+LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
-WARNINGS = -Wall
+WARNINGS	= -Wall
 # Options for debugging: [-g]...
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
-DEBUG = -g
+DEBUG		= -g
 # Options that control optimization: [-O[0|1|2|3|s]]...
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
-OPTIMIZATION = -O0 -ffunction-sections -fdata-sections
+OPTIMIZATION	= -O0 -ffunction-sections -fdata-sections
 # Extra flags to use when linking
 #LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
-LD_EXTRA_FLAGS = -Wl,--gc-sections  -Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline
 
-CPPFLAGS  = -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
+CPPFLAGS	= -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
             $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
 
 #CC        = avr32-gcc
-CFLAGS    = $(DEBUGGEN) $(OPTIMIZATION) $(C_EXTRA_FLAGS) \
-            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
-
-ASFLAGS   = $(DEBUGGEN) \
-            $(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
-
-LDFLAGS   = -march=$(ARCH) -mpart=$(PART) \
-            $(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
-
-LOADLIBES = -lc
-LDLIBS    = $(LIBS:%=-l%)
-
+CFLAGS		= $(DEBUGGEN) $(OPTIMIZATION) $(C_EXTRA_FLAGS) \
+		$(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+ASFLAGS		= $(DEBUGGEN) \
+		$(PLATFORM_INC_PATH:%=-Wa,-I%) $(INC_PATH:%=-Wa,-I%) $(AS_EXTRA_FLAGS)
+LDFLAGS		= -march=$(ARCH) -mpart=$(PART) \
+		$(LIB_PATH:%=-L%) $(LINKER_SCRIPT:%=-T%) $(LD_EXTRA_FLAGS)
+LOADLIBES	= -lc
+LDLIBS		= $(LIBS:%=-l%)
 
 .PHONY:	evk1100
 evk1100: $(OBJFILES)
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $(TGTFILE)
+	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $(TARGETFILE)
 	$(VERBOSE_NL)
 
 # Preprocess, compile & assemble: create object files from C source files.
@@ -260,60 +295,61 @@ evk1100: $(OBJFILES)
 
 # Program MCU memory from ELF output file.
 .PHONY: program
-program: $(TGTFILE)
+program: $(TARGETFILE)
 	@echo
 	@echo $(MSG_PROGRAMMING)
-	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TGTFILE)
+	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R $(BOOTPACK)
-
-ifneq ($(call LastWord,$(filter cpuinfo chiperase program secureflash debug readregs,$(MAKECMDGOALS))),program)
+	cat $(BOOTCLASSES) > mytemp$(PPID)
+	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp$(PPID)
+	rm mytemp$(PPID)
+	ifneq ($(call LastWord,$(filter cpuinfo chiperase program secureflash debug readregs,$(MAKECMDGOALS))),program)
 	@$(SLEEP) $(SLEEPUSB)
-else
+	else
 	@echo
+	endif
 endif
-endif
+# endif evk1100
+#	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  #-finternal@0x80000000,512Kb -cxtal -e -v -R $(BOOTPACK)
 
 
 ifeq  ($(TARGETHW), ngw100)
-
-OBJFILES=$(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(NGW100SOURCES:.c=.o) 
-PLATFORM=NGW100
+OBJFILES	= $(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(NGW100SOURCES:.c=.o) 
+PLATFORM	= NGW100
 endif
 
 ifeq  ($(TARGETHW), stk1000)
-OBJFILES=$(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o) 
-PLATFORM=STK1000
+OBJFILES	= $(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o) 
+PLATFORM	= STK1000
 endif
 
-
-
- 
 ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
-CC=$(AVR32BIN)avr32-gcc
-MCPU = ap7000
-CC_FLAGS =  -Wall -c  -mcpu=$(MCPU) -O$(OPT) 
+CC		= $(AVR32BIN)avr32-gcc
+MCPU		= ap7000
+CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT) 
 # -Werror -g
-ARCH = ap
+ARCH		= ap
 # Part: {none|ap7xxx|uc3xxxxx}
-PART = ap7000
-LD_FLAGS   = -march=$(ARCH) -mpart=$(PART)
+PART		= ap7000
+LD_FLAGS	= -march=$(ARCH) -mpart=$(PART)
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
-OPT = 2
+OPT		= 2
 # Set your target processor
 
-# Link: create ELF output file from object files.
-ngw100:	ap7000
+# Link: create ELF output file from object files
+ngw100: $(TARGETFILE)
+	@:
 
-stk1000: ap7000
+stk1000: $(TARGETFILE)
+	@:
 
-ap7000:	$(OBJFILES) 
+$(TARGETFILE): 	$(OBJFILES)
 	@echo $(MSG_LINKING)
-	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $(TGTFILE)
+	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $(TARGETFILE)
 	@echo
 	@echo $(MSG_BINARY_IMAGE)
-	$(OBJCOPY) -O binary $(TGTFILE)  $(TGTFILE).bin
+	$(OBJCOPY) -O binary $(TARGETFILE)  $(TARGETFILE).bin
 	@echo
 
 # Compile: create object files from C source files.
@@ -329,30 +365,40 @@ all:
 	$(MAKE) program
 
 #program your avr32 device
+logo:
+	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x700000  -f@0x00700000,512Kb  -e -v -R STK1000/logo.bmp
+
 .PHONY: program
 program:	
 	$(VERBOSE_CMD) $(PROGRAM)   $(JTAG_PORT)  halt
 	sleep 3
-	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TGTFILE).bin
+	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TARGETFILE).bin
+	@printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
+	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R $(BOOTPACK)
+	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R mytemp
 	sleep 3 
+	@rm mytemp
 	$(VERBOSE_CMD) $(PROGRAM)   run
 endif
-
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # COMMON MAKE RULES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # Clean up the project.
 .PHONY: clean
+
+.PHONY: clobber
+
+clobber: clean
+
 clean:
 	@echo $(MSG_CLEANING)
 	-$(VERBOSE_CMD)$(RM) $(BIN)
 	-$(VERBOSE_CMD)$(RM) $(HEX)
 	-$(VERBOSE_CMD)$(RM) $(SYM)
 	-$(VERBOSE_CMD)$(RM) $(LSS)
-	-$(VERBOSE_CMD)$(RM) $(TGTFILE)
+	-$(VERBOSE_CMD)$(RM) $(TARGETFILE)
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM) *.o
 	-$(VERBOSE_CMD)$(RM) */*.o
@@ -361,7 +407,7 @@ clean:
 
 # Rebuild the project.
 .PHONY: rebuild
-rebuild: clean $(TGTFILE)
+rebuild: clean $(TARGETFILE)
 
 # Display CC version information.
 .PHONY: ccversion
@@ -376,7 +422,7 @@ lss: $(LSS)
 
 # Display target size information.
 .PHONY: sizes
-sizes: $(TGTFILE)
+sizes: $(TARGETFILE)
 	@echo
 	@echo
 ifeq ($(TGTTYPE),.a)
@@ -489,16 +535,16 @@ else
 endif
 
 # Create extended listing from target output file.
-$(LSS): $(TGTFILE)
+$(LSS): $(TARGETFILE)
 	@echo $(MSG_EXTENDED_LISTING)
 	$(VERBOSE_CMD)$(OBJDUMP) -h -S $< > $@
 	$(VERBOSE_NL)
 
 ifeq ($(TGTTYPE),.elf)
 # Create binary image from ELF output file.
-$(BIN): $(TGTFILE)
+$(BIN): $(TARGETFILE)
 	@echo $(MSG_BINARY_IMAGE)
-	$(VERBOSE_CMD)$(OBJCOPY) -O binary $< $(TGTFILE)
+	$(VERBOSE_CMD)$(OBJCOPY) -O binary $< $(TARGETFILE)
 	$(VERBOSE_NL)
 endif
 
@@ -531,386 +577,99 @@ debug:
 # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-JAVACOMP			=javac
-JAVACOMPFLAGS		=-g:none -source 1.4 -verbose
-JAVACOMPBOOTCLASSES	=-bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/classes -extdirs .
 
-GRAPHICS= ${BOOTCLASSPATH}java/graphics
-
-packer: packer.c
-	g++ packer.c -o packer
-
-$(BOOTCLASSES): $(BOOTSOURCES)
-	make -f BAJOSBOOT/makefile
+#$(BOOTCLASSES): $(BOOTSOURCES)
+#	make -f BAJOSBOOT/makefile
 
 $(BOOTPACK): packer $(BOOTCLASSES)
 	./packer $(BOOTPACK) $(BOOTCLASSES)
 
-
+packer: packer.c
+	g++ packer.c -o packer
+# examples 
+# make java A
+# make java compA
 
 A:
-	./$(TARGET)   $(BOOTCLASSES) \
-		$(APPCLASSPATH)/A.class \
-		$(APPCLASSPATH)/Aparent.class
+	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/A.class 
+
+
+#	$(APPCLASSPATH)/Aparent.class
 
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
-
 	
 AA:
-	./$(TARGET)   ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-	$(APPCLASSPATH)/AA.class 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/AA.class 
 
 compAA:	
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/AA.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/AA.java
 
 compB:
-	javac -verbose -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/B.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/B.java
 
 B:	 
-	./$(TARGET)   ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	 $(APPCLASSPATH)/B.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/B.class
 	
 compC:
-	javac -verbose  -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/C.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/C.java
 
 C:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-	$(APPCLASSPATH)/C.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/C.class
 
 # javac -g:none B.java		// no debug info (line number table)
 # javap -c -l -verbose B
-
 
 compD:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/D.java
 
 D:	 
-	./$(TARGET)  ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	 $(APPCLASSPATH)/D.class
+	./$(TARGETFILE)   $(BOOTCLASSES)  $(APPCLASSPATH)/D.class
 
 EEE:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	$(APPCLASSPATH)/EEE.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/EEE.class
 
 compEEE:
-	javac -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/EEE.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/EEE.java
 
 FFF:
-	./$(TARGET)  	 $(APPCLASSPATH)/FFF.class  ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class 
+	./$(TARGETFILE)   $(BOOTCLASSES) ${GRAPHICS}/Font.class 
 
 compFFF:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/FFF.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/FFF.java
 
 GGG:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	$(APPCLASSPATH)/GGG.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/GGG.class
 
 compGGG:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/GGG.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/GGG.java
 
 HHH:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	$(APPCLASSPATH)/HHH.class
+	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/HHH.class
 
 compHHH:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/HHH.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} $(APPCLASSPATH)/HHH.java
 
 My:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-  	$(APPCLASSPATH)/My.class $(APPCLASSPATH)/Ball.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/My.class $(APPCLASSPATH)/Ball.class
 
 compMy:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
 
 T:	 
-	./$(TARGET)    ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-	$(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
 
 compT:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+	  	$(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
 	
 PC:	 
-	./$(TARGET)     ${LANG}/Runtime.class \
-		${LANG}/String.class \
-		${LANG}/Float.class \
-		${LANG}/Object.class \
-		${PLATFORM}/PlatForm.class \
- 		${LANG}/System.class \
- 		${LANG}/Thread.class \
- 		${LANG}/Math.class \
- 		${LANG}/Throwable.class \
- 		${LANG}/Exception.class \
-		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
-		${LANG}/ArithmeticException.class \
-		${LANG}/ClassCastException.class \
- 		${LANG}/Integer.class \
- 		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
-		${LANG}/RuntimeException.class \
-		${LANG}/InterruptedException.class \
-		${IO}/OutStream.class \
-  		${IO}/InStream.class \
-  		${GRAPHICS}/Display.class \
-		${GRAPHICS}/DisplayHSB.class \
-		${GRAPHICS}/DisplayZBuffer.class \
-		${GRAPHICS}/Point.class \
-		${GRAPHICS}/Font.class \
-		$(APPCLASSPATH)/Buffer.class $(APPCLASSPATH)/ProducerConsumer.class 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/Buffer.class \
+		$(APPCLASSPATH)/ProducerConsumer.class 
 
 compPC:
-	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/ProducerConsumer.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+		$(APPCLASSPATH)/ProducerConsumer.java
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES
@@ -921,16 +680,16 @@ MSG_PREPROCESSING     = Preprocessing \`$<\' to \`$@\'.
 MSG_COMPILING         = Compiling \`$<\' to \`$@\'.
 MSG_ASSEMBLING        = Assembling \`$<\' to \`$@\'.
 MSG_ARCHIVING         = Archiving to \`$@\'.
-MSG_LINKING           = Linking to \`$(TGTFILE)\'.
+MSG_LINKING           = Linking to \`$(TARGETFILE)\'.
 MSG_EXTENDED_LISTING  = Creating extended listing to \`$@\'.
 MSG_SYMBOL_TABLE      = Creating symbol table to \`$@\'.
 MSG_IHEX_IMAGE        = Creating Intel HEX image to \`$@\'.
-MSG_BINARY_IMAGE      = Creating binary image to \`$(TGTFILE).bin\'.
+MSG_BINARY_IMAGE      = Creating binary image to \`$(TARGETFILE).bin\'.
 MSG_GETTING_CPU_INFO  = Getting CPU information.
 MSG_HALTING           = Stopping CPU execution.
 MSG_ERASING_CHIP      = Performing a JTAG Chip Erase command.
 MSG_ERASING           = Performing a flash chip erase.
-MSG_PROGRAMMING       = Programming MCU memory from \`$(TGTFILE)\'.
+MSG_PROGRAMMING       = Programming MCU memory from \`$(TARGETFILE)\'.
 MSG_SECURING_FLASH    = Protecting chip by setting security bit.
 MSG_RESETTING         = Resetting MCU.
 MSG_DEBUGGING         = Opening debug connection with MCU.
