@@ -22,6 +22,7 @@ char controlLCD(u2);
 char currentTimeMillis();
 char javaExit(u2);
 void myExit(u4);
+char drawPoint(u2);
 char nativeStringLength(u2 local);
 
 char nativeCharAt(u2 local);
