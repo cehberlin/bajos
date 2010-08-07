@@ -758,7 +758,7 @@ findClassFlash
 findClass
 #endif
 (getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1)) ) {
+			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1)) ) { 
 				CLASSNOTFOUNDERR(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
 
@@ -793,6 +793,7 @@ findClass
 #ifdef AVR8
 findClassFlash
 #else
+
 findClass
 #endif
 (getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
@@ -878,7 +879,7 @@ findClass(
 				    getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))
 #endif
-) {
+) { 
 					CLASSNOTFOUNDERR( getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3));
 				}
 
@@ -954,7 +955,7 @@ strncmp( "B",fieldDescr, 1)
 /*bh2008*/
 				if (opStackGetValue(local).stackObj.magic==CPSTRINGMAGIC)	{
 					if (!findClass("java/lang/String",16))
-					{
+					{ 
 						CLASSNOTFOUNDERR("java/lang/String");
 					}
 				}
@@ -1413,7 +1414,7 @@ getU1(classname)=='L'
 				if (performcheck == 1) {
 					methodStackPush(cN);
 					methodStackPush(mN);
-					if (!findClass(classname, len)) {
+					if (!findClass(classname, len)) { 
 						CLASSNOTFOUNDERR(classname);
 					}
 					u2 target = cN;
@@ -1487,7 +1488,7 @@ getU1(classname)=='L'
 				if (performcheck == 1) {
 					methodStackPush(cN);
 					methodStackPush(mN);
-					if (!findClass(classname, len)) {
+					if (!findClass(classname, len)) { 
 						CLASSNOTFOUNDERR(classname);
 					}
 					u2 target = cN;
@@ -1657,7 +1658,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 #endif
 
 	/* Create a class of the given type*/
-	if (findClass(identifier, length) == 0) {
+	if (findClass(identifier, length) == 0) { 
 		CLASSNOTFOUNDERR(identifier);
 	}
 
