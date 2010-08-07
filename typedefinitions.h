@@ -70,7 +70,7 @@ u2*		methodStackBase;
 u2		methodSpPos;	// relative to methodStackBase
 u1		tid;
 slot		obj;		// thread creating object
-u4*		pPriority;	// pointer to priority on heap
+u4*		pPriority;	// pointer to priority on heap , for main thread global memory range
 u1		numTicks;
 u1		state;		// THREADNOTBLOCKED, THREADMUTEXBLOCKED, THREADWAITBLOCKED, THREADWAITAWEAKENED
 struct ThreadControlBlock* 	pred;
