@@ -19,8 +19,7 @@ if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("
 // make it better
 heapBase=(slot*)((u4)(apClassFileBase+MAXBYTECODE));
 #endif
-
-	while (heapTop > 0 )			*(heapBase+(--heapTop))= NULLOBJECT;
+while (heapTop > 0 )			*(heapBase+(--heapTop))= NULLOBJECT;
 DEBUGPRINTHEAP;
 }
 
@@ -83,7 +82,6 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 printf(" no free heap space for object/array of length: 0x%x  _> tschüß",length);
 exit(-1);
 }
-
 
 void checkObjects()	{ 
 // static objects or objects in opstack (root objects) or objects, referenced by other objects (circular??)
