@@ -818,11 +818,11 @@ char setFontAutoLineFeed(u2 local)
 {
 	if (opStackGetValue(local+1).UInt>0)
 	{	
-		lcd_Flags.AutoLineFeed=1;	//Automatischer umbruch, wenn Zeile voll?
+		lcd_Flags.AutoLineFeed=1;
 	}
 	else
 	{
-		lcd_Flags.AutoLineFeed=0;	//Automatischer umbruch, wenn Zeile voll?
+		lcd_Flags.AutoLineFeed=0;
 	}
 	return 0;
 }
@@ -831,11 +831,11 @@ char setFontFixedFont(u2 local)
 {
 	if (opStackGetValue(local+1).UInt>0)
 	{	
-		lcd_Flags.FixedFont=1;	//Automatischer umbruch, wenn Zeile voll?
+		lcd_Flags.FixedFont=1;
 	}
 	else
 	{
-		lcd_Flags.FixedFont=0;	//Automatischer umbruch, wenn Zeile voll?
+		lcd_Flags.FixedFont=0;
 	}
 	return 0;
 }
@@ -1014,8 +1014,62 @@ char drawTriangleFill(u2 local)
 	return 0;
 }
 char clearZBuffer(){printf("native clearZBuffer\n"); return 0;}
-char drawPointHSBZBuffer(u2 local){printf("native drawPointHSBZBuffer\n"); return 0;}
-char drawLineHSBZBuffer(u2 local){printf("native drawLineHSBZBuffer\n"); return 0;}
+char drawPointHSBZBuffer(u2 local)
+{
+	printf("native drawPointHSBZBuffer\n"); 
+	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+                                                    // otherwise local+1
+                                                    // mySlot is a reference to heap object (Point pa)
+	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
+	printf("point, x koordinate: %f\n",x);
+	f4 y=heapGetElement(mySlot.stackObj.pos+2).Float;        // the second
+	printf("point, y koordinate: %f\n",y);
+	f4 z=heapGetElement(mySlot.stackObj.pos+3).Float;
+	printf("point, z koordinate: %f\n",z);
+	f4 h=heapGetElement(mySlot.stackObj.pos+4).Float;
+	printf("point, h koordinate: %f\n",h);
+	f4 s=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",s);
+	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
+	printf("point, b koordinate: %f\n",b);
+	return 0;
+}
+char drawLineHSBZBuffer(u2 local)
+{
+	printf("native drawLineHSBZBuffer\n"); 
+	
+	slot mySlot=opStackGetValue(local+1);         // in static methods the first Arg on Stack
+                                                    // otherwise local+1
+                                                    // mySlot is a reference to heap object (Point pa)
+	f4 x=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
+	printf("point, x koordinate: %f\n",x);
+	f4 y=heapGetElement(mySlot.stackObj.pos+2).Float;        // the second
+	printf("point, y koordinate: %f\n",y);
+	f4 z=heapGetElement(mySlot.stackObj.pos+3).Float;
+	printf("point, z koordinate: %f\n",z);
+	f4 h=heapGetElement(mySlot.stackObj.pos+4).Float;
+	printf("point, h koordinate: %f\n",h);
+	f4 s=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",s);
+	f4 b=heapGetElement(mySlot.stackObj.pos+6).Float;
+	printf("point, b koordinate: %f\n",b);
+	
+	mySlot=opStackGetValue(local+2);         // in static methods the second Arg on Stack
+                                                              // otherwise local+2
+	f4 x2=heapGetElement(mySlot.stackObj.pos+1).Float; // the first field (variable) of Object
+	printf("point, x koordinate: %f\n",x2);
+	f4 y2=heapGetElement(mySlot.stackObj.pos+2).Float;        // the second
+	printf("point, y koordinate: %f\n",y2);
+	f4 z2=heapGetElement(mySlot.stackObj.pos+3).Float;
+	printf("point, z koordinate: %f\n",z2);
+	f4 h2=heapGetElement(mySlot.stackObj.pos+4).Float;
+	printf("point, h koordinate: %f\n",h2);
+	f4 s2=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",s2);
+	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
+	printf("point, b koordinate: %f\n",b2);
+	return 0;
+}
 
 char setFont(u2 local)
 {
