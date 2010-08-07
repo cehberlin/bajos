@@ -172,21 +172,21 @@ functionForNativeMethodType functionForNativeStringMethod[] =	{
 };
 
 functionForNativeMethodType functionForNativeThreadMethod[] =	{
-	isAlive,
-	NULL,
-	NULL,
-	NULL,
+	NULL,		// constructor
+	NULL,		// constructor
+	NULL,		// isAlive;
+	NULL,		// run
 	start,
 	yield,
-	nativeSleep,
+	sleep,
 	currentThread,
-	getPriority,
-	setPriority,
+	NULL,		// getPriority,
+	NULL,		// setPriority,
 	interrupt,
 	interrupted,
 	isInterrupted,
-	isDaemon,
-	setDaemon,join
+	nativeSetPriority,
+	join
 };
 
 functionForNativeMethodType functionForNativeFloatMethod[] =	{
