@@ -53,10 +53,12 @@
   .global _trampoline
   .type _trampoline, @function
 _trampoline:
-  // This must be linked @ 0x80000000 if it is to be run upon reset.
-  .section  .reset, "ax", @progbits
+
 #endif
 */
+  // This must be linked @ 0x80000000 if it is to be run upon reset.
+  .section  .reset, "ax", @progbits
+
   .global _start
   .type _start, @function
 _start:
@@ -108,11 +110,11 @@ udata_clear_loop:
   brlo    udata_clear_loop
 udata_clear_loop_end:
 
-#ifdef CONFIG_FRAME_POINTER
+//#ifdef CONFIG_FRAME_POINTER
 //#ifdef WITHMON
   // Safety: Set the default "return" @ to the exit routine address.
   lda.w   lr, /*monitor */exit
-#endif
+//#endif
 
   // Start the show.
   lda.w   pc, main
