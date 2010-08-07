@@ -4,7 +4,6 @@
 */
 #ifndef __LIMITS__
 #define __LIMITS
-// denke gut für charonII mit 32K SRam
 	#define MAXCLASSES 			45 //30
 	#define MAXBYTECODE 			(52768)		// 16384 !!! class file bytes < 16 kB	
 	#define MAXHEAP				(/*1024*/6000)			// number of u4 entries for heap-elements	
@@ -13,4 +12,5 @@
 	#define MAXLOCKEDTHREADOBJECTS 		24
 	#define OPSTACKSIZE 			((328+96))	// u4	896 bytes
 	#define METHODSTACKSIZE			((164))			// u2	128 bytes
+	#define MAXNATIVEMETHODS		80
 #endif
