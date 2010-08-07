@@ -37,17 +37,14 @@ public native void drawPointHSBZBuffer(Point p);
 public native void drawLineHSBZBuffer(Point pa, Point pe);
 
 /*Schrift-Methoden*/
-public native void setFont(byte index);
+public native void setFont(int index);
 public native void setFontWindow(int x1, int y1, int x2, int y2);
-public native void setFontAutoLineFeed(byte value);
-public native void setFontFixedFont(byte value);
+public native void setFontAutoLineFeed(int value);
+public native void setFontFixedFont(int value);
 public native void setFontCursor(int x, int y);
 public native void setFontColor(int fgcolor, int bkcolor);
 public native int drawChar(char c);
 public native int drawCharAt(int x, int y, char c, int fgcolor, int bkcolor);
 public native int getCharWidth(char c);
-/*public native int drawString(String s);
-public native int drawStringAt(int x, int y, String s);
-public native int getStringWidth(String s);*/
 
 }
