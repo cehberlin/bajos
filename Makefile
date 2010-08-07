@@ -61,9 +61,12 @@ IO=${BOOTCLASSPATH}java/io
 UTIL= ${BOOTCLASSPATH}java/util
 PLATFORM= ${BOOTCLASSPATH}platform
 
-BOOTCLASSES = $(LANG)/String.class $(LANG)/StringBuffer.class $(LANG)/System.class $(LANG)/Thread.class $(LANG)/Math.class $(LANG)/Throwable.class $(LANG)/Exception.class $(LANG)/Object.class $(LANG)/Error.class $(LANG)/ArithmeticException.class $(LANG)/ClassCastException.class $(LANG)/Integer.class $(LANG)/StringBuilder.class $(LANG)/Runtime.class $(LANG)/RuntimeException.class $(LANG)/InterruptedException.class $(PLATFORM)/PlatForm.class $(IO)/OutStream.class $(IO)/InStream.class 
+BOOTSOURCES = $(LANG)/String.class $(LANG)/StringBuffer.java $(LANG)/System.java  $(LANG)/Thread.java $(LANG)/Math.java $(LANG)/Throwable.java $(LANG)/Exception.java  $(LANG)/Object.java $(LANG)/Error.java $(LANG)/ArithmeticException.java  $(LANG)/ClassCastException.java $(LANG)/Integer.java $(LANG)/StringBuilder.java \ $(LANG)/Runtime.java $(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \ $(PLATFORM)/PlatForm.java $(IO)/OutStream.java $(IO)/InStream.java \
+${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java 	${GRAPHICS}/DisplayZBuffer.java \
+${GRAPHICS}/Point.java ${GRAPHICS}/Font.java 
 
-BOOTPACK = mbc
+BOOTCLASSES = $(BOOTSOURCES:.java=.class)
+
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # C-SOURCES AND TARGETS
@@ -143,13 +146,12 @@ TEXTSEGMENT	= 0x100
 STACKSEGMENT	= 0x4000
 .PHONY: avr8
 	@:
-avr8:	$(TGTFILE)
-$(TGTFILE):		${OBJFILES}
-		@echo $(MSG_LINKING)
-		$(VERBOSE_CMD)${CC}	 $(filter %.o,$+)     -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$@
+avr8:	${OBJFILES}
+	@echo $(MSG_LINKING)
+	$(VERBOSE_CMD)${CC}	 $(filter %.o,$+)     -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$(TGTFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
-		@echo $(MSG_BINARY_IMAGE)
-		$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $@  $(BIN)
+	@echo $(MSG_BINARY_IMAGE)
+	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TGTFILE)  $(BIN)
 		@${CC} --version
 #		@rm ${EXE}
 # -Wl,-u,vfprintf -lprintf_flt
@@ -174,10 +176,9 @@ ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
 OBJFILES  = $(BAJOSSOURCES:.c=.o)
 avr32-linux:	linux
 
-linux:	$(TGTFILE)
-$(TGTFILE):		${OBJFILES}
+linux:	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$@ 
+	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$(TGTFILE) 
 	
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
@@ -238,10 +239,9 @@ LDLIBS    = $(LIBS:%=-l%)
 
 
 .PHONY:	evk1100
-evk1100:	$(TGTFILE)
-$(TGTFILE): $(OBJFILES)
+evk1100: $(OBJFILES)
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $@
+	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $(TGTFILE)
 	$(VERBOSE_NL)
 
 # Preprocess, compile & assemble: create object files from C source files.
@@ -308,13 +308,12 @@ ngw100:	ap7000
 
 stk1000: ap7000
 
-ap7000:	$(TGTFILE)
-$(TGTFILE):	$(OBJFILES) 
+ap7000:	$(OBJFILES) 
 	@echo $(MSG_LINKING)
-	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $@
+	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $(TGTFILE)
 	@echo
 	@echo $(MSG_BINARY_IMAGE)
-	$(OBJCOPY) -O binary $@  $@.bin
+	$(OBJCOPY) -O binary $(TGTFILE)  $(TGTFILE).bin
 	@echo
 
 # Compile: create object files from C source files.
@@ -357,6 +356,7 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM) *.o
 	-$(VERBOSE_CMD)$(RM) */*.o
+	-$(VERBOSE_CMD)$(RM) */*/*.o
 	$(VERBOSE_NL)
 
 # Rebuild the project.
@@ -498,7 +498,7 @@ ifeq ($(TGTTYPE),.elf)
 # Create binary image from ELF output file.
 $(BIN): $(TGTFILE)
 	@echo $(MSG_BINARY_IMAGE)
-	$(VERBOSE_CMD)$(OBJCOPY) -O binary $< $@
+	$(VERBOSE_CMD)$(OBJCOPY) -O binary $< $(TGTFILE)
 	$(VERBOSE_NL)
 endif
 
@@ -549,6 +549,11 @@ $(BOOTPACK): packer $(BOOTCLASSES)
 
 
 A:
+<<<<<<< .mine
+	./$(TARGET)   $(BOOTCLASSES) \
+		$(APPCLASSPATH)/A.class \
+		$(APPCLASSPATH)/Aparent.class
+=======
 	./$(TARGET)   ${LANG}/Runtime.class \
 		${LANG}/String.class \
 		${LANG}/Float.class \
@@ -589,6 +594,7 @@ A:
 		${GRAPHICS}/AffineMatrix.class \
 		${GRAPHICS}/ProjectionMatrix.class \
   		$(APPCLASSPATH)/A.class
+>>>>>>> .r297
 
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
@@ -958,11 +964,11 @@ MSG_PREPROCESSING     = Preprocessing \`$<\' to \`$@\'.
 MSG_COMPILING         = Compiling \`$<\' to \`$@\'.
 MSG_ASSEMBLING        = Assembling \`$<\' to \`$@\'.
 MSG_ARCHIVING         = Archiving to \`$@\'.
-MSG_LINKING           = Linking to \`$@\'.
+MSG_LINKING           = Linking to \`$(TGTFILE)\'.
 MSG_EXTENDED_LISTING  = Creating extended listing to \`$@\'.
 MSG_SYMBOL_TABLE      = Creating symbol table to \`$@\'.
 MSG_IHEX_IMAGE        = Creating Intel HEX image to \`$@\'.
-MSG_BINARY_IMAGE      = Creating binary image to \`$@.bin\'.
+MSG_BINARY_IMAGE      = Creating binary image to \`$(TGTFILE).bin\'.
 MSG_GETTING_CPU_INFO  = Getting CPU information.
 MSG_HALTING           = Stopping CPU execution.
 MSG_ERASING_CHIP      = Performing a JTAG Chip Erase command.
