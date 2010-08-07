@@ -3,7 +3,7 @@
 # See the file "license.terms" for information on usage and redistribution of this file.
 #
 
-# java for 8 Bit uC at arduinoMega
+# java for 8 Bit uC atmega128 at CharonII
 #=================================#
 # working with monitor bamo128  (cs.ba-berlin.de) -> first load bamo128 in boot section
 # make all ch -> generates bajvm.bin, avr8bootpack and chapp
@@ -29,6 +29,8 @@ JAVAAPPSOURCES		= javatests/Charon.java
 PLATFORMCSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON/ds182x.c \
 			$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
 PLATFORMASMSOURCES 	= $(APPPATH)CHARON/routines.asm $(APPPATH)CHARON/routines_stack.asm
+
+OBJFILES		+=	$(PLATFORMASMSOURCES:.asm =.o)
 
 
 all:	clean compile bootclasses compCharon bootpack app
