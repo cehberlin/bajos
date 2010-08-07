@@ -27,6 +27,7 @@ public class OutStream {
 		print(Float.toString(f));
 	}
 
+
 	public synchronized void print(boolean b) {
 		print(Boolean.toString(b));
 	}
