@@ -125,7 +125,7 @@ compPC:
 		$(APPCLASSPATH)/ProducerConsumer.java
 
 SchedulerTest:	 
-	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Buffer.class \
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
 		$(APPCLASSPATH)/SchedulerTest.class 
 
 compSchedulerTest:
