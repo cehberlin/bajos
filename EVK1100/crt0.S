@@ -49,12 +49,14 @@
 
 //! @{
 //! \verbatim
-
-
+/*#ifndef MITHMON
+  .global _trampoline
+  .type _trampoline, @function
+_trampoline:
   // This must be linked @ 0x80000000 if it is to be run upon reset.
   .section  .reset, "ax", @progbits
-
-
+#endif
+*/
   .global _start
   .type _start, @function
 _start:

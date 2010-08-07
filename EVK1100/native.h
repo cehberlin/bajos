@@ -1,3 +1,16 @@
+#ifdef WITHMON
+extern char ConStat();
+extern char Ser1Out();
+extern char Ser1In();
+extern char Ser1RTS();
+extern char Ser1DTR();
+extern char GetButtons();
+extern char SetOnBoardLEDs();
+extern char Dip204_write_data();
+extern char ControlLCD();
+extern char PwmStart();
+extern char PwmStop();
+#endif
 char nativeCharIn();
 char nativeCharOut();
 char conStat();

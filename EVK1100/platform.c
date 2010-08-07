@@ -7,9 +7,7 @@
 /* fuer lehrzwecke,...*/
 #include <stdio.h>
 #include <avr32/io.h>
-/* suse 10.3*/
-#include "compatibility.h"
-
+#include <string.h>
 #include "evk1100.h"
 #include "compiler.h"
 #include "dip204.h"
@@ -22,10 +20,11 @@
 #include "rtc.h"
 #include "sdramc.h"
 
-#include "../bajvm.h"
 #include "../typedefinitions.h"
+#include "../bajvm.h"
+#include "../heap.h"
 #include "platform.h"
-
+#include "native.h"
 
 #define INT0          0 /*!< Lowest interrupt priority level.*/
 #define EXAMPLE_GCLK_ID             0
@@ -34,7 +33,7 @@
 
 /* usart0 for terminal*/
 void initHW()	{
-#ifndef WITHMON
+  #ifndef WITHMON
 /* pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);*/
 /* start PLL0 and switch main clock to PLL0 output */
 /* Also set-up a generic clock from PLL0 and output it to a gpio pin. */
@@ -45,9 +44,7 @@ void initHW()	{
 	software_delay();
 	usart1Init();		/* 1200 baud*/
 	usart0Init();		/*bh not with monitor*/
-#endif
-	stdIOInit();
-#ifndef WITHMON
+
 static const gpio_map_t DIP204_SPI_GPIO_MAP =		{
     {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  /* SPI Clock.*/
     {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  /* MISO.*/
@@ -92,8 +89,12 @@ spi_setupChipReg(DIP204_SPI, &spiOptions, 4*FOSC0); /*bh setup chip registers*/
 
   /* configure local joystick*/
 /*dip204_example_configure_joystick_IT();*/
-dip204_init(backlight_PWM, TRUE);	/* initialize LCD */
-dip204_set_cursor_position(1,1);	/* Display default message.*/
+
+/*dip204_hide_cursor();*/
+initTimer();
+sdramc_init(48000000);/*FOSC0) bh not with monitor*/
+dip204_init(backlight_PWM, TRUE);	
+dip204_set_cursor_position(1,1);	
 dip204_write_string("That writes for you ");
 dip204_set_cursor_position(2,2);
 dip204_write_string("not java its C");
@@ -101,10 +102,8 @@ dip204_set_cursor_position(1,3);
 dip204_write_string("FWR-BA EVK1100");
 dip204_set_cursor_position(1,4);
 dip204_write_string("now BAJOS please:");
-/*dip204_hide_cursor();*/
-initTimer();
-sdramc_init(48000000);/*FOSC0) bh not with monitor*/
 #endif
+stdIOInit();
 }
 
 /* all class files stored for linux in DS (malloc)*/
@@ -136,6 +135,7 @@ cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 printf("%x %x\n",cs[cN].classFileStartAddress,cs[cN].classFileLength);
+
 }
 printf("%x bootclasses are loaded\n",cN);
 /* thats to boot classes*/
@@ -154,11 +154,9 @@ length=0;
 			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
-		while(cs[cN-1].classFileLength !=0);
+		while(1);
 /*!!*/
 numClasses=cN;
-printf("numclasses %x\n",numClasses);
-
 DEBUGPRINTHEAP;
 }
 
@@ -538,8 +536,8 @@ static const gpio_map_t USART_GPIO_MAP =
   /* USART options.*/
   static const usart_options_t USART_OPTIONS =
   {
-/*    .baudrate     = 57600,*/
-    .baudrate     = 115200,
+   .baudrate     = 57600,
+//    .baudrate     = 115200,
     .charlength   = 8,
     .paritytype   = USART_NO_PARITY,
     .stopbits     = USART_1_STOPBIT,
@@ -699,7 +697,7 @@ goto *startAddr;
 */
 #else
 void exit(int status)	{
-Monitor();
+Monitor(status);
 }
 #endif
 

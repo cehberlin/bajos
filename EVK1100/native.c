@@ -21,6 +21,10 @@
 #include "../scheduler.h"
 #include "../heap.h"
 #include "native.h"
+#ifndef WITHMON
+#define EVK1100           1   //!< AT32UC3A EVK1100 board.
+#define EVK1100ES	EVK1100		//           1   //!< AT32UC3A EVK1100 board.
+#include "evk1100.h"
 #include "compiler.h"
 #include "gpio.h"
 #include "evk1100.h"
@@ -30,10 +34,8 @@
 #include "usart.h"
 #include "pwm.h"
 #include "adc.h"
+#endif
 #include "platform.h" 
-
-/*suse 10.3*/
-#include "compatibility.h"
 
 
 /* its the evk1100*/
@@ -133,7 +135,7 @@ Ser1Out(opStackGetValue(local+1).UInt);
 return 0;	}
 
 char ser1In()	{
-opStackPush((slot)Ser1In());
+opStackPush((slot)(int)Ser1In());
 return 1;	}
 
 char ser1RTS()	{
