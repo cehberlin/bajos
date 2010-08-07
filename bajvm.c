@@ -119,13 +119,13 @@ apClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 
 #ifdef STK1000
-classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  			// boot classes in flash
+classFileBase=(char*)STK1000_FLASH_JAVA_BASE;  	// boot classes in flash
 apClassFileBase=STK1000_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 
 #ifdef NGW100
 classFileBase=(char*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
-apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
+apClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	// app classes in sdram
 #endif
 
 #if (AVR32LINUX||LINUX||AVR8)
@@ -156,7 +156,6 @@ apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 
 #if (NGW100||STK1000|| EVK1100)
 // analyze bootclasses, which are programmed in flash
-// or for AVR32LINUX loaded as packed in RAM
 char* addr;
 u4 temp;
 char buf[5];
@@ -178,7 +177,7 @@ cN=numClasses;
 // thats to boot classes
 // now the application classes
 cN--;
-addr-=4;
+addr=apClassFileBase;
 length=0;
 		do
 		{
@@ -189,7 +188,7 @@ length=0;
 			printf("\n");
 			length+=cs[cN].classFileLength;
 			analyzeClass(&cs[cN]);
-			printf("still another appl. class ? (y)");
+			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
