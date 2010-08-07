@@ -36,13 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef _SDRAM_H_
 #define _SDRAM_H_
 
-#ifdef __GNUC__
-	#include <avr32/io.h>
-#elif __ICCAVR32__
-	#include <avr32/ioap7000.h>
-#else
-	#error No known compiler used
-#endif
+#include <avr32/io.h>
+#include "errno.h"
 
 /*!
  * SDRAMC operation mode: Normal operation
@@ -82,7 +77,10 @@ POSSIBILITY OF SUCH DAMAGE.
 typedef struct sdram_info
 {
   /*! \brief physical_address: The base address for the sdram */
-  unsigned long physical_address;
+  unsigned int phys_addr;
+
+  /*! \brief bus_width: 16/32 bus width */
+  unsigned char bus_width;
 
   /*! \brief rows: The number of rows in the SDRAM */
   unsigned int rows;
@@ -122,6 +120,6 @@ typedef struct sdram_info
  * \param *info The setup and timing variables for the controller
  * \return Nothing
  */
-void sdramc_init(const sdram_info *info);
+int sdram_init(const sdram_info *info);
 
 #endif

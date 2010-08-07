@@ -45,41 +45,44 @@ POSSIBILITY OF SUCH DAMAGE.
 
 static void sdram_delay(int us)
 {
-  int i, loop_limit;
+	volatile int i, loop_limit;
 
-  loop_limit = us * 20;
-
-  for (i=0; i<loop_limit;i++);
-
+	loop_limit = us * 100;
+	for (i=0; i<loop_limit;i++)
+		asm volatile("nop");
 }
 
-void sdramc_init(const sdram_info *info)
+int sdram_init(const sdram_info *info)
 {
+	volatile avr32_sdramc_t *sdram = &AVR32_SDRAMC;
+	volatile avr32_hmatrix_t *hmatrix = &AVR32_HMATRIX;
+	volatile avr32_pio_t *pio = &AVR32_PIOE;
 
-  volatile avr32_sdramc_t *hsdramc = &AVR32_SDRAMC;
-  volatile avr32_hmatrix_t *hmatrix = &AVR32_HMATRIX;
-  volatile avr32_pio_t *pio = &AVR32_PIOE;
+	/* Enable SDRAM mode for CS1 in the BAMBI mux */
+	hmatrix->sfr[AVR32_SDRAMC_HMATRIX_NR] |= 0x0002;
+	hmatrix->sfr[AVR32_SDRAMC_HMATRIX_NR] |= 0x0100;
 
-  // Enable SDRAM mode for CS1 in the BAMBI mux 
-  hmatrix->sfr[4] |= 0x0002;
-  hmatrix->sfr[4] |= 0x0100;
+	/* Setup SDRAM info */
+	sdram->cr = ( (info->cols-8) << AVR32_SDRAMC_CR_NC ) |
+		( (info->rows-11) << AVR32_SDRAMC_CR_NR ) |
+		( (info->banks-1) << AVR32_SDRAMC_CR_NB ) |
+		( info->cas << AVR32_SDRAMC_CR_CAS ) |
+		( info->twr << AVR32_SDRAMC_CR_TWR ) |
+		( info->trc << AVR32_SDRAMC_CR_TRC ) |
+		( info->trp << AVR32_SDRAMC_CR_TRP ) |
+		( info->trcd << AVR32_SDRAMC_CR_TRCD ) |
+		( info->tras << AVR32_SDRAMC_CR_TRAS ) |
+		( info->txsr << AVR32_SDRAMC_CR_TXSR );
 
-  // Initialize data bus bits 31-16 (muxed with the LCDC).
-  pio->asr |= 0x0000FFFF;
-  pio->pdr |= 0x0000FFFF;
-  
-  // Setup SDRAM info
-  hsdramc->cr = ( (info->cols-8) << AVR32_SDRAMC_CR_NC ) |
-    ( (info->rows-11) << AVR32_SDRAMC_CR_NR ) |
-    ( (info->banks-1) << AVR32_SDRAMC_CR_NB ) |
-    ( info->cas << AVR32_SDRAMC_CR_CAS ) |
-    ( info->twr << AVR32_SDRAMC_CR_TWR ) |
-    ( info->trc << AVR32_SDRAMC_CR_TRC ) |
-    ( info->trp << AVR32_SDRAMC_CR_TRP ) |
-    ( info->trcd << AVR32_SDRAMC_CR_TRCD ) |
-    ( info->tras << AVR32_SDRAMC_CR_TRAS ) |
-    ( info->txsr << AVR32_SDRAMC_CR_TXSR );
+	if(info->bus_width == 16 ){
+		sdram->cr = 1<<AVR32_SDRAMC_CR_DBW_OFFSET;
+	} else if ( info->bus_width == 32 ) {
+		// Initialize data bus bits 31-16 (muxed with the LCDC).
+		pio->asr |= 0x0000FFFF;
+		pio->pdr |= 0x0000FFFF;
+	}
 
-  sdram_delay(200);
+	sdram_delay(400);
 
+	return SUCCESS;
 }
