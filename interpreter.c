@@ -950,6 +950,7 @@ strncmp( "B",fieldDescr, 1)
 			methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
 			DEBUGPRINTLNSTRING(methodDescr,methodDescrLength);
 			className = NULL;
+
 			if ((code == INVOKEVIRTUAL)|| (code == INVOKEINTERFACE))			{
 
 /*bh2008*/
@@ -960,7 +961,6 @@ strncmp( "B",fieldDescr, 1)
 					}
 				}
 				else
-
 					cN=opStackGetValue(local).stackObj.classNumber;/*bh2007*/
 				className = (char*)getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)	]+1)]+3);
 				classNameLength = getU2(cs[cN].constant_pool[getU2(	cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1);
@@ -1017,11 +1017,11 @@ strncmp( "B",fieldDescr, 1)
 /* no synchronized,or I have the lock*/
 /* now call method*/
 			if (getU2(METHODBASE(cN,mN))&ACC_NATIVE)			{
-if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
+if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{	
 				if (cs[cN].nativeFunction[mN]())goto nativeValueReturn;
 				else				goto nativeVoidReturn;
 			}
-			else{
+			else	{
 				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-3,PSTR("native method not found cN: %d mN: %d"),cN,mN);
 				#else
@@ -1184,9 +1184,7 @@ strncmp
 			mN = methodStackPop();
 			cN = methodStackPop();
 			local = methodStackPop();
-
 			if (code== IRETURN) opStackPush(first);
-
 		CASE	DRETURN:
 		case	LRETURN:
 			DNOTSUPPORTED;
