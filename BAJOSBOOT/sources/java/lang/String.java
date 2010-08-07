@@ -3,6 +3,8 @@ package java.lang;
 /**
  * An immutable string of characters.
  */
+
+
 public final class String
 {
   // NOTE: The state of this class is mapped to
@@ -16,6 +18,12 @@ public String(String str)
   characters[i]=str.charAt(i); 
   }
 
+	public String(char[] c) {
+		int len = c.length;
+    characters = new char[len];
+    System.arraycopy (c, 0, characters, 0, len);
+	}
+
   /**
    * Create a String from a character array.
    * @param c the character array
@@ -24,13 +32,11 @@ public String(String str)
    **/
   public String (char[] c, int off, int len)
   {
-   //  System.out.print('\n');
-  //for (int i=0;i < len ; i++) System.out.print(c[i+off]);
-     // System.out.print('\n');
+		if (off < 0 || off > c.length || len < 0 || len > c.length) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
     characters = new char[len];
-  //  for (int i=0; i < len; i++)
     System.arraycopy (c, off, characters, 0, len);
-//	characters[i]=c[i+off];
   }
 
   /**
@@ -88,6 +94,23 @@ for (;len >=0; --len) ca[len]=charAt(len);
   {
     return this;
   }
+
+	private boolean compare(char[] other, int offset, int len, int myoffset) {
+		for (int i = offset ; i < len ; ++i) {
+			if (characters[i + myoffset] != other[i])
+				return false;
+		}
+		return true;
+	}
+
+	private boolean compareNoCase(char[] other, int offset, int len, int myoffset) {
+		for (int i = offset ; i < len ; ++i) {
+			int my = i + myoffset;
+			if (characters[my] != other[i] && Character.toLowerCase(characters[my ]) != Character.toLowerCase(other[i]) && Character.toUpperCase(characters[my]) != Character.toUpperCase(other[i]))
+				return false;
+		}
+		return true;
+	}
   
   /**
    * Compares the String with an Object
@@ -99,31 +122,95 @@ for (;len >=0; --len) ca[len]=charAt(len);
 		}
 
 		String os = (String)other;
-		if (os.length() != length()) {
-			System.out.println("nop2");
-			return false;
-		}
-
-		for (int i=0; i<length(); i++) {
-			if (characters[i] != os.characters[i]) {
-				System.out.println("nop3 @ " + i);
-				return false;
-			}
-		}
-		return true;
+		int len = length();
+		return (os.length() == len) ? compare(os.characters, 0, len, 0) : false;
 	}
 
-public String concat(String str) {
-	if (str.length() == 0)
-		return this;
-	if (length() == 0)
-		return str;
+	public boolean contentEquals(StringBuffer sb) {
+		int len = length();
+		return (sb.length() == len) ? compare(sb.getChars(), 0, len, 0) : false;
+	}
 
-	char[] newStr = new char[str.length() + length()];
-	System.arraycopy (toCharArray(), 0, newStr, 0, length());
-	System.arraycopy (str.toCharArray(), 0, newStr, length(), str.length());
-	return new String(newStr, 0, str.length() + length());
-}
+	public boolean equalsIgnoreCase(String os) {
+		int len = length();
+		return (os.length() == len) ? compareNoCase(os.characters, 0, len, 0) : false;
+	}
+
+	public boolean regionMatches(int toffset, String other, int ooffset, int len) {
+		return regionMatches (false, toffset, other, ooffset, len);
+	}
+
+	public boolean regionMatches(boolean ignoreCase, int toffset, String other, int ooffset, int len) {
+		int mylen = length();
+		if (toffset < 0 || ooffset < 0 || toffset + len > mylen || ooffset + len > other.length())
+			return false;
+		return ignoreCase ? compareNoCase(other.characters, ooffset, len, toffset - ooffset) : compare(other.characters, ooffset, len, toffset - ooffset);
+	}
+
+	public boolean startsWith(String prefix, int toffset) {
+		int len = length();
+		int plen = prefix.length();
+		return (toffset >= 0 && toffset <= len && plen <= len) ? compare(prefix.characters, 0, plen, toffset) : false;
+	}
+
+	public boolean startsWith(String prefix) {
+		int plen = prefix.length();
+		return (plen <= length()) ? compare(prefix.characters, 0, plen, 0) : false;
+	}
+
+	public boolean endsWith(String suffix) {
+		int slen = suffix.length();
+		int len = length();
+		return (slen <= len) ? compare(suffix.characters, 0, slen, len - slen) : false; 
+	}
+
+	public int indexOf(int ch) {
+		return indexOf(ch, 0);
+	}
+
+	public int indexOf(int ch, int fromIndex) {
+		int len = length();
+		fromIndex = fromIndex < 0 ? 0 : (fromIndex > len ? len : fromIndex);
+		for (int i = fromIndex ; i < len ; ++i) {
+			if (characters[i] == ch) return i;
+		}
+		return -1;
+	}
+
+	public int lastIndexOf(int ch) {
+		return lastIndexOf(ch, length() - 1);
+	}
+
+	public int lastIndexOf(int ch, int fromIndex) {
+		int len = length();
+		fromIndex = fromIndex < 0 ? -1 : (fromIndex >= len ? len - 1 : fromIndex);
+		for (int i = fromIndex ; i >= 0 ; --i) {
+			if (characters[i] == ch) return i;
+		}
+		return -1;
+	}
+
+	public String substring(int beginIndex) {
+		return new String(characters, beginIndex, length() - beginIndex);
+	}
+
+	public String substring(int beginIndex, int endIndex) {
+		return new String(characters, beginIndex, endIndex - beginIndex);
+	}
+
+	public String concat(String str) {
+		int olen = str.length();
+		if (olen  == 0)
+			return this;
+		int len = length();
+		if (len == 0)
+			return str;
+
+		char[] newStr = new char[olen + len];
+		System.arraycopy (toCharArray(), 0, newStr, 0, len);
+		System.arraycopy (str.toCharArray(), 0, newStr, len, olen);
+		return new String(newStr);
+	}
 
 }
 
