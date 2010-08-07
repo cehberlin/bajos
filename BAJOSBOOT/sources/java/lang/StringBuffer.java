@@ -173,12 +173,12 @@ char[] characters;
     private StringBuffer append( float number, int significantDigits ) {
 
 	if ( number == 0.f ) {
-	    characters[ curPos++ ] = '0';
-	    return this;
+	    return this.append("0.0");
 	} // if
-	    
-	if ( number < 0.f ) {
-	    characters[ curPos++ ] = '-';
+
+	boolean negative = number < 0.f;
+
+	if ( negative ) {
 	    number = -number;
 	} // if
 
@@ -190,10 +190,9 @@ char[] characters;
 	if ( pow < -3 || pow > 6 ) {
 	    exponent = pow;
 	    number /= Math.exp( Math.ln10 * exponent );
+		// Recalc. the pow if exponent removed and d has changed
+		pow = ( int )Math.floor( Math.log( number ) / log10 );
 	} // if
-
-	// Recalc. the pow if exponent removed and d has changed
-	pow = ( int )Math.floor( Math.log( number ) / log10 );
 
 	// Decide how many insignificant zeros there will be in the
 	// lead of the number.
@@ -202,26 +201,31 @@ char[] characters;
 	// Force it to start with at least "0." if necessarry
 	pow = Math.max( 0, pow );
         float divisor = Math.pow(10, pow);
-        
+
+	char[] buff = new char[(negative ? 1 : 0) + 1 + significantDigits + insignificantDigits ];
+ 	int buffPos = 0;
+	if (negative) {
+		buff[buffPos++] = '-';
+	}
+       
 	// Loop over the significant digits (8 for float)
-	for ( int i = 0, end = significantDigits+insignificantDigits, div; i < end; i++  ) {
+	for ( int i = 0, end = significantDigits + insignificantDigits, div; i < end; i++  ) {
 
 	    // Add the '.' when passing from 10^0 to 10^-1
 	    if ( pow == -1 ) {
-		characters[ curPos++ ] = '.';
+		buff[ buffPos++ ] = '.';
 	    } // if
 	    
 	    // Find the divisor
 	    div = ( int ) ( number / divisor );
 	    // This might happen with 1e6: pow = 5 ( instead of 6 )
 	    if ( div == 10 ) {
-		characters[ curPos++ ] = '1';
-		characters[ curPos++ ] = '0';
+		buff[ buffPos++ ] = '1';
+		buff[ buffPos++ ] = '0';
 	    } // if
 	    else {
 //		characters[ curPos ] = numbers[ div ];
-		characters[ curPos ] = (char)(div + '0');
-		curPos++;
+		buff[ buffPos++ ] = (char)(div + '0');
 	    } // else
 
 	    number -= div * divisor;
@@ -233,16 +237,18 @@ char[] characters;
 	} // for
 
 	// Remove trailing zeros
-  	while ( characters[ curPos-1 ] == '0' )
-  	    curPos--;
+  	while ( buff[ buffPos-1 ] == '0' )
+  	    buffPos--;
 
 	// Avoid "4." instead of "4.0"
-	if ( characters[ curPos-1 ] == '.' )
-	    curPos++;
+	if ( buff[ buffPos-1 ] == '.' )
+	    buffPos++;
+
+	append(buff);
 
 	// Restore the exponential format
 	if ( exponent != 0 ) {
-	    characters[ curPos++ ] = 'E';
+	    append('E');
 	    append( exponent );
 	} // if
 	

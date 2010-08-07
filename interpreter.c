@@ -1083,7 +1083,6 @@ else
 		CASE	INVOKESTATIC:	DEBUGPRINT1("invoke static: ");	// a static method
 						methodStackPush(local);
 						methodStackPush(cN);
-						DEBUGPRINTSTACK;	
 						methodStackPush(mN);
 						methodStackPush(pc);
 						k=findNumArgs(BYTECODEREF);

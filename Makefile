@@ -560,12 +560,11 @@ A:
  		${LANG}/Throwable.class \
  		${LANG}/Exception.class \
 		${LANG}/Error.class \
-		${LANG}/CharSequence.class \
 		${LANG}/ArithmeticException.class \
 		${LANG}/ClassCastException.class \
  		${LANG}/Integer.class \
  		${LANG}/StringBuilder.class \
-		${LANG}/StringUtils.class \
+ 		${LANG}/StringBuffer.class \
 		${LANG}/RuntimeException.class \
 		${LANG}/InterruptedException.class \
 		${LANG}/ArrayIndexOutOfBoundsException.class \
@@ -592,7 +591,7 @@ A:
   		$(APPCLASSPATH)/A.class
 
 compA:	
-	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/Aparent.java $(APPCLASSPATH)/A.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
 
 	
 AA:

@@ -542,9 +542,9 @@ void analyzeFields(classStructure* c){
 				u2 constantvalue_index = getU2(0);
 				u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
 				if (getU1(constantvalue) == CONSTANT_String) {
-                    u1 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
+                    u2 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
                     if (getU1(utf8) != CONSTANT_Utf8) {
-                        printf("error while reading class file, CONSTANT_String target is no Utf8 entry\n");
+                        printf("error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n", getU1(utf8));
                         exit(-1);
                     }
 
