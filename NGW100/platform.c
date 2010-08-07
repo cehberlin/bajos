@@ -130,21 +130,16 @@ U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
 /* 		application classes  DS(Ram) -> hard coded !!!*/
 void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
 	u4 length;
-	u1 i=0;
 char* addr;
 u4 temp;
 char buf[5];
 
-
-#ifdef NGW100
 classFileBase=(char*)NGW_FLASH_JAVA_BASE;  	/* boot classes in flash*/
 appClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	/* app classes in sdram*/
-#endif
 
 	heapInit();	/* linux avr8 malloc , others hard coded!*/
 	length=0;
 
-#if (NGW100||STK1000|| EVK1100)
 /* analyze bootclasses, which are programmed in flash*/
 strncpy(buf,classFileBase,4);
 buf[4]=0;
@@ -160,28 +155,25 @@ analyzeClass(&cs[cN]);
 addr+=cs[cN].classFileLength+4;
 }
 printf("%d bootclasses are loaded\n",cN);
-cN=numClasses;
 /* thats to boot classes*/
 /* now the application classes*/
-cN--;
 addr=appClassFileBase;
 length=0;
 		do
 		{
 		printf("load application classes-> type \"w\" \n");
-			cN++;
 			cs[cN].classFileStartAddress=addr+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
 			printf("\n");
 			length+=cs[cN].classFileLength;
 			analyzeClass(&cs[cN]);
+			cN++;
 			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
 /*!!*/
-cN++;
-#endif
+numClasses=cN;
 DEBUGPRINTHEAP;
 }
 
@@ -260,7 +252,6 @@ void exit(int status)	{
 
 u2 readClassFile(char* fileName,char* addr)		{
 
-#if (AVR32UC3A||AVR32AP7000)
 int i;
 char c=conIn(); /* dummy w*/
 if (c =='w')	{
@@ -287,5 +278,4 @@ else	{
 	conOut(5); /* turn on echo*/
 	return (u2) 0;
 }
-#endif
 }
