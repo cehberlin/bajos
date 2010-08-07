@@ -123,6 +123,7 @@ if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1){
 												// seraching for "objects in root-objects"
 for (i=1; i <HEAPOBJECTMARKER(nextElementPos).length;i++)	
 if ((HEAPOBJECT(nextElementPos+i).stackObj.magic==OBJECTMAGIC)
+&& HEAPOBJECT(nextElementPos+i).UInt != NULLOBJECT.UInt
 && (HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).magic==OBJECTMAGIC)
 &&   (HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).rootCheck==0)      ) {HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).rootCheck=1;stillAConcatedObject=1; }
 }
