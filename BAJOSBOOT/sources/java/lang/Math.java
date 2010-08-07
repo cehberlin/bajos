@@ -220,13 +220,7 @@ public final class Math {
   */
   public static float sin(float x)  // Using a Chebyshev-Pade approximation
   {
-    int n=(int)(x/PI2)+1; // reduce to the 4th and 1st quadrants
-    if(n<1)n=n-1;
-    if ((n&2)==0) x=x-(n&0xFFFFFFFE)*PI2;  // if it from the 2nd or the 3rd quadrants
-    else        x=-(x-(n&0xFFFFFFFE)*PI2);
-
-    float x2=x*x;
-    return (0.9238318854f-0.9595498071e-1f*x2)*x/(0.9238400690f+(0.5797298195e-1f+0.2031791179e-2f*x2)*x2);
+	return cos(x - PI2);
   }
 
   /**
