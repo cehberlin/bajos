@@ -12,8 +12,8 @@
  * - Supported devices:  All AVR32 devices with a USART module can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  ******************************************************************************/
 
@@ -48,10 +48,10 @@
 #include "usart.h"
 
 
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------*/
 /*! \name Private Functions
  */
-//! @{
+/*! @{*/
 
 
 /*! \brief Checks if the USART is in multidrop mode.
@@ -88,13 +88,13 @@ static __inline__ int usart_mode_is_multidrop(volatile avr32_usart_t *usart)
 
 static int usart_set_baudrate(volatile avr32_usart_t *usart, unsigned int baudrate, long pba_hz)
 {
-  // Clock divider.
+  /* Clock divider.*/
   int cd;
 
-  // Baudrate calculation.
+  /* Baudrate calculation.*/
   if (baudrate < pba_hz / 16)
   {
-    // Use 16x oversampling, clear SYNC bit.
+    /* Use 16x oversampling, clear SYNC bit.*/
     usart->mr &=~ (AVR32_USART_MR_OVER_MASK | AVR32_USART_MR_SYNC_MASK);
     cd = (pba_hz + 8 * baudrate) / (16 * baudrate); 
 
@@ -102,9 +102,9 @@ static int usart_set_baudrate(volatile avr32_usart_t *usart, unsigned int baudra
   }
   else if (baudrate < pba_hz / 8)
   {
-    // Use 8x oversampling.
+    /* Use 8x oversampling.*/
     usart->mr |= AVR32_USART_MR_OVER_MASK;
-    // clear SYNC bit
+    /* clear SYNC bit*/
     usart->mr &=~ AVR32_USART_MR_SYNC_MASK;
         
     cd = (pba_hz + 4 * baudrate) / (8 * baudrate);
@@ -113,9 +113,9 @@ static int usart_set_baudrate(volatile avr32_usart_t *usart, unsigned int baudra
   }
   else
   {
-    // set SYNC to 1 
+    /* set SYNC to 1 */
     usart->mr |= AVR32_USART_MR_SYNC_MASK;
-    // use PBA/BaudRate
+    /* use PBA/BaudRate*/
     cd = (pba_hz / baudrate);    
   }
   usart->brgr = cd << AVR32_USART_BRGR_CD_OFFSET;
@@ -123,28 +123,28 @@ static int usart_set_baudrate(volatile avr32_usart_t *usart, unsigned int baudra
   return USART_SUCCESS;
 }
 
-//! @}
+/*! @}*/
 
 
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------*/
 /*! \name Initialization Functions
  */
-//! @{
+/*! @{*/
 
 
 void usart_reset(volatile avr32_usart_t *usart)
 {
-  // Disable all USART interrupts.
-  // Interrupts needed should be set explicitly on every reset.
+  /* Disable all USART interrupts.*/
+  /* Interrupts needed should be set explicitly on every reset.*/
   usart->idr = 0xFFFFFFFF;
 
-  // Reset mode and other registers that could cause unpredictable behavior after reset.
+  /* Reset mode and other registers that could cause unpredictable behavior after reset.*/
   usart->mr = 0;
   usart->rtor = 0;
   usart->ttgr = 0;
 
-  // Shutdown TX and RX (will be re-enabled when setup has successfully completed),
-  // reset status bits and turn off DTR and RTS.
+  /* Shutdown TX and RX (will be re-enabled when setup has successfully completed),*/
+  /* reset status bits and turn off DTR and RTS.*/
   usart->cr = AVR32_USART_CR_RSTRX_MASK   |
               AVR32_USART_CR_RSTTX_MASK   |
               AVR32_USART_CR_RSTSTA_MASK  |
@@ -157,11 +157,11 @@ void usart_reset(volatile avr32_usart_t *usart)
 
 int usart_init_rs232(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz)
 {
-  // Reset the USART and shutdown TX and RX.
+  /* Reset the USART and shutdown TX and RX.*/
   usart_reset(usart);
 
-  // Check input values.
-  if (!opt) // Null pointer.
+  /* Check input values.*/
+  if (!opt) /* Null pointer.*/
     return USART_INVALID_INPUT;
   if (opt->charlength < 5 || opt->charlength > 9 ||
       opt->paritytype > 7 ||
@@ -174,12 +174,12 @@ int usart_init_rs232(volatile avr32_usart_t *usart, const usart_options_t *opt, 
 
   if (opt->charlength == 9)
   {
-    // Character length set to 9 bits. MODE9 dominates CHRL.
+    /* Character length set to 9 bits. MODE9 dominates CHRL.*/
     usart->mr |= AVR32_USART_MR_MODE9_MASK;
   }
   else
   {
-    // CHRL gives the character length (- 5) when MODE9 = 0.
+    /* CHRL gives the character length (- 5) when MODE9 = 0.*/
     usart->mr |= (opt->charlength - 5) << AVR32_USART_MR_CHRL_OFFSET;
   }
 
@@ -188,17 +188,17 @@ int usart_init_rs232(volatile avr32_usart_t *usart, const usart_options_t *opt, 
 
   if (opt->stopbits > USART_2_STOPBITS)
   {
-    // Set two stop bits
+    /* Set two stop bits*/
     usart->mr |= AVR32_USART_MR_NBSTOP_2 << AVR32_USART_MR_NBSTOP_OFFSET;
-    // and a timeguard period gives the rest.
+    /* and a timeguard period gives the rest.*/
     usart->ttgr = opt->stopbits - USART_2_STOPBITS;
   }
   else
-    // Insert 1, 1.5 or 2 stop bits.
+    /* Insert 1, 1.5 or 2 stop bits.*/
     usart->mr |= opt->stopbits << AVR32_USART_MR_NBSTOP_OFFSET;
 
-  // Setup complete; enable communication.
-  // Enable input and output.
+  /* Setup complete; enable communication.*/
+  /* Enable input and output.*/
   usart->cr |= AVR32_USART_CR_TXEN_MASK |
                AVR32_USART_CR_RXEN_MASK;
 
@@ -208,13 +208,13 @@ int usart_init_rs232(volatile avr32_usart_t *usart, const usart_options_t *opt, 
 
 int usart_init_hw_handshaking(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz)
 {
-  // First: Setup standard RS232.
+  /* First: Setup standard RS232.*/
   if (usart_init_rs232(usart, opt, pba_hz) == USART_INVALID_INPUT)
     return USART_INVALID_INPUT;
 
-  // Clear previous mode.
+  /* Clear previous mode.*/
   usart->mr &= ~AVR32_USART_MR_MODE_MASK;
-  // Hardware handshaking.
+  /* Hardware handshaking.*/
   usart->mr |= USART_MODE_HW_HSH << AVR32_USART_MR_MODE_OFFSET;
 
   return USART_SUCCESS;
@@ -224,14 +224,14 @@ int usart_init_hw_handshaking(volatile avr32_usart_t *usart, const usart_options
 int usart_init_IrDA(volatile avr32_usart_t *usart, const usart_options_t *opt,
                     long pba_hz, unsigned char irda_filter)
 {
-  // First: Setup standard RS232.
+  /* First: Setup standard RS232.*/
   if (usart_init_rs232(usart, opt, pba_hz) == USART_INVALID_INPUT)
     return USART_INVALID_INPUT;
 
-  // Set IrDA counter.
+  /* Set IrDA counter.*/
   usart->ifr = irda_filter;
 
-  // Activate "low-pass filtering" of input.
+  /* Activate "low-pass filtering" of input.*/
   usart->mr |= AVR32_USART_MR_FILTER_MASK;
 
   return USART_SUCCESS;
@@ -240,13 +240,13 @@ int usart_init_IrDA(volatile avr32_usart_t *usart, const usart_options_t *opt,
 
 int usart_init_modem(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz)
 {
-  // First: Setup standard RS232.
+  /* First: Setup standard RS232.*/
   if (usart_init_rs232(usart, opt, pba_hz) == USART_INVALID_INPUT)
     return USART_INVALID_INPUT;
 
-  // Clear previous mode.
+  /* Clear previous mode.*/
   usart->mr &= ~AVR32_USART_MR_MODE_MASK;
-  // Set modem mode.
+  /* Set modem mode.*/
   usart->mr |= USART_MODE_MODEM << AVR32_USART_MR_MODE_OFFSET;
 
   return USART_SUCCESS;
@@ -255,13 +255,13 @@ int usart_init_modem(volatile avr32_usart_t *usart, const usart_options_t *opt, 
 
 int usart_init_rs485(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz)
 {
-  // First: Setup standard RS232.
+  /* First: Setup standard RS232.*/
   if (usart_init_rs232(usart, opt, pba_hz) == USART_INVALID_INPUT)
     return USART_INVALID_INPUT;
 
-  // Clear previous mode.
+  /* Clear previous mode.*/
   usart->mr &= ~AVR32_USART_MR_MODE_MASK;
-  // Set RS485 mode.
+  /* Set RS485 mode.*/
   usart->mr |= USART_MODE_RS485 << AVR32_USART_MR_MODE_OFFSET;
 
   return USART_SUCCESS;
@@ -270,30 +270,30 @@ int usart_init_rs485(volatile avr32_usart_t *usart, const usart_options_t *opt, 
 
 int usart_init_iso7816(volatile avr32_usart_t *usart, const iso7816_options_t *opt, int t, long pba_hz)
 {
-  // Reset the USART and shutdown TX and RX.
+  /* Reset the USART and shutdown TX and RX.*/
   usart_reset(usart);
 
-  // Check input values.
-  if (!opt) // Null pointer.
+  /* Check input values.*/
+  if (!opt) /* Null pointer.*/
     return USART_INVALID_INPUT;
 
   if (t == 0)
   {
-    // Set USART mode to ISO7816, T=0.
-    // The T=0 protocol always uses 2 stop bits.
+    /* Set USART mode to ISO7816, T=0.*/
+    /* The T=0 protocol always uses 2 stop bits.*/
     usart->mr = (USART_MODE_ISO7816_T0 << AVR32_USART_MR_MODE_OFFSET) |
                 (AVR32_USART_MR_NBSTOP_2 << AVR32_USART_MR_NBSTOP_OFFSET) |
-                (opt->bit_order << AVR32_USART_MR_MSBF_OFFSET); // Allow MSBF in T=0.
+                (opt->bit_order << AVR32_USART_MR_MSBF_OFFSET); /* Allow MSBF in T=0.*/
   }
   else if (t == 1)
   {
-    // Only LSB first in the T=1 protocol.
-    // max_iterations field is only used in T=0 mode.
+    /* Only LSB first in the T=1 protocol.*/
+    /* max_iterations field is only used in T=0 mode.*/
     if (opt->bit_order != 0 ||
         opt->max_iterations != 0)
       return USART_INVALID_INPUT;
-    // Set USART mode to ISO7816, T=1.
-    // The T=1 protocol always uses 1 stop bit.
+    /* Set USART mode to ISO7816, T=1.*/
+    /* The T=1 protocol always uses 1 stop bit.*/
     usart->mr = (USART_MODE_ISO7816_T1 << AVR32_USART_MR_MODE_OFFSET) |
                 (AVR32_USART_MR_NBSTOP_1 << AVR32_USART_MR_NBSTOP_OFFSET);
   }
@@ -303,38 +303,38 @@ int usart_init_iso7816(volatile avr32_usart_t *usart, const iso7816_options_t *o
   if (usart_set_baudrate(usart, opt->iso7816_hz, pba_hz) == USART_INVALID_INPUT)
     return USART_INVALID_INPUT;
 
-  // Set FIDI register: bit rate = selected clock/FI_DI_ratio/16.
+  /* Set FIDI register: bit rate = selected clock/FI_DI_ratio/16.*/
   usart->fidi = opt->fidi_ratio;
-  // Set ISO7816 spesific options in the MODE register.
+  /* Set ISO7816 spesific options in the MODE register.*/
   usart->mr |= (opt->inhibit_nack << AVR32_USART_MR_INACK_OFFSET) |
                (opt->dis_suc_nack << AVR32_USART_MR_DSNACK_OFFSET) |
                (opt->max_iterations << AVR32_USART_MR_MAX_ITERATION_OFFSET) |
-               AVR32_USART_MR_CLKO_MASK;  // Enable clock output.
+               AVR32_USART_MR_CLKO_MASK;  /* Enable clock output.*/
 
-  // Setup complete; enable input.
-  // Leave TX disabled for now.
+  /* Setup complete; enable input.*/
+  /* Leave TX disabled for now.*/
   usart->cr |= AVR32_USART_CR_RXEN_MASK;
 
   return USART_SUCCESS;
 }
-//! @}
+/*! @}*/
 
 
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------*/
 /*! \name Transmit/Receive Functions
  */
-//! @{
+/*! @{*/
 
 
 int usart_send_address(volatile avr32_usart_t *usart, int address)
 {
-  // Check if USART is in multidrop / RS485 mode.
+  /* Check if USART is in multidrop / RS485 mode.*/
   if (!usart_mode_is_multidrop(usart)) return USART_MODE_FAULT;
 
-  // Prepare to send an address.
+  /* Prepare to send an address.*/
   usart->cr |= AVR32_USART_CR_SENDA_MASK;
 
-  // Write the address to TX.
+  /* Write the address to TX.*/
   usart_bw_write_char(usart, address);
 
   return USART_SUCCESS;
@@ -378,14 +378,14 @@ int usart_putchar(volatile avr32_usart_t *usart, int c)
 
 int usart_read_char(volatile avr32_usart_t *usart, int *c)
 {
-  // Check for errors: frame, parity and overrun. In RS485 mode, a parity error
-  // would mean that an address char has been received.
+  /* Check for errors: frame, parity and overrun. In RS485 mode, a parity error*/
+  /* would mean that an address char has been received.*/
   if (usart->csr & (AVR32_USART_CSR_OVRE_MASK |
                     AVR32_USART_CSR_FRAME_MASK |
                     AVR32_USART_CSR_PARE_MASK))
     return USART_RX_ERROR;
 
-  // No error; if we really did receive a char, read it and return SUCCESS.
+  /* No error; if we really did receive a char, read it and return SUCCESS.*/
   if (usart_test_hit(usart))
   {
     *c = (unsigned short)usart->rhr;
@@ -446,4 +446,4 @@ int usart_get_echo_line(volatile avr32_usart_t *usart)
 }
 
 
-//! @}
+/*! @}*/

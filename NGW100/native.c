@@ -2,14 +2,14 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// C-functions for native methods
-// native void method -> C-function ret value 0
-// native non void method -> c-cunction ret value 1 (ret value on java -opStack)
-// remember:
-// invokespecial Operand Stack
-// ..., objectref, [arg0, [arg1 ...]] -> ...
-// invokestatic: Operand Stack
-// ..., [arg0, [arg1 ...]] -> ...
+/* C-functions for native methods*/
+/* native void method -> C-function ret value 0*/
+/* native non void method -> c-cunction ret value 1 (ret value on java -opStack)*/
+/* remember:*/
+/* invokespecial Operand Stack*/
+/* ..., objectref, [arg0, [arg1 ...]] -> ...*/
+/* invokestatic: Operand Stack*/
+/* ..., [arg0, [arg1 ...]] -> ...*/
 
 
 #include <stdio.h>
@@ -41,6 +41,6 @@ char currentTimeMillis(){
 
 char nativeExit(int status)	{
 	asm("  lda.w   pc, 0");
-//asm("  mov   pc, 0");
-//goto *0x00000000;
+/*asm("  mov   pc, 0");*/
+/*goto *0x00000000;*/
 	return 0;		}

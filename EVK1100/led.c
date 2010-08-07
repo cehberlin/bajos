@@ -12,8 +12,8 @@
  * - Supported devices:  All AVR32 AT32UC3A devices can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  ******************************************************************************/
 
@@ -52,23 +52,23 @@
 #include "led.h"
 
 
-//! Structure describing LED hardware connections.
+/*! Structure describing LED hardware connections.*/
 typedef const struct
 {
   struct
   {
-    U32 PORT;     //!< LED GPIO port.
-    U32 PIN_MASK; //!< Bit-mask of LED pin in GPIO port.
-  } GPIO; //!< LED GPIO descriptor.
+    U32 PORT;     /*!< LED GPIO port.*/
+    U32 PIN_MASK; /*!< Bit-mask of LED pin in GPIO port.*/
+  } GPIO; /*!< LED GPIO descriptor.*/
   struct
   {
-    S32 CHANNEL;  //!< LED PWM channel (< 0 if N/A).
-    S32 FUNCTION; //!< LED pin PWM function (< 0 if N/A).
-  } PWM;  //!< LED PWM descriptor.
+    S32 CHANNEL;  /*!< LED PWM channel (< 0 if N/A).*/
+    S32 FUNCTION; /*!< LED pin PWM function (< 0 if N/A).*/
+  } PWM;  /*!< LED PWM descriptor.*/
 } tLED_DESCRIPTOR;
 
 
-//! Hardware descriptors of all LEDs.
+/*! Hardware descriptors of all LEDs.*/
 static tLED_DESCRIPTOR LED_DESCRIPTOR[LED_COUNT] =
 {
 #define INSERT_LED_DESCRIPTOR(LED_NO, unused)                 \
@@ -81,7 +81,7 @@ static tLED_DESCRIPTOR LED_DESCRIPTOR[LED_COUNT] =
 };
 
 
-//! Saved state of all LEDs.
+/*! Saved state of all LEDs.*/
 static volatile U32 LED_State = (1 << LED_COUNT) - 1;
 
 
@@ -93,22 +93,22 @@ U32 LED_Read_Display(void)
 
 void LED_Display(U32 leds)
 {
-  // Use the LED descriptors to get the connections of a given LED to the MCU.
+  /* Use the LED descriptors to get the connections of a given LED to the MCU.*/
   tLED_DESCRIPTOR *led_descriptor;
   volatile avr32_gpio_port_t *led_gpio_port;
 
-  // Make sure only existing LEDs are specified.
+  /* Make sure only existing LEDs are specified.*/
   leds &= (1 << LED_COUNT) - 1;
 
-  // Update the saved state of all LEDs with the requested changes.
+  /* Update the saved state of all LEDs with the requested changes.*/
   LED_State = leds;
 
-  // For all LEDs...
+  /* For all LEDs...*/
   for (led_descriptor = &LED_DESCRIPTOR[0];
        led_descriptor < LED_DESCRIPTOR + LED_COUNT;
        led_descriptor++)
   {
-    // Set the LED to the requested state.
+    /* Set the LED to the requested state.*/
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
     if (leds & 1)
     {
@@ -133,21 +133,21 @@ U32 LED_Read_Display_Mask(U32 mask)
 
 void LED_Display_Mask(U32 mask, U32 leds)
 {
-  // Use the LED descriptors to get the connections of a given LED to the MCU.
+  /* Use the LED descriptors to get the connections of a given LED to the MCU.*/
   tLED_DESCRIPTOR *led_descriptor = &LED_DESCRIPTOR[0] - 1;
   volatile avr32_gpio_port_t *led_gpio_port;
   U8 led_shift;
 
-  // Make sure only existing LEDs are specified.
+  /* Make sure only existing LEDs are specified.*/
   mask &= (1 << LED_COUNT) - 1;
 
-  // Update the saved state of all LEDs with the requested changes.
+  /* Update the saved state of all LEDs with the requested changes.*/
   Wr_bits(LED_State, mask, leds);
 
-  // While there are specified LEDs left to manage...
+  /* While there are specified LEDs left to manage...*/
   while (mask)
   {
-    // Select the next specified LED and set it to the requested state.
+    /* Select the next specified LED and set it to the requested state.*/
     led_shift = 1 + ctz(mask);
     led_descriptor += led_shift;
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
@@ -176,21 +176,21 @@ Bool LED_Test(U32 leds)
 
 void LED_Off(U32 leds)
 {
-  // Use the LED descriptors to get the connections of a given LED to the MCU.
+  /* Use the LED descriptors to get the connections of a given LED to the MCU.*/
   tLED_DESCRIPTOR *led_descriptor = &LED_DESCRIPTOR[0] - 1;
   volatile avr32_gpio_port_t *led_gpio_port;
   U8 led_shift;
 
-  // Make sure only existing LEDs are specified.
+  /* Make sure only existing LEDs are specified.*/
   leds &= (1 << LED_COUNT) - 1;
 
-  // Update the saved state of all LEDs with the requested changes.
+  /* Update the saved state of all LEDs with the requested changes.*/
   Clr_bits(LED_State, leds);
 
-  // While there are specified LEDs left to manage...
+  /* While there are specified LEDs left to manage...*/
   while (leds)
   {
-    // Select the next specified LED and turn it off.
+    /* Select the next specified LED and turn it off.*/
     led_shift = 1 + ctz(leds);
     led_descriptor += led_shift;
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
@@ -204,21 +204,21 @@ void LED_Off(U32 leds)
 
 void LED_On(U32 leds)
 {
-  // Use the LED descriptors to get the connections of a given LED to the MCU.
+  /* Use the LED descriptors to get the connections of a given LED to the MCU.*/
   tLED_DESCRIPTOR *led_descriptor = &LED_DESCRIPTOR[0] - 1;
   volatile avr32_gpio_port_t *led_gpio_port;
   U8 led_shift;
 
-  // Make sure only existing LEDs are specified.
+  /* Make sure only existing LEDs are specified.*/
   leds &= (1 << LED_COUNT) - 1;
 
-  // Update the saved state of all LEDs with the requested changes.
+  /* Update the saved state of all LEDs with the requested changes.*/
   Set_bits(LED_State, leds);
 
-  // While there are specified LEDs left to manage...
+  /* While there are specified LEDs left to manage...*/
   while (leds)
   {
-    // Select the next specified LED and turn it on.
+    /* Select the next specified LED and turn it on.*/
     led_shift = 1 + ctz(leds);
     led_descriptor += led_shift;
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
@@ -232,21 +232,21 @@ void LED_On(U32 leds)
 
 void LED_Toggle(U32 leds)
 {
-  // Use the LED descriptors to get the connections of a given LED to the MCU.
+  /* Use the LED descriptors to get the connections of a given LED to the MCU.*/
   tLED_DESCRIPTOR *led_descriptor = &LED_DESCRIPTOR[0] - 1;
   volatile avr32_gpio_port_t *led_gpio_port;
   U8 led_shift;
 
-  // Make sure only existing LEDs are specified.
+  /* Make sure only existing LEDs are specified.*/
   leds &= (1 << LED_COUNT) - 1;
 
-  // Update the saved state of all LEDs with the requested changes.
+  /* Update the saved state of all LEDs with the requested changes.*/
   Tgl_bits(LED_State, leds);
 
-  // While there are specified LEDs left to manage...
+  /* While there are specified LEDs left to manage...*/
   while (leds)
   {
-    // Select the next specified LED and toggle it.
+    /* Select the next specified LED and toggle it.*/
     led_shift = 1 + ctz(leds);
     led_descriptor += led_shift;
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
@@ -266,7 +266,7 @@ U32 LED_Read_Display_Field(U32 field)
 
 void LED_Display_Field(U32 field, U32 leds)
 {
-  // Move the bit-field to the appropriate position for the bit-mask.
+  /* Move the bit-field to the appropriate position for the bit-mask.*/
   LED_Display_Mask(field, leds << ctz(field));
 }
 
@@ -275,12 +275,12 @@ U8 LED_Get_Intensity(U32 led)
 {
   tLED_DESCRIPTOR *led_descriptor;
 
-  // Check that the argument value is valid.
+  /* Check that the argument value is valid.*/
   led = ctz(led);
   led_descriptor = &LED_DESCRIPTOR[led];
   if (led >= LED_COUNT || led_descriptor->PWM.CHANNEL < 0) return 0;
 
-  // Return the duty cycle value if the LED PWM channel is enabled, else 0.
+  /* Return the duty cycle value if the LED PWM channel is enabled, else 0.*/
   return (AVR32_PWM.sr & (1 << led_descriptor->PWM.CHANNEL)) ?
            AVR32_PWM.channel[led_descriptor->PWM.CHANNEL].cdty : 0;
 }
@@ -293,15 +293,15 @@ void LED_Set_Intensity(U32 leds, U8 intensity)
   volatile avr32_gpio_port_t *led_gpio_port;
   U8 led_shift;
 
-  // For each specified LED...
+  /* For each specified LED...*/
   for (leds &= (1 << LED_COUNT) - 1; leds; leds >>= led_shift)
   {
-    // Select the next specified LED and check that it has a PWM channel.
+    /* Select the next specified LED and check that it has a PWM channel.*/
     led_shift = 1 + ctz(leds);
     led_descriptor += led_shift;
     if (led_descriptor->PWM.CHANNEL < 0) continue;
 
-    // Initialize or update the LED PWM channel.
+    /* Initialize or update the LED PWM channel.*/
     led_pwm_channel = &AVR32_PWM.channel[led_descriptor->PWM.CHANNEL];
     if (!(AVR32_PWM.sr & (1 << led_descriptor->PWM.CHANNEL)))
     {
@@ -320,7 +320,7 @@ void LED_Set_Intensity(U32 leds, U8 intensity)
       led_pwm_channel->cupd = intensity;
     }
 
-    // Switch the LED pin to its PWM function.
+    /* Switch the LED pin to its PWM function.*/
     led_gpio_port = &AVR32_GPIO.port[led_descriptor->GPIO.PORT];
     if (led_descriptor->PWM.FUNCTION & 0x1)
     {

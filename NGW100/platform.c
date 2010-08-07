@@ -1,5 +1,5 @@
 
-// a bad and ugly hack!!
+/* a bad and ugly hack!!*/
 /* ************************************************************************ *\
 Copyright (c) 2006, Atmel Corporation All rights reserved. 
 
@@ -61,21 +61,21 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P2SEGADDR(a) 		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | P2SEG))
 #define uncached(addr)		((void *)P2SEGADDR(addr))
 
-#define NB_CLOCK_CYCLE_DELAY_SHORTER    10000   // 1 ms if fCPU==20MHz adjust it
-#define NB_CLOCK_CYCLE_DELAY_SHORT    1000000   // 100 ms if fCPU==20MHz
-#define NB_CLOCK_CYCLE_DELAY_LONG    20000000   // 1 s if fCPU==20MHz
+#define NB_CLOCK_CYCLE_DELAY_SHORTER    10000   /* 1 ms if fCPU==20MHz adjust it*/
+#define NB_CLOCK_CYCLE_DELAY_SHORT    1000000   /* 100 ms if fCPU==20MHz*/
+#define NB_CLOCK_CYCLE_DELAY_LONG    20000000   /* 1 s if fCPU==20MHz*/
 
-// COUNT/COMPARE match interrupt handler
-// GCC-specific syntax to declare an interrupt handler. The interrupt handler
-// registration is done in the main function using the INTC software driver module.
+/* COUNT/COMPARE match interrupt handler*/
+/* GCC-specific syntax to declare an interrupt handler. The interrupt handler*/
+/* registration is done in the main function using the INTC software driver module.*/
 __attribute__((__interrupt__))	static void compare_irq_handler(void)	{
-  // Count the number of times this IRQ handler is called.
-  // Clear the pending interrupt(writing a value to the COMPARE register clears
-  // any pending compare interrupt requests). Schedule the COUNT&COMPARE match
-  // interrupt to happen every NB_CLOCK_CYCLE_DELAY cycles.
-  // AP7000 don't reset COUNT on compare match. We need to offset next COMPARE.
+  /* Count the number of times this IRQ handler is called.*/
+  /* Clear the pending interrupt(writing a value to the COMPARE register clears*/
+  /* any pending compare interrupt requests). Schedule the COUNT&COMPARE match*/
+  /* interrupt to happen every NB_CLOCK_CYCLE_DELAY cycles.*/
+  /* AP7000 don't reset COUNT on compare match. We need to offset next COMPARE.*/
    U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
-  // Avoid disabling compare			
+  /* Avoid disabling compare			*/
   Set_sys_compare((next_compare==0)?1:next_compare);
   timerMilliSec++;
 }
@@ -83,7 +83,7 @@ __attribute__((__interrupt__))	static void compare_irq_handler(void)	{
 typedef char avr32_piomap_t[][2];
 
 void initHW(){
-   // Reset PM. Makes sure we get the expected clocking after a soft reset (e.g.: JTAG reset)
+   /* Reset PM. Makes sure we get the expected clocking after a soft reset (e.g.: JTAG reset)*/
 pm_reset();
 usartInit();
 stdIOInit();
@@ -100,24 +100,24 @@ static const struct sdram_info sdram = {
 	.tras		= 5,
 	.txsr		= 5,		};
 
-//MT481C2M16B2TG SDRAM 
+/*MT481C2M16B2TG SDRAM */
 hmatrix2_writel(SFR4, 1 << 1);
 sdram_init(&sdram);
 Disable_global_interrupt();
 INTC_init_interrupts();
-   // Register the compare interrupt handler to the interrupt controller.
-   // compare_irq_handler is the interrupt handler to register.
-   // AVR32_CORE_COMPARE_IRQ is the IRQ of the interrupt handler to register.
-   // AVR32_INTC_INT0 is the interrupt priority level to assign to the group of this IRQ.
-   // void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);
+   /* Register the compare interrupt handler to the interrupt controller.*/
+   /* compare_irq_handler is the interrupt handler to register.*/
+   /* AVR32_CORE_COMPARE_IRQ is the IRQ of the interrupt handler to register.*/
+   /* AVR32_INTC_INT0 is the interrupt priority level to assign to the group of this IRQ.*/
+   /* void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);*/
 INTC_register_interrupt(&compare_irq_handler, AVR32_CORE_COMPARE_IRQ, AVR32_INTC_INT0);
-   // Enable all interrupts.
+   /* Enable all interrupts.*/
 Enable_global_interrupt();
-   // Schedule the COUNT&COMPARE match interrupt in NB_CLOCK_CYCLE_DELAY_SHORT 
-   // clock cycles from now.
+   /* Schedule the COUNT&COMPARE match interrupt in NB_CLOCK_CYCLE_DELAY_SHORT */
+   /* clock cycles from now.*/
 U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
- // Avoid disabling compare			
-  Set_sys_compare(((next_compare==0)?1:next_compare)); // GO
+ /* Avoid disabling compare			*/
+  Set_sys_compare(((next_compare==0)?1:next_compare)); /* GO*/
 }
 
 char conIn()	{
@@ -130,8 +130,8 @@ void conOut(char c)	 {
 
 int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
-//if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
-//if (file != 0)return unimplemented_syscall("_read with filedes != 0");
+/*if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);*/
+/*if (file != 0)return unimplemented_syscall("_read with filedes != 0");*/
 	for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
 	return len;
 }
@@ -145,8 +145,8 @@ int i;
 */
 int __attribute__((weak)) _write (int file, char * ptr, int len){
 int i;
-//if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);
-//if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");
+/*if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);*/
+/*if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");*/
 /* if(file==3){
 for(i = 0 ; i < len; i++){
 avr32fb_putchar(ptr[i]);
@@ -160,7 +160,7 @@ return len;
 } 
 
 void stdIOInit()	{	
-//To configure standard I/O streams as unbuffered, you can simply:
+/*To configure standard I/O streams as unbuffered, you can simply:*/
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL); 
 }
@@ -174,13 +174,13 @@ gpio_map_t usart_piomap = {			\
     {AVR32_USART1_TXD_0_PIN, AVR32_USART1_TXD_0_FUNCTION}   \
   };
 
-// Set options for the USART
+/* Set options for the USART*/
   opt.baudrate = 115200;
   opt.charlength = 8;
   opt.paritytype = USART_NO_PARITY;
   opt.stopbits = USART_1_STOPBIT;
   opt.channelmode = USART_NORMAL_CHMODE;
-  // Initialize it in RS232 mode
+  /* Initialize it in RS232 mode*/
   usart_init_rs232(usart, &opt, cpu_hz);
   pio_enable_module(usart_piomap,
                       sizeof(usart_piomap) / sizeof(usart_piomap[0]));

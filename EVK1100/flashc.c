@@ -11,8 +11,8 @@
  * - Supported devices:  All AVR32 devices with a FLASHC module can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  ******************************************************************************/
 
@@ -47,12 +47,14 @@
 #include <avr32/io.h>
 #include <stddef.h>
 #include "compiler.h"
+/*suse 10.3*/
+#include "compatibility.h"
 #include "flashc.h"
 
 
 /*! \name FLASHC Writable Bit-Field Registers
  */
-//! @{
+/*! @{*/
 
 typedef union
 {
@@ -66,12 +68,12 @@ typedef union
   avr32_flashc_fcmd_t           FCMD;
 } u_avr32_flashc_fcmd_t;
 
-//! @}
+/*! @}*/
 
 
 /*! \name Flash Properties
  */
-//! @{
+/*! @{*/
 
 
 unsigned int flashc_get_flash_size(void)
@@ -115,12 +117,12 @@ unsigned int flashc_get_region_first_page_number(unsigned int region)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name FLASHC Control
  */
-//! @{
+/*! @{*/
 
 
 unsigned int flashc_get_wait_state(void)
@@ -179,12 +181,12 @@ void flashc_enable_prog_error_int(Bool enable)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name FLASHC Status
  */
-//! @{
+/*! @{*/
 
 
 Bool flashc_is_ready(void)
@@ -219,10 +221,10 @@ static unsigned int flashc_get_error_status(void)
 }
 
 
-//! Sticky error status of the FLASHC.
-//! This variable is updated by functions that issue FLASHC commands. It
-//! contains the cumulated FLASHC error status of all the FLASHC commands issued
-//! by a function.
+/*! Sticky error status of the FLASHC.*/
+/*! This variable is updated by functions that issue FLASHC commands. It*/
+/*! contains the cumulated FLASHC error status of all the FLASHC commands issued*/
+/*! by a function.*/
 static unsigned int flashc_error_status = 0;
 
 
@@ -238,12 +240,12 @@ Bool flashc_is_programming_error(void)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name FLASHC Command Control
  */
-//! @{
+/*! @{*/
 
 
 unsigned int flashc_get_command(void)
@@ -272,12 +274,12 @@ void flashc_issue_command(unsigned int command, int page_number)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name FLASHC Global Commands
  */
-//! @{
+/*! @{*/
 
 
 void flashc_no_operation(void)
@@ -292,12 +294,12 @@ void flashc_erase_all(void)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name FLASHC Protection Mechanisms
  */
-//! @{
+/*! @{*/
 
 
 Bool flashc_is_security_bit_active(void)
@@ -386,12 +388,12 @@ void flashc_lock_all_regions(Bool lock)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name Access to General-Purpose Fuses
  */
-//! @{
+/*! @{*/
 
 
 Bool flashc_read_gp_fuse_bit(unsigned int gp_fuse_bit)
@@ -574,12 +576,12 @@ void flashc_set_all_gp_fuses(U32 value)
 }
 
 
-//! @}
+/*! @}*/
 
 
 /*! \name Access to Flash Pages
  */
-//! @{
+/*! @{*/
 
 
 void flashc_clear_page_buffer(void)
@@ -635,10 +637,9 @@ void flashc_write_page(int page_number)
   flashc_issue_command(AVR32_FLASHC_FCMD_CMD_WP, page_number);
 }
 
-
-Bool flashc_check_user_page_erase(void)
+Bool flashc_check_user_page_erase()
 {
-  volatile U64 *user_page_ptr = (U64 *)AVR32_FLASHC_USER_PAGE;
+  volatile U64* user_page_ptr = (U64*)(AVR32_FLASHC_USER_PAGE);
   while (user_page_ptr < (U64 *)(AVR32_FLASHC_USER_PAGE + AVR32_FLASHC_USER_PAGE_SIZE))
   {
     if (*user_page_ptr++ != 0xFFFFFFFFFFFFFFFFULL)
@@ -681,7 +682,7 @@ volatile void *flashc_memset32(volatile void *dst, U32 src, size_t nbytes, Bool 
 
 volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool erase)
 {
-  // Use aggregated pointers to have several alignments available for a same address.
+  /* Use aggregated pointers to have several alignments available for a same address.*/
   UnionCVPtr flash_array_end;
   UnionVPtr dest;
   Union64 source = {0};
@@ -693,7 +694,7 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
   unsigned int error_status = 0;
   unsigned int i;
 
-  // Reformat arguments.
+  /* Reformat arguments.*/
   flash_array_end.u8ptr = AVR32_FLASH + flashc_get_flash_size();
   dest.u8ptr = dst;
   for (i = (Get_align((U32)dest.u8ptr, sizeof(U64)) - 1) & (sizeof(U64) - 1);
@@ -704,7 +705,7 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
   }
   dest_end.u8ptr = dest.u8ptr + nbytes;
 
-  // If destination is outside flash, go to next flash page if any.
+  /* If destination is outside flash, go to next flash page if any.*/
   if (dest.u8ptr < AVR32_FLASH)
   {
     dest.u8ptr = AVR32_FLASH;
@@ -714,7 +715,7 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
     dest.u8ptr = AVR32_FLASHC_USER_PAGE;
   }
 
-  // If end of destination is outside flash, move it to the end of the previous flash page if any.
+  /* If end of destination is outside flash, move it to the end of the previous flash page if any.*/
   if (dest_end.u8ptr > AVR32_FLASHC_USER_PAGE + AVR32_FLASHC_USER_PAGE_SIZE)
   {
     dest_end.u8ptr = AVR32_FLASHC_USER_PAGE + AVR32_FLASHC_USER_PAGE_SIZE;
@@ -724,100 +725,100 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
     dest_end.u8ptr = flash_array_end.u8ptr;
   }
 
-  // Align each end of destination pointer with its natural boundary.
+  /* Align each end of destination pointer with its natural boundary.*/
   dest_end.u16ptr = (U16 *)Align_down((U32)dest_end.u8ptr, sizeof(U16));
   dest_end.u32ptr = (U32 *)Align_down((U32)dest_end.u16ptr, sizeof(U32));
   dest_end.u64ptr = (U64 *)Align_down((U32)dest_end.u32ptr, sizeof(U64));
 
-  // While end of destination is not reached...
+  /* While end of destination is not reached...*/
   while (dest.u8ptr < dest_end.u8ptr)
   {
-    // Clear the page buffer in order to prepare data for a flash page write.
+    /* Clear the page buffer in order to prepare data for a flash page write.*/
     flashc_clear_page_buffer();
     error_status |= flashc_error_status;
 
-    // Determine where the source data will end in the current flash page.
+    /* Determine where the source data will end in the current flash page.*/
     flash_page_source_end.u64ptr =
       (U64 *)min((U32)dest_end.u64ptr,
                  Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) + AVR32_FLASHC_PAGE_SIZE);
 
-    // Determine if the current destination page has an incomplete end.
+    /* Determine if the current destination page has an incomplete end.*/
     incomplete_flash_page_end = (Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) >=
                                  Align_down((U32)dest_end.u8ptr, AVR32_FLASHC_PAGE_SIZE));
 
-    // Use a flash double-word buffer to manage unaligned accesses.
+    /* Use a flash double-word buffer to manage unaligned accesses.*/
     flash_dword.u64 = source.u64;
 
-    // If destination does not point to the beginning of the current flash page...
+    /* If destination does not point to the beginning of the current flash page...*/
     if (!Test_align((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE))
     {
-      // Fill the beginning of the page buffer with the current flash page data.
-      // This is required by the hardware, even if page erase is not requested,
-      // in order to be able to write successfully to erased parts of flash
-      // pages that have already been written to.
+      /* Fill the beginning of the page buffer with the current flash page data.*/
+      /* This is required by the hardware, even if page erase is not requested,*/
+      /* in order to be able to write successfully to erased parts of flash*/
+      /* pages that have already been written to.*/
       for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
            tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
            tmp.u64ptr++)
         *tmp.u64ptr = *tmp.u64ptr;
 
-      // If destination is not 64-bit aligned...
+      /* If destination is not 64-bit aligned...*/
       if (!Test_align((U32)dest.u8ptr, sizeof(U64)))
       {
-        // Fill the beginning of the flash double-word buffer with the current
-        // flash page data.
-        // This is required by the hardware, even if page erase is not
-        // requested, in order to be able to write successfully to erased parts
-        // of flash pages that have already been written to.
+        /* Fill the beginning of the flash double-word buffer with the current*/
+        /* flash page data.*/
+        /* This is required by the hardware, even if page erase is not*/
+        /* requested, in order to be able to write successfully to erased parts*/
+        /* of flash pages that have already been written to.*/
         for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
           flash_dword.u8[i] = *tmp.u8ptr++;
 
-        // Align the destination pointer with its 64-bit boundary.
+        /* Align the destination pointer with its 64-bit boundary.*/
         dest.u64ptr = (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
 
-        // If the current destination double-word is not the last one...
+        /* If the current destination double-word is not the last one...*/
         if (dest.u64ptr < dest_end.u64ptr)
         {
-          // Write the flash double-word buffer to the page buffer and reinitialize it.
+          /* Write the flash double-word buffer to the page buffer and reinitialize it.*/
           *dest.u64ptr++ = flash_dword.u64;
           flash_dword.u64 = source.u64;
         }
       }
     }
 
-    // Write the source data to the page buffer with 64-bit alignment.
+    /* Write the source data to the page buffer with 64-bit alignment.*/
     for (i = flash_page_source_end.u64ptr - dest.u64ptr; i; i--)
       *dest.u64ptr++ = source.u64;
 
-    // If the current destination page has an incomplete end...
+    /* If the current destination page has an incomplete end...*/
     if (incomplete_flash_page_end)
     {
-      // This is required by the hardware, even if page erase is not requested,
-      // in order to be able to write successfully to erased parts of flash
-      // pages that have already been written to.
+      /* This is required by the hardware, even if page erase is not requested,*/
+      /* in order to be able to write successfully to erased parts of flash*/
+      /* pages that have already been written to.*/
       {
         tmp.u8ptr = (volatile U8 *)dest_end.u8ptr;
 
-        // If end of destination is not 64-bit aligned...
+        /* If end of destination is not 64-bit aligned...*/
         if (!Test_align((U32)dest_end.u8ptr, sizeof(U64)))
         {
-          // Fill the end of the flash double-word buffer with the current flash page data.
+          /* Fill the end of the flash double-word buffer with the current flash page data.*/
           for (i = Get_align((U32)dest_end.u8ptr, sizeof(U64)); i < sizeof(U64); i++)
             flash_dword.u8[i] = *tmp.u8ptr++;
 
-          // Write the flash double-word buffer to the page buffer.
+          /* Write the flash double-word buffer to the page buffer.*/
           *dest.u64ptr++ = flash_dword.u64;
         }
 
-        // Fill the end of the page buffer with the current flash page data.
+        /* Fill the end of the page buffer with the current flash page data.*/
         for (; !Test_align((U32)tmp.u64ptr, AVR32_FLASHC_PAGE_SIZE); tmp.u64ptr++)
           *tmp.u64ptr = *tmp.u64ptr;
       }
     }
 
-    // If the current flash page is in the flash array...
+    /* If the current flash page is in the flash array...*/
     if (dest.u8ptr <= AVR32_FLASHC_USER_PAGE)
     {
-      // Erase the current page if requested and write it from the page buffer.
+      /* Erase the current page if requested and write it from the page buffer.*/
       if (erase)
       {
         flashc_erase_page(-1, FALSE);
@@ -826,14 +827,14 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
       flashc_write_page(-1);
       error_status |= flashc_error_status;
 
-      // If the end of the flash array is reached, go to the User page.
+      /* If the end of the flash array is reached, go to the User page.*/
       if (dest.u8ptr >= flash_array_end.u8ptr)
         dest.u8ptr = AVR32_FLASHC_USER_PAGE;
     }
-    // If the current flash page is the User page...
+    /* If the current flash page is the User page...*/
     else
     {
-      // Erase the User page if requested and write it from the page buffer.
+      /* Erase the User page if requested and write it from the page buffer.*/
       if (erase)
       {
         flashc_erase_user_page(FALSE);
@@ -844,17 +845,17 @@ volatile void *flashc_memset64(volatile void *dst, U64 src, size_t nbytes, Bool 
     }
   }
 
-  // Update the FLASHC error status.
+  /* Update the FLASHC error status.*/
   flashc_error_status = error_status;
 
-  // Return the initial destination pointer as the standard memset function does.
+  /* Return the initial destination pointer as the standard memset function does.*/
   return dst;
 }
 
 
 volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes, Bool erase)
 {
-  // Use aggregated pointers to have several alignments available for a same address.
+  /* Use aggregated pointers to have several alignments available for a same address.*/
   UnionCVPtr flash_array_end;
   UnionVPtr dest;
   UnionCPtr source;
@@ -867,13 +868,13 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
   unsigned int error_status = 0;
   unsigned int i, j;
 
-  // Reformat arguments.
+  /* Reformat arguments.*/
   flash_array_end.u8ptr = AVR32_FLASH + flashc_get_flash_size();
   dest.u8ptr = dst;
   source.u8ptr = src;
   dest_end.u8ptr = dest.u8ptr + nbytes;
 
-  // If destination is outside flash, go to next flash page if any.
+  /* If destination is outside flash, go to next flash page if any.*/
   if (dest.u8ptr < AVR32_FLASH)
   {
     source.u8ptr += AVR32_FLASH - dest.u8ptr;
@@ -885,7 +886,7 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
     dest.u8ptr = AVR32_FLASHC_USER_PAGE;
   }
 
-  // If end of destination is outside flash, move it to the end of the previous flash page if any.
+  /* If end of destination is outside flash, move it to the end of the previous flash page if any.*/
   if (dest_end.u8ptr > AVR32_FLASHC_USER_PAGE + AVR32_FLASHC_USER_PAGE_SIZE)
   {
     dest_end.u8ptr = AVR32_FLASHC_USER_PAGE + AVR32_FLASHC_USER_PAGE_SIZE;
@@ -895,71 +896,71 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
     dest_end.u8ptr = flash_array_end.u8ptr;
   }
 
-  // Align each end of destination pointer with its natural boundary.
+  /* Align each end of destination pointer with its natural boundary.*/
   dest_end.u16ptr = (U16 *)Align_down((U32)dest_end.u8ptr, sizeof(U16));
   dest_end.u32ptr = (U32 *)Align_down((U32)dest_end.u16ptr, sizeof(U32));
   dest_end.u64ptr = (U64 *)Align_down((U32)dest_end.u32ptr, sizeof(U64));
 
-  // While end of destination is not reached...
+  /* While end of destination is not reached...*/
   while (dest.u8ptr < dest_end.u8ptr)
   {
-    // Clear the page buffer in order to prepare data for a flash page write.
+    /* Clear the page buffer in order to prepare data for a flash page write.*/
     flashc_clear_page_buffer();
     error_status |= flashc_error_status;
 
-    // Determine where the source data will end in the current flash page.
+    /* Determine where the source data will end in the current flash page.*/
     flash_page_source_end.u64ptr =
       (U64 *)min((U32)dest_end.u64ptr,
                  Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) + AVR32_FLASHC_PAGE_SIZE);
 
-    // Determine if the current destination page has an incomplete end.
+    /* Determine if the current destination page has an incomplete end.*/
     incomplete_flash_page_end = (Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE) >=
                                  Align_down((U32)dest_end.u8ptr, AVR32_FLASHC_PAGE_SIZE));
 
-    // If destination does not point to the beginning of the current flash page...
+    /* If destination does not point to the beginning of the current flash page...*/
     if (!Test_align((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE))
     {
-      // Fill the beginning of the page buffer with the current flash page data.
-      // This is required by the hardware, even if page erase is not requested,
-      // in order to be able to write successfully to erased parts of flash
-      // pages that have already been written to.
+      /* Fill the beginning of the page buffer with the current flash page data.*/
+      /* This is required by the hardware, even if page erase is not requested,*/
+      /* in order to be able to write successfully to erased parts of flash*/
+      /* pages that have already been written to.*/
       for (tmp.u8ptr = (U8 *)Align_down((U32)dest.u8ptr, AVR32_FLASHC_PAGE_SIZE);
            tmp.u64ptr < (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
            tmp.u64ptr++)
         *tmp.u64ptr = *tmp.u64ptr;
 
-      // If destination is not 64-bit aligned...
+      /* If destination is not 64-bit aligned...*/
       if (!Test_align((U32)dest.u8ptr, sizeof(U64)))
       {
-        // Fill the beginning of the flash double-word buffer with the current
-        // flash page data.
-        // This is required by the hardware, even if page erase is not
-        // requested, in order to be able to write successfully to erased parts
-        // of flash pages that have already been written to.
+        /* Fill the beginning of the flash double-word buffer with the current*/
+        /* flash page data.*/
+        /* This is required by the hardware, even if page erase is not*/
+        /* requested, in order to be able to write successfully to erased parts*/
+        /* of flash pages that have already been written to.*/
         for (i = 0; i < Get_align((U32)dest.u8ptr, sizeof(U64)); i++)
           flash_dword.u8[i] = *tmp.u8ptr++;
 
-        // Fill the end of the flash double-word buffer with the source data.
+        /* Fill the end of the flash double-word buffer with the source data.*/
         for (; i < sizeof(U64); i++)
           flash_dword.u8[i] = *source.u8ptr++;
 
-        // Align the destination pointer with its 64-bit boundary.
+        /* Align the destination pointer with its 64-bit boundary.*/
         dest.u64ptr = (U64 *)Align_down((U32)dest.u8ptr, sizeof(U64));
 
-        // If the current destination double-word is not the last one...
+        /* If the current destination double-word is not the last one...*/
         if (dest.u64ptr < dest_end.u64ptr)
         {
-          // Write the flash double-word buffer to the page buffer.
+          /* Write the flash double-word buffer to the page buffer.*/
           *dest.u64ptr++ = flash_dword.u64;
         }
-        // If the current destination double-word is the last one, the flash
-        // double-word buffer must be kept for later.
+        /* If the current destination double-word is the last one, the flash*/
+        /* double-word buffer must be kept for later.*/
         else flash_dword_pending = TRUE;
       }
     }
 
-    // Read the source data with the maximal possible alignment and write it to
-    // the page buffer with 64-bit alignment.
+    /* Read the source data with the maximal possible alignment and write it to*/
+    /* the page buffer with 64-bit alignment.*/
     switch (Get_align((U32)source.u8ptr, sizeof(U32)))
     {
     case 0:
@@ -983,46 +984,46 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
       }
     }
 
-    // If the current destination page has an incomplete end...
+    /* If the current destination page has an incomplete end...*/
     if (incomplete_flash_page_end)
     {
-      // If the flash double-word buffer is in use, do not initialize it.
+      /* If the flash double-word buffer is in use, do not initialize it.*/
       if (flash_dword_pending) i = Get_align((U32)dest_end.u8ptr, sizeof(U64));
-      // If the flash double-word buffer is free...
+      /* If the flash double-word buffer is free...*/
       else
       {
-        // Fill the beginning of the flash double-word buffer with the source data.
+        /* Fill the beginning of the flash double-word buffer with the source data.*/
         for (i = 0; i < Get_align((U32)dest_end.u8ptr, sizeof(U64)); i++)
           flash_dword.u8[i] = *source.u8ptr++;
       }
 
-      // This is required by the hardware, even if page erase is not requested,
-      // in order to be able to write successfully to erased parts of flash
-      // pages that have already been written to.
+      /* This is required by the hardware, even if page erase is not requested,*/
+      /* in order to be able to write successfully to erased parts of flash*/
+      /* pages that have already been written to.*/
       {
         tmp.u8ptr = (volatile U8 *)dest_end.u8ptr;
 
-        // If end of destination is not 64-bit aligned...
+        /* If end of destination is not 64-bit aligned...*/
         if (!Test_align((U32)dest_end.u8ptr, sizeof(U64)))
         {
-          // Fill the end of the flash double-word buffer with the current flash page data.
+          /* Fill the end of the flash double-word buffer with the current flash page data.*/
           for (; i < sizeof(U64); i++)
             flash_dword.u8[i] = *tmp.u8ptr++;
 
-          // Write the flash double-word buffer to the page buffer.
+          /* Write the flash double-word buffer to the page buffer.*/
           *dest.u64ptr++ = flash_dword.u64;
         }
 
-        // Fill the end of the page buffer with the current flash page data.
+        /* Fill the end of the page buffer with the current flash page data.*/
         for (; !Test_align((U32)tmp.u64ptr, AVR32_FLASHC_PAGE_SIZE); tmp.u64ptr++)
           *tmp.u64ptr = *tmp.u64ptr;
       }
     }
 
-    // If the current flash page is in the flash array...
+    /* If the current flash page is in the flash array...*/
     if (dest.u8ptr <= AVR32_FLASHC_USER_PAGE)
     {
-      // Erase the current page if requested and write it from the page buffer.
+      /* Erase the current page if requested and write it from the page buffer.*/
       if (erase)
       {
         flashc_erase_page(-1, FALSE);
@@ -1031,17 +1032,17 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
       flashc_write_page(-1);
       error_status |= flashc_error_status;
 
-      // If the end of the flash array is reached, go to the User page.
+      /* If the end of the flash array is reached, go to the User page.*/
       if (dest.u8ptr >= flash_array_end.u8ptr)
       {
         source.u8ptr += AVR32_FLASHC_USER_PAGE - dest.u8ptr;
         dest.u8ptr = AVR32_FLASHC_USER_PAGE;
       }
     }
-    // If the current flash page is the User page...
+    /* If the current flash page is the User page...*/
     else
     {
-      // Erase the User page if requested and write it from the page buffer.
+      /* Erase the User page if requested and write it from the page buffer.*/
       if (erase)
       {
         flashc_erase_user_page(FALSE);
@@ -1052,12 +1053,12 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
     }
   }
 
-  // Update the FLASHC error status.
+  /* Update the FLASHC error status.*/
   flashc_error_status = error_status;
 
-  // Return the initial destination pointer as the standard memcpy function does.
+  /* Return the initial destination pointer as the standard memcpy function does.*/
   return dst;
 }
 
 
-//! @}
+/*! @}*/

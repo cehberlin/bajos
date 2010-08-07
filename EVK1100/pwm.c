@@ -12,8 +12,8 @@
  * - Supported devices:  All AVR32 devices with a PWM module can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  *****************************************************************************/
 
@@ -46,6 +46,8 @@
 
 
 #include "compiler.h"
+/*suse10.3*/
+#include "compatibility.h"
 #include "pwm.h"
 
 
@@ -54,16 +56,16 @@ int pwm_init(const pwm_opt_t *opt)
   volatile avr32_pwm_t *pwm = &AVR32_PWM;
   Bool global_interrupt_enabled = Is_global_interrupt_enabled();
 
-  if (opt == 0 ) // Null pointer.
+  if (opt == 0 ) /* Null pointer.*/
     return PWM_INVALID_INPUT;
 
-  // Disable interrupt.
+  /* Disable interrupt.*/
   if (global_interrupt_enabled) Disable_global_interrupt();
   pwm->idr = ((1 << (AVR32_PWM_LINES_MSB + 1)) - 1) << AVR32_PWM_IDR_CHID0_OFFSET;
   pwm->isr;
   if (global_interrupt_enabled) Enable_global_interrupt();
 
-  // Set PWM mode register.
+  /* Set PWM mode register.*/
   pwm->mr =
     ((opt->diva)<<AVR32_PWM_DIVA_OFFSET) |
     ((opt->divb)<<AVR32_PWM_DIVB_OFFSET) |
@@ -79,14 +81,14 @@ int pwm_channel_init( unsigned int channel_id, const avr32_pwm_channel_t *pwm_ch
 {
   volatile avr32_pwm_t *pwm = &AVR32_PWM;
 
-  if (pwm_channel == 0) // Null pointer.
+  if (pwm_channel == 0) /* Null pointer.*/
     return PWM_INVALID_ARGUMENT;
-  if (channel_id > AVR32_PWM_LINES_MSB) // Control input values.
+  if (channel_id > AVR32_PWM_LINES_MSB) /* Control input values.*/
     return PWM_INVALID_INPUT;
 
-  pwm->channel[channel_id].cmr= pwm_channel->cmr;   // Channel mode.
-  pwm->channel[channel_id].cdty= pwm_channel->cdty; // Duty cycle, should be < CPRD.
-  pwm->channel[channel_id].cprd= pwm_channel->cprd; // Channel period.
+  pwm->channel[channel_id].cmr= pwm_channel->cmr;   /* Channel mode.*/
+  pwm->channel[channel_id].cdty= pwm_channel->cdty; /* Duty cycle, should be < CPRD.*/
+  pwm->channel[channel_id].cprd= pwm_channel->cprd; /* Channel period.*/
 
   return PWM_SUCCESS;
 }
@@ -97,7 +99,7 @@ int pwm_start_channels(unsigned long channels_bitmask)
   if (channels_bitmask & ~((1 << (AVR32_PWM_LINES_MSB + 1)) - 1))
     return PWM_INVALID_INPUT;
 
-  AVR32_PWM.ena = channels_bitmask; // Enable channels.
+  AVR32_PWM.ena = channels_bitmask; /* Enable channels.*/
 
   return PWM_SUCCESS;
 }
@@ -108,7 +110,7 @@ int pwm_stop_channels(unsigned long channels_bitmask)
   if (channels_bitmask & ~((1 << (AVR32_PWM_LINES_MSB + 1)) - 1))
     return PWM_INVALID_INPUT;
 
-  AVR32_PWM.dis = channels_bitmask; // Disable channels.
+  AVR32_PWM.dis = channels_bitmask; /* Disable channels.*/
 
   return PWM_SUCCESS;
 }
@@ -121,10 +123,10 @@ int pwm_sync_update_channel(unsigned int channel_id, const avr32_pwm_channel_t *
   if (channel_id > AVR32_PWM_LINES_MSB)
      return PWM_INVALID_INPUT;
 
-  AVR32_PWM.isr;                                    // Acknowledgement and clear previous register state.
-  pwm->channel[channel_id].cmr= pwm_channel->cmr;   // Channel mode register: update of the period or duty cycle.
-  while (!(AVR32_PWM.isr & (1 << channel_id)));     // Wait until the last write has been taken into account.
-  pwm->channel[channel_id].cupd= pwm_channel->cupd; // Channel update CPRDx or CDTYx according to CPD value in CMRx.
+  AVR32_PWM.isr;                                    /* Acknowledgement and clear previous register state.*/
+  pwm->channel[channel_id].cmr= pwm_channel->cmr;   /* Channel mode register: update of the period or duty cycle.*/
+  while (!(AVR32_PWM.isr & (1 << channel_id)));     /* Wait until the last write has been taken into account.*/
+  pwm->channel[channel_id].cupd= pwm_channel->cupd; /* Channel update CPRDx or CDTYx according to CPD value in CMRx.*/
 
   return PWM_SUCCESS;
 }
@@ -137,8 +139,8 @@ int pwm_async_update_channel(unsigned int channel_id, const avr32_pwm_channel_t 
   if (channel_id > AVR32_PWM_LINES_MSB)
      return PWM_INVALID_INPUT;
 
-  pwm->channel[channel_id].cmr= pwm_channel->cmr;   // Channel mode register: update of the period or duty cycle.
-  pwm->channel[channel_id].cupd= pwm_channel->cupd; // Channel update CPRDx or CDTYx according to CPD value in CMRx.
+  pwm->channel[channel_id].cmr= pwm_channel->cmr;   /* Channel mode register: update of the period or duty cycle.*/
+  pwm->channel[channel_id].cupd= pwm_channel->cupd; /* Channel update CPRDx or CDTYx according to CPD value in CMRx.*/
 
   return PWM_SUCCESS;
 }

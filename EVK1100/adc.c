@@ -11,8 +11,8 @@
  * - Supported devices:  All AVR32 devices with an ADC can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  *****************************************************************************/
 
@@ -56,9 +56,9 @@ void adc_configure(volatile avr32_adc_t * adc)
 #ifdef USE_ADC_8_BITS
   adc->mr |= 1<<AVR32_ADC_LOWRES_OFFSET;
 #endif
-  // set Sample/Hold time to max so that the ADC capacitor should be loaded entirely
+  /* set Sample/Hold time to max so that the ADC capacitor should be loaded entirely*/
   adc->mr |= 0xF << AVR32_ADC_SHTIM_OFFSET;
-  // set Startup to max so that the ADC capacitor should be loaded entirely
+  /* set Startup to max so that the ADC capacitor should be loaded entirely*/
   adc->mr |= 0x1F << AVR32_ADC_STARTUP_OFFSET;
 }
 
@@ -66,27 +66,27 @@ void adc_start(volatile avr32_adc_t * adc)
 {
   Assert( adc!=NULL );
 
-  // start conversion
+  /* start conversion*/
   adc->cr = AVR32_ADC_START_MASK;
 }
 
 void adc_enable(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  /* check if channel exist*/
 
-  // enable channel
+  /* enable channel*/
   adc->cher = (1 << channel);
 }
 
 void adc_disable(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB ); // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB ); /* check if channel exist*/
 
   if (adc_get_status(adc, channel) == ENABLED)
   {
-    // disable channel
+    /* disable channel*/
     adc->chdr |= (1 << channel);
   }
 }
@@ -94,7 +94,7 @@ void adc_disable(volatile avr32_adc_t * adc, unsigned short channel)
 Bool adc_get_status(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  /* check if channel exist*/
 
   return ((adc->chsr & (1 << channel)) ? ENABLED : DISABLED);
 }
@@ -102,27 +102,27 @@ Bool adc_get_status(volatile avr32_adc_t * adc, unsigned short channel)
 Bool adc_check_eoc(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  /* check if channel exist*/
 
-  // get SR register : EOC bit for channel
+  /* get SR register : EOC bit for channel*/
   return ((adc->sr & (1 << channel)) ? HIGH : LOW);
 }
 
 Bool adc_check_ovr(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  /* check if channel exist*/
 
-  // get SR register : OVR bit for channel
+  /* get SR register : OVR bit for channel*/
   return ((adc->sr & (1 << (channel + 8))) ? FAIL : PASS);
 }
 
 unsigned long adc_get_value(volatile avr32_adc_t * adc, unsigned short channel)
 {
   Assert( adc!=NULL );
-  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  // check if channel exist
+  Assert( channel <= AVR32_ADC_ADC_CHANNELS_MSB );  /* check if channel exist*/
 
-  // wait for end of conversion
+  /* wait for end of conversion*/
   while(adc_check_eoc(adc, channel) != HIGH);
   return *((unsigned long * )((&(adc->cdr0)) + channel));
 }

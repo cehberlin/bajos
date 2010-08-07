@@ -12,8 +12,8 @@
  * - Supported devices:  All AVR32 devices can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  *****************************************************************************/
 
@@ -50,6 +50,8 @@
 #include "gpio.h"
 #include "compiler.h"
 #include "spi.h"
+/* suse 10.3*/
+#include "compatibility.h"
 #include "pwm.h"
 
 
@@ -92,14 +94,14 @@ static int channel_id = -1;
 
 void dip204_init(backlight_options option, Bool backlight_on)
 {
-  pwm_opt_t pwm_opt;  // pwm option config
+  pwm_opt_t pwm_opt;  /* pwm option config*/
 
   if (option == backlight_PWM)
   {
     channel_id = DIP204_PWM_CHANNEL;
     gpio_enable_module_pin(AVR32_PWM_6_PIN, AVR32_PWM_6_FUNCTION);
 
-    // PWM controller configuration
+    /* PWM controller configuration*/
     pwm_opt.diva=0;
     pwm_opt.divb=0;
     pwm_opt.prea=0;
@@ -107,16 +109,16 @@ void dip204_init(backlight_options option, Bool backlight_on)
 
     pwm_init(&pwm_opt);
     pwm_duty = (backlight_on) ? DIP204_PERIOD_MAX - 1 : 1;
-    pwm_channel.CMR.calg = PWM_MODE_LEFT_ALIGNED;   // channel mode
-    pwm_channel.CMR.cpol = PWM_POLARITY_LOW;   // channel polarity
-    pwm_channel.CMR.cpd = PWM_UPDATE_PERIOD;   // not used the first time
-    pwm_channel.CMR.cpre = AVR32_PWM_CPRE_MCK_DIV_256;   // channel prescaler
-    pwm_channel.cdty = pwm_duty;  // channel duty cycle, should be < CPRD
-    pwm_channel.cprd = DIP204_PERIOD_MAX;  // channel period
-    pwm_channel.cupd = 0;  // channel update is not used here.
+    pwm_channel.CMR.calg = PWM_MODE_LEFT_ALIGNED;   /* channel mode*/
+    pwm_channel.CMR.cpol = PWM_POLARITY_LOW;   /* channel polarity*/
+    pwm_channel.CMR.cpd = PWM_UPDATE_PERIOD;   /* not used the first time*/
+    pwm_channel.CMR.cpre = AVR32_PWM_CPRE_MCK_DIV_256;   /* channel prescaler*/
+    pwm_channel.cdty = pwm_duty;  /* channel duty cycle, should be < CPRD*/
+    pwm_channel.cprd = DIP204_PERIOD_MAX;  /* channel period*/
+    pwm_channel.cupd = 0;  /* channel update is not used here.*/
 
     pwm_channel_init(channel_id, &pwm_channel);
-    // start PWM
+    /* start PWM*/
     pwm_start_channels(1 << channel_id);
   }
   else
@@ -130,38 +132,38 @@ void dip204_init(backlight_options option, Bool backlight_on)
       gpio_set_gpio_pin(DIP204_BACKLIGHT_PIN);
     }
   }
-  // delay for power on
+  /* delay for power on*/
   delay_ms(20);
-  // select the LCD chip
+  /* select the LCD chip*/
   dip204_select();
-  // Send Command Start Byte
+  /* Send Command Start Byte*/
   dip204_write_byte(DIP204_WRITE_COMMAND);
-  // Send "extended Function Set" Command  (RE=1)
+  /* Send "extended Function Set" Command  (RE=1)*/
   dip204_write_byte(0x34);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(1);
-  // Send "Enter 4-Line Mode" Command
+  /* Send "Enter 4-Line Mode" Command*/
   dip204_write_byte(0x09);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(1);
-  // Send "Function Set" Command (RE=0)
+  /* Send "Function Set" Command (RE=0)*/
   dip204_write_byte(0x30);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(1);
-  // Send "Display On Command: Display On, Cursor On, Blink On"
+  /* Send "Display On Command: Display On, Cursor On, Blink On"*/
   dip204_write_byte(0x0F);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(1);
-  // Send "Display Clear" Command
+  /* Send "Display Clear" Command*/
   dip204_write_byte(0x01);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(5);
-  // Send "Entry Mode Set Command: Increment Mode, Entire Shift off"
+  /* Send "Entry Mode Set Command: Increment Mode, Entire Shift off"*/
   dip204_write_byte(0x06);
-  // Wait for command execution
+  /* Wait for command execution*/
   delay_ms(1);
   dip204_wait_busy();
-  // unselect chip
+  /* unselect chip*/
   dip204_unselect();
 }
 
@@ -172,22 +174,22 @@ void dip204_set_backlight(backlight_power power)
   {
     if (power == backlight_power_decrease)
     {
-      // update channel duty cycle using double buffering to prevent unexpected waveform.
+      /* update channel duty cycle using double buffering to prevent unexpected waveform.*/
       pwm_duty = Max(pwm_duty - (DIP204_PERIOD_MAX / 10), 1);
       pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
-      // new duty cycle
+      /* new duty cycle*/
       pwm_channel.cupd = pwm_duty;
-      // set channel configuration.
+      /* set channel configuration.*/
       pwm_sync_update_channel(channel_id, &pwm_channel);
     }
     else if (power == backlight_power_increase)
     {
-      // update channel duty cycle using double buffering to prevent unexpected waveform.
+      /* update channel duty cycle using double buffering to prevent unexpected waveform.*/
       pwm_duty = Min(pwm_duty + (DIP204_PERIOD_MAX / 10), DIP204_PERIOD_MAX - 1);
       pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;
-      // new duty cycle
+      /* new duty cycle*/
       pwm_channel.cupd = pwm_duty;
-      // set channel configuration.
+      /* set channel configuration.*/
       pwm_sync_update_channel(channel_id, &pwm_channel);
     }
   }
@@ -288,7 +290,7 @@ void dip204_create_char(char ascii_code, const unsigned char data[8])
     /* Send Data Start Byte */
     dip204_write_byte(DIP204_WRITE_DATA);
     /* send data */
-    dip204_write_byte(data[i] & 0x1F); //data[i]);
+    dip204_write_byte(data[i] & 0x1F); /*data[i]);*/
     /* wait for LCD */
     dip204_wait_busy();
   }

@@ -11,8 +11,8 @@
  * - Supported devices:  All AVR32 devices with a GPIO module can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  *****************************************************************************/
 
@@ -47,7 +47,7 @@
 #include "gpio.h"
 
 
-//! GPIO module instance.
+/*! GPIO module instance.*/
 #define GPIO  AVR32_GPIO
 
 
@@ -70,20 +70,20 @@ int gpio_enable_module_pin(unsigned int pin, unsigned int function)
 {
   volatile avr32_gpio_port_t *gpio_port = &GPIO.port[pin >> 5];
 
-  // Enable the correct function.
+  /* Enable the correct function.*/
   switch (function)
   {
-  case 0: // A function.
+  case 0: /* A function.*/
     gpio_port->pmr0c = 1 << (pin & 0x1F);
     gpio_port->pmr1c = 1 << (pin & 0x1F);
     break;
 
-  case 1: // B function.
+  case 1: /* B function.*/
     gpio_port->pmr0s = 1 << (pin & 0x1F);
     gpio_port->pmr1c = 1 << (pin & 0x1F);
     break;
 
-  case 2: // C function.
+  case 2: /* C function.*/
     gpio_port->pmr0c = 1 << (pin & 0x1F);
     gpio_port->pmr1s = 1 << (pin & 0x1F);
     break;
@@ -92,7 +92,7 @@ int gpio_enable_module_pin(unsigned int pin, unsigned int function)
     return GPIO_INVALID_ARGUMENT;
   }
 
-  // Disable GPIO control.
+  /* Disable GPIO control.*/
   gpio_port->gperc = 1 << (pin & 0x1F);
 
   return GPIO_SUCCESS;
@@ -165,9 +165,9 @@ void gpio_set_gpio_pin(unsigned int pin)
 {
   volatile avr32_gpio_port_t *gpio_port = &GPIO.port[pin >> 5];
 
-  gpio_port->ovrs  = 1 << (pin & 0x1F); // Value to be driven on the I/O line: 1.
-  gpio_port->oders = 1 << (pin & 0x1F); // The GPIO output driver is enabled for that pin.
-  gpio_port->gpers = 1 << (pin & 0x1F); // The GPIO module controls that pin.
+  gpio_port->ovrs  = 1 << (pin & 0x1F); /* Value to be driven on the I/O line: 1.*/
+  gpio_port->oders = 1 << (pin & 0x1F); /* The GPIO output driver is enabled for that pin.*/
+  gpio_port->gpers = 1 << (pin & 0x1F); /* The GPIO module controls that pin.*/
 }
 
 
@@ -175,9 +175,9 @@ void gpio_clr_gpio_pin(unsigned int pin)
 {
   volatile avr32_gpio_port_t *gpio_port = &GPIO.port[pin >> 5];
 
-  gpio_port->ovrc  = 1 << (pin & 0x1F); // Value to be driven on the I/O line: 0.
-  gpio_port->oders = 1 << (pin & 0x1F); // The GPIO output driver is enabled for that pin.
-  gpio_port->gpers = 1 << (pin & 0x1F); // The GPIO module controls that pin.
+  gpio_port->ovrc  = 1 << (pin & 0x1F); /* Value to be driven on the I/O line: 0.*/
+  gpio_port->oders = 1 << (pin & 0x1F); /* The GPIO output driver is enabled for that pin.*/
+  gpio_port->gpers = 1 << (pin & 0x1F); /* The GPIO module controls that pin.*/
 }
 
 
@@ -185,9 +185,9 @@ void gpio_tgl_gpio_pin(unsigned int pin)
 {
   volatile avr32_gpio_port_t *gpio_port = &GPIO.port[pin >> 5];
 
-  gpio_port->ovrt  = 1 << (pin & 0x1F); // Toggle the I/O line.
-  gpio_port->oders = 1 << (pin & 0x1F); // The GPIO output driver is enabled for that pin.
-  gpio_port->gpers = 1 << (pin & 0x1F); // The GPIO module controls that pin.
+  gpio_port->ovrt  = 1 << (pin & 0x1F); /* Toggle the I/O line.*/
+  gpio_port->oders = 1 << (pin & 0x1F); /* The GPIO output driver is enabled for that pin.*/
+  gpio_port->gpers = 1 << (pin & 0x1F); /* The GPIO module controls that pin.*/
 }
 
 
@@ -209,10 +209,10 @@ int gpio_enable_pin_interrupt(unsigned int pin, unsigned int mode)
 {
   volatile avr32_gpio_port_t *gpio_port = &GPIO.port[pin >> 5];
 
-  // Enable the glitch filter.
+  /* Enable the glitch filter.*/
   gpio_port->gfers = 1 << (pin & 0x1F);
 
-  // Configure the edge detector.
+  /* Configure the edge detector.*/
   switch (mode)
   {
   case GPIO_PIN_CHANGE:
@@ -234,7 +234,7 @@ int gpio_enable_pin_interrupt(unsigned int pin, unsigned int mode)
     return GPIO_INVALID_ARGUMENT;
   }
 
-  // Enable interrupt.
+  /* Enable interrupt.*/
   gpio_port->iers = 1 << (pin & 0x1F);
 
   return GPIO_SUCCESS;

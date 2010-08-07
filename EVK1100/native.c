@@ -2,14 +2,14 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// C-functions for native methods
-// native void method -> C-function ret value 0
-// native non void method -> c-cunction ret value 1 (ret value on java -opStack)
-// remember:
-// invokespecial Operand Stack
-// ..., objectref, [arg0, [arg1 ...]] -> ...
-// invokestatic: Operand Stack
-// ..., [arg0, [arg1 ...]] -> ..
+/* C-functions for native methods*/
+/* native void method -> C-function ret value 0*/
+/* native non void method -> c-cunction ret value 1 (ret value on java -opStack)*/
+/* remember:*/
+/* invokespecial Operand Stack*/
+/* ..., objectref, [arg0, [arg1 ...]] -> ...*/
+/* invokestatic: Operand Stack*/
+/* ..., [arg0, [arg1 ...]] -> ..*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,18 +31,21 @@
 #include "pwm.h"
 #include "adc.h"
 #include "platform.h" 
+/*suse 10.3*/
+#include "compatibility.h"
 
-// its the evk1100
-//DEFINES FOR EVK1100 (Steffen Kalisch)
-// Connection of the temperature sensor
+
+/* its the evk1100*/
+/*DEFINES FOR EVK1100 (Steffen Kalisch)*/
+/* Connection of the temperature sensor*/
 #  define EXAMPLE_ADC_TEMPERATURE_CHANNEL     0
 #  define EXAMPLE_ADC_TEMPERATURE_PIN         AVR32_ADC_AD_0_PIN
 #  define EXAMPLE_ADC_TEMPERATURE_FUNCTION    AVR32_ADC_AD_0_FUNCTION
-// Connection of the light sensor
+/* Connection of the light sensor*/
 #  define EXAMPLE_ADC_LIGHT_CHANNEL           2
 #  define EXAMPLE_ADC_LIGHT_PIN               AVR32_ADC_AD_2_PIN
 #  define EXAMPLE_ADC_LIGHT_FUNCTION          AVR32_ADC_AD_2_FUNCTION
-// Connection of the potentiometer
+/* Connection of the potentiometer*/
 #  define EXAMPLE_ADC_POTENTIOMETER_CHANNEL   1
 #  define EXAMPLE_ADC_POTENTIOMETER_PIN       AVR32_ADC_AD_1_PIN
 #  define EXAMPLE_ADC_POTENTIOMETER_FUNCTION  AVR32_ADC_AD_1_FUNCTION
@@ -68,9 +71,9 @@ usart_write_char(&AVR32_USART0, (int)c);
 }
 
 char  conStat()	{
-if (usart_test_hit(&AVR32_USART0)){ opStackPush((slot)(u4)66); return 1;	} // input available
-if (!usart_tx_ready(&AVR32_USART0)){opStackPush((slot)(u4)77); return 1;	} // no input, transmit ready
-opStackPush((slot)(u4)0);	// no char available, transmit no ready
+if (usart_test_hit(&AVR32_USART0)){ opStackPush((slot)(u4)66); return 1;	} /* input available*/
+if (!usart_tx_ready(&AVR32_USART0)){opStackPush((slot)(u4)77); return 1;	} /* no input, transmit ready*/
+opStackPush((slot)(u4)0);	/* no char available, transmit no ready*/
 return 1;	}
 #else
 char  conStat()	{
@@ -80,25 +83,25 @@ return 1;
 #endif
 
 #ifndef WITHMON
-// Robert Vietzke HMI Berlin-Wannsee 2009
-//gpio_clr_gpio_pin(unsigned int pin)
-//gpio_set_gpio_pin(unsigned int pin)
+/* Robert Vietzke HMI Berlin-Wannsee 2009*/
+/*gpio_clr_gpio_pin(unsigned int pin)*/
+/*gpio_set_gpio_pin(unsigned int pin)*/
 #define MYRTS AVR32_PIN_PA08
 #define MYDTR AVR32_PIN_PB25
 
 char ser1RTS()	{
-//if (opStackGetValue(local+1).UInt==0)
-//AVR32_USART1.cr |=AVR32_USART_CR_RTSDIS_MASK;// rts to 1
-//else AVR32_USART1.cr |=AVR32_USART_CR_RTSEN_MASK;
+/*if (opStackGetValue(local+1).UInt==0)*/
+/*AVR32_USART1.cr |=AVR32_USART_CR_RTSDIS_MASK;// rts to 1*/
+/*else AVR32_USART1.cr |=AVR32_USART_CR_RTSEN_MASK;*/
 if (opStackGetValue(local+1).UInt==0)	gpio_clr_gpio_pin(MYRTS);
 else					gpio_set_gpio_pin(MYRTS);
 return 0;	}
 
 char ser1DTR()	{
-//if (opStackGetValue(local+1).UInt==0)
-//AVR32_USART1.cr |=AVR32_USART_CR_DTRDIS_MASK;
-//else AVR32_USART1.cr |=AVR32_USART_CR_DTREN_MASK;
-//printf("jetzt dtr\n");
+/*if (opStackGetValue(local+1).UInt==0)*/
+/*AVR32_USART1.cr |=AVR32_USART_CR_DTRDIS_MASK;*/
+/*else AVR32_USART1.cr |=AVR32_USART_CR_DTREN_MASK;*/
+/*printf("jetzt dtr\n");*/
 if (opStackGetValue(local+1).UInt==0) 	gpio_clr_gpio_pin(MYDTR);
 else 					gpio_set_gpio_pin(MYDTR);
 return 0;	}
@@ -212,10 +215,10 @@ char charLCDOut() {
 	return 0;
 }
 #endif
-// 0000 0000 -> clear
-// 0000 0001 -> showCursor
-// 0000 0002 -> hideCursor
-// 0001 xxyy -> setCursor
+/* 0000 0000 -> clear*/
+/* 0000 0001 -> showCursor*/
+/* 0000 0002 -> hideCursor*/
+/* 0001 xxyy -> setCursor*/
 #ifndef WITHMON
 char controlLCD() {
 	int control = opStackGetValue(local+1).UInt;
@@ -267,39 +270,39 @@ return 0;
 #endif
 
 
-//			Felix Fehlberg; FHW-BA Berlin; Berliner Volksbank eG
+/*			Felix Fehlberg; FHW-BA Berlin; Berliner Volksbank eG*/
 #ifndef WITHMON
 char pwmStart(){
 int channel	= opStackGetValue(local+1).UInt;
 int pulseLength	= opStackGetValue(local+2).UInt;
 int frequency	= opStackGetValue(local+3).UInt;
-pwm_opt_t pwm_opt;                // PWM option config.
-avr32_pwm_channel_t pwm_channel;  // One channel config.
+pwm_opt_t pwm_opt;                /* PWM option config.*/
+avr32_pwm_channel_t pwm_channel;  /* One channel config.*/
 gpio_enable_module_pin(AVR32_PWM_0_PIN, AVR32_PWM_0_FUNCTION);
-// PWM controller configuration.
+/* PWM controller configuration.*/
 pwm_opt.diva = AVR32_PWM_DIVA_CLK_OFF;
 pwm_opt.divb = AVR32_PWM_DIVB_CLK_OFF;
 pwm_opt.prea = AVR32_PWM_PREA_MCK;
 pwm_opt.preb = AVR32_PWM_PREB_MCK;
 pwm_init(&pwm_opt);
-pwm_channel.CMR.calg = PWM_MODE_LEFT_ALIGNED;       // Channel mode.
-pwm_channel.CMR.cpol = PWM_POLARITY_LOW;            // Channel polarity.
-pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;              // Not used the first time.
-pwm_channel.CMR.cpre = AVR32_PWM_CPRE_MCK_DIV_256;  // Channel prescaler.
-pwm_channel.cdty = pulseLength;   // Channel pulse length, should be < CPRD.
-pwm_channel.cprd = frequency;  // Channel frequency.
-pwm_channel.cupd = 0;   // Channel update is not used here.
-pwm_channel_init(channel, &pwm_channel); // Set channel configuration to channel
-pwm_start_channels(1 << channel);  // Start channel	
+pwm_channel.CMR.calg = PWM_MODE_LEFT_ALIGNED;       /* Channel mode.*/
+pwm_channel.CMR.cpol = PWM_POLARITY_LOW;            /* Channel polarity.*/
+pwm_channel.CMR.cpd = PWM_UPDATE_DUTY;              /* Not used the first time.*/
+pwm_channel.CMR.cpre = AVR32_PWM_CPRE_MCK_DIV_256;  /* Channel prescaler.*/
+pwm_channel.cdty = pulseLength;   /* Channel pulse length, should be < CPRD.*/
+pwm_channel.cprd = frequency;  /* Channel frequency.*/
+pwm_channel.cupd = 0;   /* Channel update is not used here.*/
+pwm_channel_init(channel, &pwm_channel); /* Set channel configuration to channel*/
+pwm_start_channels(1 << channel);  /* Start channel	*/
 return(0);
 }
 
 char pwmStop(){
 int channel = opStackGetValue(local+1).UInt;
-pwm_opt_t pwm_opt;                // PWM option config.
-avr32_pwm_channel_t pwm_channel;  // One channel config.
-pwm_channel_init(channel, &pwm_channel); // Set channel configuration to channel
-pwm_stop_channels(1 << channel); // Stop channel
+pwm_opt_t pwm_opt;                /* PWM option config.*/
+avr32_pwm_channel_t pwm_channel;  /* One channel config.*/
+pwm_channel_init(channel, &pwm_channel); /* Set channel configuration to channel*/
+pwm_stop_channels(1 << channel); /* Stop channel*/
 return(0);
 }
 #else
@@ -317,36 +320,36 @@ return 0;
 #endif
 
 
-// function adcGetValue: do init and loop to display ADC values (Temp / Light / Poti)
-// added 13.03.2009 by: Steffen Kalisch, FHW-BA Berlin
-// Sana IT-Services GmbH
+/* function adcGetValue: do init and loop to display ADC values (Temp / Light / Poti)*/
+/* added 13.03.2009 by: Steffen Kalisch, FHW-BA Berlin*/
+/* Sana IT-Services GmbH*/
 #ifndef WITHMON
 char adcGetValue()	{
 	int channel = opStackGetValue(local+1).UInt;
 	int mode = opStackGetValue(local+2).UInt;
 	int rw;
-	// GPIO pin/adc-function map.
+	/* GPIO pin/adc-function map.*/
  	static const gpio_map_t ADC_GPIO_MAP =
   	{
     		{EXAMPLE_ADC_TEMPERATURE_PIN, EXAMPLE_ADC_TEMPERATURE_FUNCTION},
     		{EXAMPLE_ADC_LIGHT_PIN, EXAMPLE_ADC_LIGHT_FUNCTION},
     		{EXAMPLE_ADC_POTENTIOMETER_PIN, EXAMPLE_ADC_POTENTIOMETER_FUNCTION}
 	};
-	volatile avr32_adc_t *adc = &AVR32_ADC; // ADC IP registers address
+	volatile avr32_adc_t *adc = &AVR32_ADC; /* ADC IP registers address*/
 	signed short adc_value_temp = -1;
 	signed short adc_value_light = -1;
 	signed short adc_value_pot = -1;
- 	// Assign the on-board sensors to their ADC channel.
+ 	/* Assign the on-board sensors to their ADC channel.*/
 	unsigned short adc_channel_temp = EXAMPLE_ADC_TEMPERATURE_CHANNEL;
 	unsigned short adc_channel_light = EXAMPLE_ADC_LIGHT_CHANNEL;
 	unsigned short adc_channel_pot = EXAMPLE_ADC_POTENTIOMETER_CHANNEL;
-	// switch to oscillator 0
-//	pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
-	// Assign and enable GPIO pins to the ADC function.
+	/* switch to oscillator 0*/
+/*	pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);*/
+	/* Assign and enable GPIO pins to the ADC function.*/
 	gpio_enable_module(ADC_GPIO_MAP, sizeof(ADC_GPIO_MAP) / sizeof(ADC_GPIO_MAP[0]));
-	// configure ADC
+	/* configure ADC*/
 	adc_configure(adc);
-		// get value for first adc channel (TEMP)
+		/* get value for first adc channel (TEMP)*/
 		if (channel==1)
 		{
     			adc_enable(adc,adc_channel_temp);
@@ -355,7 +358,7 @@ char adcGetValue()	{
     			adc_disable(adc,adc_channel_temp);
 			rw = adc_value_temp;
 		}
-    		// get value for second adc channel (LIGHT)
+    		/* get value for second adc channel (LIGHT)*/
     		if (channel==2)
 		{
 		adc_enable(adc,adc_channel_light);
@@ -364,7 +367,7 @@ char adcGetValue()	{
     		adc_disable(adc,adc_channel_light);
 		rw = adc_value_light;
 		}
-    		// get value for third adc channel (POTI)
+    		/* get value for third adc channel (POTI)*/
 		if (channel==3)
 		{
     		adc_enable(adc,adc_channel_pot);
@@ -373,7 +376,7 @@ char adcGetValue()	{
     		adc_disable(adc,adc_channel_pot);
 		rw = adc_value_pot;
 		}
-//   	}
+/*   	}*/
 opStackPush((slot)(s4)(rw));
 return(1);
 }

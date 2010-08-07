@@ -1,12 +1,14 @@
-// you must exchange crt0.o /usr/avr32/lib/ucr1 with AT32UC3A-1.2.2ES software framework crt0.o
-// i doesnt know why
+/* you must exchange crt0.o /usr/avr32/lib/ucr1 with AT32UC3A-1.2.2ES software framework crt0.o*/
+/* i doesnt know why*/
 /*
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// fuer lehrzwecke,...
+/* fuer lehrzwecke,...*/
 #include <stdio.h>
 #include <avr32/io.h>
+/* suse 10.3*/
+#include "compatibility.h"
 
 #include "evk1100.h"
 #include "compiler.h"
@@ -25,45 +27,45 @@
 #include "platform.h"
 
 
-#define INT0          0 //!< Lowest interrupt priority level.
+#define INT0          0 /*!< Lowest interrupt priority level.*/
 #define EXAMPLE_GCLK_ID             0
 #define EXAMPLE_GCLK_PIN            AVR32_PM_GCLK_0_1_PIN
 #define EXAMPLE_GCLK_FUNCTION       AVR32_PM_GCLK_0_1_FUNCTION
 
-// usart0 for terminal
+/* usart0 for terminal*/
 void initHW()	{
 #ifndef WITHMON
-// pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
+/* pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);*/
 /* start PLL0 and switch main clock to PLL0 output */
 /* Also set-up a generic clock from PLL0 and output it to a gpio pin. */
-//On EVK1100, check GCLK0 pin with an oscilloscope, the frequency should be 48MHz. On EVK1100, GCLK_0 is pin number //51 (PB19) Since LED5 is also on PB19, you should also see LED5 turn red.
+/*On EVK1100, check GCLK0 pin with an oscilloscope, the frequency should be 48MHz. On EVK1100, GCLK_0 is pin number //51 (PB19) Since LED5 is also on PB19, you should also see LED5 turn red.*/
 	local_start_pll0(&AVR32_PM);
 /* Now toggle LED0 using a GPIO */
-//	gpio_tgl_gpio_pin(LED0_GPIO);
+/*	gpio_tgl_gpio_pin(LED0_GPIO);*/
 	software_delay();
-	usart1Init();		// 1200 baud
-	usart0Init();		//bh not with monitor
+	usart1Init();		/* 1200 baud*/
+	usart0Init();		/*bh not with monitor*/
 #endif
 	stdIOInit();
 #ifndef WITHMON
 static const gpio_map_t DIP204_SPI_GPIO_MAP =		{
-    {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  // SPI Clock.
-    {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  // MISO.
-    {DIP204_SPI_MOSI_PIN, DIP204_SPI_MOSI_FUNCTION},  // MOSI.
-    {DIP204_SPI_NPCS_PIN, DIP204_SPI_NPCS_FUNCTION}   // Chip Select NPCS.
+    {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  /* SPI Clock.*/
+    {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  /* MISO.*/
+    {DIP204_SPI_MOSI_PIN, DIP204_SPI_MOSI_FUNCTION},  /* MOSI.*/
+    {DIP204_SPI_NPCS_PIN, DIP204_SPI_NPCS_FUNCTION}   /* Chip Select NPCS.*/
   };
 
-Disable_global_interrupt();	// Disable all interrupts.
-INTC_init_interrupts();		// init the interrupts
-  // Register the compare interrupt handler to the interrupt controller.
-  // compare_irq_handler is the interrupt handler to register.
-  // AVR32_CORE_COMPARE_IRQ is the IRQ of the interrupt handler to register.
-  // AVR32_INTC_INT0 is the interrupt priority level to assign to the group of this IRQ.
-  // void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);
+Disable_global_interrupt();	/* Disable all interrupts.*/
+INTC_init_interrupts();		/* init the interrupts*/
+  /* Register the compare interrupt handler to the interrupt controller.*/
+  /* compare_irq_handler is the interrupt handler to register.*/
+  /* AVR32_CORE_COMPARE_IRQ is the IRQ of the interrupt handler to register.*/
+  /* AVR32_INTC_INT0 is the interrupt priority level to assign to the group of this IRQ.*/
+  /* void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);*/
 INTC_register_interrupt(&compare_irq_handler, AVR32_CORE_COMPARE_IRQ, AVR32_INTC_INT0);
-Enable_global_interrupt();	// Enable all interrupts.
+Enable_global_interrupt();	/* Enable all interrupts.*/
 
-  // add the spi options driver structure for the LCD DIP204
+  /* add the spi options driver structure for the LCD DIP204*/
 spi_options_t spiOptions =		{
     .reg          = DIP204_SPI_NPCS,
     .baudrate     = 1000000,
@@ -75,23 +77,23 @@ spi_options_t spiOptions =		{
     .fdiv         = 0,
     .modfdis      = 1			};
 
-  // Assign I/Os to SPI
+  /* Assign I/Os to SPI*/
 gpio_enable_module(DIP204_SPI_GPIO_MAP,
                      sizeof(DIP204_SPI_GPIO_MAP) / sizeof(DIP204_SPI_GPIO_MAP[0]));
-spi_initMaster(DIP204_SPI, &spiOptions);	// Initialize as master
+spi_initMaster(DIP204_SPI, &spiOptions);	/* Initialize as master*/
 
-  // Set selection mode: variable_ps, pcs_decode, delay
+  /* Set selection mode: variable_ps, pcs_decode, delay*/
 spi_selectionMode(DIP204_SPI, 0, 0, 0);
-spi_enable(DIP204_SPI);		// Enable SPI
-spi_setupChipReg(DIP204_SPI, &spiOptions, 4*FOSC0); //bh setup chip registers
+spi_enable(DIP204_SPI);		/* Enable SPI*/
+spi_setupChipReg(DIP204_SPI, &spiOptions, 4*FOSC0); /*bh setup chip registers*/
 
-  // configure local push buttons
-//dip204_example_configure_push_buttons_IT();
+  /* configure local push buttons*/
+/*dip204_example_configure_push_buttons_IT();*/
 
-  // configure local joystick
-//dip204_example_configure_joystick_IT();
-dip204_init(backlight_PWM, TRUE);	// initialize LCD 
-dip204_set_cursor_position(1,1);	// Display default message.
+  /* configure local joystick*/
+/*dip204_example_configure_joystick_IT();*/
+dip204_init(backlight_PWM, TRUE);	/* initialize LCD */
+dip204_set_cursor_position(1,1);	/* Display default message.*/
 dip204_write_string("That writes for you ");
 dip204_set_cursor_position(2,2);
 dip204_write_string("not java its C");
@@ -99,9 +101,9 @@ dip204_set_cursor_position(1,3);
 dip204_write_string("FWR-BA EVK1100");
 dip204_set_cursor_position(1,4);
 dip204_write_string("now BAJOS please:");
-//dip204_hide_cursor();
+/*dip204_hide_cursor();*/
 initTimer();
-sdramc_init(48000000);//FOSC0) bh not with monitor
+sdramc_init(48000000);/*FOSC0) bh not with monitor*/
 #endif
 }
 
@@ -126,8 +128,8 @@ sdramc_init(48000000);//FOSC0) bh not with monitor
  * - Supported devices:  All AVR32 devices with : SPI and PWM
  * - AppNote:
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support and FAQ: http://support.atmel.no/
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
+ *                       Support and FAQ: http:/*support.atmel.no/*/
  *
  *****************************************************************************/
 
@@ -190,8 +192,8 @@ sdramc_init(48000000);//FOSC0) bh not with monitor
  *
  * \section contactinfo Contact Information
  * For further information, visit
- * <A href="http://www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n
- * Support and FAQ: http://support.atmel.no/
+ * <A href="http:/*www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n*/
+ * Support and FAQ: http:/*support.atmel.no/*/
  */
 
 
@@ -216,7 +218,7 @@ unsigned short current_char = 0;
 
 __attribute__((__interrupt__))	static void compare_irq_handler(void)	{
 TimeOut = 1;
-// Disable the compare and exception generation feature: set COMPARE to 0.
+/* Disable the compare and exception generation feature: set COMPARE to 0.*/
 Set_sys_compare(0);							}
 
 
@@ -361,10 +363,10 @@ void delay_ms(unsigned short time_ms)
 unsigned long u32CountVal,u32CompareVal;
   TimeOut = 0;
   u32CountVal = Get_sys_count();
-  u32CompareVal = u32CountVal  + ((unsigned long)time_ms * (FOSC0 / 1000)); // WARNING: MUST FIT IN 32bits.
-  Set_sys_compare(u32CompareVal); // GO
-  //  The previous COMPARE write succeeded.
-  // Loop until the COUNT&COMPARE match triggers.
+  u32CompareVal = u32CountVal  + ((unsigned long)time_ms * (FOSC0 / 1000)); /* WARNING: MUST FIT IN 32bits.*/
+  Set_sys_compare(u32CompareVal); /* GO*/
+  /*  The previous COMPARE write succeeded.*/
+  /* Loop until the COUNT&COMPARE match triggers.*/
   while (!TimeOut);
 }
 
@@ -390,7 +392,7 @@ static void software_delay(void)
 
 __attribute__((__interrupt__))	void rtc_irq(){
   timerMilliSec++;
-  // clear the interrupt flag
+  /* clear the interrupt flag*/
   rtc_clear_interrupt(&AVR32_RTC);
 }
 
@@ -404,37 +406,37 @@ __attribute__((__interrupt__))	void rtc_irq(){
 */
 void initTimer() 
 {
-  // Disable all interrupts. */
+  /* Disable all interrupts. */*/
   Disable_global_interrupt();
-  // The INTC driver has to be used only for GNU GCC for AVR32.
+  /* The INTC driver has to be used only for GNU GCC for AVR32.*/
 #if __GNUC__
-  // Initialize interrupt vectors.
-//bh  INTC_init_interrupts();
-  // Register the RTC interrupt handler to the interrupt controller.
+  /* Initialize interrupt vectors.*/
+/*bh  INTC_init_interrupts();*/
+  /* Register the RTC interrupt handler to the interrupt controller.*/
  INTC_register_interrupt(&rtc_irq, AVR32_RTC_IRQ, INT0);
 #endif
-  // Initialize the RTC
-//psel = log(Fosc/Frtc)/log(2)-1; Frtc wanted f, Fosc 32KHz
-  if (!rtc_init(&AVR32_RTC, RTC_OSC_32KHZ,4))// 1khz
+  /* Initialize the RTC*/
+/*psel = log(Fosc/Frtc)/log(2)-1; Frtc wanted f, Fosc 32KHz*/
+  if (!rtc_init(&AVR32_RTC, RTC_OSC_32KHZ,4))/* 1khz*/
   {
-    //usart_write_line(&AVR32_USART0, "Error initializing the RTC\r\n");
+    /*usart_write_line(&AVR32_USART0, "Error initializing the RTC\r\n");*/
     {printf("Error initializing the RTC\r\n");
     exit(-1);	}
   }
-  // Set top value to 0 to generate an interruption every Milli-seconds */
+  /* Set top value to 0 to generate an interruption every Milli-seconds */*/
   rtc_set_top_value(&AVR32_RTC, 0);
-  // Enable the interruptions
+  /* Enable the interruptions*/
   rtc_enable_interrupt(&AVR32_RTC);
-  // Enable the RTC
+  /* Enable the RTC*/
   rtc_enable(&AVR32_RTC);
-  // Enable global interrupts
+  /* Enable global interrupts*/
   Enable_global_interrupt();
 }
 #endif
 int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
-//if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
-//if (file != 0)return unimplemented_syscall("_read with filedes != 0");
+/*if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);*/
+/*if (file != 0)return unimplemented_syscall("_read with filedes != 0");*/
 for ( i = 0; i < len; i++ ){
 ptr[i] = (char)conIn();
 }
@@ -450,8 +452,8 @@ return len;
 */
 int __attribute__((weak)) _write (int file, char * ptr, int len){
 int i;
-//if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);
-//if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");
+/*if ( !do_not_use_oscall_coproc ) return _write_sim(file, ptr, len);*/
+/*if ( (file != 1)&& (file != 2) && (file!=3)) return unimplemented_syscall("_write with file != 1 or 2");*/
 /* if(file==3){
 for(i = 0 ; i < len; i++){
 avr32fb_putchar(ptr[i]);
@@ -466,7 +468,7 @@ return len;
 } 
 
 void stdIOInit()	{	
-//To configure standard I/O streams as unbuffered, you can simply:
+/*To configure standard I/O streams as unbuffered, you can simply:*/
 setbuf(stdin, NULL);
 setbuf(stdout, NULL); 
 }
@@ -478,10 +480,10 @@ static const gpio_map_t USART_GPIO_MAP =
     {AVR32_USART0_RXD_0_PIN, AVR32_USART0_RXD_0_FUNCTION},
     {AVR32_USART0_TXD_0_PIN, AVR32_USART0_TXD_0_FUNCTION}
   };
-  // USART options.
+  /* USART options.*/
   static const usart_options_t USART_OPTIONS =
   {
-//    .baudrate     = 57600,
+/*    .baudrate     = 57600,*/
     .baudrate     = 115200,
     .charlength   = 8,
     .paritytype   = USART_NO_PARITY,
@@ -489,14 +491,14 @@ static const gpio_map_t USART_GPIO_MAP =
     .channelmode  = USART_NORMAL_CHMODE
   };
 
-  // Switch main clock to external oscillator 0 (crystal).
-  //pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
-  // Assign GPIO to USART.
+  /* Switch main clock to external oscillator 0 (crystal).*/
+  /*pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);*/
+  /* Assign GPIO to USART.*/
   gpio_enable_module(USART_GPIO_MAP,
                      sizeof(USART_GPIO_MAP) / sizeof(USART_GPIO_MAP[0]));
 
-  // Initialize USART in RS232 mode.
-  usart_init_rs232(&AVR32_USART0, &USART_OPTIONS,24000000);//FOSC0/2); //why???
+  /* Initialize USART in RS232 mode.*/
+  usart_init_rs232(&AVR32_USART0, &USART_OPTIONS,24000000);/*FOSC0/2); //why???*/
 }
 
 void usart1Init()	{
@@ -505,25 +507,25 @@ static const gpio_map_t USART_GPIO_MAP =
     {AVR32_USART1_RXD_0_PIN, AVR32_USART1_RXD_0_FUNCTION},
     {AVR32_USART1_TXD_0_PIN, AVR32_USART1_TXD_0_FUNCTION}
   };
-  // USART options.
+  /* USART options.*/
   static const usart_options_t USART_OPTIONS =
   {
     .baudrate     = 1200,
- //    .baudrate     = 115200,
+ /*    .baudrate     = 115200,*/
     .charlength   = 7,
     .paritytype   = USART_NO_PARITY,
     .stopbits     = USART_2_STOPBITS,
     .channelmode  = USART_NORMAL_CHMODE
   };
 
-  // Switch main clock to external oscillator 0 (crystal).
-//  pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
-  // Assign GPIO to USART.
+  /* Switch main clock to external oscillator 0 (crystal).*/
+/*  pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);*/
+  /* Assign GPIO to USART.*/
   gpio_enable_module(USART_GPIO_MAP,
                      sizeof(USART_GPIO_MAP) / sizeof(USART_GPIO_MAP[0]));
 
-  // Initialize USART in RS232 mode.
-  usart_init_rs232(&AVR32_USART1, &USART_OPTIONS, 24000000);//;FOSC0);
+  /* Initialize USART in RS232 mode.*/
+  usart_init_rs232(&AVR32_USART1, &USART_OPTIONS, 24000000);/*;FOSC0);*/
 }
 
 
@@ -557,7 +559,7 @@ static const gpio_map_t USART_GPIO_MAP =
    All calculations in this function suppose that the Osc0 frequency is 12MHz. */
 void local_start_pll0(volatile avr32_pm_t* pm)
 {
-  pm_switch_to_osc0(pm, FOSC0, OSC0_STARTUP);  // Switch main clock to Osc0.
+  pm_switch_to_osc0(pm, FOSC0, OSC0_STARTUP);  /* Switch main clock to Osc0.*/
 
   /* Setup PLL0 on Osc0, mul=3 ,no divisor, lockcount=16, ie. 12Mhzx8 = 96MHz output */
   /*void pm_pll_setup(volatile avr32_pm_t* pm,
@@ -568,11 +570,11 @@ void local_start_pll0(volatile avr32_pm_t* pm)
                   unsigned int lockcount) {
    */
   pm_pll_setup(pm,
-               0,   // use PLL0
-               7,   // MUL=7 in the formula
-               1,   // DIV=1 in the formula
-               0,   // Sel Osc0/PLL0 or Osc1/PLL1
-               16); // lockcount in main clock for the PLL wait lock
+               0,   /* use PLL0*/
+               7,   /* MUL=7 in the formula*/
+               1,   /* DIV=1 in the formula*/
+               0,   /* Sel Osc0/PLL0 or Osc1/PLL1*/
+               16); /* lockcount in main clock for the PLL wait lock*/
 
   /*
    This function will set a PLL option.
@@ -599,17 +601,17 @@ void local_start_pll0(volatile avr32_pm_t* pm)
   /*
   void pm_gc_setup(volatile avr32_pm_t* pm,
                   unsigned int gc,
-                  unsigned int osc_or_pll, // Use Osc (=0) or PLL (=1)
-                  unsigned int pll_osc, // Sel Osc0/PLL0 or Osc1/PLL1
+                  unsigned int osc_or_pll, /* Use Osc (=0) or PLL (=1)*/
+                  unsigned int pll_osc, /* Sel Osc0/PLL0 or Osc1/PLL1*/
                   unsigned int diven,
                   unsigned int div) {
   */
   pm_gc_setup(pm,
               EXAMPLE_GCLK_ID,
-              1,  // Use Osc (=0) or PLL (=1), here PLL
-              0,  // Sel Osc0/PLL0 or Osc1/PLL1
-              0,  // disable divisor
-              0); // no divisor
+              1,  /* Use Osc (=0) or PLL (=1), here PLL*/
+              0,  /* Sel Osc0/PLL0 or Osc1/PLL1*/
+              0,  /* disable divisor*/
+              0); /* no divisor*/
 
   /* Enable Generic clock */
   pm_gc_enable(pm, EXAMPLE_GCLK_ID);
@@ -628,8 +630,8 @@ void local_start_pll0(volatile avr32_pm_t* pm)
   */
   pm_cksel(pm, 1, 0, 0, 0, 0, 0);
 
-  // Set one wait-state (WS) for flash controller. 0 WS access is up to 30MHz for HSB/CPU clock.
-  // As we want to have 48MHz on HSB/CPU clock, we need to set 1 WS on flash controller.
+  /* Set one wait-state (WS) for flash controller. 0 WS access is up to 30MHz for HSB/CPU clock.*/
+  /* As we want to have 48MHz on HSB/CPU clock, we need to set 1 WS on flash controller.*/
   flashc_set_wait_state(1);
 
   pm_switch_to_clock(pm, AVR32_PM_MCSEL_PLL0); /* Switch main clock to 48MHz */

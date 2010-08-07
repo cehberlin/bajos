@@ -13,7 +13,7 @@
  *                       The example is written for AP7000 and STK1000.
  * - AppNote:            AVR32111 - Using the AVR32 PIO Controller
  *
- * \author               Atmel Corporation: http://www.atmel.com \n
+ * \author               Atmel Corporation: http:/*www.atmel.com \n*/
  *                       Support email: avr32@atmel.com
  *
  *****************************************************************************/
@@ -84,8 +84,8 @@
  *
  * \section contactinfo Contact Info
  * For more info about Atmel AVR32 visit
- * <A href="http://www.atmel.com/products/AVR32/" >Atmel AVR32</A> \n
- * <A href="http://www.atmel.com/dyn/products/app_notes.asp?family_id=682">
+ * <A href="http:/*www.atmel.com/products/AVR32/" >Atmel AVR32</A> \n*/
+ * <A href="http:/*www.atmel.com/dyn/products/app_notes.asp?family_id=682">*/
  * AVR32 Application Notes</A>\n
  * Support mail: avr32@atmel.com
 */

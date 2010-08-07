@@ -2,14 +2,14 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// C-functions for native methods
-// native void method -> C-function ret value 0
-// native non void method -> c-cunction ret value 1 (ret value on java -opStack)
-// remember:
-// invokespecial Operand Stack
-// ..., objectref, [arg0, [arg1 ...]] -> ...
-// invokestatic: Operand Stack
-// ..., [arg0, [arg1 ...]] -> ...
+/* C-functions for native methods*/
+/* native void method -> C-function ret value 0*/
+/* native non void method -> c-cunction ret value 1 (ret value on java -opStack)*/
+/* remember:*/
+/* invokespecial Operand Stack*/
+/* ..., objectref, [arg0, [arg1 ...]] -> ...*/
+/* invokestatic: Operand Stack*/
+/* ..., [arg0, [arg1 ...]] -> ...*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,34 +55,34 @@ cN=opStackGetValue(local).stackObj.classNumber;
 createThread();
 return 0;
 }
-//6
+/*6*/
 char yield()	{return 0; }
-//7
+/*7*/
 char currentThread(){return 1; }
-//8
+/*8*/
 char getPriority(){return 1; }
-//9
+/*9*/
 char setPriority(){return 0; }
-//10
+/*10*/
 char interrupt(){return 0; }
-//11
+/*11*/
 char interrupted(){return 1; }
-//12
+/*12*/
 char isInterrupted(){return 1; }
-//13
+/*13*/
 char isDaemon(){return 1; }
-//14
+/*14*/
 char setDaemon(){return 0; }
 char  join(){return 0; }
-//15
+/*15*/
 char jointimeout(){return 0; }
 
-// "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"
-char notify(){	// not tested yet aug2007
+/* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
+char notify(){	/* not tested yet aug2007*/
 u1 i;
 ThreadControlBlock* cb=actualThreadCB;
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
-//can not be ->IllegalMonitorStateException
+/*can not be ->IllegalMonitorStateException*/
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
 if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
@@ -96,7 +96,7 @@ u1 i;
 return 0;
 ThreadControlBlock* cb=actualThreadCB;
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{exit(249); };
-//can not be ->IllegalMonitorStateException
+/*can not be ->IllegalMonitorStateException*/
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
 if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
@@ -108,37 +108,37 @@ return 0; }
 char nativeWait() {
 u1 i;
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(254);};
-//can not be ->IllegalMonitorStateException
-HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; // lock abgeben
+/*can not be ->IllegalMonitorStateException*/
+HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; /* lock abgeben*/
 actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
 actualThreadCB->state=THREADWAITBLOCKED;
 ThreadControlBlock* myTCB=actualThreadCB;
-	for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
+	for (i=1; i < numThreads; i++)	{	/* alle blocked for object wecken!*/
 		myTCB=myTCB-> succ;
 		if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
 				(myTCB->state==THREADMUTEXBLOCKED))	{
-			myTCB->state=THREADNOTBLOCKED; //!!
+			myTCB->state=THREADNOTBLOCKED; /*!!*/
 			myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
 					}
 return 0; }
 
 char waitTime(){return 0; }
 char getDataAddress (u4 obj)	{
-return 1;	// ret val is  on Stack !!
+return 1;	/* ret val is  on Stack !!*/
 } 
 
 char floatToCharArray()	{
 	slot mySlot;
-	f4 f=opStackGetValue(local).Float;	// the float
+	f4 f=opStackGetValue(local).Float;	/* the float*/
 	char buf[8];
 	u1 i;
 	for(i=0; i<8; ++i) {buf[i]=0;}
 	snprintf(buf,7,"%f",f);
-	u2 heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
+	u2 heapPos=getFreeHeapSpace(8+ 1);	/* char arr length + marker*/
 	mySlot.stackObj.pos=heapPos;
 	mySlot.stackObj.magic=OBJECTMAGIC;
-	//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
-	mySlot.stackObj.arrayLength=(u1)8;// char array length
+	/*mySlot.stackObj.type=STACKNEWARRAYOBJECT;*/
+	mySlot.stackObj.arrayLength=(u1)8;/* char array length*/
 	opStackPush(mySlot);
 	HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 	HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
@@ -153,9 +153,9 @@ return 1;
 }
 
 
-// char arr to float
+/* char arr to float*/
 char nativeParseFloat()	{
-slot mySlot=opStackGetValue(local); // the char array
+slot mySlot=opStackGetValue(local); /* the char array*/
 char buf[mySlot.stackObj.arrayLength];
 f4 f;
 u4 i;
