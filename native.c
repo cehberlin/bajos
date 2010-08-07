@@ -4,7 +4,7 @@
 */
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
-// remember
+// remember:
 // invokespecial Operand Stack
 // ..., objectref, [arg1, [arg2 ...]] -> ...
 // invokestatic: Operand Stack
@@ -47,9 +47,10 @@
 // all native methods have a return value
 // 0-> is a Java native void function
 // 1-> is an Java native function with anyone return value (in stack)
-// alle native methoden haben einen eindeutigen namen!!
+// native methods have an unique name!!
 // fill this arrays
-char*	nativePlatForm[]={"platform/PlatForm",
+char*	nativePlatForm[]={
+		"platform/PlatForm",
 		"nativeCharOut",
 		"nativeCharIn",
 		"getButtons",
@@ -81,9 +82,11 @@ char*	nativePlatForm[]={"platform/PlatForm",
 		"drawChar",
 		"drawCharAt",
 		"getCharWidth",NULL};
+
 char*	nativeString[]={"java/lang/String",
 		"nativeCharAt",
 		"nativeStringLength",NULL};
+
 char*	nativeThread[]={"java/lang/Thread",
 		"start",
 		"yield",
@@ -97,12 +100,14 @@ char*	nativeThread[]={"java/lang/Thread",
 		"isDaemon",
 		"setDaemon",
 		"join",NULL};
+
 char*	nativeObject[]={"java/lang/Object",
 		"notify",
 		"notifyAll",
 		"wait",
 		"waitTime",
 		"getDataAddress",NULL};
+
 char*	nativeFloat[]={"java/lang/Float",
 		"nativeParseFloat",
 		"floatToIntBits",
@@ -110,28 +115,23 @@ char*	nativeFloat[]={"java/lang/Float",
 		"floatToCharArray",NULL};
 
 // fill this array
-char**	nativeNames[]={	nativePlatForm,
+char**	nativeNames[]={	
+			nativePlatForm,
 			nativeString,
 			nativeThread,
 			nativeObject,
-			nativeFloat};
+			nativeFloat	};
 
-char ** nativeName;
-//(sizeof(word)/sizeof(*word));
+char**	nativeName;
 u2	numNativeClasses=sizeof(nativeNames)/sizeof(*nativeNames);
-u2 numMethods=0;
+u2	numMethods=0;
 u1*	nativeCNMN;
-int numEntryNativeCNMN=80; //???
-u2 i;
+int	numEntryNativeCNMN=MAXNATIVEMETHODS;
+u2 	i;
 
 char	nativeDispatch( u2 cN, u2 mN,u2 local)	{
-//printf("nummezthods %d:\n",numMethods);
-for(i=0;i<numMethods;i++)	{
-//printf(": %d %x %x  %x\n",i,(((u2)*(nativeCNMN+2*i)<<8)+(u2)(*(nativeCNMN+2*i+1))),cN,mN);
-if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
-}
-//printf(": %d %x %x  %x\n",i,(((u2)*(nativeCNMN+2*i)<<8)+(u2)(*(nativeCNMN+2*i+1))),cN,mN);
-
+for(i=0;i<numMethods;i++)	
+	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
 	case	0: return nativeCharOut(local);
 	case	1: return nativeCharIn();
@@ -192,7 +192,7 @@ switch(i)					{
 			   exit(-1);		}							}
 
 void	initNativeDispatch()	{
-u1* methodDescr=NULL;	// ohne signature arbeiten!!
+u1* methodDescr=NULL;	// without signature
 u2 methodDescrLength=0;
 if ((nativeCNMN=(u1*)malloc(2*numEntryNativeCNMN*sizeof(u1)))==NULL) exit(-1);
 for(i=0;i < numNativeClasses;i++)		   {
@@ -202,12 +202,10 @@ for(i=0;i < numNativeClasses;i++)		   {
 getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3),
 		strlen(*nativeName))==0)	 	{
 			while((*(++nativeName))!=NULL)	{
-		//	printf("%s %d\n",*nativeName,strlen(*nativeName));
 			methodDescr=NULL;
 			if (findMethodByName((u1*)*nativeName,strlen(*nativeName),methodDescr,methodDescrLength)) 	{
 				*(nativeCNMN+numMethods++)=(u1)cN;
-				*(nativeCNMN+numMethods++)=(u1)mN;	
-		//		printf("%s %d %d    %d\n",	*nativeName,cN,mN,numMethods/2	);										
+				*(nativeCNMN+numMethods++)=(u1)mN;											
 		}
 												}	
 											}	
@@ -277,18 +275,13 @@ CASE 0x01:	if (val&0x0000ff00)LCD_SendCmd(0xc0+(val&0x000000ff));
 return 0; 					}
 
 #endif
-//"java/lang/Thread","start"/*5*/,"yield","currentThread","getPriority()","setPriority","interrupt","interrupted",
-//"isInterrupted","isDaemon","setDaemon","join"," jointimeout"
-// 5
 
+// 5
 char nativeStringLength(u2 local)	{
 slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
-//bh2008 cN=(u1)(mySlot.stackObj.pos >>8);
 cN=(u1)(mySlot.stackObj.classNumber);
-//getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0xff)+1 )) +1 );
-//opStackPush((slot)(u4)0);
 opStackPush((slot)(u4)getU2(CP(cN,getU2(CP(cN,mySlot.stackObj.pos)+1 )) +1 ));
 cN=methodStackPop();
 }
@@ -302,7 +295,6 @@ slot mySlot=opStackGetValue(local);
 if (mySlot.stackObj.magic==CPSTRINGMAGIC)	{
 methodStackPush(cN);
 cN=(u1)(mySlot.stackObj.classNumber);
-//bh2008 cN=(u1)(mySlot.stackObj.pos >>8);
 opStackPush((slot)(u4)getU1(CP(cN,getU2(CP(cN,mySlot.stackObj.pos) + 1))+3+(u2)opStackGetValue(local+1).UInt));
 cN=methodStackPop();
 }
@@ -342,9 +334,8 @@ char jointimeout(u2 local){return 0; }
 char notify(){	// not tested yet aug2007
 u1 i;
 ThreadControlBlock* cb=actualThreadCB;
-//printf("notify %04x\n",opStackGetValue(local));
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
-//darf nicht sein ->IllegalMonitorStateException
+//can not be ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
 if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
@@ -357,45 +348,31 @@ char notifyAll() {
 u1 i;
 return 0;
 ThreadControlBlock* cb=actualThreadCB;
-//printf("notifyall %04x\n",opStackGetValue(local));
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{exit(249); };
-//darf nicht sein ->IllegalMonitorStateException
+//can not be ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
-if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))//stackObj.pos)) //!!!bh
-//cb->state=THREADNOTBLOCKED;
+if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
 cb->state=THREADWAITAWAKENED;
 }
 return 0; }
 
 
 char wait() {
-//slot mySlot=opStackPop();
 u1 i;
-
-//printf("wait %04x numthr %d\n",opStackGetValue(local), numThreads);
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(254);};
-//darf nicht sein ->IllegalMonitorStateException
+//can not be ->IllegalMonitorStateException
 HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; // lock abgeben
 actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
 actualThreadCB->state=THREADWAITBLOCKED;
 ThreadControlBlock* myTCB=actualThreadCB;
-						for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
-						myTCB=myTCB-> succ;
-						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
-											(myTCB->state==THREADMUTEXBLOCKED))	{
-							myTCB->state=THREADNOTBLOCKED; //!!
-							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
-														}
-
-/*for (i=0; i< MAXLOCKEDTHREADOBJECTS;i++)
-if ((actualThreadCB->hasMutexLockForObject[i]).UInt == opStackGetValue(local).UInt )break;
-if (i==MAXLOCKEDTHREADOBJECTS)exit(253); // was dann?
-//printf("::: %d %d\n",i,actualThreadCB->lockCount[i]);
-actualThreadCB->lockCount[i]-=1;	// count decrementieren
-if (actualThreadCB->lockCount[i]==0)actualThreadCB->hasMutexLockForObject[i]=NULLOBJECT;
-*/
-
+	for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
+		myTCB=myTCB-> succ;
+		if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
+				(myTCB->state==THREADMUTEXBLOCKED))	{
+			myTCB->state=THREADNOTBLOCKED; //!!
+			myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
+					}
 return 0; }
 
 char waitTime(u2 local){return 0; }
