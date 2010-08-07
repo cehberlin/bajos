@@ -219,13 +219,17 @@ void	createThread(void)			{
 	t->numTicks=*(t->pPriority);
 	insertThreadIntoPriorityList(t);
 	if (numThreads!=0)	{
-		findMethodByName("run",3,"()V",3);
+	while (1)	{
+		if (findMethodByName("run",3,"()V",3)) break;
+		if (!findSuperClass())	errorExit(123,"run method not found");
+	}
 		*(t->methodStackBase+0)=(u2)0;
 		*(t->methodStackBase+1)=cN;
 		*(t->methodStackBase+2)=mN;
 		*(t->methodStackBase+3)=getStartPC();
 		*(t->methodStackBase+4)=findMaxLocals();
 		*(t->opStackBase)=opStackGetValue(local); /* reference to caller object (from start())*/
+		printf("cN x%x mN x%x startPC x%x\n",cN,mN,*(t->methodStackBase+3));
 	}
 	u2 i;
 	for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	{
