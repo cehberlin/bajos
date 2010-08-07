@@ -372,8 +372,7 @@ char	setOnBoardLEDs(u2 local) {
 
 	return 0;
 }
-static u4 timersec = 0;
-static u1 timeOut = 0;
+
 char charLCDOut(u2 local) {
 	char c = opStackGetValue(local+1).UInt;
 	dip204_write_data(c);
@@ -417,65 +416,8 @@ void compare_irq_handler()
 }
 
 
-/*
-## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
-## Method: void rtc_irq(void);
-## Parameters: none
-## Return Value: none
-##
-## Interrupt handler for Timer
-*/
-#if __GNUC__
-__attribute__((__interrupt__))
-#elif __ICCAVR32__
-/* RTC Interrupt  */
-#pragma handler = RTC_INT_GROUP, 1
-__interrupt
-#endif
-void rtc_irq()
-{
-  timersec++;
-  // clear the interrupt flag
-  rtc_clear_interrupt(&AVR32_RTC);
-}
 
-/*
-## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
-## Method: void initTimer(void);
-## Parameters: none
-## Return Value: none
-##
-## start the timer, set the interrupt handling method
-*/
-char initTimer() 
-{
-  // Disable all interrupts. */
-  Disable_global_interrupt();
-  // The INTC driver has to be used only for GNU GCC for AVR32.
-#if __GNUC__
-  // Initialize interrupt vectors.
-  INTC_init_interrupts();
-  // Register the RTC interrupt handler to the interrupt controller.
-  INTC_register_interrupt(&rtc_irq, AVR32_RTC_RTC_IRQ, INT0);
-#endif
-  // Initialize the RTC
-  if (!rtc_init(&AVR32_RTC, RTC_OSC_32KHZ,4))// 1khz
-  {
-    //usart_write_line(&AVR32_USART0, "Error initializing the RTC\r\n");
-    printf("Error initializing the RTC\r\n");
-    while(1);
-  }
-  // Set top value to 0 to generate an interruption every seconds */
-  rtc_set_top_value(&AVR32_RTC, 0);
-  // Enable the interruptions
-  rtc_enable_interrupt(&AVR32_RTC);
-  // Enable the RTC
-  rtc_enable(&AVR32_RTC);
-  // Enable global interrupts
-  Enable_global_interrupt();
 
-  return 0;
-}
 
 /*
 ## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
@@ -484,7 +426,7 @@ char initTimer()
 ## Return Value: int, get the value of the timer
 */
 char currentTimeMillis() {
-	opStackPush((slot) (u4) timersec);
+	opStackPush((slot) (u4) timerSec);
 	return 1;
 }
 #endif
@@ -510,6 +452,10 @@ goto *0x80000000;
 char currentTimeMillis(){return 0;};
 char controlLCD(u2 local){ return 0;}
 char charLCDOut(u2 local){return 0;}
+void exit(int status)	{
+asm("  lda.w   pc, 0");
+//goto *0x00000000;
+}
 #endif
 #if LINUX || AVR8 || NGW100
 char getButtons()	{
@@ -584,20 +530,3 @@ return 1;
 }
 #endif
 
-#ifdef AVR8
-u4 timerMilliSeconds=0;
-void timer_Init()	{
-OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt
-		TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	// Vorteiler 1024 zu Systemtakt 20 MHz??
-		TIMSK |= (1<<OCIE0);
-		sei();	// global interrupt zulassen
-}
-char currentTimeMillis()	{
-opStackPush((slot)(u4)timerMilliSeconds);
-	return 1;
-}
-SIGNAL(SIG_OUTPUT_COMPARE0)		{
-	timerMilliSeconds++;	
-}
-
-#endif
