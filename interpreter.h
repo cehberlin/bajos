@@ -217,10 +217,11 @@
 #define		GOTO_W		0xc8	//mb jf
 #define		JSR_W		0xc9	//mb jf
 
-void run();
+void run(void);
 u1 checkInstance(const u2 target);
 void raiseExceptionFromIdentifier(const char identifier[], const u1 length);
-void handleException();
+void handleException(void);
+void subCheck (u2 target, u2 addr);
 
 slot createDims(u4 dimsLeft, s2 *count);
 #endif
