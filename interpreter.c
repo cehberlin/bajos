@@ -66,6 +66,8 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 		DEBUGPRINTE(byte1,2x);
 		DEBUGPRINTE(byte2,2x\t);
 		DEBUGPRINT3("sp: %d local: %d\n", opStackGetSpPos(), local);
+		DEBUGPRINTSTACK;
+		DEBUGPRINTLOCALS;
 		DEBUGPRINT1("\t\t\t\t");
 		switch (code)	{
 
@@ -1170,7 +1172,7 @@ nativeVoidReturn:
 
 		CASE	ANEWARRAY:
 			DEBUGPRINTLN1("anewarray");	// mb jf
-			u2 index = getU2(0); // index into the constant_pool
+			u2 local_index = getU2(0); // index into the constant_pool
 			s2 *cnt = (s2 *) malloc(sizeof(s2));
 			*cnt = 0;
 			opStackPush(createDims(1, cnt));	// call recursive function to allocate heap for arrays
@@ -1326,9 +1328,9 @@ nativeVoidReturn:
 			u2 index = getU2(0); // index into the constant_pool
 			u1 dim = getU1(0);	// dimensions
 
-			s2 *cnt = (s2 *) malloc(sizeof(s2));
-			*cnt = 0;
-			opStackPush(createDims(dim, cnt));	// call recursive function to allocate heap for arrays
+			s2 *local_cnt = (s2 *) malloc(sizeof(s2));
+			*local_cnt = 0;
+			opStackPush(createDims(dim, local_cnt));	// call recursive function to allocate heap for arrays
 			free (cnt);
 
 		CASE	GOTO_W:
@@ -1341,8 +1343,8 @@ nativeVoidReturn:
 			DEBUGPRINTLN3("jsr_w (not tested)%d %d",byte1, byte2);	// mb jf
 			// not tested because no exceptions implemented yet 14.12.2006
 			// the opcode of athrow is required
-			u4 addr = getU4(0);
-			opStackPush(( slot)addr);
+			u4 my_addr = getU4(0);
+			opStackPush((slot)my_addr);
 		} // switch
 		scheduler();
 	} while (1);//do
