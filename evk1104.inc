@@ -62,9 +62,6 @@ JAVABOOTSOURCES	+= 	$(LANG)/Math.java \
 			
 JAVAAPPSOURCES		= javatests/EVK1104.java
 
-PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c 
-
-#PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
 
@@ -72,17 +69,24 @@ OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
 # GOALS
 CPPFLAGS	+=-MD -MP -MT
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
+
+PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c 
+
+PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
+
 DEFS		+= -D WITHMON
 LINKER_SCRIPT 	= $(APPPATH)EVK1104/link_uc3a3256withmon.lds
 # Extra flags to use when linking
 #LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib 
 #-Wl,-e,_trampoline
-LD_EXTRA_FLAGS	= -Wl,--gc-sections  
-#-nostartfiles
+LD_EXTRA_FLAGS	= -Wl,--gc-sections  -nostartfiles
+
 all:	clean compile bootclasses compEVK1104 bootpack
 	@echo generating bajvm.bin avr32bootpack javatests/EVK1104.class
 
-burnbajvm:
+burnbajvm: burn run
+
+burn:
 	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
 
 
@@ -103,7 +107,7 @@ PLATFORMASMSOURCES	= $(APPPATH)/EVK1104/exception.S  $(APPPATH)/EVK1104/crt0.S  
 LD_EXTRA_FLAGS	= -Wl,--gc-sections -Wl,-e,_trampoline  -nostartfiles
 LINKER_SCRIPT	= $(APPPATH)EVK1104/link_uc3a3256.lds
 
-all:	clean compile bootclasses  compEVK1104 burnbootpack burnbajvm
+all:	clean compile bootclasses  compEVK1104 burnbootpack burnbajvm run
 
 # Program MCU memory from ELF output file.
 .PHONY: burnbajvm

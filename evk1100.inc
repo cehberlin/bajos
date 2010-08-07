@@ -75,7 +75,9 @@ PLATFORMASMSOURCES	= $(APPPATH)EVK1100/crt0.S
 all:	clean compile bootclasses compEVK1100 bootpack
 	@echo generating bajvm.bin avr32bootpack javatests/EVK1100.class
 
-burnbajvm:
+burnbajvm:	burn run
+
+burn:
 	@echo $(MSG_PROGRAMMING)
 	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
 
@@ -93,14 +95,18 @@ PLATFORMASMSOURCES	= $(APPPATH)EVK1100/crt0.S $(APPPATH)/EVK1100/trampoline.S $(
 LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 
-all:	clean compile bootclasses  compEVK1100 burnbootpack burnbajvm run
+all:	clean compile bootclasses  compEVK1100 burnbootpack burnbajvm
 
 # Program MCU memory from ELF output file.
 .PHONY: burnbajvm
+.PHONY:	burn
 
-burnbajvm:
+burnbajvm: burn run
+
+burn:	
 	@echo $(MSG_PROGRAMMING)
 	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
+
 #	$(VERBOSE_CMD) $(PROGRAM) --part UC3A0512ES program  -F bin -O 0x80040000 -finternal@0x80040000,256Kb -cxtal -v -R avr32bootpack
 #	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 #	@$(SLEEP) 2
