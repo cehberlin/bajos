@@ -89,10 +89,13 @@ startUart0:		lds	r24, MYUCSRA	;sbis	_SFR_IO_ADDR(UCSRA), UDRE
 			ldi	r24, (1<<MYUSBS)|(3<<MYUCSZ)	/* Set frame format: 8data, 2stop bit */
 			sts	MYUCSRC ,r24
 			ret
+
 // from r24, n r22, n!==0 !!!!
 printStringFromFlash:	movw	ZL,r24
 printStringFromFlash1:	elpm	r24,Z+
-			call 	0xf006
+			push	r22
+			call 	conOut
+			pop	r22
 			dec	r22
 			brne	printStringFromFlash1
 			ret
