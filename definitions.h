@@ -191,14 +191,24 @@
 #define PRINTLN1(f)		printf(f)
 #define PRINTLN2(f,a)		printf(f,a)
 #define PRINTLN3(f,a,b)		printf(f,a,b)
-
+#define		STRING(a,b)	#a" "#b
+#define		INLINEASM(a,b)	STRING(a,b)
+#ifdef AVR8
+#define PRINTEXITTHREAD(a,b) {printf(a,b);\
+				if (numThreads==1)	{\
+				printf("tschüssi\n");\
+				asm	 (INLINEASM(jmp,0xf002)); \
+				exit(0);}\
+				else {	deleteThread();}\
+							}
+#else
 #define PRINTEXITTHREAD(a,b) {printf(a,b);\
 				if (numThreads==1)	{\
 				printf("tschüssi\n");\
 				exit(0);}\
 				else {	deleteThread();}\
 							}
-
+#endif
 #define  COLOR_BLACK     0     /* VT102 Color Codes                                  */
 #define  COLOR_RED       1
 #define  COLOR_GREEN     2
