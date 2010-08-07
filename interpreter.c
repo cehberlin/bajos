@@ -20,12 +20,17 @@
 #include "interpreter.h"
 #include "scheduler.h"
 
-
+#ifdef AVR8
+#define GETSTARTPC(offset)	((strncmpRamFlash(	"Code",\
+			getAddr( cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+offset)]+3	),\
+			4)==0)? (u2)METHODBASE(cN,mN)+8+14+offset :\
+			GETSTARTPC(offset+getU4(METHODBASE(cN,mN)+8)+6))
+#else
 #define GETSTARTPC(offset)	((strncmp(	"Code",\
 			getAddr( cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+offset)]+3	),\
 			4)==0)? (u2)METHODBASE(cN,mN)+8+14+offset :\
 			GETSTARTPC(offset+getU4(METHODBASE(cN,mN)+8)+6))
-
+#endif
 #define fieldName		name
 #define fieldNameLength		nameLength
 #define	lengthArray		nameLength
@@ -733,8 +738,14 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 			                             + 3);		/* bytes*/
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 			                         + 1);		/* length*/
-			if (!findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1))) {
+			if (!
+#ifdef AVR8
+findClassFlash
+#else
+findClass
+#endif
+(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1)) ) {
 				CLASSNOTFOUNDERR(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}
 
@@ -765,8 +776,14 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 			                        +3))
 			                 +3);		/* bytes*/
 			fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1); /* length*/
-			if (!findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1))) {
+			if (!
+#ifdef AVR8
+findClassFlash
+#else
+findClass
+#endif
+(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+			          getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1)) ) {
 				CLASSNOTFOUNDERR(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3));
 			}	
 
@@ -832,9 +849,17 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 				                 +3);		/* bytes*/
 				fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	/* length*/
 				/*kann weg*/
-				if (!findClass(
+				if (!
+#ifdef AVR8
+findClassFlash(
 				    getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
-				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))) {
+				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))
+#else
+findClass(
+				    getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
+				    getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1))
+#endif
+) {
 					CLASSNOTFOUNDERR( getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3));
 				}
 
@@ -855,7 +880,13 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 					/* den Typ*/
 					/* die Stelle auf dem heap*/
 
-					if (strncmp(fieldDescr, "B", 1) == 0) {
+					if (
+#ifdef AVR8
+strncmpRamFlash( "B",fieldDescr, 1)
+#else
+strncmp( "B",fieldDescr, 1)
+#endif
+ == 0) {
 						/* Truncate Integer input for Byte output */
 						first.Int = first.Int & 0x000000ff;
 					}
@@ -873,7 +904,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 #ifdef DEBUG
 			if (code == INVOKEVIRTUAL)	DEBUGPRINT1("invokevirtual: ");
 			if (code == INVOKEINTERFACE)	DEBUGPRINT1("invokeinterface: ");
-			if (code == INVOKESPECIAL)		DEBUGPRINT1("invoke special: ");
+			if (code == INVOKESPECIAL)	DEBUGPRINT1("invoke special: ");
 #endif
 			methodStackPush(local);
 			methodStackPush(cN);
@@ -912,7 +943,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 				className = (char*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
 				classNameLength = getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1);
 			}
-			DEBUGPRINTLNSTRING(className,classNameLength);
+//bh			DEBUGPRINTLNSTRING(className,classNameLength);
 			if(!findMethod(className,classNameLength,methodName,methodNameLength,methodDescr,methodDescrLength)) {
 				METHODNOTFOUNDERR(methodName, className);
 			}
@@ -1071,7 +1102,13 @@ nativeVoidReturn:
 			}
 			if (methodStackEmpty())	{
 				/*printf("empty method stack\n");*/
-				if (strncmp("<clinit>",(char*)findMethodByMethodNumber(),8) == 0) {	/*mb jf if not <clinit> you're done :-D*/
+				if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("<clinit>",(char*)findMethodByMethodNumber(),8) == 0) {	/*mb jf if not <clinit> you're done :-D*/
 					DEBUGPRINTLN1(" from <clinit>");
 
 					return;
@@ -1099,8 +1136,14 @@ nativeVoidReturn:
 			pc += 2;
 			methodStackPush(cN);
 			methodStackPush(mN);
-			if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	/* className*/
-			               getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)))	/* classNameLength*/
+			if (!
+#ifdef AVR8
+findClassFlash
+#else
+findClass
+#endif
+(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	/* className*/
+			               getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)) )	/* classNameLength*/
 			{
 				mN = methodStackPop();
 				cN = methodStackPop();
@@ -1265,8 +1308,14 @@ nativeVoidReturn:
 
 				/* we have to make some dirty hacks here
   				 since we are not storing typing informations for arrays */
-				if (*classname == '[') {
-					while ('[' == *classname) {
+				if (
+getU1(classname)=='['
+//*classname == '['
+) {
+					while (
+getU1(classname)=='['
+//'[' == *classname
+) {
 						/* we hope to get useful information
 	 						 from the objects stored in the array.
 							 this only takes the first object in the array,
@@ -1286,7 +1335,10 @@ nativeVoidReturn:
 						performcheck = 0;
 					}
 					/* A class identifier is Lclassname; */
-					if ('L' == *classname) {
+					if (
+getU1(classname)=='L'
+//'L' == *classname
+) {
 						len -= 2;
 						++classname;
 					} else {
@@ -1328,8 +1380,14 @@ nativeVoidReturn:
 
 				/* we have to make some dirty hacks here
   				 since we are not storing typing informations for arrays */
-				if (*classname == '[') {
-					while ('[' == *classname) {
+				if (
+getU1(classname)=='['
+//*classname == '['
+) {
+					while (
+getU1(classname)=='['
+//'[' == *classname
+) {
 						/* we hope to get useful information
 	 						 from the objects stored in the array.
 							 this only takes the first object in the array,
@@ -1350,7 +1408,10 @@ nativeVoidReturn:
 						opStackPush((slot) (u4)1);
 					}
 					/* A class identifier is Lclassname; */
-					if ('L' == *classname) {
+					if (
+getU1(classname)=='L'
+//'L' == *classname
+) {
 						len -= 2;
 						++classname;
 					} else {
@@ -1383,9 +1444,9 @@ nativeVoidReturn:
 			}
 
 		CASE	WIDE:
-			DEBUGPRINTLN1("wide (not tested)");	/* mb jf*/
+			DEBUGPRINTLN1("wide");	/* mb jf*/
 			/* not tested because so many locals are hard to implement on purpose  14.12.2006*/
-			u2 nextOp = getU2(0);	/* which operation to extend?*/
+			u2 nextOp = getU1(0);	/* which operation to extend?*/
 			count = getU2(0);
 
 			if (ILOAD <= nextOp && nextOp <= DLOAD) {	/* if load operation...*/
@@ -1444,7 +1505,11 @@ nativeVoidReturn:
 void subCheck (u2 target, u2 addr) {
 	u2 super_class = cs[cN].constant_pool[getU2(cs[cN].constant_pool[addr]+1)];
 	methodStackPush(cN);
+#ifdef AVR8
+	findClassFlash(getAddr(super_class+3), getU2(super_class+1));
+#else
 	findClass(getAddr(super_class+3), getU2(super_class+1));
+#endif
 	if (!checkInstance(target)) {
 		cN = methodStackPop();
 	} else {
@@ -1504,7 +1569,7 @@ slot createDims(u4 dimsLeft, s2 *dimSize) {
 /*
 ** Realizes an interpreter-raised Exception
 */
-
+//BH AM not tested
 void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 
 	methodStackPush(cN);
@@ -1552,6 +1617,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 	handleException();
 }
 
+//BH AM not tested
 void handleException() {
 	/* this is actually the class we have to catch*/
 	u1 classNumberFromPushedObject=opStackPeek().stackObj.classNumber;
@@ -1576,7 +1642,13 @@ void handleException() {
 
 		/* checking whether the catch's catched class is in the code exception table*/
 		methodStackPush(cN);
-		if (findClass(getAddr(CP(cN, getU2(CP(cN,getU2(cur_catch + 8))+1))+3),	/* className*/
+		if (
+#ifdef AVR8
+findClassFlash
+#else
+findClass
+#endif
+(getAddr(CP(cN, getU2(CP(cN,getU2(cur_catch + 8))+1))+3),	/* className*/
 		              getU2(CP(cN,  getU2(CP(cN,getU2(cur_catch + 8))+1))+1))	/* classNameLength*/
 		        == 0) {
 			DEBUGPRINTLN2("Exception class not found:  %d\n",cN);
