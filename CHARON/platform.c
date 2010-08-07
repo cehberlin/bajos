@@ -78,7 +78,7 @@ sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
 cs[cN].classFileStartAddress=addr+4;	// after length of class
 analyzeClass(&cs[cN]);
 addr+=cs[cN].classFileLength+4;
-printf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
+printf("appclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
 }
 DEBUGPRINTHEAP;
 
