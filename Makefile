@@ -409,8 +409,6 @@ $(TARGETFILE): 	$(OBJFILES)
 	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
 	@echo
 
-bootsysandgraph:
-
 
 all:	clean compile  bootsysandgraph  program logo progbootpack
 
