@@ -26,6 +26,7 @@ u2 loadInSram1(unsigned char* addr);
 void timer_Init();
 #endif
 #ifdef AVR32UC3A
+void delay_ms(u4 delayMilliSec);
 void initTimer();
 #endif
 #endif
