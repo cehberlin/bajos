@@ -55,7 +55,7 @@ void	createThread(void)			{
 		actualThreadCB=t;
 		t->obj=NULLOBJECT;
 		mainThreadPriority[0] = (u4)NORMPRIORITY;	// priority (and alive) of main thread -> immutable
-		mainThreadPriority[1] = (u4)1;		// alive -> doesnt need fpr main thread??
+		mainThreadPriority[1] = (u4)1;		// alive -> doesnt need for main thread??
 		t->pPriority=mainThreadPriority;
 	}
 	else				{
@@ -94,7 +94,7 @@ void	createThread(void)			{
  */
 void insertThreadIntoPriorityList(ThreadControlBlock* t){
 	ThreadControlBlock* pos;
-	u1 prio=(*(t->pPriority))-1;
+	u1 prio=*t->pPriority-1;
 	if (prio > 10) exit(99);
 	pos=threadPriorities[prio].cb;
 	if(pos==NULL){
@@ -104,31 +104,31 @@ void insertThreadIntoPriorityList(ThreadControlBlock* t){
 	}else{
 		t->pred=pos;
 		t->succ=pos->succ;
-		t->pred->succ=t;
+		pos->succ=t;
 		t->succ->pred=t;
 	}
 	threadPriorities[prio].count++;
-	if (((*(actualThreadCB->pPriority))-1)<prio){
-		actualThreadCB->numTicks=0;		
+	if ((*actualThreadCB->pPriority-1)<prio){
+		actualThreadCB->numTicks=0;		// force scheduling
 	}
 }
 /*
  * Function does only remove the given Thread from his current list
- * but does not delete the thread 
+ * but does not delete th>e thread 
  * list will be recognised by *(thread->pPriority)!! Do not edit before!
  * by Christopher-Eyk Hrabia
  */
 void removeThreadFromPriorityList(ThreadControlBlock* t){
-	ThreadControlBlock* temp=t->succ;
-	u1 prio=(*(t->pPriority))-1;
-		if (prio > 10) exit(100);
-	if(t==temp){ //last thread of current priority
+//	ThreadControlBlock* temp=t->succ;
+	u1 prio=*t->pPriority-1;
+	if (prio > 10) exit(100);
+	if(threadPriorities[prio].count == 1 ){ //last thread of current priority
 		threadPriorities[prio].cb=NULL;
 	}else{
-		temp->pred=t->pred;
-		temp->pred->succ=temp;
+		t->pred->succ=t->succ;
+		t->succ->pred=t->pred;
 		if(t==threadPriorities[prio].cb){
-			threadPriorities[prio].cb=temp;
+			threadPriorities[prio].cb=t->pred;
 		}
 	}
 	threadPriorities[prio].count--;
@@ -138,16 +138,17 @@ void removeThreadFromPriorityList(ThreadControlBlock* t){
  * Delete one thread by Christopher-Eyk Hrabia
  */
 void	deleteThread(void)	{
-	removeThreadFromPriorityList(actualThreadCB);
 	*((actualThreadCB->pPriority)+1)=(u4)0;		// isALive == false
+	removeThreadFromPriorityList(actualThreadCB);
 	u1 i=MAXPRIORITY-1;
-	while(threadPriorities[i].count==0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
+	while(threadPriorities[i].count == 0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
 	}
 	free(actualThreadCB->methodStackBase); /*/ crash -> to do*/ /*EDIT CEH: AFTER IMPLEMENTING NEW SCHEDULING IT SEEMS TO WORK*/
 	free(actualThreadCB->opStackBase);
 	free(actualThreadCB);
 	actualThreadCB =threadPriorities[i].cb;
+	actualThreadCB->numTicks=0;	// force scheduling
 	methodStackBase=actualThreadCB->methodStackBase;
 	methodStackSetSpPos(actualThreadCB->methodSpPos);
 	opStackBase=actualThreadCB->opStackBase;
@@ -166,6 +167,63 @@ void	deleteThread(void)	{
  * current thread are 0. //CEH
  */
 void scheduler(void)	{
+	if (numThreads == 1) return;
+	//A Thread runs until his numTicks is 0
+	if(((--actualThreadCB->numTicks) && ((actualThreadCB->state)==THREADNOTBLOCKED)))	return;
+		// select a runnable thread
+	u1 p,n,mark;
+	ThreadControlBlock*	found;
+	for (p=(MAXPRIORITY-1); p!=255; p--)	{
+	  mark=0;
+	  found=threadPriorities[p].cb;
+	  for (n=0; n < threadPriorities[p].count; n++) 	{
+	      found=found->succ;
+	      if ((found == actualThreadCB) && (n == 0) && ((found->state)==THREADNOTBLOCKED)) 
+		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 	  		return; }
+		      /* found in the highest priority list lonely old buddy -> take it against*/
+	      if (( found == actualThreadCB ) && ((found->state)==THREADNOTBLOCKED))	{ mark=1;   continue;	}	
+		      // mark it and take it, if not another found
+	      if ((found->state)==THREADNOTBLOCKED) 				{ mark=2; break;} // I take it
+	      if ((found->state)==THREADMUTEXBLOCKED) 				continue;  // next n
+	      if ((found->state)==THREADWAITBLOCKED) 				continue;  // next n
+	      if (((found->state)==THREADWAITAWAKENED) && 
+		((HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex) ==MUTEXBLOCKED))
+										continue; 
+	      /* awakened and mutexnotblocked*/
+	      if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
+		HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
+		found->state=THREADNOTBLOCKED;
+		found->isMutexBlockedOrWaitingForObject=NULLOBJECT;		{ mark=2;	break; }		
+							}	 } // end for n
+	      if (mark==2) break;
+	      if (mark == 1)
+		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 		  	return; }
+	      /* not another thread for priority is runnable, take the old thread */	
+		} // end for p
+	// assume: not all threads are blocked
+	// if interrupts or so are able to change thread state inster an infinity loop here
+	if (mark == 0) errorExit(111,"scheduling error");
+	/* scheduling -> next thread*/
+	methodStackPush(local);
+	methodStackPush(cN);
+	methodStackPush(mN);
+	methodStackPush(pc);
+	methodStackPush((u2)(opStackGetSpPos()));
+	actualThreadCB->methodSpPos=methodStackGetSpPos();
+	actualThreadCB=found;
+	threadPriorities[*actualThreadCB->pPriority-1].cb=actualThreadCB;		
+	//reset numTicks
+	actualThreadCB->numTicks= *actualThreadCB->pPriority;
+	methodStackBase=actualThreadCB->methodStackBase;
+	methodStackSetSpPos(actualThreadCB->methodSpPos);
+	opStackBase=actualThreadCB->opStackBase;
+	opStackSetSpPos(methodStackPop());
+	pc=methodStackPop();
+	mN=methodStackPop();
+	cN=methodStackPop();
+	local=methodStackPop();
+}
+void scheduler1(void)	{
 	if (numThreads==1) return;
 	//A Thread runs until his numTicks is 0
 	if((actualThreadCB->numTicks && ((actualThreadCB->state)==THREADNOTBLOCKED)))
