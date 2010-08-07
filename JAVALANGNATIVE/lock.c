@@ -35,10 +35,10 @@ char unlock(){
 
 char tryLock(){
 	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXBLOCKED)	{
-		opStackPush((slot)0); 
+		opStackPush((slot) (u4)0); 
 	}else{
 		lock();
-		opStackPush((slot)1);
+		opStackPush((slot)(u4)1);
 	}
 	return 1;
 }
