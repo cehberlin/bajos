@@ -13,7 +13,9 @@ public final class String implements CharSequence
 	public String(String str) {
 		int slen = str.length();
 		characters = new char[slen];
-		System.arraycopy(str.characters, 0, characters, 0, slen);
+		/* must do it this way because str may be no real String object, but a string literal */
+		for (int i=0; i<str.length(); i++)	
+			characters[i]=str.charAt(i); 
 	}
 
 	public String(char[] c) {
