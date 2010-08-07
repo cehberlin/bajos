@@ -24,7 +24,7 @@
 #ifdef AVR32UC3A
 #include "EVK1100/usartuc3a.h"
 #endif
-#ifdef AVR32AP7000
+#ifdef NGW100
 #include "AVR32AP7000/usartap7000.h"
 #endif
 char	conIn();

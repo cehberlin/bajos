@@ -128,22 +128,12 @@ static const gpio_map_t USART_GPIO_MAP =
 }
 #endif
 
-
-
-
-
-
-
-
-#ifdef AVR32AP7000
+#ifdef NGW100
 
 typedef unsigned char avr32_piomap_t[][2];
 
-
-
 /* enable output on pins */
 int pio_enable_module(avr32_piomap_t piomap, unsigned int size);
-
 
 void usartInit()	{
 int cpu_hz = 20000000;
@@ -222,17 +212,3 @@ int pio_enable_module(avr32_piomap_t piomap, unsigned int size)
   return SUCCESS;
 }
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
