@@ -297,26 +297,28 @@ void scheduler(void)	{
 	ThreadControlBlock*	found;
 	for (p=(MAXPRIORITY-1); p!=255; p--)	{
 	  mark=0;
-	  found=threadPriorities[p].cb;
+	  if ((found=threadPriorities[p].cb)==NULL) 					continue;
 	  for (n=0; n < threadPriorities[p].count; n++) 	{
 	      found=found->succ;
+	      printf("in sched prio: %d, n: %d, t->state: %d\n",p,n,found->state);
 	      if ((found == actualThreadCB) && (n == 0) && ((found->state)==THREADNOTBLOCKED)) 
 		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 	  		return; }
 		      /* found in the highest priority list lonely old buddy -> take it against*/
 	      if (( found == actualThreadCB ) && ((found->state)==THREADNOTBLOCKED))	{ mark=1;   continue;	}	
 		      // mark it and take it, if not another found
 	      if ((found->state)==THREADNOTBLOCKED) 				{ mark=2; break;} // I take it
-	      if ((found->state)==THREADMUTEXBLOCKED) 				continue;  // next n
-	      if ((found->state)==THREADWAITBLOCKED) 				continue;  // next n
+	      if ((found->state)==THREADMUTEXBLOCKED) 					continue;  // next n
+	      if ((found->state)==THREADWAITBLOCKED) 					continue;  // next n
 	      if (((found->state)==THREADWAITAWAKENED) && 
 		((HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex) ==MUTEXBLOCKED))
-										continue; 
+											continue; 
 	      /* awakened and mutexnotblocked*/
 	      if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
 		HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
 		found->state=THREADNOTBLOCKED;
-		found->isMutexBlockedOrWaitingForObject=NULLOBJECT;		{ mark=2;	break; }		
-							}	 } // end for n
+		found->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+		mark=2;
+		break; 					}	 } // end for n
 	      if (mark==2) break;
 	      if (mark == 1)
 		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 		  	return; }
@@ -345,6 +347,7 @@ void scheduler(void)	{
 	cN=methodStackPop();
 	local=methodStackPop();
 }
+
 void scheduler1(void)	{
 	if (numThreads==1) return;
 	//A Thread runs until his numTicks is 0
