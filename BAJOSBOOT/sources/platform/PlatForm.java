@@ -1,11 +1,13 @@
 
- //@authors 22.02.2008; Anna Maria Damm; FHW-BA Berlin; Bayer Schering Pharma AG
-//	 					H.-Christian Hecht, FHW-BA Berlin;CoMedServ GmbH
-//						Adrian Lang,FHW-BA Berlin; Fritz-Haber-Institut
-//						Stephan Bauer; FHW-BA Berlin; Bayer Schering Pharma AG
+//@authors 22.02.2008; Anna Maria Damm; FHW-BA Berlin; Bayer Schering Pharma AG
+//	 	H.-Christian Hecht, FHW-BA Berlin;CoMedServ GmbH
+//		Adrian Lang,FHW-BA Berlin; Fritz-Haber-Institut
+//		Stephan Bauer; FHW-BA Berlin; Bayer Schering Pharma AG
 package platform;
 
-
+// no fields only methods
+// not instantionable, but extendable
+// only extended by System and Graphics
 public class PlatForm	{
 public PlatForm()	{}
 public native static char nativeCharIn();
@@ -25,8 +27,8 @@ drawPoint((int)x,(int)y,((((int)r)<<16)&0xff0000)|((((int)g)<<8)&0xff00)|((int)b
 float dz;
 float delta, dx, dy, dr, dg, db;
 float step=.99999999f;		// selten: einige pkte werden 2* gezeichnet, andere nicht
-						// schwierigkeiten mit step=1. , 1.99999-> 1, 1.99999+1.-> 3.
-						// -> löcher in line
+				// schwierigkeiten mit step=1. , 1.99999-> 1, 1.99999+1.-> 3.
+				// -> löcher in line
 
 public void drawLine(int xa,int ya, int za, int ra, int ga, int ba,
 int xe, int ye, int ze, int re, int ge, int be)				{
