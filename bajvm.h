@@ -19,8 +19,11 @@
 
 void errorExit(char nr,const char *format, ...);
 void initHW();
+#ifdef LINUX
 void initVM(int argc, char* argv[]);
-
+#else
+void initVM();
+#endif
 #ifdef __DEF_GLOBALS__
 		#define GLOBAL
 		#define INIT__(_a) =(_a)
