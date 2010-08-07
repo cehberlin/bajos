@@ -19,6 +19,6 @@ public native void nativeCharOut(char c);
 public native void exit (int status);
 public native int  currentTimeMillis();
 public native byte nativeConStat();
-public native void nativeSetIO(int port, byte value);
-public native byte nativeGetIO(int port);
+public native void nativeSetData(int addr, byte value);	// sdram
+public native byte nativeGetData(int addr);				// sdram
 }
