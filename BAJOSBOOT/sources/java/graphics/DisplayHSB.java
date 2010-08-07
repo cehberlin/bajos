@@ -1,6 +1,7 @@
 package java.graphics;
 
 import java.util.Vector;
+import platform.PlatForm;
 
 public class DisplayHSB extends Display 
 {
@@ -22,13 +23,13 @@ public class DisplayHSB extends Display
     {
     	//mit HSB
 		System.out.println ("DisplayHSB.drawPoint()");
-		System.platform.drawPointHSB(p);
+		PlatForm.drawPointHSB(p);
     }
 
 	public void clearDisplay()
     {
 		System.out.println ("DisplayHSB.clearDisplay ...");
-		System.platform.clearZBuffer();
+		PlatForm.clearZBuffer();
     	super.clearDisplay();
     }
 	
@@ -36,7 +37,7 @@ public class DisplayHSB extends Display
     {
     	//nach dem DDA-Alg.
     	System.out.println ("DisplayHSB.drawLine()");
-    	System.platform.drawLineHSB(pa, pe);
+    	PlatForm.drawLineHSB(pa, pe);
     }
        
 	
@@ -54,7 +55,7 @@ public class DisplayHSB extends Display
 		// assume: points are sorted by rising y
 
 		System.out.println ("DisplayHSB.triangleFill()");
-		System.platform.drawTriangleFill(p0, p1, p2);
+		PlatForm.drawTriangleFill(p0, p1, p2);
 	}
 	
 	public void drawPolyline(Polyline pl)						
