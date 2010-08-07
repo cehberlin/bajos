@@ -203,18 +203,19 @@ avr8:	${OBJFILES}
 	$(VERBOSE_CMD) ${CC}	-c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
 endif
 
+
+
+ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
+OBJFILES	= $(BAJOSSOURCES:.c=.o)
 ifeq  ($(TARGETHW), linux)
 CC		= gcc
+CPPFLAGS	= -DLINUX
 endif
 
 ifeq  ($(TARGETHW), avr32-linux)
 CC		= avr32-linux-gcc
-CPPFLAGS+	= -DAVR32LINUX
+CPPFLAGS	= -DAVR32LINUX
 endif
-
-ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
-OBJFILES	= $(BAJOSSOURCES:.c=.o)
-
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$(TARGETFILE) 
@@ -229,7 +230,8 @@ linux:		$(TARGETFILE)
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall   -DLINUX ${DEBUGGEN} -o $@ $<
+	echo $(TARGETHW)
+	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall  ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
 endif
