@@ -85,8 +85,8 @@ int main(int argc,char* argv[]){
 	methodStackBase	= actualThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
 #ifdef AVR8
-	printf_P(PSTR("SP: %x cFB: %x hB: %x oPSB: %x mSB: %x cs: %x\n"), 
-			256*SPH+SPL,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase,cs);
+	printf_P(PSTR("SP: %x cs: %x cFB: %x hB: %x oPSB: %x mSB: %x \n"), 
+			256*SPH+SPL,cs,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase);
 #endif
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
