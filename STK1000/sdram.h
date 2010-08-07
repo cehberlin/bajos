@@ -77,7 +77,7 @@ POSSIBILITY OF SUCH DAMAGE.
 typedef struct sdram_info
 {
   /*! \brief physical_address: The base address for the sdram */
-  unsigned int phys_addr;
+  unsigned int physical_address;
 
   /*! \brief bus_width: 16/32 bus width */
   unsigned char bus_width;
