@@ -223,5 +223,5 @@ void handleException();
 void handleArithmeticException();
 void raiseExceptionFromIdentifier(char identifier[], u1 length);
 
-u4 createDims(u4 dimsLeft,u4 *topCount);
+slot createDims(u4 dimsLeft, u2 *count);
 #endif

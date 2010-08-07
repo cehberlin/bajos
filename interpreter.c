@@ -1451,16 +1451,13 @@ else*/
 					}
 		CASE	MULTIANEWARRAY:	DEBUGPRINTLN1("multianewarray");	// mb jf
 					{
-					exit(-77);
+				//	exit(-77);
  						u2 index = getU2(0); // index into the constant_pool
  						u1 dim = getU1(0);	// dimensions
 
-						u4* topCount = 0;
-						u4 ref;		//reference to array
-						topCount = (u4*)malloc(1*sizeof(u4));	// allocate memory for pointer
-						ref = createDims(dim-1,topCount);	// call recursive function to allocate heap for arrays
-											// returns reference to top-array
-						opStackPush(( slot)ref);
+						u2 *cnt = (u2 *) malloc(sizeof(u2));
+						*cnt = 0;
+						opStackPush(createDims(dim, cnt));	// call recursive function to allocate heap for arrays
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 					}
@@ -1486,33 +1483,33 @@ printf("schluss\n");
 }
 
 // not tested yet
-u4 createDims(u4 dimsLeft,u4* topCount){	//mb jf in:dimensions, array-length of previous array, out: reference to top-array
-	u4 ref = heapTop;
-	u4 currDim = dimsLeft;
-	u2 i,j;
-	s4 tmpCount = opStackPop().UInt;	// get count for this dimension from stack
-	u4 count = (u4)tmpCount;
-	if(tmpCount < 0)			NEGATIVEARRAYSIZEEXCEPTION;
-	// resolve type of array / interface /.stackObject from constant pool at index
-	// check access flags (public etc.) ... --> VM specs
-	if(dimsLeft > 0)	ref = createDims(dimsLeft-1, topCount);					// recursion
-	if(currDim > 0){
-		for(i=0; i < *topCount;i++){
-			heapSetElement(( slot)(u4)count, heapTop++);	// count at ref-1
-			heapSetElement(( slot)(u4)heapTop,ref + i);	// reference to array in base-array
-			for(j=0; j<count; j++){		// init array with null(NULL)
-				heapSetElement(( slot)(u4)NULL,heapTop++);
-			}
-		}
-	}else{
-		heapSetElement(( slot)(u4)count, heapTop++);	// count at ref-1
-		ref = heapTop;	// at end of recursion set ref
-		for(i=0; i<count; i++){		// init array with null(NULL)
-			heapSetElement(( slot)(u4)NULL,heapTop++);
+slot createDims(u4 dimsLeft, u2 *count){
+	if (dimsLeft == 0) {
+		return (slot)0;
+	}
+	u4 heapPos; u2 i; slot first;
+	if (*count == 0) {
+		*count = (s2) opStackPop().Int;
+	}
+	if (*count < 0) {
+		raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36);
+	} else if (*count > (MAXHEAPOBJECTLENGTH-1)) {
+		raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 39);
+	} else {
+		heapPos=getFreeHeapSpace(*count + 1); // + marker
+		first.stackObj.pos=heapPos;
+		first.stackObj.magic=OBJECTMAGIC;
+		first.stackObj.classNumber=cN;
+		first.stackObj.arrayLength=*count;
+		HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
+		HEAPOBJECTMARKER(heapPos++).magic=OBJECTMAGIC;
+		u2 *cnt = (u2 *) malloc(sizeof(u2));
+		*cnt = 0;
+		for ( i = 0 ; i < *count ; ++i) {
+			heapSetElement((slot) createDims(dimsLeft - 1, cnt), heapPos++);
 		}
 	}
-	*topCount = (u4)count;
-	return ref;
+	return first;
 }
 
 /*
