@@ -121,10 +121,10 @@ switch(i)					{
 	case	23: return notify(local);
 	case	24: return notifyAll(local);
 	case	25: return wait(local);	// ???
-	case	26: return nativeParseFloat(local);
-	case 	27: return typeConvert(local);
-	case	28: return typeConvert(local);
-	case	39: return floatToCharArray(local);
+	case	28: return nativeParseFloat(local);
+	case 	29: return typeConvert(local);
+	case	30: return typeConvert(local);
+	case	31: return floatToCharArray(local);
 	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
 			   exit(-1);		}							}
 
