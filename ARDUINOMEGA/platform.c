@@ -18,7 +18,7 @@
 #include <avr/pgmspace.h>
 #include "arduinomega.h"
 
-void getCharsFromFlash(char*, u1, char*);
+void getCharsFromFlash(u1*, u1, char*);
 
 FILE uartAVR8 = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
 
@@ -88,7 +88,7 @@ stdout = stdin=stderr = &uartAVR8;
 /* all class files stored for linux in DS (malloc)*/
 /* for avr8 all class files in flash */
 void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
-char* addr;
+u1* addr;
 char buf[4];
 heapInit();	/* linux avr8 malloc , others hard coded!*/
 // all classes in flash for arduinoMega and CharonII
