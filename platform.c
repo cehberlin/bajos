@@ -21,6 +21,17 @@ unsigned long sdram_init(const struct sdram_info *info);
 #endif
  
 #ifdef EVK1100
+/*#include "board.h"
+#include "compiler.h"
+#include "dip204.h"
+#include "intc.h"
+#include "gpio.h"
+#include "pm.h"
+#include "count.h"
+*/
+#include "EVK1100/spi.h"
+#include <avr32/io.h>
+#include "EVK1100/pmuc3a.h"
 #include "EVK1100/gpiouc3a.h"
 #include "EVK1100/evk1100.h"
 #include "EVK1100/dip204.h"
@@ -28,6 +39,8 @@ unsigned long sdram_init(const struct sdram_info *info);
 #include "EVK1100/rtcuc3a.h"
 #include "EVK1100/intcuc3a.h"
 #include "EVK1100/sdramc.h"
+
+
 #endif
 #include "platform.h"
 #ifdef AVR8
@@ -60,6 +73,8 @@ timer_Init();	// use timer 2 for real time clock
 #if  (AVR32UC3A|| AVR32AP7000)
 usartInit();
 stdIOInit();
+
+
 #ifdef AVR32UC3A 
 initTimer();
 #endif
@@ -67,6 +82,75 @@ initTimer();
 
 #ifdef EVK1100
 sdramc_init(FOSC0);
+
+static const gpio_map_t DIP204_SPI_GPIO_MAP =
+  {
+    {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  // SPI Clock.
+    {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  // MISO.
+    {DIP204_SPI_MOSI_PIN, DIP204_SPI_MOSI_FUNCTION},  // MOSI.
+    {DIP204_SPI_NPCS_PIN, DIP204_SPI_NPCS_FUNCTION}   // Chip Select NPCS.
+  };
+ // Switch the CPU main clock to oscillator 0
+  pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
+ // add the spi options driver structure for the LCD DIP204
+  spi_options_t spiOptions =
+  {
+    .reg          = DIP204_SPI_CS,
+    .baudrate     = 1000000,
+    .bits         = 8,
+    .spck_delay   = 0,
+    .trans_delay  = 0,
+    .stay_act     = 1,
+    .spi_mode     = 0,
+    .fdiv         = 0,
+    .modfdis      = 1
+  };
+
+  // Assign I/Os to SPI
+  gpio_enable_module(DIP204_SPI_GPIO_MAP,
+                     sizeof(DIP204_SPI_GPIO_MAP) / sizeof(DIP204_SPI_GPIO_MAP[0]));
+
+  // Initialize as master
+  spi_initMaster(DIP204_SPI, &spiOptions);
+
+  // Set selection mode: variable_ps, pcs_decode, delay
+  spi_selectionMode(DIP204_SPI, 0, 0, 0);
+
+  // Enable SPI
+  spi_enable(DIP204_SPI);
+
+  // setup chip registers
+  spi_setupChipReg(DIP204_SPI, &spiOptions, FOSC0);
+
+  // configure local push buttons
+ // dip204_example_configure_push_buttons_IT();
+
+  // configure local joystick
+ // dip204_example_configure_joystick_IT();
+
+  /* initialize LCD */
+  dip204_init(99);//backlight_PWM);
+
+  /* reset marker */
+  char current_char = 0x10;
+
+  // Display default message.
+  dip204_set_cursor_position(8,1);
+  dip204_write_string("ATMEL");
+  dip204_set_cursor_position(7,2);
+  dip204_write_string("EVK1100");
+  dip204_set_cursor_position(6,3);
+  dip204_write_string("AVR32 UC3");
+  dip204_set_cursor_position(3,4);
+  dip204_write_string("AT32UC3A Series");
+  dip204_hide_cursor();
+
+
+
+
+
+
+
 #endif
 
 #ifdef STK1000
@@ -140,7 +224,7 @@ __attribute__((__interrupt__))
 __interrupt
 #endif
 void rtc_irq(){
-  timerSec++;
+  timerMilliSec++;
   // clear the interrupt flag
   rtc_clear_interrupt(&AVR32_RTC);
 }
@@ -164,13 +248,14 @@ void initTimer()
   INTC_register_interrupt(&rtc_irq, AVR32_RTC_RTC_IRQ, INT0);
 #endif
   // Initialize the RTC
+//psel = log(Fosc/Frtc)/log(2)-1; Frtc wanted f, Fosc 32KHz
   if (!rtc_init(&AVR32_RTC, RTC_OSC_32KHZ,4))// 1khz
   {
     //usart_write_line(&AVR32_USART0, "Error initializing the RTC\r\n");
-    printf("Error initializing the RTC\r\n");
-    while(1);
+    {printf("Error initializing the RTC\r\n");
+    exit(-1);	}
   }
-  // Set top value to 0 to generate an interruption every seconds */
+  // Set top value to 0 to generate an interruption every Milli-seconds */
   rtc_set_top_value(&AVR32_RTC, 0);
   // Enable the interruptions
   rtc_enable_interrupt(&AVR32_RTC);
@@ -178,8 +263,11 @@ void initTimer()
   rtc_enable(&AVR32_RTC);
   // Enable global interrupts
   Enable_global_interrupt();
-
-  return 0;
+}
+void delay_ms(u4 delayMilliSec)
+{
+u4 start=timerMilliSec;
+while ((timerMilliSec-start)<delayMilliSec);
 }
 #endif
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
