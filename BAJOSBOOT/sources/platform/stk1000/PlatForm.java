@@ -5,9 +5,6 @@
 //						Stephan Bauer; FHW-BA Berlin; Bayer Schering Pharma AG
 package platform;
 
-import java.graphics.Point;
-
-
 public class PlatForm	{
 public PlatForm()	{}
 public native char nativeCharIn();
@@ -31,12 +28,13 @@ public native void drawEllipseRGB(int x1, int y1, int x2, int y2, int fgcolor, i
 public native void drawCircleRGB(int x, int y, int r, int fgcolor, int bkcolor);
 public native void drawLineRGB(int x1, int y1, int x2, int y2, int color);
 
-public native void drawPointHSB(Point p);
-public native void drawLineHSB(Point pa, Point pe);
-public native void drawTriangleFill(Point p0, Point p1, Point p2);
+//public native void drawPointHSB(Point p);
+public native void drawPointHSB(float x, float y, float h, float s, float b);
+public native void drawLineHSB(float x1, float y1, float h1, float s1, float b1, float x2, float y2, float h2, float s2, float b2);
+public native void drawTriangleFill(float x1, float y1, float h1, float s1, float b1, float x2, float y2, float h2, float s2, float b2, float x3, float y3, float h3, float s3, float b3);
 public native void clearZBuffer();
-public native void drawPointHSBZBuffer(Point p);
-public native void drawLineHSBZBuffer(Point pa, Point pe);
+public native void drawPointHSBZBuffer(float x, float y, float z, float h, float s, float b);
+public native void drawLineHSBZBuffer(float x1, float y1, float z1, float h1, float s1, float b1, float x2, float y2, float z2, float h2, float s2, float b2);
 
 /*Schrift-Methoden*/
 public native void setFont(int index);
