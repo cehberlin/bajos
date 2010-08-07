@@ -52,3 +52,13 @@ return classFileLength+=(long)addr;
 #endif
 }
 
+
+void linuxExit(int n)	{
+#ifdef DEBUGOPSTACK
+printf(" maxOperandenStack: x%x",maxOpStack);
+#endif //DEBUOPSTACK
+#ifdef DEBUGMETHODSTACK
+printf(" maxMethodStack: x%x\n",maxMethodStack);
+#endif //DEBUGMETHODSTACK
+ exit(n);
+}
