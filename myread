@@ -12,3 +12,6 @@ PUTFIELD
 GETSTATIC
 PUTSTATIC
 für variablenvererbung
+
+struct	{
+} cs[MAXCLASSES]; da nur eine struct angelegt
