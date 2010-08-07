@@ -50,62 +50,61 @@ opStackPush((slot)(u4)0);
 return 1;
 }
 
-char isAlive()	{//by ceh
-//TODO
-	return 1;
-}
-
 char start()	{
-cN=opStackGetValue(local).stackObj.classNumber;
-createThread();
+ cN=opStackGetValue(local).stackObj.classNumber;
+  createThread();
 return 0;
 }
-/*6*/
+
 char yield()	{//by ceh
 	//force scheduling!
 	actualThreadCB->numTicks=0;
 	return 0; 
 }
-/*7*/
-char currentThread(){return 1; }
-/*8*/
-char getPriority(){ //by ceh
-	opStackPush((slot)(u4)actualThreadCB->priority);
-	return 1; 
+
+char currentThread(){
+  opStackPush((slot)(actualThreadCB->obj));
+  return 1; }
+
+char nativeSetPriority() { //by ceh
+// thread is alive -> thread control block exists
+// cN -> of method (Thread)
+  u1 newPrio = opStackGetValue(local+1).UInt;
+  u4* pCurrentPrio;
+  slot soi = opStackGetValue(local);
+  cN = soi.stackObj.classNumber;	// of object, which calls the method 
+  if (!findFieldByRamName("priority",8,"I",1)) errorExit(78,"field priority not found");
+  pCurrentPrio= (u4*)(heapBase+soi.stackObj.pos+fNO+1); 	// position of int field priority of the thread creating object
+  if (newPrio == (*pCurrentPrio)) return 0; // nothing to do
+    // search thread control block af calling object
+ThreadControlBlock*	found=NULL;
+u1 i,k;
+  for(i=0;i<(MAXPRIORITY);i++)							{
+    if (found!=NULL) break;
+    for(k=0;k<(threadPriorities[i].count);k++)			{
+      if ((threadPriorities[i].cb->obj).UInt == soi.UInt) { found=threadPriorities[i].cb; break;}
+      threadPriorities[i].cb=threadPriorities[i].cb->succ;	}		}
+  if (found==NULL) errorExit(78,"thread not found");
+  removeThreadFromPriorityList(found);
+  *(found->pPriority)=newPrio;
+  insertThreadIntoPriorityList(found);
+  return 0; 
 }
-/*9*/
-char setPriority(){ //by ceh
-	u1 newPrio;
-	u1 currentPrio;
-	newPrio=opStackGetValue(local+1).UInt;
-	currentPrio=actualThreadCB->priority;
-	if(newPrio>=MINPRIORITY && newPrio<=MAXPRIORITY && newPrio!=currentPrio){
-		removeThreadFromPriorityList(actualThreadCB);
-		actualThreadCB->priority=newPrio;
-		insertThreadIntoPriorityList(actualThreadCB);
-		//if priority was decreased the scheduling for next bytecode is forced
-		if(currentPrio>newPrio){
-			actualThreadCB->numTicks=0;
-		}
-	}
-	return 0; 
-}
-/*10*/
+
 char interrupt(){return 0; }
-/*11*/
+
 char interrupted(){return 1; }
-/*12*/
+
 char isInterrupted(){return 1; }
-/*13*/
-char isDaemon(){return 1; }
-/*14*/
-char setDaemon(){return 0; }
+
+char  sleep(){return 0; }
+
 char  join(){return 0; }
-/*15*/
+
 char jointimeout(){return 0; }
 
 /* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
-char notify(){	/* not tested yet aug2007*/
+char notify() {
 	u1 i,k;
 	u1 max,breakNested;
 	ThreadControlBlock* cb;
