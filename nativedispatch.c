@@ -81,6 +81,22 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 };
 #endif
 
+#ifdef XPLAIN
+#include "XMEGA/native.h"
+
+functionForNativeMethodType functionForNativePlatFormMethod[] =	{
+	NULL,
+/*	nativeCharIn,
+	nativeCharOut,
+	nativeExit,
+	currentTimeMillis,
+	nativeConStat,
+	nativeSetData,
+	nativeGetData
+	*/
+};
+#endif
+
 
 #ifdef EVK1100
 #include "EVK1100/native.h"
