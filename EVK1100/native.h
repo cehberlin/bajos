@@ -1,0 +1,16 @@
+char nativeCharIn();
+char nativeCharOut();
+char getButtons();
+char setOnBoardLEDs();
+char charLCDOut();
+char controlLCD();
+char nativeExit();
+char currentTimeMillis();
+char ser1In();
+char ser1Out();
+char ser1Stat();
+char ser1RTS();
+char ser1DTR();
+char pwmStart();
+char pwmStop();
+char adcGetValue();
