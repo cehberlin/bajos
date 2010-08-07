@@ -16,7 +16,7 @@
 opStackPush:		//load global pointer
 			lds	ZL,opSp
 			lds	ZH,opSp+1
-			//store 32bit where pointer poits to
+			//store 32bit where pointer points to
 			st	Z+,r22
 			st	Z+,r23	
 			st	Z+,r24	
