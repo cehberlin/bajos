@@ -24,17 +24,17 @@ void opStackInit(slot** m)	{		// per thread, fixed size
 #else
 // classfiles - heap - (opstack methodstack)/ per thread
 //make it better
-*m=(slot*)((u4)apClassFileBase+MAXBYTECODE+MAXHEAP+numThreads*(OPSTACKSIZE+METHODSTACKSIZE));
+*m=(slot*)((u4)apClassFileBase+MAXBYTECODE+4*MAXHEAP+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE));
 #endif
 }
 void opStackPush( slot val)				{	*(opSp++)=val;						}	
 //  sp grothws with increasing addresses
 // and shows to TOS first free place
 
- slot opStackPop()						{	return *(--opSp);					}	
+slot opStackPop()						{	return *(--opSp);					}	
 // operand stack stores 4 bytes
 
- slot  opStackPeek()					{	return *(opSp-1);					}
+slot  opStackPeek()						{	return *(opSp-1);					}
 
 void opStackPoke( slot val)				{	*(opSp-1)=val;						}
 
@@ -42,7 +42,8 @@ void opStackSetValue(u2 pos, slot val)	{	*(opStackBase+pos)=val;				}
  
 slot opStackGetValue(u2  pos)			{	return *(opStackBase+pos);			}
 
-u2 opStackGetSpPos()					{  	return (opSp-opStackBase);		}	// relative to actual base
+u2 opStackGetSpPos()					{  	return (opSp-opStackBase);		}	
+// relative to actual base
 
 void opStackSetSpPos(u2 pos)			{	opSp=pos+opStackBase;			}
 
@@ -50,17 +51,14 @@ void methodStackInit(u2** m)				{
 #if (LINUX||AVR8)
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL){printf("malloc error\n");exit(-1);}
 #else
-*m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+MAXHEAP+OPSTACKSIZE+numThreads*(OPSTACKSIZE+METHODSTACKSIZE)));
+*m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
 #endif
 												}
 
 void methodStackPush(u2 val)		{	*(methodSp++)=val;					}
-
 u2 methodStackPop()					{	return *(--methodSp);				}
 u2 methodStackPeek()				{	return *(methodSp-1);				}
 u1 methodStackEmpty()				{	return (methodSp==methodStackBase) ? 1:0;	}
-
 u2 methodStackGetSpPos()			{  	return (methodSp-methodStackBase);		}
 // relative to actual base
-
 void methodStackSetSpPos(u2 pos)	{	methodSp=pos+methodStackBase;			}
