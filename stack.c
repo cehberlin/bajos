@@ -35,7 +35,7 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 #endif
 }
 
-#ifndef AVR8 //all these functions are rewritten in assembler to increase speed => routines_stack.asm
+#if (!AVR8) || XPLAIN  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void opStackPush( slot val)	{	*(opSp++)=val;			}	
 /*  sp grothws with increasing addresses*/
 /* and shows to TOS -> first free place*/
@@ -66,8 +66,7 @@ void methodStackInit(u2** m)	{
 *m=(u2*)((u4)(appClassFileBase+MAXBYTECODE+4*MAXHEAP+4*OPSTACKSIZE+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE)));
 #endif
 }
-#ifndef AVR8 //all these functions are rewritten in assembler to increase speed => routines_stack.asm
-#ifndef AVR8
+#if (!AVR8) || XPLAIN  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void methodStackPush(u2 val)	{	*(methodSp++)=val;		}
 u2 methodStackPop()		{	return *(--methodSp);		}
 u2 methodStackPeek()		{	return *(methodSp-1);		}
@@ -79,7 +78,6 @@ void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	}
 u1 methodStackEmpty()		{	return (methodSp==methodStackBase) ? 1:0;	}
 #endif
 
-#endif
 /*//BH
 void dummy(void)	{
 char* s1,*s2;
