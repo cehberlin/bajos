@@ -1,6 +1,5 @@
-#trampoline,linkerscript 
 # Hey -  this is a -*- makefile -*- -> for BAJOS
-# FHW/Fachbereich Berufsakademie (BA) - Java Operating System for Microcontroller
+# HWR/Fachbereich Berufsakademie (BA) - Java Operating System for Microcontroller
 # atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
 # goals
 # avr8 linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
@@ -66,6 +65,7 @@ AVR8ROOT	=
 AVR8INC		=
 AVR32ROOT	= /usr/bin/
 AVR32BIN 	= $(AVR32DIR)
+AVR32LINUXGCC	= /usr/avr32-linux/bin/avr32-linux-gcc
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # JAVA-SOURCES AND TARGETS
@@ -79,7 +79,6 @@ IO		= ${BOOTCLASSPATH}java/io
 UTIL		= ${BOOTCLASSPATH}java/util
 JPLATFORM	= ${BOOTCLASSPATH}platform
 GRAPHICS	= ${BOOTCLASSPATH}java/graphics
-
 # java system sources
 BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
@@ -147,14 +146,16 @@ NGW100SOURCES	= $(APPPATH)NGW100/pio.c  $(APPPATH)NGW100/gpiongw100.c \
 		$(APPPATH)NGW100/hsdramc.c \
 		$(APPPATH)NGW100/usart.c \
 		$(APPPATH)NGW100/platform.c  $(APPPATH)NGW100/native.c
-STK1000SOURCES	= $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/usart.c\
+STK1000SOURCES	= $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/usart.c\
 		$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c \
-		$(APPPATH)STK1000/ltv350qv.c \
-		$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
+		$(APPPATH)STK1000/ltv350qv.c $(APPPATH)STK1000/at32stk1000.c \
+		$(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
 		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
-ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S
+ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S \
+
+#		$(APPPATH)/EVK1100/crt0.S
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
@@ -163,6 +164,7 @@ LSS		= $(TARGETFILE:$(TGTTYPE)=.lss)
 SYM		= $(TARGETFILE:$(TGTTYPE)=.sym)
 HEX		= $(TARGETFILE:$(TGTTYPE)=.hex)
 BIN		= $(TARGETFILE:$(TGTTYPE)=.bin)
+
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # BINUTILS-BINARIES
@@ -249,9 +251,10 @@ CPPFLAGS	= -DLINUX
 endif
 
 ifeq  ($(TARGETHW), avr32-linux)
-CC		= avr32-linux-gcc
+OBJFILES	= $(BAJOSSOURCES:.c=.o) $(LINUXSOURCES:.c=.o) 
+CC		= $(AVR32LINUXGCC)
 CPPFLAGS	= -DAVR32LINUX
-all: clean compile bootclasses bootgraphic bootpack 
+all: clean compile bootpack 
 
 
 bootpack:
@@ -302,6 +305,7 @@ PROG_CLOCK	= xtal
 DEFS		= -D BOARD=EVK1100
 
 # Linker script file if any
+#LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
@@ -360,7 +364,7 @@ all:	clean compile bootclasses  program progbootpack
 
 program: $(TARGETFILE)
 	@echo
-	@echo $(MSG_PROGRAMMING) xxxx
+	@echo $(MSG_PROGRAMMING)
 	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 	sleep 2
 
@@ -393,8 +397,9 @@ endif
 
 ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
 CC		= $(AVR32BIN)avr32-gcc
+#CC		= $(AVR32LINUXGCC)
 MCPU		= ap7000
-CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT) 
+CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT)
 # -Werror -g
 ARCH		= ap
 # Part: {none|ap7xxx|uc3xxxxx}
@@ -663,19 +668,30 @@ bootgraphic:
 # make linux A
 # make linux compA
 
-A:
-	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/A.class 
-
-#	$(APPCLASSPATH)/Aparent.class
-
 NGW:
 	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/NGW.class 
-
-#	$(APPCLASSPATH)/Aparent.class
 
 compNGW:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/NGW.java
 
+compCharon:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/Charon.java
+
+compEVK1100:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/EVK1100.java
+
+compSTK1000:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/STK1000.java
+
+compSTK1000a:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/STK1000a.java
+
+compSTK1000b:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/STK1000b.java
+
+A:
+	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/A.class 
+#	$(APPCLASSPATH)/Aparent.class
 
 compA:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/A.java
