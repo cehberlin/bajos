@@ -376,8 +376,10 @@ if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 						else	opStackPoke((slot)(opStackPeek().Int % first.Int));
 						DEBUGPRINTSTACK;
 	CASE	LREM:		PRINTSEXIT("LREM",nry,4);
-	CASE	FREM:		DEBUGPRINTLN1("FREM");//???	
-						opStackPoke(( slot)(f4)((opStackPop().Float / opStackPeek().Float)));
+	CASE	FREM:		DEBUGPRINTLN1("FREM");//???	NaN 
+						if 	(( (first=opStackPop()).Float)==0.0)	ARITHMETHICEXCEPTION	// ohne Semikolon!!
+						else	opStackPoke((slot)(f4)((opStackPeek().Float/first.Float- (f4)((s4)(opStackPeek().Float/first.Float)))));
+						// wrong todo
 						DEBUGPRINTSTACK;	
 	CASE	DREM:		PRINTSEXIT("DREM",nry,4);
 	CASE	INEG:		DEBUGPRINTLN1("INEG");
@@ -389,15 +391,18 @@ if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 						DEBUGPRINTSTACK;	
 	CASE	DNEG:		PRINTSEXIT("DNEG",nry,4);
 	CASE	ISHL:		DEBUGPRINTLN1("ISHL");
-						opStackPoke(( slot)(opStackPop().UInt << opStackPeek().UInt));
+						if 	(( (first=opStackPop()).Int)>31)	ARITHMETHICEXCEPTION	// ohne Semikolon!!
+						else	opStackPoke((slot)(opStackPeek().Int << first.Int));
 						DEBUGPRINTSTACK;
 	CASE	LSHL:		PRINTSEXIT("LSHL",nry,4);
 	CASE	ISHR:		DEBUGPRINTLN1("ISHR");
-						opStackPoke(( slot)(opStackPop().Int >> opStackPeek().Int));
+						if 	(( (first=opStackPop()).Int)>31)	ARITHMETHICEXCEPTION	// ohne Semikolon!!
+						else	opStackPoke((slot)(opStackPeek().Int >> first.Int));
 						DEBUGPRINTSTACK;
 	CASE	LSHR:		PRINTSEXIT("LSHR",nry,4);
 	CASE	IUSHR:		DEBUGPRINTLN1("IUSHR");
-						opStackPoke(( slot)(opStackPop().UInt >> opStackPeek().UInt));
+						if 	(( (first=opStackPop()).UInt)>31)	ARITHMETHICEXCEPTION	// ohne Semikolon!!
+						else	opStackPoke((slot)(opStackPeek().UInt >> first.UInt));
 						DEBUGPRINTSTACK;
 	CASE	LUSHR:		PRINTSEXIT("LUSHR",nry,4);
 	CASE	IAND:		DEBUGPRINTLN1("IAND");
