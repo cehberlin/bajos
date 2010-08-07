@@ -118,7 +118,7 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 */
 	bus_hz = get_sdram_clk_rate();
 	hsdramc1_writel(TR, (156 * (bus_hz / 1000)) / 10000);
-
+/*
 	printf("SDRAM: %u MB at address 0x%08lx\n",
 	       sdram_size >> 20, info->phys_addr);
 
@@ -137,7 +137,7 @@ unsigned long sdram_init(const struct sdram_info *info)
 	}
 
 	puts("OK\n");
-
+*/
 	return sdram_size;
 }
 
