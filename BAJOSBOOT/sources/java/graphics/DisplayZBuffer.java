@@ -1,7 +1,7 @@
 package java.graphics;
 
 import java.util.Vector;
-
+import platform.PlatForm;
 
 public class DisplayZBuffer extends DisplayHSB 
 {
@@ -15,14 +15,14 @@ public class DisplayZBuffer extends DisplayHSB
     {
     	//mit zBuffer Algorithmus (Uebung 4)
 		System.out.println ("DisplayZBuffer.drawPoint() ...");
-		System.platform.drawPointHSBZBuffer(p);		
+		PlatForm.drawPointHSBZBuffer(p);		
     }
 	
 	public void drawLine(Point pa, Point pe)
 	{
 		//mit ZBuffer
 		System.out.println ("DisplayZBuffer.drawLine() ...");
-		System.platform.drawLineHSBZBuffer(pa, pe);		
+		PlatForm.drawLineHSBZBuffer(pa, pe);		
 	}
 	
 	public void scanFill(Polyline pl)

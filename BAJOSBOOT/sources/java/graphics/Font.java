@@ -1,5 +1,7 @@
 package java.graphics;
 
+import platform.PlatForm;
+
 public class Font 
 {
 	int color, bgColor;
@@ -30,12 +32,12 @@ public class Font
     public void setValues()
     {
     	System.out.println ("Font.setValues()");
-    	System.platform.setFont(fontIndex);
-    	System.platform.setFontWindow(windowX1, windowY1, windowX2, windowY2);
-    	System.platform.setFontAutoLineFeed(autoLineFeed);
-    	System.platform.setFontFixedFont(fixedFont);    	
-    	System.platform.setFontCursor(windowX1, windowY1);
-    	System.platform.setFontColor(color, bgColor);
+    	PlatForm.setFont(fontIndex);
+    	PlatForm.setFontWindow(windowX1, windowY1, windowX2, windowY2);
+    	PlatForm.setFontAutoLineFeed(autoLineFeed);
+    	PlatForm.setFontFixedFont(fixedFont);    	
+    	PlatForm.setFontCursor(windowX1, windowY1);
+    	PlatForm.setFontColor(color, bgColor);
     }
 
 	public int getColor() {
@@ -113,32 +115,32 @@ public class Font
 	public void setCursor(int x, int y)
 	{
 		System.out.println ("Font.setCursor()");
-		System.platform.setFontCursor(x, y);
+		PlatForm.setFontCursor(x, y);
 	}
 	
 	public int drawCharAt(int x, int y, char c, int fgcolor, int bkcolor)
 	{
 		System.out.println ("Font.drawCharAt()");
-		return System.platform.drawCharAt(x, y, c, fgcolor, bkcolor);
+		return PlatForm.drawCharAt(x, y, c, fgcolor, bkcolor);
 	}
 	
 	public int drawChar(char c)
 	{
 		System.out.println ("Font.drawChar()");
-		return System.platform.drawChar(c);
+		return PlatForm.drawChar(c);
 	}
 	
 	public int getCharWidth(char c)
     {
 		System.out.println ("Font.getCharWidth()");
-		return System.platform.getCharWidth(c);
+		return PlatForm.getCharWidth(c);
     }
     
 	public int drawStringAt(int x, int y, String s, int fgcolor, int bkcolor)
 	{
 		System.out.println ("Font.drawStringAt()");
 		setCursor(x, y);
-		System.platform.setFontColor(fgcolor, bkcolor);
+		PlatForm.setFontColor(fgcolor, bkcolor);
 		int with=0;
 		for (int i=0; i<s.length();i++)
 		{
