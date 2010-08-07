@@ -18,3 +18,7 @@
 // make A jetzt -> make A linux
 // make compA jetzt -> make compA linux
 // einige ungereimtheiten im makefile bereinigt
+// 11.6.09
+// jetzt müsste alles unter suse11.0 mit dem neunen native konzept funktionieren
+// avr32-linux wie linix-aufruf #>./bajvm *.class auf sd card
+// ngw100 nostartfiles mir exception.S und crt0.S
