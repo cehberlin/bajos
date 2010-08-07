@@ -4,12 +4,16 @@
 */
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
-/********************************************************************************************/
-/* 2006 - Erweiterungen von Matthias Böhme und Jakob Fahrenkrug			*/
-/* Studenten der Informatik an der FHW-Berlin/ Fachbereich Berufsakademie	*/
-/* Ausbildungsbetrieb: Bayer-Schering AG					*/
-/* 2008 - Erweiterungen durch				*/
-/*******************************************************************************************/
+// version 0.2 vom 15.3.08
+/********************************************************************************************
+Erweiterungen von:
+2006 Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering AG
+22.02.2008	Anna Maria Damm, Bayer Schering Pharma AG
+	 		H.-Christian Hecht, CoMedServ GmbH
+			Adrian Lang,Fritz-Haber-Institut
+			Stephan Bauer, Bayer Schering Pharma AG		
+ Studenten der Informatik an der FHW-Berlin/Fachbereich Berufsakademie	
+********************************************************************************************/
 // no double, no long
 // no access flags evaluation
 // no utf8 but ascii
@@ -20,6 +24,7 @@
 // static fields in classes must be the first elements in a class!!!!!!!!!!!!!!!!!!!!!
 // no ...
 // and errors ........................................................................
+/*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX -> Target Systems*/
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,64 +48,42 @@
 #ifdef AVR32AP7000
 #include "AVR32AP7000/usartap7000.h"
 #ifdef STK1000
+#define STK1000_SDRAM_BASE 0xB0000000
 #include "STK1000/sdram.h"
 #include "STK1000/mt481c2m32b2tg.h"
+
 #endif
 #ifdef NGW100
-//#include "sdram.h"
 #include "NGW100/hsdramc1.h"
 #include <asm/io.h>
 #include <asm/sdram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix2.h>
 unsigned long sdram_init(const struct sdram_info *info);
+
 #endif
 #include <avr32/io.h>
 #endif 
 #include "scheduler.h"
 // einmal durch 4.7.06 unix
 // lief am 24.8.06 erstmals auf atmega128
-
+// lief im Herbst 07 auf AVR32
 #ifdef AVR8
 #define		BYTES(word)			((word)*2)
 #define		STRING(a,b)				#a" "#b
 #define		INLINEASM(a,b)			STRING(a,b)
-
 #define		LARGEBOOTSTART	0xf000
 #define		BOARDRAMEND	0x8000
 #define		MONSTART	LARGEBOOTSTART
 #define 	MONRAM		CHARONRAMEND-0x100
-
-// Monitorfunktionen
+// Monitorfunktionen (bamo128)
 #define		mainLoop		BYTES(LARGEBOOTSTART+2)	// Ruecksprung in Monitor aus Programm mit goto
 #define		saveCPU		BYTES(LARGEBOOTSTART+62)	//Time2Comp	// BOOTSTART+62		
 FILE uart_str = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
 SIGNAL(SIG_OUTPUT_COMPARE2) __attribute__ ((naked));
 SIGNAL(SIG_OUTPUT_COMPARE2) {asm volatile  (INLINEASM(jmp,saveCPU));} // monitor für step-betrieb
-/*
-ISR(TIMER2_COMP_vect)	{ asm volatile	("\t	pop	r29 \n\
-												\t	pop	r28\n\
-												\t	pop	r0\n\
-												\t	pop	r0\n\
-												\t	pop	r1\n\
-												jmp	2*(0xf03e)");}
-*/
-// das muss jedesmal ueberprueft werden
-/*
-void sendByte (char c) { asm volatile	("call	2*(0xf006)");	}
-char getByte () { asm volatile	("call	2*(0xf004)");	}
-void gotoMonitor () { asm volatile	("call	2*(0xf002)");	}
-void saveCPU () { asm volatile	("call	2*(0xf03e)");	}
-*/
-/*
-void my_init_sp (void) __attribute__ ((naked)) \
-     __attribute__ ((section (".init2")));
-void	my_init_sp (void)	{
-         SPL = 0xff;
-         SPH = 0x0c;			}
-*/
 #endif
-#if !(LINUX || AVR8 || AVR32UC3A||AVR32AP7000)
+#if !(LINUX || AVR8 || NGW100||STK1000||EVK1100)
 #error einZielsystem muß es doch geben?
 #endif
 
@@ -108,12 +91,11 @@ void	my_init_sp (void)	{
 int main(int argc,char* argv[]){
 	initHW();
 	printf("Bajos starting\n");
-	initVM(argc-1,argv);					// einlesen der classfiles (superclass first!!) und erzeugen von "class-object" für klassen mit static fields
-										// initialisierung des native interface
-	createThread();						// for main
+	initVM(argc-1,argv);	// einlesen der classfiles und erzeugen von "class-object" für klassen mit static fields
+							// initialisierung des native interface
+	createThread();			// for main
 	opStackBase		= actualThreadCB->opStackBase;
 	opStackSetSpPos(0);
-
 	methodStackBase	= actualThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
 #ifdef AVR8
@@ -122,16 +104,16 @@ int main(int argc,char* argv[]){
 	printf("start clinit\n");
 	executeClInits();							// anfangs ausfuehren aller clinit-methoden!!		
 	printf("<clinit> 's executed");
-	if (findMain() == 0)		{printf("no main found %d %d\n",numClasses,cN);return 1;	}	// eine und nur eine main muss sein
-												// wir suchen die Klasse mit main und fuehren main aus
-												// allgemeiner Ausfuehren von main der Klasse X sucht in Klassenhierarchie die erste main
-												//  no error handling!!
+	if (findMain() == 0)		{printf("no main found %d %d\n",numClasses,cN);return 1;	}	
+// eine und nur eine main muss sein
+// wir suchen die Klasse mit main und fuehren main aus
+// allgemeiner: Ausfuehren von main der Klasse X sucht in Klassenhierarchie die erste main
+// no error handling!!
 	printf("  -> run <main> :\n");
 	opStackPush((slot) (u4)0);				// args parameter to main (should be a string array)
 	opStackSetSpPos(findMaxLocals());
 	run(); 									//  run main
 	return 0;
-
 }
 
 void executeClInits()		{ 				// alle clinit in er eingelesenen reihenfolge
@@ -144,37 +126,33 @@ DEBUGPRINTHEAP;
 			opStackSetSpPos(findMaxLocals());	
 			run();									};	
 }
-#ifdef AVR8
-#define		loadInSRam1		(2*(0xf000+26))
-u2 	loadInSram1(u1*) __attribute__ ((naked));
 
-u2 loadInSram1(unsigned char* addr)	{
-asm	 (INLINEASM(jmp,loadInSRam1));	
-return 0;				}
-
-#endif
 
 // class file stehen in linux im DS
 // im avr8 im sram
 // in ap7000 und uc3a:
-// bootclassen im flash
-// anwendungsklassen im DS(Ram)
+// 	bootclassen im flash
+// 	anwendungsklassen im DS(Ram)
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u2 length;
-#ifdef AVR32UC3A
-classFileBase=(u1*)0x80040000;
+
+#ifdef EVK1100
+classFileBase=(u1*)0x80040000;  // boot classes in flash
+// use malloc!!
+apClassFileBase=0x10000000;		// app classes in sdram
 #endif
-#ifdef AVR32AP7000
-classFileBase=(u1*)0x40000;  // boot classes in flash
+#ifdef STK1000
+classFileBase=(u1*)0x00040000;  // boot classes in flash
+apClassFileBase=#define STK1000_SDRAM_BASE;		// app classes in sdram
+#endif
+#ifdef NGW100
+classFileBase=(u1*)0x00040000;  // boot classes in flash
+apClassFileBase=0xD0000000;		// app classes in sdram
 #endif
 #if (LINUX||AVR8)
 	if ((classFileBase=(u1*)malloc((size_t)MAXBYTECODE))==NULL) {printf("malloc error\n");exit(-1);}
 	// Platz fuer classfiles -> fixed size
 #endif
-#if (AVR32UC3A || AVR32AP7000)
-if ((apClassFileBase= (u1*) malloc(1000))==NULL){ printf("malloc error\n");exit(-1);}
-#endif
-//apClassFileBase=0x10000000;
 	heapInit();
 	length=0;
 	#ifdef LINUX
@@ -184,7 +162,7 @@ if ((apClassFileBase= (u1*) malloc(1000))==NULL){ printf("malloc error\n");exit(
 			analyzeClass(&cs[cN]);	
 			length+=cs[cN].classFileLength;	}
 	#endif
-#if (AVR32UC3A       || AVR32AP7000)
+#if (NGW100||STK1000|| EVK1000)
 // analysieren der bootklassen, welche mit jtag-programming schon im flash stehen
 u1* addr;
 numClasses=*classFileBase;	// erstmal die boot klassen
@@ -289,9 +267,7 @@ int uart_getchar(FILE *stream)	{
 	loop_until_bit_is_set(UCSR0A, RXC0);
 	return (int)UDR0;	
 
-#define		STRING(a,b)		#a" "#b
-#define		INLINEASM(a,b)	STRING(a,b)
-// atmega128 Monitor functions
+
 void exit(int n)	{
 asm	 (INLINEASM(jmp,0xf002));
 }
@@ -311,7 +287,6 @@ char c;
 int addr;
 int* sram;
 int i,j;
-#define STK1000_SDRAM_BASE 0xB0000000
   static sdram_info *info;
   unsigned long sdram_size, tmp;
   int noErrors=0;

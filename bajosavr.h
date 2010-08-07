@@ -20,7 +20,7 @@
 	void executeClInits();
 	void VT102Attribute (u1 fgcolor, u1 bgcolor)	;
 	#ifdef AVR8
-
+u2 loadInSram1(unsigned char* addr);
 	/* CPU frequency */
 	//#define F_CPU 1000000UL
 	#define F_CPU 14745000UL
