@@ -1,4 +1,3 @@
-<<<<<<< .mine
 /*
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
@@ -30,14 +29,12 @@ for (n=0; n < 20; n++)
 }
 }
 
-
-=======
 /*
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 
-
+/*
 public class AM			{
 	public static void main(String [] args)		{
 	char c;
@@ -54,8 +51,7 @@ public class AM			{
 		while ((System.currentTimeMillis() - currentTime) < 1000);
 		System.platform.nativeSetData(0x25, (byte)(System.platform.nativeGetData(0x25)^0x80)); // PORTB toggle
 		currentTime+=1000;						}	
-	System.in.read();	/* dummy read	*/		}
+	System.in.read();	// dummy read		
+	}
 }
-
-
->>>>>>> .r1263
+*/
