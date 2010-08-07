@@ -192,7 +192,7 @@ switch(i)					{
 			   exit(-1);		}							}
 
 void	initNativeDispatch()	{
-u1* methodDescr=NULL;	// without signature
+char* methodDescr=NULL;	// without signature
 u2 methodDescrLength=0;
 if ((nativeCNMN=(u1*)malloc(2*numEntryNativeCNMN*sizeof(u1)))==NULL) exit(-1);
 for(i=0;i < numNativeClasses;i++)		   {
@@ -203,7 +203,7 @@ getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)
 		strlen(*nativeName))==0)	 	{
 			while((*(++nativeName))!=NULL)	{
 			methodDescr=NULL;
-			if (findMethodByName((u1*)*nativeName,strlen(*nativeName),methodDescr,methodDescrLength)) 	{
+			if (findMethodByName(*nativeName,strlen(*nativeName),methodDescr,methodDescrLength)) 	{
 				*(nativeCNMN+numMethods++)=(u1)cN;
 				*(nativeCNMN+numMethods++)=(u1)mN;											
 		}
@@ -512,7 +512,7 @@ return 1;
 // char arr to float
 char nativeParseFloat(u2 local)	{
 slot mySlot=opStackGetValue(local); // the char array
-u1 buf[mySlot.stackObj.arrayLength];
+char buf[mySlot.stackObj.arrayLength];
 f4 f;
 for (i=0;i<mySlot.stackObj.arrayLength;i++) 
 buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
@@ -525,7 +525,7 @@ return 1;
 char floatToCharArray(u2 local)	{
 	slot mySlot;
 	f4 f=opStackGetValue(local).Float;	// the float
-	u1 buf[8];
+	char buf[8];
 	for(i=0; i<8; ++i) {buf[i]=0;}
 	snprintf(buf,8,"%G",f);
 	heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker

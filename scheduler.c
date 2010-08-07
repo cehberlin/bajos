@@ -27,7 +27,7 @@ t->succ->pred=t;
 if (actualThreadCB==NULL) actualThreadCB=t;
 
 if (numThreads!=0)	{
-	findMethodByName((u1*)"run",3,(u1*)"()V",3);
+	findMethodByName("run",3,"()V",3);
 	*(t->methodStackBase+0)=(u2)0;
 	*(t->methodStackBase+1)=cN;
 	*(t->methodStackBase+2)=mN;

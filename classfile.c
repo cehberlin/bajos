@@ -41,51 +41,6 @@ u2 		loadInSram(unsigned char* addr)		{
 
 #include "classfile.h"
 
-u2 readClassFileneu(u1* fileName,u1* addr)		{
-#ifdef LINUX
-int fd;
-u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
-if ((fd=open((char*)fileName,O_RDONLY))==-1) perror(fileName);
-while (read(fd,addr++,1));
-return classFileLength+=(long)addr;
-#endif
-
-#ifdef AVR8
-u2 classFileLength=0;
-printf("\nLaden der AnwendungsKlassen - Geben Sie ein  'w' ein\n"); 
-// the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
-classFileLength=(*loadInSram)(addr);
-return classFileLength;
-#endif
-#if (AVR32UC3A||AVR32AP7000)
-int i;
-char c=conIn(); // dummy w
-if (c =='w')	{
-conOut(4);//turn off echo
-c=conIn();	//s
-while ((c=conIn())=='p'){ // a page comes
-c=conIn();
-c=conIn();		// address
-conOut('w');
-for (i=0; i < 256;i++) *(addr++)=conIn();
-conOut('w');}
-conOut(5);// turn on echo uploadendS
-while((c=conIn())==' ');
-i=0;
-do
-{ i+=16*i+ ((c<='9')? (c-'0'): (c-'a'+10));
-conOut(c);}
-while ((c=conIn())!= 0xa);
-return (u2)i;
-}
-else	{
-//uploadends2
-conOut(5); // turn on echo
-return (u2) 0;
-}
-#endif
-}
-
 // classSTA and pc are global variables for actual class and method
 // parameter != 0 -> value at parameter-pos
 // parameter ==0 -> value at global var pc and automatic increment 
@@ -106,7 +61,7 @@ void* getAddr(u2 pos)	{	return CLASSSTA+pos;	}
 u1 findMain()			{	
 //  out: classNumber, methodNumber, get first class with main-method
 	for (cN=0; cN < numClasses;cN++)	
-		if (findMethodByName((u1*)"main",4,(u1*)"([Ljava/lang/String;)V",22)==1) return 1;	
+		if (findMethodByName("main",4,"([Ljava/lang/String;)V",22)==1) return 1;	
 	return 0;		}
 
 u1 findNumFields()	{	return getU2(cs[cN].fields_count);	}
@@ -135,13 +90,13 @@ u2	findMaxLocals()	{	//cN,mN
 // in cN fieldName fieldDescr
 // out cN, fNC fNO 
 // return 1 -> found 
-u1 findFieldByName(const u1* fieldName,u1 fieldNameLength,u1* fieldDescr,u1 fieldDescrLength)	{
+u1 findFieldByName(const char* fieldName,u1 fieldNameLength, char* fieldDescr,u1 fieldDescrLength)	{
 fNO=0;
 do	{
 u1 numFields=findNumFields();
 for(fNC=0; fNC < numFields; fNC++){
 	if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 1))	{
-		if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 3),
+		if(strncmp(fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 3),
 				getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 1)) == 0)	{
 										break;
 														}
@@ -153,29 +108,7 @@ if (fNC<numFields) return 1;
 return 0;
 }
 
-
-
-
-
-
-/*
-u1 pos=0;
-u1 fN=0;
-	for (fN=0; fN < getU2(cs[cN].fields_count); fN++)		
-		if (len==getU2(cs[cN].constant_pool[getU2(FIELDBASE(cN,fN)+2)]+1))
-			if(strncmp((char*)name,(char*)getAddr(cs[cN].constant_pool[getU2(FIELDBASE(cN,fN)+2)]+3),
-			getU2(cs[cN].constant_pool[getU2(FIELDBASE(cN,mN)+2)]+1))==0)	{
-				if (fieldDescr!=NULL)	{		
-					if (fieldDescrLength==getU2(cs[cN].constant_pool[getU2(FIELDBASE(cN,mN)+4)]+1))
-						if(strncmp((char*)fieldDescr,(char*)getAddr(cs[cN].constant_pool[getU2(FIELDBASE(cN,mN)+4)]+3),
-								getU2(cs[cN].constant_pool[getU2(FIELDBASE(cN,mN)+4)]+1))==0)			return 1;
-												}
-				else		return 1;																					}
-	return 0;			
-}
-
-*/
-u1 findMethod(u1* className, u1 classNameLength, u1* methodName, u1 methodNameLength,u1* methodDescr,u1 methodDescrLength)		{ 
+u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNameLength, char* methodDescr,u1 methodDescrLength)		{ 
 //in cN, out: cN, mN
 // rekursiv bis Objekt
 	if (!findClass(className,classNameLength)) 					{
@@ -188,7 +121,7 @@ u1 findMethod(u1* className, u1 classNameLength, u1* methodName, u1 methodNameLe
 			printf("kann nicht sein die methode gibts nicht!!: cN mN: %d %d  ",cN,mN);	
 			PRINTSTRING(methodName,methodNameLength);exit(-1);			}
 		else 
-			return findMethod(	(u1*)getAddr(CP(cN,getU2(CP(cN,  
+			return findMethod(	getAddr(CP(cN,getU2(CP(cN,  
 						getU2(cs[cN].super_class))+1))+3),
 						getU2(CP(cN,getU2(CP(cN,  
 						getU2(cs[cN].super_class))+1))+1),
@@ -198,7 +131,7 @@ u1 findMethod(u1* className, u1 classNameLength, u1* methodName, u1 methodNameLe
 						methodDescrLength);
 }
 
-u1 findMethodByName(const u1* name,u1 len,u1* methodDescr,u1 methodDescrLength)	{
+u1 findMethodByName(const char* name, u1 len, char* methodDescr, u1 methodDescrLength)	{
 //  in: classNumber cN, out: methodNumber mN
 // non recursiv
 	for (mN=0; mN < getU2(cs[cN].methods_count); mN++)		
@@ -227,7 +160,7 @@ u1 findSuperClass()	{
 {
 			int _i;
 			for (_i=0; _i < (getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1)); _i++)
-			printf("%c",*((u1*)(getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3))+_i));
+			printf("%c",*((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3))+_i));
 			 }
 */
 if (strncmp("java/lang/Object",getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1))==0)
@@ -238,7 +171,7 @@ return 0; // cN is class Object
 {
 			int _i;
 			for (_i=0; _i < (getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+1)); _i++)
-			printf("%c",*((u1*)(getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+3))+_i));
+			printf("%c",*((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+3))+_i));
 			
 }
 */
@@ -248,7 +181,7 @@ findClass(getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].s
 return 1;
 }
 	
-u1 findClass(u1* className,u1 classNameLength)	{  // out: cN
+u1 findClass(char* className,u1 classNameLength)	{  // out: cN
 //printf(" name %s %x  ",className,classNameLength);
 	for (cN=0; cN < numClasses;cN++)			{
 		if (classNameLength !=(u2)getU2(
@@ -454,7 +387,7 @@ a=getU2(pc+6);
 pc+=8;		
 		if (a==0) continue; // native method
 		for (m=0; m<a;m++)																						{ // attributes of method
-		u1* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
+		char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
 			if (strncmp("Code", (char*)adr,4)==0)	{
 #ifdef DEBUG
 				printf("\t\tCode: attribute_length: %d\n",getU4(pc));
@@ -484,7 +417,7 @@ pc+=etl*8;
 					printf("\t\tCode: attributes_count: %d\n",	h);
 #endif
 					for (i=0;i< h;i++)	{
-						u1*addr=getAddr(c->constant_pool[getU2(0)]+3);
+						char*addr=getAddr(c->constant_pool[getU2(0)]+3);
 						if (strncmp("LineNumberTable",(char*)addr, 15)==0 )	pc=getU4(0)+pc;	
 						if (strncmp("LocalVariableTable",(char*)addr, 18)==0)	pc=getU4(0)+pc;	
 										}		}
@@ -578,11 +511,11 @@ if(strncmp(	"Code",
 return -1;
 }
 
-u2 readClassFile(u1* fileName,u1* addr)		{
+u2 readClassFile(char* fileName,u1* addr)		{
 #ifdef LINUX
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
-if ((fd=open((char*)fileName,O_RDONLY))==-1) 
+if ((fd=open(fileName,O_RDONLY))==-1) 
 perror(fileName);
 while (read(fd,addr++,1));
 return classFileLength+=(long)addr;

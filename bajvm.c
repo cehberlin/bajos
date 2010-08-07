@@ -89,7 +89,7 @@ DEBUGPRINTSTACK;
 DEBUGPRINTLOCALS;
 DEBUGPRINTHEAP;
 	for (cN=0; cN < numClasses;cN++)	
-	if (findMethodByName((u1*)"<clinit>",8,(u1*)"()V",3))	{
+	if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 // wenn <clinit>, dann gibt evtl. es static fields, die zu initialisieren sind
 			opStackSetSpPos(findMaxLocals());	
@@ -136,7 +136,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
     }
 		for (cN=0; cN < argc; cN++)			{
 			cs[cN].classFileStartAddress=classFileBase+length;
-			cs[cN].classFileLength=readClassFile((u1*)argv[cN+1],cs[cN].classFileStartAddress);
+			cs[cN].classFileLength=readClassFile(argv[cN+1], cs[cN].classFileStartAddress);
 			analyzeClass(&cs[cN]);
 			length+=cs[cN].classFileLength;
 	        if (length > MAXBYTECODE) {

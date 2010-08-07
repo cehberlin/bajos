@@ -41,11 +41,11 @@ static slot	first;
 static slot	second;
 static slot	third;
 static slot 	fourth;
-static u1*	className;;
+static char*	className;;
 static u2 	classNameLength;
-static u1* 	name;		// field or method
+static char* 	name;		// field or method
 static u2 	nameLength;
-static u1* 	descr;		// field or method
+static char* 	descr;		// field or method
 static u2	descrLength;
 // static u1	numFields; <-- not used?
 static u2 	i,j,k;
@@ -599,57 +599,24 @@ switch (code)	{
 					}
 	CASE	GETSTATIC:  DEBUGPRINTLN1("getstatic ");	//mb jf ... corrected funtion
 			methodStackPush(cN);
-			fieldName = (u1*)getAddr(	CP(cN,		// utf8						
+			fieldName = (char*)getAddr(	CP(cN,		// utf8						
 							getU2(		// name-index
 							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 							+ 1))
 							+ 3);		// bytes
 			fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
 							+ 1);		// length
-			fieldDescr = (u1*)getAddr(	CP(cN,		// utf8						
+			fieldDescr = (char*)getAddr(	CP(cN,		// utf8						
 							getU2(		// descriptor-index
 							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 							+ 3))
 							+ 3);		// bytes
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 							+ 1);		// length
-			findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+			findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
 							getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
 
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) exit(-27);
-/*
-do	{
-numFields=findNumFields();
-for(i=0; i < numFields; i++){
-				if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
-									if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
-											getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0){
-										break;
-									}
-								}
-							}
-if (i<numFields) break;
-} while (findSuperClass()); // waht ifnot found??
-*/
-
-
-
-
-
-
-
-/*
-
-						j = findNumFields();	
-						for(i=0; i < j; i++){
-							if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
-								if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
-										getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0){
-									break;
-								}
-							}
-						}
-*/
 	// got position in constant pool --> results in position on heap
 						DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
 						opStackPush(heapGetElement( cs[cN].classInfo.stackObj.pos+fNC+1));
@@ -660,7 +627,7 @@ if (i<numFields) break;
 						DEBUGPRINTHEAP;
 	CASE	PUTSTATIC:  	DEBUGPRINTLN1("putstatic -> stack in static field");	//mb jf
 				methodStackPush(cN);
-				fieldName = (u1*)getAddr(
+				fieldName = (char*)getAddr(
 							CP(cN,		// utf8
 							getU2(		// name-index
 							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
@@ -668,133 +635,41 @@ if (i<numFields) break;
 							+3);		// bytes
 				fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
 							+1);		// length
-				fieldDescr = (u1*)getAddr(
+				fieldDescr = (char*)getAddr(
 							CP(cN,		// utf8					
 							getU2(		// descriptor-index
 							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
 							+3))
 							+3);		// bytes
 				fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1); // length
-				findClass( (u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
+				findClass(getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 							getU2(CP(cN,getU2(CP(cN,  
 							getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) exit(-27)
-/*
-				do	{
-					numFields=findNumFields();
-					for(i=0; i < numFields; i++)	{
-						if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
-							if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
-								getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0)	{
-										break;	}
-							}
-									}
-					if (i<numFields) break;
-					} while (findSuperClass()); // what ifnot found??
-*/
 				DEBUGPRINTHEAP;
 							heapSetElement(opStackPop(), cs[cN].classInfo.stackObj.pos+/*i*/fNC+1);//opStackPop().UInt+i+1);
 				pc+=2;
 				DEBUGPRINTSTACK;
 				DEBUGPRINTHEAP;
 				cN=methodStackPop();	// restore cN
-/*
-	CASE	GETSTATIC:  DEBUGPRINTLN1("getstatic ");	//mb jf ... corrected funtion
-						methodStackPush(cN);
-						// get name
-						fieldName = (u1*)getAddr(
-							CP(cN,		// utf8						
-							getU2(		// name-index
-							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
-							+ 1))
-							+ 3);		// bytes
-						fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
-							+ 1);		// length
-						// get type
-						fieldDescr = (u1*)getAddr(
-							CP(cN,		// utf8						
-							getU2(		// descriptor-index
-							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
-							+ 3))
-							+ 3);		// bytes
-						fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
-							+ 1);		// length
-						findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-							getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
-						j = findNumFields();	
-						for(i=0; i < j; i++){
-							if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
-								if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
-										getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0){
-									break;
-								}
-							}
-						}	// got position in constant pool --> results in position on heap
-						DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
-						opStackPush(heapGetElement( cs[cN].classInfo.stackObj.pos+i+1));
-						pc += 2;
-						cN = methodStackPop();
-						DEBUGPRINTSTACK;
-						DEBUGPRINTLOCALS;
-						DEBUGPRINTHEAP;
-		CASE	PUTSTATIC:  	DEBUGPRINTLN1("putstatic -> stack in static field");	//mb jf
-						methodStackPush(cN);
-						fieldName = (u1*)getAddr(
-							CP(cN,		// utf8
-							getU2(		// name-index
-							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
-							+1))
-							+3);		// bytes
-						fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
-							+1);		// length
-						fieldDescr = (u1*)getAddr(
-							CP(cN,		// utf8						
-							getU2(		// descriptor-index
-							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
-							+3))
-							+3);		// bytes
-						fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length
-//						DEBUGPRINTLNSTRING(fieldDescriptorName,fieldDescriptorNameLength);
-						findClass(
-								(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
-								getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
-						j = findNumFields();
-						for(i=0; i < j; i++){
-							if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+1)){
-								if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+1)) == 0){
-									break;
-								}
-							}
-						}	// got position in constant pool --> results in position on heap
-   // B    C	D    F    I    J    S    Z	    L <classname>   ArrayType:    [ ComponentType
-   DEBUGPRINTHEAP;
-							heapSetElement(opStackPop(), cs[cN].classInfo.stackObj.pos+i+1);//opStackPop().UInt+i+1);
-						pc+=2;
-						DEBUGPRINTSTACK;
-						DEBUGPRINTHEAP;
-						cN=methodStackPop();	// restore cN
-*/
 	CASE	GETFIELD:DEBUGPRINTLN1("getfield ->   heap to stack:");
 			DEBUGPRINTSTACK;
 			methodStackPush(cN);
 			first=opStackPop();
-			fieldName = (u1*)getAddr( CP(cN,		// utf8						
+			fieldName = (char*)getAddr( CP(cN,		// utf8						
 						getU2(		// name-index
 						CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 						+ 1))
 						+ 3);		// bytes
 			fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
 						+ 1);		// length
-			fieldDescr = (u1*)getAddr( CP(cN,		// utf8						
+			fieldDescr = (char*)getAddr( CP(cN,		// utf8						
 						getU2(		// descriptor-index
 						CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 						+ 3))
 						+ 3);		// bytes
 			fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 						+ 1);		// length
-/*			findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
-						getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
-*/	
 //printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN,numFields);
 // findClass liefert nur die Klasse, in der das field verwendet wird
 // nicht die Klasse in der das field definiert wird (kann eine superclass sein)
@@ -802,33 +677,6 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) exi
 
 			cN=first.stackObj.classNumber;
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) exit(-27);
-/*
-			count=0;
-// in: cN , fname fdesc
-// out: cN, fNC, fNO
-
-do	{
-numFields=findNumFields();
-for(i=0; i < numFields; i++){
-				if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
-									if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
-											getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0){
-										break;
-									}
-								}
-							}
-if (i<numFields) break; else count+=numFields;
-} while (findSuperClass());
-// jetzt müsste ich auch abbrechen, wenn ich nichts finde
-
-
-							// jetzt hab ich alles
-							// den Typ
-							// die Stelle auf dem heap
-//printf("offset %x cN %x numFields%x i %x\n", count,cN,numFields,i);
-							DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
-//printf("classnumber: %d nummer %d was auf stack %d\n",cN,i,heapGetElement(objRef + i +1).Int);
-*/
 							opStackPush(( slot)heapGetElement(first.stackObj.pos +fNO/*count+ i*/ +1).Int);//bh2007!!!!!!!
 							pc += 2;
 							cN = methodStackPop();
@@ -839,7 +687,7 @@ if (i<numFields) break; else count+=numFields;
 						methodStackPush(cN);
 						{
 							// mb jf print name
-							fieldName = (u1*)getAddr(
+							fieldName = (char*)getAddr(
 								CP(cN,		// utf8
 								getU2(		// name-index
 								CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
@@ -848,7 +696,7 @@ if (i<numFields) break; else count+=numFields;
 							fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
 								+1);		// length
 							// mb jf print type 
-							fieldDescr = (u1*)getAddr(
+							fieldDescr = (char*)getAddr(
 								CP(cN,		// utf8						
 								getU2(		// descriptor-index
 								CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
@@ -856,7 +704,7 @@ if (i<numFields) break; else count+=numFields;
 								+3);		// bytes
 							fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length	
 			/*kann weg*/			findClass(
-									(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
+									getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 									getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 
 first = opStackPop();	//mb jf doesn't work without variable ?!?!
@@ -930,7 +778,7 @@ if (i<numFields) break; else count+=numFields;
 								+ 3);		// bytes
 							fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 								+ 1);		// length
-							findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
+							findClass(getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
 								getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
 							u2 numFields = findNumFields();	
 							for(i=0; i < numFields; i++){
@@ -974,7 +822,7 @@ if (i<numFields) break; else count+=numFields;
 								+3);		// bytes
 							fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length	
 						findClass(
-									(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
+									getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 									getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 							u2 numFields = findNumFields();
 							for(i=0; i < numFields; i++){
@@ -1015,10 +863,10 @@ if (i<numFields) break; else count+=numFields;
 						local = opStackGetSpPos()-findNumArgs(BYTECODEREF)-1;// nachdenken ->mhrmals benutzt
 						// get cN from.stackObjRef
 						//  get method from cN or superclasses
-						methodName = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
+						methodName = (char*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
 						methodNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+1);
 						DEBUGPRINTLNSTRING(methodName,methodNameLength);
-						methodDescr = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
+						methodDescr = (char*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
 						methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
 						DEBUGPRINTLNSTRING(methodDescr,methodDescrLength);		
 						className = NULL;
@@ -1026,17 +874,17 @@ if (i<numFields) break; else count+=numFields;
 
 //bh2008
 if(opStackGetValue(local).stackObj.magic==CPSTRINGMAGIC)	{
-								if (!findClass((u1*)"java/lang/String",16))	
+								if (!findClass("java/lang/String",16))	
 									{printf("string calls error\n"); exit(-4);}
 }
 else
 
 								cN=opStackGetValue(local).stackObj.classNumber;//bh2007 
-								className = (u1*)getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)	]+1)]+3);
+								className = (char*)getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)	]+1)]+3);
 								classNameLength = getU2(cs[cN].constant_pool[getU2(	cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1);
 																}
 						else									{ //INVOKESPECIAL
-								className = (u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
+								className = (char*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
 								classNameLength = getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1);
 																}
 						DEBUGPRINTLNSTRING(className,classNameLength);											
@@ -1089,11 +937,11 @@ else
 						methodStackPush(opStackGetSpPos()-k);//(BYTECODEREF));
 						// method resolution
 						local = (u2)opStackGetSpPos()-findNumArgs(BYTECODEREF);//bh2007
-						className=(u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
+						className=(char*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
 						classNameLength=getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1);
-						methodName=(u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
+						methodName=(char*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
 						methodNameLength=getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+1);
-						methodDescr = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
+						methodDescr = (char*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
 						methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
 						findMethod(	className,classNameLength,methodName,methodNameLength,
 										methodDescr,methodDescrLength);
@@ -1655,7 +1503,7 @@ DEBUGPRINTLN2("%d catch clauses", n);
 	if (methodStackEmpty())	{
 		DEBUGPRINTLN1("we are thru, this was the top frame");
 		cN = classNumberFromPushedObject;
-		printf("unhandled %s\n", getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
+		printf("unhandled %s\n", (char *) getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
 		exit(-1);
 	} else {
 		DEBUGPRINTLN1("popping stack frame");
