@@ -88,7 +88,7 @@ char nativeWait() {
 
 char waitTime(){return 0; }
 
-char getDataAddress (u4 obj)	{
+char getDataAddress ()	{
 return 1;	/* ret val is  on Stack !!*/
 } 
 

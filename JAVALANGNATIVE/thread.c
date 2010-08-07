@@ -21,6 +21,7 @@
 #include "../bajvm.h"
 #include "../scheduler.h"
 #include "../heap.h"
+#include "../stack.h"
 #include "thread.h"
 
 char start()	{

@@ -3,6 +3,6 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 //String
-char nativeCharAt();
-char nativeStringLength();
+char nativeCharAt(void);
+char nativeStringLength(void);
 

@@ -4,7 +4,7 @@
 */
 
 //Lock
-char lock();
-char unlock();
-char tryLock();
+char lock(void);
+char unlock(void);
+char tryLock(void);
 

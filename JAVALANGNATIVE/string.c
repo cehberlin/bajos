@@ -20,6 +20,7 @@
 #include "../stack.h"
 #include "../bajvm.h"
 #include "../heap.h"
+#include "../stack.h"
 #include "string.h"
 
 

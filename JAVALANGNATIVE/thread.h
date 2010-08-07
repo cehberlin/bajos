@@ -4,18 +4,18 @@
 */
 
 // Thread
-char isAlive();
-char start();
-char yield();
-char currentThread();
-char nativeSetPriority();
-char interrupt();
-char interrupted();
-char isInterrupted();
-char isDaemon();
-char setDaemon();
-char join();
-char sleep();
-char jointimeout();
-char nativeSleep();
+char isAlive(void);
+char start(void);
+char yield(void);
+char currentThread(void);
+char nativeSetPriority(void);
+char interrupt(void);
+char interrupted(void);
+char isInterrupted(void);
+char isDaemon(void);
+char setDaemon(void);
+char join(void);
+char sleep(void);
+char jointimeout(void);
+char nativeSleep(void);
 

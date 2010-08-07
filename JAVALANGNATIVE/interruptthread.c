@@ -22,7 +22,7 @@
 #include "../scheduler.h"
 #include "../heap.h"
 #include "lock.h"
-
+#include "interruptthread.h"
 char sei(){
 	return 0;
 }

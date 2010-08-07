@@ -4,7 +4,7 @@
 */
 
 //Lock
-char sei();
-char cli();
-char execInterrupt();
+char sei(void);
+char cli(void);
+char execInterrupt(void);
 
