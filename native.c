@@ -442,7 +442,7 @@ asm("  lda.w   pc, 0");
 //goto *0x00000000;
 }
 #endif
-#if LINUX || AVR8 || NGW100
+#if LINUX || AVR8 || NGW100 || STK1000
 char getButtons()	{
 
 return 1;
@@ -515,3 +515,8 @@ return 1;
 }
 #endif
 
+#ifdef STK1000
+char charLCDOut(u2 local){return 0;}
+char controlLCD(u2 local){return 0;}
+char currentTimeMillis() {return 0;}
+#endif
