@@ -307,8 +307,8 @@ OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
 CC		= $(AVR32BIN)avr32-gcc
 ARCH		= ucr1
 # Part: {none|ap7xxx|uc3xxxxx}
-#PART		= uc3a0512
-PART = uc3a0512es
+PART		= uc3a0512   # suse 10.3
+#PART = uc3a0512es  #suse 11.1
 # Flash memories: [{cfi|internal}@address,size]...
 FLASH		= internal@0x80000000,512Kb
 # Clock source to use when programming: [{xtal|extclk|int}]
