@@ -9,8 +9,20 @@
 #define __DEFINITIONS__
 
 #include "typedefinitions.h"
-#define STK1000_SDRAM_BASE 0xB0000000
-#define NGW_SDRAM_BASE 0x10000000	
+// UC3A is evk1100
+#define UC3A_FLASH_BASE			0x80000000		// internal 512 KB flash
+#define UC3A_FLASH_JAVA_BASE	0x80040000		// boot classes in flash
+#define UC3A_SDRAM_JAVA_BASE	0xD0000000		// application classes, heap, opstack methodstack
+#define STK1000_FLASH_BASE		0				// external 8 MB flash
+#define STK1000_FLASH_JAVA_BASE	0x00040000		// boot classes in flash
+#define STK1000_SDRAM_BASE		0x10000000		// external SDRAM 8MB
+#define STK1000_SDRAM_JAVA_BASE (STK1000_SDRAM_BASE+0x00600000)
+#define STK1000_SDRAM_LCD_BASE	STK1000_SDRAM_BASE
+#define NGW_FLASH_BASE			0				// external 8 MB flash
+#define NGW_FLASH_JAVA_BASE		0x00040000		// boot classes in flash
+#define NGW_SDRAM_BASE 			0x10000000		// external SDRAM
+
+	
 	#define	HEAPFREESPACE								0
 	#define	HEAPALLOCATEDSTATICCLASSOBJECT	1
 	#define	HEAPALLOCATEDNEWOBJECT				2

@@ -13,7 +13,10 @@
 #define NUMCLASSES		(sizeof(classFiles)/sizeof(classFiles[0]))
 
 int main(int argc, char* argv[])	{
-const char* classFiles[] ={  LANG"/String.class",
+const char* classFiles[] ={
+						LANG"/Runtime.class",  
+						LANG"/String.class",
+						LANG"/Float.class",
 						LANG"/Object.class" , 
 						PLATFORM"/PlatForm.class",
  						LANG"/System.class",
@@ -29,7 +32,6 @@ const char* classFiles[] ={  LANG"/String.class",
  						LANG"/StringBuilder.class", 
 //						LANG"/StringBuffer.class", 
 						LANG"/StringUtils.class", 
-						LANG"/Runtime.class",
 						LANG"/RuntimeException.class",  
 						LANG"/InterruptedException.class", 
 						IO"/OutStream.class",
