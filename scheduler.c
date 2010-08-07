@@ -65,7 +65,6 @@ numThreads--;
 }
 
 void scheduler(void)	{
-u1 i;
 if ((numThreads==1)/*&&((actualThreadCB->state)==THREADNOTBLOCKED)*/) return;
 // scheduling -> next thread
 // gegenwärtig thread wechsel nach jedem jvm befehl
@@ -84,7 +83,8 @@ if ((actualThreadCB->state)==THREADNOTBLOCKED) break;
 if ((actualThreadCB->state)==THREADMUTEXBLOCKED) continue;
 if ((actualThreadCB->state)==THREADWAITBLOCKED) continue;
 if (((actualThreadCB->state)==THREADWAITAWAKENED) && 
-	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex)==MUTEXBLOCKED))
+	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex)
+		==MUTEXBLOCKED))
 	continue;
 // awakened and mutexnotblocked
 if ((actualThreadCB->state)==THREADWAITAWAKENED)	{
