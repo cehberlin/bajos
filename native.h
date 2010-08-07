@@ -8,8 +8,8 @@
 #define __NATIVE__
 #include "bajvm.h"
 #include "stack.h"
-void	initNativeDispatch();
-char	nativeDispatch( u2 cN, u2 mN,u2 local);
+void initNativeDispatch();
+char nativeDispatch( u2 cN, u2 mN,u2 local);
 char nativeIntOut(u2 local);
 char nativeFloatOut(u2 local);
 char nativeStringOut(u2 local);
@@ -22,12 +22,6 @@ char controlLCD(u2);
 char currentTimeMillis();
 char javaExit(u2);
 void myExit(u4);
-
-/*char drawPoint(u2);
-char drawRect(u2);
-char drawfillRect(u2);
-char clearScreen(u2);	
-char nativeStringLength(u2 local);*/
 
 char drawPointRGB(u2 local);
 char drawFillRectRGB(u2 local);
@@ -44,7 +38,7 @@ char clearZBuffer();
 char drawPointHSBZBuffer(u2 local);
 char drawLineHSBZBuffer(u2 local);
 
-/*Schrift-Methoden*/
+/*character methods*/
 char setFont(u2 local);
 char setFontWindow(u2 local);
 char setFontAutoLineFeed(u2 local);
@@ -81,6 +75,5 @@ char currentTimeMillis();
 char nativeParseFloat(u2);
 char typeConvert(u2);
 char floatToCharArray(u2);
-
 #endif
 
