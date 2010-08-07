@@ -7,7 +7,8 @@ SchedulerTest(String name)	{
 super(name);			}
 
 	public void run()	{
-System.out.println('z');//"time in ms: ");///*+System.currentTimeMillis()%10000+" ");//*/+currentThread());
+System.out.println("time in ms: "+System.currentTimeMillis()%10000+" "+currentThread());
+
 	}
 
 	public static void main(String args[]){
@@ -26,9 +27,7 @@ System.out.println('z');//"time in ms: ");///*+System.currentTimeMillis()%10000+
 //		t3.start();
 //		t4.start();
 //		t5.start();
-System.out.println('Y');//"hier drin warte ich - oder auch nicht");
-// without monitor -> 
-while(true);		
+System.out.println("hier drin warte ich - oder auch nicht");	
 	}
 
 }
