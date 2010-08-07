@@ -135,6 +135,7 @@ cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
 cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
+printf("%x %x\n",cs[cN].classFileStartAddress,cs[cN].classFileLength);
 }
 printf("%x bootclasses are loaded\n",cN);
 /* thats to boot classes*/
@@ -153,7 +154,7 @@ length=0;
 			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
-		while(cs[cN].classFileLength !=0);
+		while(cs[cN-1].classFileLength !=0);
 /*!!*/
 numClasses=cN;
 printf("numclasses %x\n",numClasses);
