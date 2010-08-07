@@ -54,13 +54,15 @@ $(TARGETFILE):	${OBJFILES}
 #	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 ##	@rm ${EXE}
 else
-all:	clean  bootclasses compAM bootpack app compile burnbajos
+all:	clean  bootclasses compAM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802100 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
+
+bajospack:
 	$(VERBOSE_CMD) cat $(BIN) > bajos.bin
 	$(VERBOSE_CMD)(i=`ls -l $(BIN) | cut -f5 -d' '`; limit=`expr 2 \* $$(($(CLASSFILEBASE)))`;while [ "$$i" -lt "$$limit" ];  do  i=$$(($$i+1));echo -n 'x' >> bajos.bin;  done)
 	cat avr8bootpack >> bajos.bin
@@ -111,7 +113,7 @@ app:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} -c -Wall $(DEFS) ${DEBUGGEN} ${OPTIMIZATION} -mmcu=$(PART) -mtiny-stack -o $@ $<
+	$(VERBOSE_CMD) ${CC} -c -Wall $(DEFS) ${DEBUGGEN} ${OPTIMIZATION}   -mmcu=$(PART) -o $@ $<   #-mtiny-stack
 
 %o : %asm
 	@echo $(MSG_COMPILING)
