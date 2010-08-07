@@ -48,7 +48,7 @@
  */
 
 #include <avr32/io.h>
-#include "compiler.h"
+#include "../compiler.h"
 #include "pm.h"
 #include "rtc.h"
 
