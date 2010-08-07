@@ -102,13 +102,14 @@ switch (code)	{
 	CASE	SIPUSH:	DEBUGPRINTLN2("SIPUSH  -> push\t...,=> %x",(s2)BYTECODEREF);
 			opStackPush(( slot)((s4)((s2)getU2(0))));
 			DEBUGPRINTSTACK;	
-	CASE	LDC: 	if(getU1(CP(cN,getU1(0))) == CONSTANT_String)	{
+	CASE	LDC: DEBUGPRINT1("ldc  push\t...");
+			if(getU1(CP(cN,getU1(0))) == CONSTANT_String)	{
 				first.stackObj.magic=CPSTRINGMAGIC;
 				first.stackObj.classNumber=cN;
 				first.stackObj.pos=(u2)(/*((u2)cN <<8)*/+byte1);
-				opStackPush(first);							}
-			else 	opStackPush(( slot)getU4(CP(cN,byte1)+1));	// int or float const value on stack
-			DEBUGPRINTLN2("ldc  push\t...,=> x%x",opStackPeek().UInt);
+				opStackPush(first);
+			} else 	opStackPush(( slot)getU4(CP(cN,byte1)+1));	// int or float const value on stack
+			DEBUGPRINTLN2(",=> x%x",opStackPeek().UInt);
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
 	CASE	LDC_W:	PRINTSEXIT("LDC_W",nry,4);
@@ -431,7 +432,7 @@ switch (code)	{
 			opStackPoke((slot)(opStackPeek().UInt & 0x0000ffff));
 			DEBUGPRINTSTACK;
 	CASE	I2B:	DEBUGPRINTLN1("I2B");
-			opStackPoke(( slot)(opStackPeek().Int >> 24));
+			opStackPoke(( slot)(opStackPeek().Int & 0x000000ff));
 			DEBUGPRINTSTACK;
 	CASE	I2S:	DEBUGPRINTLN1("I2S");
 			opStackPoke(( slot)(s4)((s2)opStackPeek().Int ));
@@ -463,7 +464,8 @@ switch (code)	{
 			else	pc += 2;// to skip the jump-adress
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
-	CASE	IFNULL:	if((u2)opStackPop().UInt == 0)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
+	CASE	IFNULL:	DEBUGPRINTLN1("ifnull");
+			if((u2)opStackPop().UInt == 0)	pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
 			else				pc += 2;	// skip branch bytes
 			DEBUGPRINTSTACK;
 	CASE	IFNONNULL:	DEBUGPRINTLN1("ifnonnull");	// mb jf
@@ -733,7 +735,11 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 							// jetzt hab ich alles
 							// den Typ
 							// die Stelle auf dem heap
-							
+
+								if (strncmp(fieldDescr, "B", 1) == 0) {
+									/* Truncate Integer input for Byte output */
+									first.Int = first.Int & 0x000000ff;
+								}
 //printf("classnumber: %d nummer %d was von stack %d\n",cN,i,val);
 								heapSetElement(first, second.stackObj.pos+/*count+i*/fNO+1);
 						}
@@ -893,12 +899,12 @@ case	IRETURN:
 case	FRETURN:
 case	ARETURN:
 						switch (code)	{
-						case	IRETURN:	DEBUGPRINTLN1("i");	//mb jf
-						CASE	FRETURN:	DEBUGPRINTLN1("f");	// mb jf
-						CASE	ARETURN:	DEBUGPRINTLN1("a");
+						case	IRETURN:	DEBUGPRINT1("i");	//mb jf
+						CASE	FRETURN:	DEBUGPRINT1("f");	// mb jf
+						CASE	ARETURN:	DEBUGPRINT1("a");
 										}
 						code=IRETURN;
-nativeVoidReturn:	DEBUGPRINTLN1("native ");
+nativeVoidReturn:	DEBUGPRINT1("native ");
 case	RETURN:	DEBUGPRINTLN1("return");
 						if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 							// have I always the lock ?
@@ -951,7 +957,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 										getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)))	// classNameLength
-						printf("class not found %d %d",cN,mN);
+{						printf("class not found %d %d\n",cN,mN); exit(-3);}
 //printf("NEW find class in Constantpool: %x",cN);
 methodStackPush(cN);
 fNO=findNumFields();
@@ -1099,6 +1105,8 @@ cN=methodStackPop();
 						}
 					}
 					opStackPush(first);
+						DEBUGPRINTSTACK;
+						DEBUGPRINTLOCALS;
 
         CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
 						first = opStackPop();
@@ -1122,6 +1130,8 @@ cN=methodStackPop();
 						} else {
 							opStackPush((slot) (u4)0);
 						}
+						DEBUGPRINTSTACK;
+						DEBUGPRINTLOCALS;
 		CASE	WIDE:		DEBUGPRINTLN1("wide (not tested)");	// mb jf
 					{
 						// not tested because so many locals are hard to implement on purpose  14.12.2006
@@ -1149,8 +1159,8 @@ cN=methodStackPop();
 								( slot)(u4)(opStackGetValue(local + count).Int	// old value
 								+ constB)); // add const
 						}
-						DEBUGPRINTLOCALS;
 						DEBUGPRINTSTACK;
+						DEBUGPRINTLOCALS;
 					}
 		CASE	MULTIANEWARRAY:	DEBUGPRINTLN1("multianewarray");	// mb jf
 					{
