@@ -6,16 +6,12 @@
 #include "definitions.h"
 #include "bajvm.h"
 	void initHW();
-
 	void VT102Attribute (u1 fgcolor, u1 bgcolor)	;
 	#ifdef AVR8
-//u2 loadInSram1(unsigned char* addr);
-u2 loadInSram(unsigned char* addr);
+	u2 loadInSram(unsigned char* addr);
 	/* CPU frequency */
-	//#define F_CPU 1000000UL
 	#define F_CPU 14745000UL
 	/* UART baud rate */
-	//#define UART_BAUD  9600
 	#define UART_BAUD  115200
 	void exit(int n);
 	void uart_init(void);	
