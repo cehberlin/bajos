@@ -18,10 +18,10 @@
 # TOOLS
 CC		= avr-gcc
 OBJCOPY		= avr-objcopy
-PROGRAM	= avrdude
+PROGRAM		= avrdude
 # flasher means the avrdude device which you are using for flashing
-FLASHER = stk200 
-#FLASHER = avrispmkII -P usb 
+#FLASHER 	= stk200 
+FLASHER 	= avrispmkII -P usb 
 
 # DEVICE
 ARCH			= AVR5
@@ -31,11 +31,13 @@ DEFS 			= -DAVR8 -DAM -DF_CPU=16000000
 OPTIMIZATION		= -Os 
 
 # for standalone application
-CLASSFILEBASE		= 0xB000
+CLASSFILEBASE		= 0xC480
 # fix address for class files (in words), make it better
 
 # JAVA SOURCES
-JAVAAPPSOURCES		= javatests/LockSimple.java
+#JAVAAPPSOURCES		= javatests/LockSimple.java
+#JAVAAPPSOURCES		= javatests/AM.java
+JAVAAPPSOURCES		= javatests/SchedulerTest.java
 
 # JAVA SOURCES
 JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
@@ -53,7 +55,7 @@ all:	clean  bootclasses compAM bootpack app compile
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802100 
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 	@${CC} --version
@@ -64,7 +66,7 @@ all:	clean  bootclasses compAM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802100 
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802200 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 
