@@ -18,7 +18,13 @@ static slot* 	opSp;
 static u2* 		methodSp;
 
 void opStackInit(slot** m)	{		// per thread, fixed size 
-	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL){printf("malloc error\n");exit(-1);}			
+#if (LINUX||AVR8)
+	if ((*m= (slot*) calloc((size_t)OPSTACKSIZE,sizeof(slot))) == NULL)
+			{printf("malloc error\n");exit(-1);}			
+#else
+//make it better
+*m=(slot*)((u4)apClassFileBase+MAXBYTECODE+MAXHEAP+numThreads*(OPSTACKSIZE+METHODSTACKSIZE));
+#endif
 }
 void opStackPush( slot val)				{	*(opSp++)=val;						}	//  sp grothws with increasing addresses
 																								// and shows to TOS first free place
@@ -38,7 +44,11 @@ void opStackSetValue(u2 pos, slot val)	{	*(opStackBase+pos)=val;			}
 void opStackSetSpPos(u2 pos)			{	opSp=pos+opStackBase;			}
 
 void methodStackInit(u2** m)				{
+#if (LINUX||AVR8)
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL){printf("malloc error\n");exit(-1);}
+#else
+*m=(u2*)((u4)(apClassFileBase+MAXBYTECODE+MAXHEAP+OPSTACKSIZE+numThreads*(OPSTACKSIZE+METHODSTACKSIZE)));
+#endif
 												}
 
 void methodStackPush(u2 val)		{	*(methodSp++)=val;					}
