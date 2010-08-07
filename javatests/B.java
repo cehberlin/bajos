@@ -9,37 +9,14 @@ public class B
 
 	public static void main(String [] args)
 	{		
-
-		System.out.println ("Starting a.class ...");
-		
-		System.out.println (" make a Display Object...");
-		//DisplayZBuffer dp = new DisplayZBuffer();
-		Display dp = new Display();
-		
-		//dp.drawPoint(2, 2); 		
-
-		//dp.setColor(0x000000); //schwarz
-		dp.drawRectangle(10, 100, 60, 160);
-		//BGR
-		dp.setColor(0xff0000); //blau
-		dp.drawFillRect(20,20,30,30);
-
-		//dp.drawClearRect(int x1, int y1, int x2, int y2)
-		dp.setColor(0x00ff00); //gruen...
-		dp.drawRoundRect(70, 70, 100, 100, 10, 20);
-		dp.setColor(0x0000ff); //rot
-		dp.drawEllipse(110, 110, 70, 220);
-		dp.drawCircle(160, 160, 30);
-		dp.drawLine(1,1,310,230);
-
-		/*Point a, e;
-		a=new Point(1,1);
-		a.HSBColor(0, 255, 255);
-		e=new Point(310,230);
-		e.HSBColor(255, 255, 255);
-		
-		((DisplayHSB)dp).drawLine(a, e);
-		
+		DisplayHSB dp = new DisplayHSB();
+		dp.font.setCursor(100, 10);
+		dp.font.drawString("Grafik Test HSB");
+		dp.font.setFontIndex(1);
+		dp.font.setValues();
+		dp.font.setCursor(240, 5);
+		dp.font.drawString("BAJOS");
+				
 		Point p0, p1, p2;
 		p0=new Point(50,120);
 		p0.HSBColor(0, 255, 255);
@@ -48,34 +25,40 @@ public class B
 		p2=new Point(70,180);
 		p2.HSBColor(255, 255, 255);
 
-		((DisplayHSB)dp).triangleFill(p0, p1, p2);
-		*/
-		/*Font f;
-		f = new Font();
-		//f=dp.font;
-
-		f.drawString("Java draw String\n");
-*/
-
-/*		System.platform.clearScreenRGB(0xffffff);
+		dp.triangleFill(p0, p1, p2);
 		
-		//Z-Buffer
-		Point pa, pb;
-		pa=new Point(100,10,50);
-		pa.HSBColor(255, 255, 255);
-		pb=new Point(100,100,80);
-		pb.HSBColor(255, 255, 255);
 		
-		dp.drawLine(pa, pb);
+		//Bsp 3 HSB, kein ZBuffer
+		Polyline pl=new Polyline();	
+		DisplayHSB.setHSBColor(0,255,255);
+		pl.add(50,29);
+		pl.add(70,40);
+		DisplayHSB.setHSBColor(80,255,255);
+		pl.add(72,70);
+		pl.add(49,47);
+		DisplayHSB.setHSBColor(160,255,255);
+		pl.add(10,98);
+		DisplayHSB.setHSBColor(100,255,255);
+		pl.add(7,32);
+		dp.drawPolyline(pl);	
+		
+		
+		//ScanFill + triangleFill  Bsp 4 HSB, kein ZBuffer
+		DisplayHSB.setHSBColor(120,255,255);
+		pl= new Polyline();
+		pl.add(150,70);
+		DisplayHSB.setHSBColor(120,255,255);
+		pl.add(170,100);
+		DisplayHSB.setHSBColor(120,255,128);
+		pl.add(172,130);
+		DisplayHSB.setHSBColor(120,255,60);
+		pl.add(149,148);
+		DisplayHSB.setHSBColor(220,255,255);
+		pl.add(110,110);
+		DisplayHSB.setHSBColor(220,255,128);
+		pl.add(117,92);
+		dp.scanFill(pl);
 
-
-		//Point pa, pb;
-		pa=new Point(120,10,10);
-		pa.HSBColor(255, 255, 0);
-		pb=new Point(80,100,30);
-		pb.HSBColor(255, 255, 0);
-	
-		dp.drawLine(pa,pb);*/
 
 		System.out.println (" ENDE");
 
