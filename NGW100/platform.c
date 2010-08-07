@@ -45,11 +45,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "hmatrix2.h"
 #include "intc.h"
 #include "atngw100.h"
-#include "pm.h"
+#include "pm_at32ap7000.h"
 #include "cycle_counter.h"
 #include "platform.h"
 #include "../definitions.h"
 #include "../bajvm.h"
+#include "native.h"
 
 #define __raw_writel(v,a)	(*(volatile unsigned int   *)(a) = (v))
 #define writel(v,a)		__raw_writel(v,a)
@@ -60,7 +61,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P2SEGADDR(a) 		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | P2SEG))
 #define uncached(addr)		((void *)P2SEGADDR(addr))
 
-#define NB_CLOCK_CYCLE_DELAY_SHORTER    10000   // 1 ms if fCPU==20MHz
+#define NB_CLOCK_CYCLE_DELAY_SHORTER    10000   // 1 ms if fCPU==20MHz adjust it
 #define NB_CLOCK_CYCLE_DELAY_SHORT    1000000   // 100 ms if fCPU==20MHz
 #define NB_CLOCK_CYCLE_DELAY_LONG    20000000   // 1 s if fCPU==20MHz
 
@@ -69,13 +70,12 @@ POSSIBILITY OF SUCH DAMAGE.
 // registration is done in the main function using the INTC software driver module.
 __attribute__((__interrupt__))	static void compare_irq_handler(void)	{
   // Count the number of times this IRQ handler is called.
-  //u32NbCompareIrqTrigger++;
   // Clear the pending interrupt(writing a value to the COMPARE register clears
   // any pending compare interrupt requests). Schedule the COUNT&COMPARE match
-  // interrupt to happen every NB_CLOCK_CYCLE_DELAY_LONG cycles.
+  // interrupt to happen every NB_CLOCK_CYCLE_DELAY cycles.
   // AP7000 don't reset COUNT on compare match. We need to offset next COMPARE.
-   U32 next_compare = Get_sys_compare()+NB_CLOCK_CYCLE_DELAY_SHORTER;
- // Avoid disabling compare			
+   U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
+  // Avoid disabling compare			
   Set_sys_compare((next_compare==0)?1:next_compare);
   timerMilliSec++;
 }
@@ -85,13 +85,8 @@ typedef char avr32_piomap_t[][2];
 void initHW(){
    // Reset PM. Makes sure we get the expected clocking after a soft reset (e.g.: JTAG reset)
 pm_reset();
-	//init_ngw100(S190MHZ);
-   // Switch the main clock to OSC0
-   // pm_switch_to_osc0(&AVR32_PM, FOSC0, OSC0_STARTUP);
-   //  pm_switch_to_osc0(pm, FOSC0, OSC0_STARTUP);
 usartInit();
 stdIOInit();
-
 static const struct sdram_info sdram = {
 	.phys_addr	= NGW_SDRAM_BASE,
 	.row_bits	= 13,
@@ -104,42 +99,41 @@ static const struct sdram_info sdram = {
 	.trcd		= 2,
 	.tras		= 5,
 	.txsr		= 5,		};
+
 //MT481C2M16B2TG SDRAM 
 hmatrix2_writel(SFR4, 1 << 1);
 sdram_init(&sdram);
-   // Disable all interrupts.
-   Disable_global_interrupt();
-   INTC_init_interrupts();
+Disable_global_interrupt();
+INTC_init_interrupts();
    // Register the compare interrupt handler to the interrupt controller.
    // compare_irq_handler is the interrupt handler to register.
    // AVR32_CORE_COMPARE_IRQ is the IRQ of the interrupt handler to register.
    // AVR32_INTC_INT0 is the interrupt priority level to assign to the group of this IRQ.
-// void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);
+   // void INTC_register_interrupt(__int_handler handler, unsigned int irq, unsigned int int_lev);
 INTC_register_interrupt(&compare_irq_handler, AVR32_CORE_COMPARE_IRQ, AVR32_INTC_INT0);
    // Enable all interrupts.
-   Enable_global_interrupt();
-   U32 next_compare = Get_sys_compare()+NB_CLOCK_CYCLE_DELAY_SHORTER;
+Enable_global_interrupt();
+   // Schedule the COUNT&COMPARE match interrupt in NB_CLOCK_CYCLE_DELAY_SHORT 
+   // clock cycles from now.
+U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
  // Avoid disabling compare			
-  Set_sys_compare((next_compare==0)?1:next_compare); // GO
+  Set_sys_compare(((next_compare==0)?1:next_compare)); // GO
 }
 
 char conIn()	{
-return (char) usart_getchar(&AVR32_USART1);
+	return (char) usart_getchar(&AVR32_USART1);
 }
 
-#define FAILURE -1
-#define SUCCESS 0
-
 void conOut(char c)	 {
-usart_bw_write_char(&AVR32_USART1, (int) c);
+	usart_bw_write_char(&AVR32_USART1, (int) c);
 }
 
 int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
 //if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
 //if (file != 0)return unimplemented_syscall("_read with filedes != 0");
-for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
-return len;
+	for ( i = 0; i < len; i++ )	ptr[i] = (char)conIn();
+	return len;
 }
 
 /**
@@ -158,30 +152,29 @@ for(i = 0 ; i < len; i++){
 avr32fb_putchar(ptr[i]);
 }
 } else */{
-for ( i = 0; i < len; i++ ){
-conOut(ptr[i]);
-if (ptr[i]=='\n') conOut('\r');
-}
-}
+	for ( i = 0; i < len; i++ )		{
+		conOut(ptr[i]);
+		if (ptr[i]=='\n') conOut('\r');	}
+	}
 return len;
 } 
 
 void stdIOInit()	{	
 //To configure standard I/O streams as unbuffered, you can simply:
-setbuf(stdin, NULL);
-setbuf(stdout, NULL); 
+	setbuf(stdin, NULL);
+	setbuf(stdout, NULL); 
 }
 
 void usartInit()	{
 int cpu_hz = 20000000;
-  struct usart_options_t opt;
-  volatile struct avr32_usart_t *usart = &AVR32_USART1;
-  avr32_piomap_t usart_piomap = {				   \
+struct usart_options_t opt;
+volatile struct avr32_usart_t *usart = &AVR32_USART1;
+gpio_map_t usart_piomap = {			\
     {AVR32_USART1_RXD_0_PIN, AVR32_USART1_RXD_0_FUNCTION}, \
     {AVR32_USART1_TXD_0_PIN, AVR32_USART1_TXD_0_FUNCTION}   \
   };
 
-  // Set options for the USART
+// Set options for the USART
   opt.baudrate = 115200;
   opt.charlength = 8;
   opt.paritytype = USART_NO_PARITY;
@@ -189,6 +182,10 @@ int cpu_hz = 20000000;
   opt.channelmode = USART_NORMAL_CHMODE;
   // Initialize it in RS232 mode
   usart_init_rs232(usart, &opt, cpu_hz);
-pio_enable_module(usart_piomap,
+  pio_enable_module(usart_piomap,
                       sizeof(usart_piomap) / sizeof(usart_piomap[0]));
+}
+
+void exit(int status)	{
+	nativeExit(0);
 }

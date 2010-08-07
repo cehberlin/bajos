@@ -1,14 +1,16 @@
 /*
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// fuer lehrzwecke,...
-// version 0.1 vom 1.10.07
+// C-functions for native methods
+// native void method -> C-function ret value 0
+// native non void method -> c-cunction ret value 1 (ret value on java -opStack)
 // remember:
 // invokespecial Operand Stack
 // ..., objectref, [arg0, [arg1 ...]] -> ...
 // invokestatic: Operand Stack
 // ..., [arg0, [arg1 ...]] -> ...
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,8 +40,7 @@ char currentTimeMillis(){
 	return 1;	}
 
 char nativeExit(int status)	{
-asm("  lda.w   pc, 0");
+	asm("  lda.w   pc, 0");
 //asm("  mov   pc, 0");
 //goto *0x00000000;
-return 0;
-}
+	return 0;		}
