@@ -1,4 +1,4 @@
-
+// 2.1.09 nicht mehr benutzen, nur noch die Files in den hw-spezifischen unterdirs !!
 //@authors  22.02.2008; Anna Maria Damm; FHW-BA Berlin; Bayer Schering Pharma AG
 //	 					H.-Christian Hecht, FHW-BA Berlin; CoMedServ GmbH
 //						Adrian Lang,FHW-BA Berlin; Fritz-Haber-Institut
