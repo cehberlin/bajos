@@ -4,9 +4,9 @@ import java.util.Vector;
 
 public class DisplayHSB extends Display 
 {
-	public static float hue;
-	public static float saturation;
-	public static float brightness;	
+	static float hue;
+	static float saturation;
+	static float brightness;	
 	
     public DisplayHSB()
     {    	

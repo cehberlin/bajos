@@ -3,17 +3,17 @@ package java.graphics;
 class ProjectionMatrix	extends AffineMatrix 
 {
 
-	ProjectionMatrix()		
+	public ProjectionMatrix()		
 	{
 		super();
 	}
 
-	ProjectionMatrix(ProjectionMatrix p)	
+	public ProjectionMatrix(ProjectionMatrix p)	
 	{
 		super(p);			
 	}
 	
-	ProjectionMatrix(float d)	
+	public ProjectionMatrix(float d)	
 	{
 		super();
 		prpZ(d);		

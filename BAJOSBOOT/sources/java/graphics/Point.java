@@ -7,8 +7,8 @@ public static double hue;		// globale Farben für Zustandsmaschine
 public static double saturation;
 public static double brightness;
 */
-	public float 	x,y,z;			// die Koordinaten
-	public float	h,s,b;			// 0.<= float <= 255. 
+	float 	x,y,z;			// die Koordinaten
+	float	h,s,b;			// 0.<= float <= 255. 
 					// int Farbe als 32 Bit Wert 0000 0000 hhhh hhhh ssss ssss bbbb bbbb
 	public Point()			
 	{	
@@ -31,37 +31,37 @@ public static double brightness;
 		HSBColor(p.h,p.s,p.b);		
 	}
 
-	int getX()  	
+	public int getX()  	
 	{ 
 		return (int)(x);
 	}
 	
-	int getY()  	
+	public int getY()  	
 	{ 
 		return (int)(y);
 	}
 	
-	int getZ()  	
+	public int getZ()  	
 	{ 
 		return (int)(z);
 	}
 	
-	int getH()  	
+	public int getH()  	
 	{ 
 		return (int)(h);
 	}
 	
-	int getS()	
+	public int getS()	
 	{ 
 		return (int)(s);
 	}
 	
-	int getB()	
+	public int getB()	
 	{ 
 		return (int)(b);
 	}
 	
-	void setPoint(float x, float y, float z)	
+	public void setPoint(float x, float y, float z)	
 	{
 		h=DisplayHSB.hue;
 		s=DisplayHSB.saturation;
@@ -71,7 +71,7 @@ public static double brightness;
 		this.z=z;		
 	}
 	
-	void   setPoint(float x, float y )		
+	public void setPoint(float x, float y )		
 	{
 		setPoint(x,y,0);			
 	}
