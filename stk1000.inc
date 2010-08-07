@@ -34,7 +34,7 @@ OPT		= 2
 
 # JAVA SOURCES
 # add java system sources to basic sources in Makefile
-JAVABOOTSOURCES	+= 	$(LANG)/Math.java \
+JAVABOOTSOURCES	+= 	\
 			$(LANG)/Boolean.java $(LANG)/Byte.java \
 			$(UTIL)/Random.java \
 			$(LANG)/Error.java \

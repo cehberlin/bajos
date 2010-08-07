@@ -10,7 +10,7 @@
 /* ..., objectref, [arg0, [arg1 ...]] -> ...*/
 /* invokestatic: Operand Stack*/
 /* ..., [arg0, [arg1 ...]] -> ...*/
-
+#ifndef TINYBAJOS_MULTITASKING
 #include <stdio.h>
 #include <stdlib.h>
 #include "../definitions.h"
@@ -89,3 +89,4 @@ char forceInterrupt(){
 	interruptThread(interruptVectors[vectorNr]);
 	return 0;
 }
+#endif

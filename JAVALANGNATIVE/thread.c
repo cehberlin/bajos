@@ -10,7 +10,7 @@
 /* ..., objectref, [arg0, [arg1 ...]] -> ...*/
 /* invokestatic: Operand Stack*/
 /* ..., [arg0, [arg1 ...]] -> ...*/
-
+#ifndef TINYBAJOS_MULTITASKING
 #include <stdio.h>
 #include <stdlib.h>
 #include "../definitions.h"
@@ -49,11 +49,7 @@ char nativeSetPriority() { //by ceh
   slot soi = opStackGetValue(local);
   cN = soi.stackObj.classNumber;	// of object, which calls the method 
   if (!findFieldByRamName("priority",8,"I",1)){
-	#ifdef AVR8
-		errorExit(78,PSTR("field priority not found\n"));
-	#else
 		errorExit(78,"field priority not found\n");
-	#endif
   }
 
 
@@ -83,3 +79,4 @@ char jointimeout(){return 0; }
 
 char nativeSleep()	{ return 0;}
 
+#endif

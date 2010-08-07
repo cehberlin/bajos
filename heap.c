@@ -71,11 +71,7 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 /* verschmelzen=merge free heap space to bigger blocks*/
 int schmelz;
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("Heap merge\n"));
-#else
-	printf("Heap merge\n");
-#endif
+verbosePrintf("Heap merge\n");
 
 for ( schmelz=0; schmelz < 20; schmelz++)	{	
 nextElementPos=0;
@@ -100,11 +96,8 @@ if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
 }
 /* alles umsonst*/
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR(" no free heap space for object/array of length: 0x%x  _> tschüß"),length);
-#else
-	printf(" no free heap space for object/array of length: 0x%x  _> tschüß",length);
-#endif
+
+verbosePrintf(" no free heap space for object/array of length: 0x%x",length);
 
 exit(-1);
 }
@@ -117,15 +110,17 @@ u2 opSPPos;
 u2 nextElementPos=0;
 u1 i;
 u1 stillAConcatedObject;
+#ifndef TINYBAJOS_MULTITASKING
 ThreadControlBlock* tCB;
 u1 k,max;
+#endif
 do		{
 	HEAPOBJECTMARKER(nextElementPos).rootCheck=0;
 	if ((HEAPOBJECTMARKER(nextElementPos).status==HEAPFREESPACE)||(HEAPOBJECTMARKER(nextElementPos).status==HEAPALLOCATEDSTATICCLASSOBJECT))	{ /* empty or static*/
 		HEAPOBJECTMARKER(nextElementPos).rootCheck=1;
 		continue;						
 	}
-
+#ifndef TINYBAJOS_MULTITASKING
 	for(i=0;i<(MAXPRIORITY);i++){ //searching for root objects on stack
 		tCB=threadPriorities[i].cb;
 		max=(threadPriorities[i].count);
@@ -148,6 +143,17 @@ do		{
 			break;
 		};
 	}
+#else
+			opSPPos=opStackGetSpPos();
+			while (opSPPos>0) {
+				if  (  (nextElementPos==((*(opStackBase+(--opSPPos))).stackObj.pos)) &&
+				( ((*(opStackBase+(opSPPos))).stackObj.magic)==OBJECTMAGIC  ))//UInt)
+				{
+					HEAPOBJECTMARKER(nextElementPos).rootCheck=1;
+					break;
+				}
+			}
+#endif
 }while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) < heapTop);
 /* alle Objekte von den stacks erreichbar (root elements)	markiert	*/
 /* jetzt suche ich nur noch im heap*/

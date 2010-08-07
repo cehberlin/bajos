@@ -972,6 +972,7 @@ strncmp( "B",fieldDescr, 1)
 			}
 				
 			opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
+			#ifndef TINYBAJOS_MULTITASKING
 			if (getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 				if ( HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
 					/* mutex is free, I (the thread) have not the mutex and I can get the mutex for the object*/
@@ -1007,6 +1008,7 @@ strncmp( "B",fieldDescr, 1)
 						currentThreadCB->lockCount[i]++;	/* count*/
 				}
 			}
+			#endif
 /* no synchronized,or I have the lock*/
 /* now call method*/
 			if (getU2(METHODBASE(cN,mN))&ACC_NATIVE)			{
@@ -1041,6 +1043,7 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 			DEBUGPRINTLNSTRING(methodName,methodNameLength);
 			DEBUGPRINTLNSTRING(className,classNameLength);
 			opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
+			#ifndef TINYBAJOS_MULTITASKING
 			if (getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 /*
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
@@ -1081,7 +1084,8 @@ if ((cs[cN].nativeFunction!=NULL)&&(cs[cN].nativeFunction[mN]!=NULL))	{
 					else /* yes I have the lock*/
 						currentThreadCB->lockCount[i]++;	/* count*/
 				}
-			};
+			}
+			#endif
 /* no synchronized,or I have the lock*/
 /* now call the method*/
 			if (getU2(METHODBASE(cN,mN)) & ACC_NATIVE)		{
@@ -1110,6 +1114,7 @@ nativeVoidReturn:
 			DEBUGPRINT("native ");
 		case	RETURN:
 			DEBUGPRINTLN("return");
+			#ifndef TINYBAJOS_MULTITASKING
 			if (getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 				/* have I always the lock ?*/
 				if (getU2(METHODBASE(cN,mN))&ACC_STATIC)
@@ -1141,6 +1146,7 @@ nativeVoidReturn:
 					}				
 				}
 			}
+			#endif
 			if (methodStackEmpty())	{
 				/*
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
@@ -1161,7 +1167,12 @@ strncmp
 					return;
 				}
 				else				{
-					PRINTEXITTHREAD("normally terminated Thread: %d\n",currentThreadCB->tid);
+					#ifndef TINYBAJOS_MULTITASKING
+						PRINTEXITTHREAD("normally terminated Thread: %d\n",currentThreadCB->tid);
+					#else
+						free(methodStackBase);
+						free(opStackBase);
+					#endif
 					break;
 				}
 			}
@@ -1285,6 +1296,7 @@ findClass
 			}
 
 		CASE	MONITORENTER:
+		#ifndef TINYBAJOS_MULTITASKING
 			first=opStackPop();
 			if ( HEAPOBJECTMARKER(first.stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
 				HEAPOBJECTMARKER(first.stackObj.pos).mutex=MUTEXBLOCKED;	/* get the lock*/
@@ -1313,8 +1325,11 @@ findClass
 				else /* yes I have lock*/
 					currentThreadCB->lockCount[i]++;	/* count*/
 			}
-
+		#else
+			DNOTSUPPORTED;
+		#endif
 		CASE	MONITOREXIT:			/* have I always the lock ?*/
+		#ifndef TINYBAJOS_MULTITASKING
 			first=opStackPop();
 			for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	/* must be in*/
 				if (currentThreadCB->hasMutexLockForObject[i].UInt==first.UInt) break;
@@ -1338,7 +1353,9 @@ findClass
 					}	
 				}
 			}
-
+		#else
+			DNOTSUPPORTED;
+		#endif
 		CASE	ATHROW:
 			DEBUGPRINTLN("athrow");
 			handleException();
@@ -1545,7 +1562,9 @@ findClass
 			u4 my_addr = getU4(0);
 			opStackPush((slot)my_addr);
 		} /* switch*/
+	#ifndef TINYBAJOS_MULTITASKING
 		scheduler();
+	#endif
 	} while (1);/*do*/
 
 	verbosePrintf("Termination\n");

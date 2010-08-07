@@ -22,7 +22,7 @@
 #include "../scheduler.h"
 #include "../heap.h"
 #include "object.h"
-
+#ifndef TINYBAJOS_MULTITASKING
 /* "java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress"*/
 char notify() {
 	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
@@ -84,6 +84,7 @@ char nativeWait() {
 }
 
 char waitTime(){return 0; }
+#endif
 
 char getDataAddress ()	{
 return 1;	/* ret val is  on Stack !!*/

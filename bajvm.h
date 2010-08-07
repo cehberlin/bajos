@@ -51,12 +51,14 @@ GLOBAL char*	classFileBase	INIT__(NULL);
 GLOBAL char*	appClassFileBase INIT__(NULL);
 #endif
 GLOBAL u1	numClasses	INIT__(0);
+#ifndef TINYBAJOS_MULTITASKING
 GLOBAL 		ThreadControlBlock*  currentThreadCB	INIT__(NULL);
 GLOBAL u1	numThreads	INIT__(0);
 GLOBAL u1	tid 		INIT__(0);
 GLOBAL u4	mainThreadPriority[2];		// priority (and alive) of main thread -> immutable
 GLOBAL ThreadPriorityList  threadPriorities[MAXPRIORITY]; //array of priority lists
 GLOBAL ThreadControlBlock* interruptVectors[NUMBEROFINTERRUPTS];
+#endif
 GLOBAL classStructure cs[MAXCLASSES];
 #ifndef AVR8
 GLOBAL u4	timerMilliSec 	INIT__(0);

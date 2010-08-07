@@ -29,6 +29,8 @@ void 	iterateOverThreads2(){
 }
 */
 
+#ifndef TINYBAJOS_MULTITASKING
+
 void interruptThread(ThreadControlBlock* thread){ 
 	if((thread)){ 
 		if(currentThreadCB!=(thread)){ 
@@ -395,4 +397,5 @@ void scheduler(void)	{
 	cN=methodStackPop();
 	local=methodStackPop();
 }
+#endif
 

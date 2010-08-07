@@ -27,7 +27,7 @@ endif
 OPTIMIZATION		= -O3
 
 # JAVA SOURCES
-JAVABOOTSOURCES		+= 	$(LANG)/Math.java \
+JAVABOOTSOURCES		+= 	\
 			$(LANG)/Boolean.java $(LANG)/Byte.java\
 			$(UTIL)/Random.java \
 			$(LANG)/Exception.java  $(LANG)/Error.java \
@@ -35,7 +35,7 @@ JAVABOOTSOURCES		+= 	$(LANG)/Math.java \
 			$(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \
 			$(UTIL)/Collection.java $(UTIL)/List.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
-			$(LANG)/Runtime.java $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
+			$(LANG)/Runtime.java 
 
 # only for stk1000!!!
 ifeq  ($(TARGETHW), avr32-linux)
@@ -63,7 +63,7 @@ $(TARGETFILE):	${OBJFILES}
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall  ${DEBUGGEN} -o $@ $<
+	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall $(DEFS) ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
 
@@ -80,7 +80,7 @@ compEEE:
 	$(APPCLASSPATH)/EEE.java
 
 FFF:
-	./$(TARGETFILE)   $(JAVABOOTCLASSES) ${GRAPHICS}/Font.class 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) 
 
 compFFF:
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \

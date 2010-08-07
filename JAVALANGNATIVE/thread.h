@@ -4,6 +4,7 @@
 */
 
 // Thread
+#ifndef TINYBAJOS_MULTITASKING
 char isAlive(void);
 char start(void);
 char yield(void);
@@ -18,4 +19,4 @@ char join(void);
 char sleep(void);
 char jointimeout(void);
 char nativeSleep(void);
-
+#endif

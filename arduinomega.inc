@@ -26,17 +26,9 @@ FLASHER 	= stk200
 # DEVICE
 ARCH			= AVR5
 PART			= atmega1280
-DEFS 			= -DAVR8 -DAM -DF_CPU=16000000 
+DEFS 			+= -DAVR8 -DAM -DF_CPU=16000000 
 
 OPTIMIZATION		= -Os
-
-#############
-# TINYBAJOS #
-#############
-#Shrink bajos, but looses features 
-DEFS			+= -DTINYBAJOS_ERROREXIT # errorexit does only show error number no text
-DEFS			+= -TINYBAJOS_PRINTF # remove unnessary printfs
-
 
 # for standalone application
 CLASSFILEBASE		= 0xC480
@@ -44,19 +36,30 @@ CLASSFILEBASE		= 0xC480
 
 # JAVA SOURCES
 #JAVAAPPSOURCES		= javatests/LockSimple.java
-#JAVAAPPSOURCES		= javatests/AM.java
+JAVAAPPSOURCES		= javatests/AM.java
+#JAVAAPPSOURCES		= javatests/T1.java javatests/T2.java
 #JAVAAPPSOURCES		= javatests/SchedulerTest.java
-JAVAAPPSOURCES		= javatests/InterruptTest.java
+#JAVAAPPSOURCES		= javatests/InterruptTest.java
 
 # JAVA SOURCES
-JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java $(LANG)/Math.java
+#JAVABOOTSOURCES		+= 
+
+#############
+# TINYBAJOS #
+#############
+ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
+	#Shrink bajos, but looses features 
+else
+	PLATFORMASMSOURCES	+= $(APPPATH)ARDUINOMEGA/routines_interrupt.asm
+endif
 
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
-PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm $(APPPATH)ARDUINOMEGA/routines_interrupt.asm
+PLATFORMASMSOURCES	+= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm 
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 
 # GOALS
+
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 DEFS+= -DWITHMON 
 all:	clean  bootclasses compAM bootpack app compile
@@ -98,10 +101,10 @@ am:
 AM:	
 	@:
 
-#print usage of ram and flash of bajos
+#print usage of ram and flash
 printsize:
 	avr-size --mcu=$(PART) --format=avr $(TARGETFILE)
-#	avr-nm --size-sort --print-size $(TARGETFILE) # more detailed information about size of objects functions variables
+	avr-nm --size-sort --print-size $(TARGETFILE) # more detailed information about size of objects functions variables
 
 burnbajos:
 	$(PROGRAM) -p m1280 -c $(FLASHER) -D -e -Uflash:w:bajos.bin:a

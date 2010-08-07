@@ -9,7 +9,6 @@ public class AM			{
 	char c;
 	int n=0;
 for (n=0; n < 20; n++)
-    System.out.println("a "+n+" b");
 
 	// not q!!!
 	System.out.println("currentTimeMillis Test, type any key -> e for end");

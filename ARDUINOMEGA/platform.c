@@ -103,27 +103,21 @@ buf[4]=0;
 getCharsFromFlash(addr,4,buf);
 sscanf(buf,"%4d",(char*)&numClasses);
 addr+=4; // after numclasses*
+
 for (cN=0; cN<numClasses;cN++)	{
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-cs[cN].classFileStartAddress=addr+4;	// after length of class;
-analyzeClass(&cs[cN]);	
-addr+=cs[cN].classFileLength+4;
+	getCharsFromFlash(addr,4,buf);
+	sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
+	cs[cN].classFileStartAddress=addr+4;	// after length of class;
+	analyzeClass(&cs[cN]);	
+	addr+=cs[cN].classFileLength+4;
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("bootclass: %x length:%x loaded\n"),cN,cs[cN].classFileLength);
-#else
-	printf("bootclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
-#endif
-
+	verbosePrintf("bootclass: %x length:%x loaded\n",cN,cs[cN].classFileLength);
 }
 
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("load java application classes: \n"));
-#else
-	printf("load java application classes: \n");
-#endif
+
+verbosePrintf("load java application classes: \n");
+
 
 #ifdef WITHMON
 addr=(char*)AVR8_FLASH_APP_BASE;
@@ -133,23 +127,20 @@ sscanf(buf,"%4d",(char*)&numClasses);
 numClasses+=cN;
 addr+=4; // after numclasses
 for (;cN<numClasses;cN++)	{
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-cs[cN].classFileStartAddress=addr+4;	// after length of class
-analyzeClass(&cs[cN]);
-addr+=cs[cN].classFileLength+4;
+	getCharsFromFlash(addr,4,buf);
+	sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
+	cs[cN].classFileStartAddress=addr+4;	// after length of class
+	analyzeClass(&cs[cN]);
+	addr+=cs[cN].classFileLength+4;
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("appclass: %x length:%x loaded\n"),numClasses,cs[cN].classFileLength);
-#else
-	printf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
-#endif
+	verbosePrintf("appclass: %x length:%x loaded\n",numClasses,cs[cN].classFileLength);
 
 }
 
 DEBUGPRINTHEAP;
 }
 
+#ifndef TINYBAJOS_OTHER
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
@@ -201,6 +192,7 @@ void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
 #endif
 
 }
+#endif
 
 void exit(int n)	{
 #ifdef DEBUGOPSTACK

@@ -11,6 +11,10 @@
 #define NORMPRIORITY 5
 #define MAXPRIORITY 10
 #define MINPRIORITY 1 
+#ifndef TINYBAJOS_MULTITASKING
+
+void createThread(void);
+void deleteThread(void);
 
 void interruptThread(ThreadControlBlock* thread);
 ThreadControlBlock* findThreadCB(slot obj);
@@ -19,9 +23,9 @@ void notifyThread(slot obj);
 void awakeThreadFromMutex(slot obj);
 void setMutexOnObject(ThreadControlBlock* t,slot obj);
 void releaseMutexOnObject(ThreadControlBlock* t,slot obj,ThreadControlBlock* awakeThread);
-void createThread(void);
-void deleteThread(void);
+
 void scheduler(void);
 void insertThreadIntoPriorityList(ThreadControlBlock* t);
 void removeThreadFromPriorityList(ThreadControlBlock* t);
+#endif
 #endif

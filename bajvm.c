@@ -77,11 +77,19 @@ int main(int argc,char* argv[]){
 
 	verbosePrintf("Bajos starting\n");
 
+#ifndef TINYBAJOS_MULTITASKING
 	createThread();			/* for main*/
 	opStackBase = currentThreadCB->opStackBase;
 	opStackSetSpPos(0);
 	methodStackBase	= currentThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
+#else
+	opStackInit(&opStackBase);
+	opStackSetSpPos(0);
+	methodStackInit(&methodStackBase);
+	methodStackSetSpPos(0);	
+#endif
+
 #ifdef AVR8
 	#ifndef TINYBAJOS_PRINTF
 	printf_P(PSTR("SP: %x cs: %x cFB: %x hB: %x oPSB: %x mSB: %x \n"), 

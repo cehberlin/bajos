@@ -64,8 +64,9 @@ typedef union	{
 	heapObjectMarker heapObjMarker;
 }  slot;
 
+#ifndef TINYBAJOS_MULTITASKING
 typedef struct	ThreadControlBlock {
-slot*	opStackBase;
+slot*		opStackBase;
 u2*		methodStackBase;	
 u2		methodSpPos;	// relative to methodStackBase
 u1		tid;
@@ -84,6 +85,7 @@ typedef struct ThreadPriorityList {
 	ThreadControlBlock* cb;
 	u1 count;
 } ThreadPriorityList;
+#endif
 
 #define methodStartPC (methodInfoStart+6)
 

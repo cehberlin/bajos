@@ -82,11 +82,9 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 BAJOSCSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c \
 		$(APPPATH)JAVALANGNATIVE/float.c \
-		$(APPPATH)JAVALANGNATIVE/lock.c \
 		$(APPPATH)JAVALANGNATIVE/object.c \
 		$(APPPATH)JAVALANGNATIVE/string.c \
-		$(APPPATH)JAVALANGNATIVE/thread.c \
-		$(APPPATH)JAVALANGNATIVE/interruptthread.c
+
 
 # java system sources -> subset of java system sources for the small controller, add more sources later
 JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
@@ -94,8 +92,28 @@ JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
-			$(LANG)/Thread.java $(LANG)/Exception.java \
+			$(LANG)/Exception.java $(LANG)/Math.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java
+
+#############
+# TINYBAJOS #
+#############
+#Smaller version of bajos with reduced features
+ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
+	#Shrink bajos, but looses features 
+	DEFS			+= -DTINYBAJOS
+	DEFS			+= -DTINYBAJOS_ERROREXIT # errorexit does only show error number no text
+	DEFS			+= -DTINYBAJOS_PRINTF # remove unnessary printfs
+	DEFS			+= -DTINYBAJOS_MULTITASKING # remove multitasking feature
+	DEFS			+= -DTINYBAJOS_OTHER # remove different maybe unnessary functions
+
+else
+	JAVABOOTSOURCES 	+= 	$(LANG)/Thread.java
+	JAVABOOTSOURCES		+= 	$(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
+	BAJOSCSOURCES		+= 	$(APPPATH)JAVALANGNATIVE/lock.c \
+					$(APPPATH)JAVALANGNATIVE/thread.c \
+					$(APPPATH)JAVALANGNATIVE/interruptthread.c
+endif
 
 JAVABOOTCLASSES	= $(JAVABOOTSOURCES:.java=.class)			
 JAVAAPPCLASSES 	= $(JAVAAPPSOURCES:.java=.class)
@@ -309,6 +327,8 @@ $(BIN): $(TARGETFILE)
 endif
 
 debug:
+	@:
+TINYBAJOS:
 	@:
 
 bootclasses:

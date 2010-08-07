@@ -23,7 +23,7 @@ PROGRAM		= avrdude
 # DEVICE
 #ARCH			= AVR7
 PART			= atxmega128a1
-DEFS 			= -DAVR8 -DXPLAIN -DF_CPU=16000000 -IXMEGA -IXMEGA/include -include XMEGA/autoconf.h
+DEFS 			+= -DAVR8 -DXPLAIN -DF_CPU=16000000 -IXMEGA -IXMEGA/include -include XMEGA/autoconf.h
 DEFS+=  -O1
 
 #OPTIMIZATION		=   

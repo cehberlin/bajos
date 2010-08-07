@@ -22,9 +22,11 @@ const char*	nativeClassNames[] =		{
 			"platform/PlatForm",
 			"java/lang/Object",
 			"java/lang/String",
+#ifndef TINYBAJOS_MULTITASKING
 			"java/lang/Thread",
 			"java/util/concurrent/Lock",
 			"java/util/concurrent/InterruptThread",
+#endif
 			"java/lang/Float"	
 };
 
@@ -207,6 +209,7 @@ functionForNativeMethodType functionForNativeStringMethod[] =	{
 	nativeCharAt
 };
 
+#ifndef TINYBAJOS_MULTITASKING
 functionForNativeMethodType functionForNativeThreadMethod[] =	{
 	start,
 	yield,
@@ -218,6 +221,7 @@ functionForNativeMethodType functionForNativeThreadMethod[] =	{
 	nativeSetPriority,
 	join
 };
+#endif
 
 functionForNativeMethodType functionForNativeFloatMethod[] =	{
 	floatToCharArray,
@@ -227,13 +231,16 @@ functionForNativeMethodType functionForNativeFloatMethod[] =	{
 };
 
 functionForNativeMethodType functionForNativeObjectMethod[] =	{
+#ifndef TINYBAJOS_MULTITASKING
 	notify,
 	notifyAll,
 	nativeWait,
 	waitTime,
+#endif
 	getDataAddress
 };
 
+#ifndef TINYBAJOS_MULTITASKING
 functionForNativeMethodType functionForNativeLockMethod[] =	{
 	lock,
 	unlock,
@@ -249,14 +256,17 @@ functionForNativeMethodType functionForNativeInterruptThreadMethod[] =	{
 	removeInterrupt,
 	forceInterrupt
 };
+#endif
 
 /* insert array of function pointer*/
 const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativePlatFormMethod,
 	functionForNativeObjectMethod,
 	functionForNativeStringMethod,
+#ifndef TINYBAJOS_MULTITASKING
 	functionForNativeThreadMethod,
 	functionForNativeLockMethod,
 	functionForNativeInterruptThreadMethod,
+#endif
 	functionForNativeFloatMethod					
 };
