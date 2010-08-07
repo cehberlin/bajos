@@ -3,10 +3,10 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // fuer lehrzwecke,...
-// version 0.1 vom 1.10.0
 // 14.8.06 sie lief das erste mal durch (in Unix)
 // april 2007-> threads, scheduling, funtionsüberladung, native-dispatch
-// mai 2007 -> garbage collection
+// mai 2007 -> garbage collection, exception handling
+// jan08 synchronized, wait notify
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,7 +36,7 @@
 #define methodDescr			descr
 #define methodDescrLength	descrLength
 
-u2 		findNumArgs1;
+
 static slot first;
 static slot second;
 static slot third;
@@ -47,8 +47,8 @@ static u1* 	name;		// field or method
 static u2 	nameLength;
 static u1* 	descr;		// field or method
 static u2	descrLength;
-static u2 	i;
-static s2	myIndex;
+static u2 	i,j,k;
+static s2	count;
 static u1	oldcN;
 
 void run(){	// in: classNumber,  methodNumber cN, mN
@@ -99,27 +99,22 @@ switch (code)	{
 							DEBUGPRINTSTACK;	
 	CASE	LDC: 			if(getU1(CP(cN,getU1(0))) == CONSTANT_String)	{// hab ich was zum anfassen
 								first.stackObj.magic=CPSTRINGMAGIC;
-								oldcN=cN;
-								if (!findClass((u1*)"java/lang/String",16))	
-									{printf("string calls error\n"); exit(-4);}
+//								oldcN=cN;
+//								if (!findClass((u1*)"java/lang/String",16))	
+//									{printf("string calls error\n"); exit(-4);}
+//bh2008								first.stackObj.classNumber=cN;
+//								cN=oldcN;
 								first.stackObj.classNumber=cN;
-								cN=oldcN;
-								first.stackObj.pos=(u2)(((u2)cN <<8)+byte1);//CP(cN,getU2(CP(cN,byte1) + 1));
+								first.stackObj.pos=(u2)(/*((u2)cN <<8)*/+byte1);
+//CP(cN,getU2(CP(cN,byte1) + 1));
 								// classnumber of cp-string and pos info
-								//first.stackObj.type=STACKCPSTRING;
-								opStackPush(first);						}
+								opStackPush(first);							}
 							else opStackPush(( slot)getU4(CP(cN,byte1)+1));	
 									// int or float const value on stack
-								DEBUGPRINTLN2("ldc  push\t...,=> x%x",opStackPeek().UInt);
-								DEBUGPRINTSTACK;
-								DEBUGPRINTHEAP;
-	CASE	LDC_W:			if (getU1(CP(cN,getU2(0))) == CONSTANT_String)
-								opStackPush(( slot)((((u4)cN << 16)+			// class number
-									CP(cN,getU2(CP(cN,BYTECODEREF) + 1)))));	// string index
-							else opStackPush(( slot)(u4)getU4(CP(cN,BYTECODEREF)+1)); 
-									// int or float const value on stack
-							DEBUGPRINTLN2("ldc_w  push\t,=>x%x",(u4)getU4(CP(cN,BYTECODEREF)+1));
+							DEBUGPRINTLN2("ldc  push\t...,=> x%x",opStackPeek().UInt);
 							DEBUGPRINTSTACK;
+							DEBUGPRINTHEAP;
+	CASE	LDC_W:			PRINTSEXIT("LDC_W",nry,4);
 	CASE	LDC2_W:			PRINTSEXIT("LDC2_W",nry,4);
 	CASE	ILOAD:			DEBUGPRINTLN2("ILOAD -> local(%x) -> push\t...,=>",byte1);
 							opStackPush(opStackGetValue(local+getU1(0)));	//mb jf 
@@ -132,7 +127,8 @@ switch (code)	{
 							DEBUGPRINTLOCALS;
 	CASE	DLOAD:			PRINTSEXIT("DLOAD",nry,4);
 	CASE	ALOAD:			DEBUGPRINTLN2("ALOAD -> local(%x) -> push\t,=>",byte1);
-							opStackPush(opStackGetValue(local+getU1(0)));	//mb jf changed getU1() --> getU1(0)
+							opStackPush(opStackGetValue(local+getU1(0)));	
+//mb jf changed getU1() --> getU1(0)
 							DEBUGPRINTSTACK;
 							DEBUGPRINTLOCALS;		
 	CASE	ILOAD_0:				
@@ -153,7 +149,8 @@ switch (code)	{
 	CASE	DLOAD_0:
 	case	DLOAD_1:
 	case	DLOAD_2:
-	case	DLOAD_3:		PRINT1EXIT("DLOAD_%d -> nicht realisiert\n",code - DLOAD_0,4);	//mb jf changed output to "DLOAD..."
+	case	DLOAD_3:		PRINT1EXIT("DLOAD_%d -> nicht realisiert\n",code - DLOAD_0,4);	
+//mb jf changed output to "DLOAD..."
 	CASE	ALOAD_0:
 	case	ALOAD_1:
 	case	ALOAD_2:
@@ -166,17 +163,19 @@ switch (code)	{
 	case	AALOAD:								
 	case	BALOAD:
 	case	CALOAD:
-	case	SALOAD:		myIndex = (s2)opStackPop().Int;			//mb jf	
-						if((first = opStackPeek()).UInt == NULLOBJECT.UInt)	{NULLPOINTEREXCEPTION;}
-						if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
+	case	SALOAD:			count = (s2)opStackPop().Int;			//mb jf	
+							if((first = opStackPeek()).UInt == NULLOBJECT.UInt)	{NULLPOINTEREXCEPTION;}
+						/* a string is not an array!!!
+if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 							oldcN=cN;
 							cN=(u1)(first.stackObj.pos >>8);
 							lengthArray=getU2( CP(cN,getU2(CP(cN,first.stackObj.pos&0x00ff)+1 )) +1 );
 							cN=oldcN;														}
-						else lengthArray=first.stackObj.arrayLength;
-							if	(myIndex < 0 || lengthArray < myIndex||myIndex > (MAXHEAPOBJECTLENGTH-1))	
+						else */
+						lengthArray=first.stackObj.arrayLength;
+							if	(count < 0 || lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
 								ARRAYINDEXOUTOFBOUNDEXCEPTION;
-						opStackPoke(( slot)heapGetElement((u2)first.stackObj.pos/*UInt*/+myIndex+1));
+						opStackPoke(( slot)heapGetElement((u2)first.stackObj.pos/*UInt*/+count+1));
 #ifdef DEBUG
 						switch (code)														{
 							case IALOAD:	DEBUGPRINTLN2("iaload %x,=>",first.UInt);
@@ -186,7 +185,7 @@ switch (code)	{
 							CASE CALOAD:	DEBUGPRINTLN2("caload %x, =>",first.UInt);
 							CASE SALOAD:	DEBUGPRINTLN2("saload %x, =>",first.UInt);	}
 #endif
-						DEBUGPRINTLN2(", %x",heapGetElement((u2)first.UInt+myIndex+1).UInt);
+						DEBUGPRINTLN2(", %x",heapGetElement((u2)first.UInt+count+1).UInt);
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	LALOAD:		PRINTSEXIT("laload",nry,4);	//mb jf
@@ -195,11 +194,11 @@ switch (code)	{
 	case	FSTORE:
 	case	ASTORE:	
 #ifdef DEBUG
-		switch (code)	{
-			case	ISTORE:	DEBUGPRINTLN2("ISTORE  pop -> local(%d)=>,\n",byte1);
-			CASE	FSTORE:	DEBUGPRINTLN2("FSTORE  pop -> local(%d)=>,\n",byte1);
-			CASE	ASTORE:	DEBUGPRINTLN2("ASTORE  pop -> local(%x)=>,\n",byte1);
-						}
+						switch (code)	{
+							case	ISTORE:	DEBUGPRINTLN2("ISTORE  pop -> local(%d)=>,\n",byte1);
+							CASE	FSTORE:	DEBUGPRINTLN2("FSTORE  pop -> local(%d)=>,\n",byte1);
+							CASE	ASTORE:	DEBUGPRINTLN2("ASTORE  pop -> local(%x)=>,\n",byte1);
+										}
 #endif
 						opStackSetValue(local+getU1(0),opStackPop());
 						DEBUGPRINTSTACK;
@@ -242,32 +241,32 @@ switch (code)	{
 	case	CASTORE:
 	case	SASTORE:	DEBUGPRINTSTACK;
 						second = opStackPop();
-						myIndex = (s2)(opStackPop().Int);
+						count = (s2)(opStackPop().Int);
 						first = opStackPop();
-//	printf("myindex: %d %04x\n",myIndex,first);	
-						if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
+//	printf("myindex: %d %04x\n",count,first);	
+/*						if ((HEAPOBJECTMARKER(first.stackObj.pos).magic)==CPSTRINGMAGIC) 	{
 							oldcN=cN;
 							cN=(u1)(first.stackObj.pos >>8);
-							lengthArray=getU2(     CP(cN,getU2(CP(cN,first.stackObj.pos&0x00ff)+1 )) +1 );
+							lengthArray=getU2( CP(cN,getU2(CP(cN,first.stackObj.pos&0x00ff)+1 )) +1 );
 							cN=oldcN;														}
-						else lengthArray=first.stackObj.arrayLength;				
+						else */
+						lengthArray=first.stackObj.arrayLength;				
 						if(first.UInt==((slot)NULLOBJECT).UInt)								{
-							printf("myIndex %d %d\n",myIndex,lengthArray);	NULLPOINTEREXCEPTION;	}
-							if	(myIndex < 0 	|| lengthArray < myIndex||myIndex > (MAXHEAPOBJECTLENGTH-1))	{
-//								printf("myIndex: %d %04x",myIndex,first);								
-								ARRAYINDEXOUTOFBOUNDEXCEPTION;											}
-						heapSetElement(second,first.stackObj.pos+myIndex+1);
+							printf("count %d %d\n",count,lengthArray);	NULLPOINTEREXCEPTION;	}
+						if	(count < 0 	|| lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
+								ARRAYINDEXOUTOFBOUNDEXCEPTION;											
+						heapSetElement(second,first.stackObj.pos+count+1);
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 #ifdef DEBUG
-			switch (code)		{
-				case	IASTORE:	DEBUGPRINTLN1("iastore stack -> local");	//mb jf		//int
-				CASE	FASTORE:	DEBUGPRINTLN1("fastore");	//mb jf		//float
-				CASE	AASTORE:	DEBUGPRINTLN1("fastore");	//mb jf		//float
-				CASE	BASTORE:	DEBUGPRINTLN1("bastore");	//mb jf		//byte or boolean
-				CASE	CASTORE:	DEBUGPRINTLN1("castore");	//mb jf		//char
-				CASE	SASTORE:	DEBUGPRINTLN1("sastore");	//mb jf		//short
-								}
+						switch (code)		{
+							case	IASTORE:	DEBUGPRINTLN1("iastore stack -> local");//mb jf		//int
+							CASE	FASTORE:	DEBUGPRINTLN1("fastore");	//mb jf		//float
+							CASE	AASTORE:	DEBUGPRINTLN1("fastore");	//mb jf		//float
+							CASE	BASTORE:	DEBUGPRINTLN1("bastore");	//mb jf		//byte or boolean
+							CASE	CASTORE:	DEBUGPRINTLN1("castore");	//mb jf		//char
+							CASE	SASTORE:	DEBUGPRINTLN1("sastore");	//mb jf		//short
+											}
 #endif
 	CASE	LASTORE:	PRINTSEXIT("lastore",nry,4);	//mb jf
 	CASE	DASTORE:	PRINTSEXIT("dastore",nry,4);	//mb jf
@@ -289,14 +288,14 @@ switch (code)	{
 						opStackPush(second);
 						DEBUGPRINTSTACK;
 	CASE	DUP_X2:		DEBUGPRINTLN1("DUP_X2");
-							second = opStackPop();
-							first = opStackPop();
-							third = opStackPop();
-							opStackPush( second);
-							opStackPush(third);
-							opStackPush(first);
-							opStackPush(second);
-								DEBUGPRINTSTACK;	
+						second = opStackPop();
+						first = opStackPop();
+						third = opStackPop();
+						opStackPush( second);
+						opStackPush(third);
+						opStackPush(first);
+						opStackPush(second);
+						DEBUGPRINTSTACK;	
 	CASE	DUP2:		DEBUGPRINTLN1("DUP2");
 						second = opStackPop();
 						first = opStackPop();
@@ -304,7 +303,7 @@ switch (code)	{
 						opStackPush(second);
 						opStackPush(first);
 						opStackPush(second);
-							DEBUGPRINTSTACK;	
+						DEBUGPRINTSTACK;	
 	CASE	DUP2_X1:	DEBUGPRINTLN1("DUP2_X1");
 						second = opStackPop();
 						first = opStackPop();
@@ -314,7 +313,7 @@ switch (code)	{
 						opStackPush(third);
 						opStackPush(first);
 						opStackPush(second);
-								DEBUGPRINTSTACK;
+						DEBUGPRINTSTACK;
 	CASE	DUP2_X2:	DEBUGPRINTLN1("DUP2_X2");
 						second = opStackPop();
 						first = opStackPop();
@@ -454,107 +453,96 @@ switch (code)	{
 						first = opStackPop();
 						if(first.Float > second.Float)		opStackPush(( slot)(s4)1);
 						if(first.Float == second.Float)		opStackPush(( slot)(s4)0);
-						else		opStackPush(( slot)(s4)-1);
+						else								opStackPush(( slot)(s4)-1);
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	DCMPL:		PRINTSEXIT("DCMPL",nry,4);
 	CASE	DCMPG:		PRINTSEXIT("DCMPG",nry,4);
 	CASE	IFEQ:		DEBUGPRINTLN1("ifeq");		//mb, jf
 						if(opStackPop().Int == 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IFNULL:		DEBUGPRINTLN1("ifnull");	// mb jf
 						if((u2)opStackPop().UInt == 0)
-							pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
-						else
-							pc += 2;	// skip branch bytes
+								pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
+						else	pc += 2;	// skip branch bytes
 						DEBUGPRINTSTACK;
 	CASE	IFNONNULL:	DEBUGPRINTLN1("ifnonnull");	// mb jf
 						if( (u2)opStackPop().UInt != 0)
-							pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
-						else
-							pc+= 2;	// skip branch bytes
+								pc+= BYTECODEREF-1;	// add offset to pc at ifnull-address
+						else	pc+= 2;	// skip branch bytes
 						DEBUGPRINTSTACK;
 	CASE	IFNE:		DEBUGPRINTLN1("ifne");		//mb, jf
 						if(opStackPop().Int != 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IFLT:		DEBUGPRINTLN1("iflt");		//mb, jf
 						if(opStackPop().Int < 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;		
 	CASE	IFLE:		DEBUGPRINTLN1("ifle");		//mb, jf
 						if(opStackPop().Int <= 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IFGT:		DEBUGPRINTLN1("ifgt");		//mb, jf
 						if(opStackPop().Int > 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IFGE:		DEBUGPRINTLN1("ifge");		//mb, jf
 						if(opStackPop().Int >= 0)
-							pc+= (s2)((byte1 << 8) | (byte2))-1;
-						else				pc += 2;	// to skip the jump-adress
+								pc+= (s2)((byte1 << 8) | (byte2))-1;
+						else	pc += 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ACMPEQ:	DEBUGPRINTLN1("if_acmpeq");		//mb, jf
 	case	IF_ICMPEQ:	DEBUGPRINTLN1("if_icmpeq");		//mb, jf
 						if(opStackPop().Int == opStackPop().Int)
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ACMPNE:	DEBUGPRINTLN1("if_acmpne");		//mb, jf
 	case	IF_ICMPNE:	DEBUGPRINTLN1("if_icmpne");		//mb, jf
 						if(opStackPop().Int != opStackPop().Int)
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ICMPLT:	DEBUGPRINTLN1("if_icmplt");		//mb, jf
 						if(opStackPop().Int > opStackPop().Int) //???
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ICMPGE:	DEBUGPRINTLN1("if_icmpge");		//mb, jf
 						if(opStackPop().Int <= opStackPop().Int) //???
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ICMPGT:	DEBUGPRINTLN1("if_icmpgt");		//mb, jf
 						if(opStackPop().Int < opStackPop().Int)  //???
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 	CASE	IF_ICMPLE:	DEBUGPRINTLN1("if_icmple");		//mb, jf
 						if(opStackPop().Int >= opStackPop().Int) //???
-							pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
-						else
-							pc+= 2;	// to skip the jump-adress
+								pc+= (s2)((u2)((byte1 << 8) | (byte2)))-1;
+						else	pc+= 2;	// to skip the jump-adress
 						DEBUGPRINTSTACK;
-						DEBUGPRINTHEAP;
 	CASE	GOTO:		DEBUGPRINTLN1("goto");	// mb, jf
 						pc+= (s2)BYTECODEREF-1;
-						DEBUGPRINTSTACK;
-						DEBUGPRINTHEAP;
 	CASE	JSR:		DEBUGPRINTLN1("jsr (not tested)");	// mb, jf
 						// not tested because no exceptions implemented yet 14.12.2006
 						// the opcode of athrow is required
@@ -629,32 +617,30 @@ switch (code)	{
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
 					}
-	CASE	GETSTATIC:  			DEBUGPRINTLN1("getstatic ");	//mb jf ... corrected funtion
-					{
-					methodStackPush(cN);
+	CASE	GETSTATIC:  DEBUGPRINTLN1("getstatic ");	//mb jf ... corrected funtion
+						methodStackPush(cN);
 						// get name
-						u1* fieldName = (u1*)getAddr(
+						fieldName = (u1*)getAddr(
 							CP(cN,		// utf8						
 							getU2(		// name-index
 							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 							+ 1))
 							+ 3);		// bytes
-						u2 fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
+						fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
 							+ 1);		// length
 						// get type
-						u1* fieldDescriptorName = (u1*)getAddr(
+						fieldDescr = (u1*)getAddr(
 							CP(cN,		// utf8						
 							getU2(		// descriptor-index
 							CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 							+ 3))
 							+ 3);		// bytes
-						u2 fieldDescriptorNameLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
+						fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 							+ 1);		// length
 						findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
 							getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
-						u2 numFields = findNumFields();	
-						int  i;
-						for(i=0; i < numFields; i++){
+						j = findNumFields();	
+						for(i=0; i < j; i++){
 							if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)){
 								if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 3),
 										getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)] + 1)) == 0){
@@ -667,33 +653,31 @@ switch (code)	{
 						pc += 2;
 						cN = methodStackPop();
 						DEBUGPRINTSTACK;
-												DEBUGPRINTLOCALS;
+						DEBUGPRINTLOCALS;
 						DEBUGPRINTHEAP;
-					}
 		CASE	PUTSTATIC:  	DEBUGPRINTLN1("putstatic -> stack in static field");	//mb jf
-					{	methodStackPush(cN);
-						u1* fieldName = (u1*)getAddr(
+						methodStackPush(cN);
+						fieldName = (u1*)getAddr(
 							CP(cN,		// utf8
 							getU2(		// name-index
 							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
 							+1))
 							+3);		// bytes
-						u2 fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
+						fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
 							+1);		// length
-						u1* fieldDescriptorName = (u1*)getAddr(
+						fieldDescr = (u1*)getAddr(
 							CP(cN,		// utf8						
 							getU2(		// descriptor-index
 							CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
 							+3))
 							+3);		// bytes
-						u2 fieldDescriptorNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length
+						fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length
 //						DEBUGPRINTLNSTRING(fieldDescriptorName,fieldDescriptorNameLength);
 						findClass(
 								(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 								getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
-						u2 numFields = findNumFields();
-u2 i;
-						for(i=0; i < numFields; i++){
+						j = findNumFields();
+						for(i=0; i < j; i++){
 							if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+1)){
 								if(strncmp((char*)fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[i]+2)]+1)) == 0){
 									break;
@@ -708,7 +692,6 @@ u2 i;
 						DEBUGPRINTHEAP;
 						cN=methodStackPop();	// restore cN
 
-					}
 		CASE	GETFIELD:	DEBUGPRINTLN1("getfield ->   heap to stack:");
 							DEBUGPRINTSTACK;
 						methodStackPush(cN);
@@ -719,15 +702,15 @@ u2 i;
 								CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 								+ 1))
 								+ 3);		// bytes
-							u2 fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
+							fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) + 1))
 								+ 1);		// length
-							u1* fieldDescriptorName = (u1*)getAddr(
+							fieldDescr = (u1*)getAddr(
 								CP(cN,		// utf8						
 								getU2(		// descriptor-index
 								CP(cN,getU2(CP(cN,BYTECODEREF) + 3)) 	// index to name and type
 								+ 3))
 								+ 3);		// bytes
-							u2 fieldDescriptorNameLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
+							fieldDescrLength = getU2(CP(cN, getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+ 3))+ 3))
 								+ 1);		// length
 							findClass((u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 3),
 								getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
@@ -756,22 +739,22 @@ u2 i;
 						methodStackPush(cN);
 						{
 							// mb jf print name
-							u1* fieldName = (u1*)getAddr(
+							fieldName = (u1*)getAddr(
 								CP(cN,		// utf8
 								getU2(		// name-index
 								CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
 								+1))
 								+3);		// bytes
-							u2 fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
+							fieldNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))
 								+1);		// length
 							// mb jf print type 
-							u1* fieldDescriptorName = (u1*)getAddr(
+							fieldDescr = (u1*)getAddr(
 								CP(cN,		// utf8						
 								getU2(		// descriptor-index
 								CP(cN,getU2(CP(cN,BYTECODEREF)+3)) 	// index to name and type
 								+3))
 								+3);		// bytes
-							u2 fieldDescriptorNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length	
+							fieldDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);	// length	
 						findClass(
 									(u1*)getAddr(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+3),
 									getU2(CP(cN,getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1))+1));
@@ -806,10 +789,11 @@ u2 i;
 						methodStackPush(cN);
 						methodStackPush(mN);
 						methodStackPush(pc);
-						findNumArgs1=findNumArgs(BYTECODEREF);
-						methodStackPush((opStackGetSpPos()-findNumArgs1-1));//(BYTECODEREF)-1));
+						k=findNumArgs(BYTECODEREF);
+						methodStackPush((opStackGetSpPos()-k-1));//(BYTECODEREF)-1));
 						// method resolution
-						local = opStackGetSpPos()-findNumArgs(BYTECODEREF)-1;// nachdenken ->mhrmals benutzt
+						local = opStackGetSpPos()-findNumArgs(BYTECODEREF)-1;
+// nachdenken ->mehrmals benutzt
 						// get cN from.stackObjRef
 						//  get method from cN or superclasses
 						methodName = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
@@ -820,6 +804,13 @@ u2 i;
 						methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
 						className = NULL;
 						if((code == INVOKEVIRTUAL)|| (code == INVOKEINTERFACE))			{
+
+//bh2008
+if(opStackGetValue(local).stackObj.magic==CPSTRINGMAGIC)	{
+								if (!findClass((u1*)"java/lang/String",16))	
+									{printf("string calls error\n"); exit(-4);}
+}
+else
 								cN=opStackGetValue(local).stackObj.classNumber;//bh2007 
 								className = (u1*)getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)	]+1)]+3);
 								classNameLength = getU2(cs[cN].constant_pool[getU2(	cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1);
@@ -850,7 +841,7 @@ u2 i;
 											actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
 											actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
 											// thread sleeps, try it later
-											opStackSetSpPos(methodStackPop()+findNumArgs1+1);//(BYTECODEREF)+1); //native!!!
+											opStackSetSpPos(methodStackPop()+k+1);//(BYTECODEREF)+1); //native!!!
 											pc = methodStackPop()-1;	// before invoke
 											mN = methodStackPop();
 											cN = methodStackPop();
@@ -876,8 +867,8 @@ u2 i;
 						methodStackPush(mN);
 						if (code == INVOKEINTERFACE) pc+=2;
 						methodStackPush(pc);
-						findNumArgs1=findNumArgs(BYTECODEREF);
-						methodStackPush(opStackGetSpPos()-findNumArgs1);//(BYTECODEREF));
+						k=findNumArgs(BYTECODEREF);
+						methodStackPush(opStackGetSpPos()-k);//(BYTECODEREF));
 						// method resolution
 						local = (u2)opStackGetSpPos()-findNumArgs(BYTECODEREF);//bh2007
 						className=(u1*)getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3);
@@ -911,7 +902,7 @@ u2 i;
 										actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
 										actualThreadCB->isMutexBlockedOrWaitingForObject=cs[cN].classInfo;
 										// thread sleeps, try it later
-										opStackSetSpPos(methodStackPop()+findNumArgs1);//(BYTECODEREF));
+										opStackSetSpPos(methodStackPop()+k);//(BYTECODEREF));
 										pc = methodStackPop()-1;	// before invoke
 										if (code == INVOKEINTERFACE) pc-=2;
 										mN = methodStackPop();
@@ -996,7 +987,8 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						methodStackPush(mN);
 						if (!findClass(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 										getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1)))	// classNameLength
-							printf("not found %d %d",cN,mN);
+
+							printf("class not found %d %d",cN,mN);
 						heapPos=getFreeHeapSpace(findNumFields()+ 1);	// + marker
 						first.stackObj.pos=heapPos;
 						first.stackObj.magic=OBJECTMAGIC;
@@ -1010,9 +1002,10 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						HEAPOBJECTMARKER(heapPos).mutex = MUTEXNOTBLOCKED;
 //						HEAPOBJECTMARKER(heapPos).waitSetNumber = NUMWAITSETS;		// NULL
 						DEBUGPRINTHEAP;
-						for(i=0; i< findNumFields(); i++)		// check access flag
+						j=findNumFields();
+						for(i=0; i< j; i++)		// check access flag
 //							if(getU2( cs[cN].field_info[i]) != ACC_STATIC)	// if not static field, initialize with 0
-								heapSetElement((slot)(u4)0, heapPos+i+1); // initialize the heap elements
+						heapSetElement((slot)(u4)0, heapPos+i+1); // initialize the heap elements
 						// initialize static fields (constants)
 						DEBUGPRINTSTACK;
 						DEBUGPRINTLOCALS;
@@ -1022,44 +1015,35 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						DEBUGPRINTLNSTRING(getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),	// className 
 							getU2(CP(cN,  getU2(CP(cN,BYTECODEREF)+1))+1));
 		CASE	NEWARRAY:	DEBUGPRINTLN1("newarray");	// mb jf
-					{
-DEBUGPRINTSTACK;
-//printf("na %x \n",opStackPeek());
-						s2 count = (s2)opStackPop().UInt;
-
+						DEBUGPRINTSTACK;
+						count = (s2)opStackPop().UInt;
 						if(count < 0){	NEGATIVEARRAYSIZEEXCEPTION;}
-			if (count > (MAXHEAPOBJECTLENGTH-1))	{
-			ARRAYINDEXOUTOFBOUNDEXCEPTION;}
+						if (count > (MAXHEAPOBJECTLENGTH-1))	ARRAYINDEXOUTOFBOUNDEXCEPTION;
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
 						first.stackObj.pos=heapPos;
 						first.stackObj.magic=OBJECTMAGIC;
-						//first.stackObj.type=STACKNEWARRAYOBJECT;
 						first.stackObj.arrayLength=(u1)count;
 						opStackPush(first);
 						HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 						HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
-//						HEAPOBJECTMARKER(heapPos).classNumber = cN;
 						HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
 						switch(byte1){		// array type, init array with 0 on heap
-							case T_BOOLEAN:	for(i=0; i<count; i++)		heapSetElement(( slot)(u4)0,heapPos++);
-							CASE T_CHAR:		for(i=0; i<count; i++)		heapSetElement(( slot)(u4)0,heapPos++);
-							CASE T_FLOAT:	for(i=0; i<count; i++)		heapSetElement(( slot)0.f,heapPos++);
+							case T_BOOLEAN:	for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
+							CASE T_CHAR:	for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
+							CASE T_FLOAT:	for(i=0; i<count; i++)	heapSetElement(( slot)0.f,heapPos++);
 							CASE T_DOUBLE:	// no double
-							CASE T_BYTE:		for(i=0; i<count; i++)		heapSetElement(( slot)(u4)0,heapPos++);
-							CASE T_SHORT:	for(i=0; i<count; i++)		heapSetElement(( slot)(u4)0,heapPos++);
-							CASE T_INT:		for(i=0; i<count; i++)		heapSetElement(( slot)(u4)0,heapPos++);
+							CASE T_BYTE:	for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
+							CASE T_SHORT:	for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
+							CASE T_INT:		for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
 							CASE T_LONG:		;// no long
 						} // switch
 						pc++;	// skip type
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
-					}
 					 //2a b7  0  1 2a 10  6 b5  0  2 2a 10 30 b5  0  3 2a  4 b5  0  4 2a 12  5 b5  0  6 2a  6 bc  a b5  0  7 b1
-
 		CASE	ANEWARRAY:	DEBUGPRINTLN1("anewarray");	// mb jf
-					{
-					exit(-77);
-						s2 count =(s2) opStackPop().Int;
+						exit(-77); // not tested
+						count =(s2) opStackPop().Int;
 						if(count < 0)								NEGATIVEARRAYSIZEEXCEPTION;
 						if (count > (MAXHEAPOBJECTLENGTH-1))	{ARRAYINDEXOUTOFBOUNDEXCEPTION;}
 						// resolve type of array / interface /.stackObject from constant pool at index
@@ -1073,14 +1057,12 @@ DEBUGPRINTSTACK;
 						HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 						HEAPOBJECTMARKER(heapPos++).magic=OBJECTMAGIC;
 //						HEAPOBJECTMARKER(heapPos++).classNumber = cN;
-						for(i=0; i<count; i++)				heapSetElement(( slot)(u4)0,heapPos++);
+						for(i=0; i<count; i++)	heapSetElement(( slot)(u4)0,heapPos++);
 						pc += 2;	// skip indexbyte 1 & 2
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
-					}
 		CASE	ARRAYLENGTH:	DEBUGPRINTLN1("arraylength");	// mb jf
-					{
-											first=opStackPop();
+						first=opStackPop();
 /*2008 an array is not a string!!
 //						u2 ref = opStackPop().UInt;	// get reference to array from stack
 //						if(ref == 0)			NULLPOINTEREXCEPTION;
@@ -1093,51 +1075,50 @@ opStackPush((slot)(u4)c);
 cN=oldcN;
 }
 else*/
-opStackPush((slot)(u4)first.stackObj.arrayLength);
+						opStackPush((slot)(u4)first.stackObj.arrayLength);
 //?????????????
-						//opStackPoke((slot)(u4)HEAPOBJECTMARKER(opStackPeek().UInt).length);		// push length of array at ref on opStack
+//opStackPoke((slot)(u4)HEAPOBJECTMARKER(opStackPeek().UInt).length);		// push length of array at ref on opStack
 						DEBUGPRINTSTACK;
-					}
-		CASE	MONITORENTER:		
-									first=opStackPop();
-									if ( HEAPOBJECTMARKER(first.stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
-									HEAPOBJECTMARKER(first.stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
-									for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
-										if ((actualThreadCB->hasMutexLockForObject[i]).UInt!=NULLOBJECT.UInt)continue;else break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
-								actualThreadCB->lockCount[i]=1;	// count
-								actualThreadCB->hasMutexLockForObject[i]=first;
-									}
-									else	{	// mutex ==0
+		CASE	MONITORENTER:	first=opStackPop();
+						if ( HEAPOBJECTMARKER(first.stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
+							HEAPOBJECTMARKER(first.stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
+							for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
+								if ((actualThreadCB->hasMutexLockForObject[i]).UInt!=NULLOBJECT.UInt)
+									continue;
+								else break;
+							if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
+							actualThreadCB->lockCount[i]=1;	// count
+							actualThreadCB->hasMutexLockForObject[i]=first;					}
+						else	{	// mutex ==0
 									// have I always the lock ?
-										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
-										if (actualThreadCB->hasMutexLockForObject[i].UInt==first.UInt) break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {
-										actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
-										actualThreadCB->isMutexBlockedOrWaitingForObject=first;
+							for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
+							if (actualThreadCB->hasMutexLockForObject[i].UInt==first.UInt) break;
+							if (i==MAXLOCKEDTHREADOBJECTS) {
+							actualThreadCB->state=THREADMUTEXBLOCKED;	//mutex blocked
+							actualThreadCB->isMutexBlockedOrWaitingForObject=first;
 										// thread sleeps, try it later
-										opStackSetSpPos(methodStackPop()+findNumArgs(BYTECODEREF)+1);
-										pc = pc-1;	// before monitorenter
-										break;	// let the scheduler work
-											}
-										else // yes I have lock
-										actualThreadCB->lockCount[i]++;	// count
-										}
+							opStackSetSpPos(methodStackPop()+findNumArgs(BYTECODEREF)+1);
+							pc = pc-1;	// before monitorenter
+							break;	// let the scheduler work
+														}
+							else // yes I have lock
+								actualThreadCB->lockCount[i]++;	// count
+								}
 		CASE	MONITOREXIT:			// have I always the lock ?
 						first=opStackPop();
 						for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	// must be in
 							if (actualThreadCB->hasMutexLockForObject[i].UInt==first.UInt) break;
 						if (actualThreadCB->lockCount[i]>1)	actualThreadCB->lockCount[i]--; // fertig
 						else	{
-						actualThreadCB->lockCount[i]=0;
-						actualThreadCB->hasMutexLockForObject[i]=NULLOBJECT; // give lock free
-						HEAPOBJECTMARKER(opStackGetValue(first.stackObj.pos).UInt).mutex=MUTEXNOTBLOCKED;
-						ThreadControlBlock* myTCB=actualThreadCB;
-						for (i=0; i < numThreads; i++)	{	// alle wecken!
-						myTCB=myTCB-> succ;
-						if  (myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(first.stackObj.pos).UInt)	{
+							actualThreadCB->lockCount[i]=0;
+							actualThreadCB->hasMutexLockForObject[i]=NULLOBJECT; // give lock free
+							HEAPOBJECTMARKER(opStackGetValue(first.stackObj.pos).UInt).mutex=MUTEXNOTBLOCKED;
+							ThreadControlBlock* myTCB=actualThreadCB;
+							for (i=0; i < numThreads; i++)	{	// alle wecken!
+								myTCB=myTCB-> succ;
+									if  (myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(first.stackObj.pos).UInt)	{
 						myTCB->state=THREADNOTBLOCKED; //!!
-//						myTCB->isMutexBlockedForObjectOrWaiting=NULLOBJECT.UInt;								
+//						myTCB->isMutexBlockedForObjectOrWaiting=NULLOBJECT.UInt;
 }
 															}
 								}
@@ -1147,27 +1128,27 @@ opStackPush((slot)(u4)first.stackObj.arrayLength);
 					{
 						// not tested because so many locals are hard to implement on purpose  14.12.2006
 						u2 nextOp = getU2(pc++);	// which operation to extend?
-						myIndex = (u2)(getU1(pc++)<<8 | getU1(pc++));
+						count = (u2)(getU1(pc++)<<8 | getU1(pc++));
 
 						if(ILOAD <= nextOp && nextOp <= DLOAD){	// if load operation...
-							opStackPush(opStackGetValue(local+myIndex));	// embedded op code for load
+							opStackPush(opStackGetValue(local+count));	// embedded op code for load
 						}
 						if(ISTORE <= nextOp && nextOp <= DSTORE){	// if store operation...
-							opStackSetValue(local+myIndex,opStackPop());	// embedded op code for store
+							opStackSetValue(local+count,opStackPop());	// embedded op code for store
 								// write into locals (position, value from stack)
 						}
 						if(nextOp == RET){	// if ret operation...
 							// embedded op code for ret
 							//not tested because no exceptions implemented yet 14.12.2006
 							// the opcode of athrow is required
-							u2 addr = opStackGetValue(local+myIndex).UInt;
+							u2 addr = opStackGetValue(local+count).UInt;
 							pc = addr+getStartPC();//pcMethodStart;	//assumtion: the address is the relative address, absolute address may be required
 						}
 						if(nextOp == IINC){	// if iinc operation...
 							// embedded op code for load
 							u2 constB = (u2)(getU1(pc++)<<8 | getU1(pc++));	// constByte - only available with iinc in wide operation
-							opStackSetValue((u2)(local + myIndex), // position
-								( slot)(u4)(opStackGetValue(local + myIndex).Int	// old value
+							opStackSetValue((u2)(local + count), // position
+								( slot)(u4)(opStackGetValue(local + count).Int	// old value
 								+ constB)); // add const
 						}
 						DEBUGPRINTLOCALS;
