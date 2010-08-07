@@ -10,7 +10,7 @@
 # make program stk1000
 # make A linux
 # make compA linux
-# make boot goal
+# make bootclasses goal
 # ...
 # avr8 dump
 # ....
@@ -53,7 +53,6 @@ $(error what is to do with $(TARGETHW): clean compile program ...)
 endif
 
 
-
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # ENVIRONMENT SETTINGS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
@@ -67,7 +66,6 @@ AVR32BIN 	= $(AVR32DIR)
 #AVR32INC	= $(AVR32ROOT)INCLUDES
 AVR32UC3AINC	= $(APPPATH)AVR32UC3AINC
 AVR32AP7000INC	= $(APPPATH)AVR32AP7000INC
-
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # JAVA-SOURCES AND TARGETS
@@ -109,7 +107,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
 #			$(LANG)/StringBuilder.java \
 
-# a small subset for the small controller
+# a small subset of java system sources for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
 			$(LANG)/Integer.java \
@@ -117,7 +115,7 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Throwable.java $(LANG)/Math.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			javatests/A.java
+			$(LANG)/ArrayIndexOutOfBoundsException.java 
 
 #$(LANG)/StringBuilder.java
 
@@ -257,8 +255,6 @@ endif
 
 all: clean compile bootclasses bootgraphic bootpack 
 
-
-
 compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
@@ -397,8 +393,7 @@ ngw100:
 stk1000: 
 	@:
 
-compile:	$(TARGETFILE)
-	
+compile:	$(TARGETFILE)	
 
 $(TARGETFILE): 	$(OBJFILES)
 	@echo $(MSG_LINKING)
@@ -414,8 +409,10 @@ $(TARGETFILE): 	$(OBJFILES)
 	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
 	@echo
 
-all:	clean compile bootclasses bootgraphic program logo progbootpack
+bootsysandgraph:
 
+
+all:	clean compile  bootsysandgraph  program logo progbootpack
 
 #program your avr32 device
 logo:
@@ -445,7 +442,7 @@ endif
 
 clobber: clean
 	-$(VERBOSE_CMD)$(RM) *bootpack
-	-$(VERBOSE_CMD)$(RM) *.class
+	-$(VERBOSE_CMD)$(RM) `find . -name *.class -print`
 
 clean:
 	@echo $(MSG_CLEANING)
@@ -456,6 +453,7 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(TARGETFILE)
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM)  *.o
+	-$(VERBOSE_CMD)$(RM)  */*.o
 	$(VERBOSE_NL)
 	
 # Rebuild the project.
@@ -604,7 +602,6 @@ endif
 debug:
 	@:
 
-
 # Copyright (c) 2007, Atmel Corporation All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -631,13 +628,18 @@ debug:
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 bootclasses:
-	make -f ./BAJOSBOOT/makefile boot
 	make -f ./BAJOSBOOT/makefile $(TARGETHW)
+	make -f ./BAJOSBOOT/makefile boot
 
-bootgraphic:		
+bootsysandgraph:
 	make -f ./BAJOSBOOT/makefile graphic
+	make -f ./BAJOSBOOT/makefile $(TARGETHW)
+	make -f ./BAJOSBOOT/makefile boot
+
+
+
+	
 
 
 # examples 
@@ -646,7 +648,6 @@ bootgraphic:
 
 A:
 	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/A.class 
-
 
 #	$(APPCLASSPATH)/Aparent.class
 
