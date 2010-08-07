@@ -13,6 +13,7 @@
 #include "JAVALANGNATIVE/object.h"
 #include "JAVALANGNATIVE/string.h"
 #include "JAVALANGNATIVE/thread.h"
+#include "JAVALANGNATIVE/interruptthread.h"
 #include "JAVALANGNATIVE/lock.h"
 #include "JAVALANGNATIVE/float.h"
 /* fill this array with classes containing native methods*/
@@ -23,6 +24,7 @@ const char*	nativeClassNames[] =		{
 			"java/lang/String",
 			"java/lang/Thread",
 			"java/util/concurrent/Lock",
+			"java/util/concurrent/InterruptThread",
 			"java/lang/Float"	
 };
 
@@ -235,6 +237,12 @@ functionForNativeMethodType functionForNativeLockMethod[] =	{
 	tryLock
 };
 
+functionForNativeMethodType functionForNativeInterruptThreadMethod[] =	{
+	execInterrupt,
+	sei,
+	cli
+};
+
 /* insert array of function pointer*/
 const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativePlatFormMethod,
@@ -242,5 +250,6 @@ const functionForNativeMethodType* funcArray[]	=	{
 	functionForNativeStringMethod,
 	functionForNativeThreadMethod,
 	functionForNativeLockMethod,
+	functionForNativeInterruptThreadMethod,
 	functionForNativeFloatMethod					
 };

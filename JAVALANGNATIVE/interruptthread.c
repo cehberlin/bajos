@@ -23,23 +23,15 @@
 #include "../heap.h"
 #include "lock.h"
 
-char lock(){
-	setMutexOnObject(actualThreadCB,opStackGetValue(local));
+char sei(){
 	return 0;
 }
 
-char unlock(){
-	releaseMutexOnObject(actualThreadCB,opStackGetValue(local));
+char cli(){
 	return 0; 
 }
 
-char tryLock(){
-	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXBLOCKED)	{
-		opStackPush((slot)0); 
-	}else{
-		lock();
-		opStackPush((slot)1);
-	}
-	return 1;
+char execInterrupt(){
+	return 0;
 }
 

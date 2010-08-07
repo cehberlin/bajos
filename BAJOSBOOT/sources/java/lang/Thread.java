@@ -8,19 +8,19 @@ public abstract class Thread	{
   /**
    * The minimum priority that a thread can have. The value is 0.
    */
-//bh  public final static int MIN_PRIORITY = 0;
+ public final static int MIN_PRIORITY = 1;
 
  /**
   * The priority that is assigned to the primordial thread. The value is 5.
   */
-//bh  public final static int NORM_PRIORITY = 5;
+ public final static int NORM_PRIORITY = 5;
 
   /**
    * The maximum priority that a thread can have. The value is 10.
    */
  
  
-//bh  public final static int MAX_PRIORITY = 10;
+ public final static int MAX_PRIORITY = 10;
  
 
   // Extra instance state follows:

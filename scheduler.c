@@ -65,8 +65,7 @@ void awakeThreadFromMutex(slot obj){
 		for(k=0;k<max;k++){
 			if ((cb->state==THREADMUTEXBLOCKED)&&
 			    ((cb->isMutexBlockedOrWaitingForObject).UInt==obj.UInt)){	
-				cb->state=MUTEXNOTBLOCKED;				
-				printf("awaked %d\n",cb->tid);
+				cb->state=THREADNOTBLOCKED;
 				setMutexOnObject(cb,obj);
 				return;
 			}	
@@ -81,7 +80,6 @@ void awakeThreadFromMutex(slot obj){
  */
 void releaseMutexOnObject(ThreadControlBlock* t,slot obj){
 	if (HEAPOBJECTMARKER(obj.stackObj.pos).mutex!=MUTEXBLOCKED)	{ 
-			printf("Not locked\n");
 	 		return; //object is not locked!
 	}
 	u2 i;
@@ -109,6 +107,8 @@ void releaseMutexOnObject(ThreadControlBlock* t,slot obj){
 
 /*
  * set Mutex on given object and given thread by ceh
+ * in difference to it implementation in interpreter.c is it not possible to lock a locked object again
+ * this behavior is necessary for interrupt handling
  */
 void setMutexOnObject(ThreadControlBlock* t,slot obj){
 u2 i;
@@ -128,23 +128,15 @@ u2 i;
 						#endif	
 						
 					}
-					printf("locked %d\n",t->tid);
 					/* entry for this object in the array of mutexed objects for the thread*/
 					t->lockCount[i]=1;		/* count (before 0)*/
 					t->hasMutexLockForObject[i]=obj;
 				}
 				else	{	/* mutex is blocked, is it my mutex ? have I always the lock ?*/
-					printf("blocked %d\n",t->tid);
-					for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)
-						if (t->hasMutexLockForObject[i].UInt==obj.UInt) break;
-					if (i==MAXLOCKEDTHREADOBJECTS) { /* another thread has the lock*/
 						t->state=THREADMUTEXBLOCKED;	/*mutex blocked*/
 						t->isMutexBlockedOrWaitingForObject=obj;
 						//force scheduling
 						t->numTicks=0;					
-					}		/* let the scheduler work*/
-					else /* yes I have lock*/
-						t->lockCount[i]++;	/* count*/
 				}
 }
 
@@ -154,9 +146,9 @@ u2 i;
 void	createThread(void)			{
   if (numThreads == MAXTHREADS)	{
 	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-		errorExit(-2,PSTR("zu viele Threads\n"));
+		errorExit(-2,PSTR("to many Threads\n"));
 	#else
-		errorExit(-2,"zu viele Threads\n");
+		errorExit(-2,"to many threads\n");
 	#endif
 	} 
 	ThreadControlBlock* t=(ThreadControlBlock*) malloc(sizeof(ThreadControlBlock));
@@ -293,40 +285,43 @@ void scheduler(void)	{
 	//A Thread runs until his numTicks is 0
 	if(((--actualThreadCB->numTicks) && ((actualThreadCB->state)==THREADNOTBLOCKED)))	return;
 		// select a runnable thread
-	u1 p,n,mark;
+	u1 p,n,threadFound;
 	ThreadControlBlock*	found;
+
+	threadFound=0;
+
 	for (p=(MAXPRIORITY-1); p!=255; p--)	{
-	  mark=0;
-	  if ((found=threadPriorities[p].cb)==NULL) 					continue;
-	  for (n=0; n < threadPriorities[p].count; n++) 	{
-	      found=found->succ;
-	      printf("in sched prio: %d, n: %d, t->state: %d\n",p,n,found->state);
-	      if ((found == actualThreadCB) && (n == 0) && ((found->state)==THREADNOTBLOCKED)) 
-		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 	  		return; }
-		      /* found in the highest priority list lonely old buddy -> take it against*/
-	      if (( found == actualThreadCB ) && ((found->state)==THREADNOTBLOCKED))	{ mark=1;   continue;	}	
-		      // mark it and take it, if not another found
-	      if ((found->state)==THREADNOTBLOCKED) 				{ mark=2; break;} // I take it
-	      if ((found->state)==THREADMUTEXBLOCKED) 					continue;  // next n
-	      if ((found->state)==THREADWAITBLOCKED) 					continue;  // next n
-	      if (((found->state)==THREADWAITAWAKENED) && 
-		((HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex) ==MUTEXBLOCKED))
-											continue; 
-	      /* awakened and mutexnotblocked*/
-	      if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
-		HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
-		found->state=THREADNOTBLOCKED;
-		found->isMutexBlockedOrWaitingForObject=NULLOBJECT;
-		mark=2;
-		break; 					}	 } // end for n
-	      if (mark==2) break;
-	      if (mark == 1)
-		{ actualThreadCB->numTicks= *(actualThreadCB->pPriority); 		  	return; }
-	      /* not another thread for priority is runnable, take the old thread */	
-		} // end for p
+	  if ((found=threadPriorities[p].cb)==NULL)
+		continue;
+	  for (n=0; n < threadPriorities[p].count; n++){
+		     found=found->succ;
+		     //printf("in sched prio: %d, n: %d, t->state: %d\n",p,n,found->state); 
+		     if ((found->state)==THREADNOTBLOCKED) {
+				threadFound=1;//signal nested loop break
+				break;
+		     } // I take it
+		      if ((found->state)==THREADMUTEXBLOCKED) 					continue;  // next n
+		      if ((found->state)==THREADWAITBLOCKED) 					continue;  // next n
+		      if (((found->state)==THREADWAITAWAKENED) && 
+			((HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex) ==MUTEXBLOCKED))
+												continue; 
+		      /* awakened and mutexnotblocked*/
+		      if ((found->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
+			HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
+			found->state=THREADNOTBLOCKED;
+			found->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+			break; 					
+			}	 
+		} // end for n 
+		if(threadFound)break;
+	} // end for p
+	if(!threadFound)errorExit(111,"SCHEDULING ERROR!\n");
 	// assume: not all threads are blocked
-	// if interrupts or so are able to change thread state inster an infinity loop here
-	if (mark == 0) errorExit(111,"scheduling error");
+	if ((found == actualThreadCB) /*&& ((found->state)==THREADNOTBLOCKED)*/){ 
+		actualThreadCB->numTicks= *(actualThreadCB->pPriority);
+ 	  	return; 
+	}
+
 	/* scheduling -> next thread*/
 	methodStackPush(local);
 	methodStackPush(cN);

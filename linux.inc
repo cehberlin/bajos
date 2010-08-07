@@ -134,11 +134,11 @@ compSchedulerTest:
 
 LockTest:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
-		$(APPCLASSPATH)/LockTest.class 
+		$(APPCLASSPATH)/LockTest.class $(APPCLASSPATH)/SpinLockTest.class 
 
 compLockTest:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
-		$(APPCLASSPATH)/LockTest.java
+		$(APPCLASSPATH)/LockTest.java $(APPCLASSPATH)/SpinLockTest.java
 
 ADC:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/ADC.class
