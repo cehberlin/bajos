@@ -113,7 +113,7 @@ BIN		= $(TARGETFILE:$(TGTTYPE)=.bin)
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 RM		= rm -Rf
 SLEEP		= sleep
-
+SLEEPUSB	= 3
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 
 # Display main executed commands.
