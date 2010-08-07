@@ -103,7 +103,8 @@ BOOTSOURCES+=		${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
 			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
 endif
 
-
+# add appl. classes for avr32linux, because there is an error (or timing problem 
+## betwenn minikermit and bajos!!
 #			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
 #			$(LANG)/StringBuilder.java \
@@ -155,7 +156,8 @@ STK1000SOURCES	= $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
 ASSSOURCESUC3A	= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S \
-		$(APPPATH)/EVK1100/crt0.S
+
+#		$(APPPATH)/EVK1100/crt0.S
 
 TARGETFILE	= $(basename $(call FirstWord,$(BAJOSSOURCES)))
 
@@ -381,7 +383,8 @@ endif
 ifeq  ($(TARGETHW), ngw100)
 OBJFILES	=  $(BAJOSSOURCES:.c=.o) $(NGW100SOURCES:.c=.o) $(ASSSOURCESNGW100:.S=.o)   
 PLATFORM	= NGW100  -D BOARD=NGW100
-
+LDFLAGS		= -nostartfiles
+LDFLAGS+	= -march=$(ARCH) -mpart=$(PART)
 all:	clean compile  bootclasses program
 
 endif
@@ -389,7 +392,7 @@ endif
 ifeq  ($(TARGETHW), stk1000)
 OBJFILES	=  $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o) 
 PLATFORM	= STK1000  -D BOARD=STK1000
-
+LDFLAGS		= -march=$(ARCH) -mpart=$(PART)
 all:	clean compile  bootclasses bootgraphic  program logo
 
 
@@ -404,7 +407,7 @@ CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT)
 ARCH		= ap
 # Part: {none|ap7xxx|uc3xxxxx}
 PART		= ap7000
-LD_FLAGS	= -march=$(ARCH) -mpart=$(PART)
+
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 OPT		= 2
@@ -422,7 +425,7 @@ compile:	$(TARGETFILE)
 
 $(TARGETFILE): 	$(OBJFILES)
 	@echo $(MSG_LINKING)
-	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $(TARGETFILE) -nostartfiles
+	$(CC)  $(filter %.o,$+) $(LDFLAGS) -o $(TARGETFILE)
 	@echo
 	@echo $(MSG_BINARY_IMAGE)
 	$(OBJCOPY) -O binary $(TARGETFILE)  $(TARGETFILE).bin
@@ -670,9 +673,9 @@ bootgraphic:
 # examples 
 # make linux A
 # make linux compA
-
-NGW:
-	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/NGW.class 
+.PHONY:	NGW100
+NGW100:
+	./$(TARGETFILE)   $(BOOTCLASSES) 	$(APPCLASSPATH)/NGW100.class 
 
 compNGW100:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/NGW100.java
