@@ -1242,11 +1242,14 @@ nativeVoidReturn:
 
 		CASE    CHECKCAST:
 			DEBUGPRINTLN1("checkcast");
+			// In general, we try to cast as much as possible.
+			// Only if we perfectly know that this cast is invalid, break it.
 			first = opStackPeek();
 			char performcheck = 1;
+			char invalidcast = 0;
 			/* a nullobject can always be casted */
 			if (first.UInt != NULLOBJECT.UInt) {
-				/* the target class */
+				/* the cast's target class */
 				u2 targetclass = getU2(0);
 				char *classname = getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3);
 				int len = getU2(CP(cN, getU2(CP(cN,targetclass)+1))+1);
@@ -1260,7 +1263,12 @@ nativeVoidReturn:
 							 this only takes the first object in the array,
 							 yet it could be extended to gathering
 							 all stored object's typing informations */
-						first = (heapGetElement((u2) first.stackObj.pos + 1));
+						if (first.stackObj.magic != OBJECTMAGIC || first.UInt == NULLOBJECT.UInt || HEAPOBJECTMARKER(first.stackObj.pos).status != HEAPALLOCATEDARRAY) {
+							invalidcast = 1;
+							performcheck = 0;
+							break;
+						}
+						first = heapGetElement(first.stackObj.pos + 1);
 						/* remove the leading '[' */
 						--len;
 						++classname;
@@ -1277,55 +1285,77 @@ nativeVoidReturn:
 						performcheck = 0;
 					}
 				}
+
 				if (performcheck == 1) {
 					methodStackPush(cN);
 					methodStackPush(mN);
 					if (!findClass(classname, len)) {
-						mN = methodStackPop();
-						cN = methodStackPop();
-						errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
+						errorExit(-3, "class '%s' not found.\n", classname);
 					}
 					u2 target = cN;
 					cN = first.stackObj.classNumber;
 					if (!checkInstance(target)) {
-						mN=methodStackPop();
-						cN=methodStackPop();
-						opStackPop();
-						CLASSCASTEXCEPTION;
-					} else {
-						mN=methodStackPop();
-						cN=methodStackPop();
+						invalidcast = 1;
 					}
+					mN=methodStackPop();
+					cN=methodStackPop();
 				}
 			} else {
 				pc += 2;
 			}
+			if (invalidcast == 1) {
+				opStackPop();
+				CLASSCASTEXCEPTION;
+			}	
 
 		CASE    INSTANCEOF:
 			DEBUGPRINTLN1("instanceof");
 			first = opStackPop();
 			u2 targetclass = getU2(0);
+			performcheck = 1;
 			if (first.UInt != NULLOBJECT.UInt) {
 				char *classname = getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3);
 				int len = getU2(CP(cN, getU2(CP(cN,targetclass)+1))+1);
-				while ('[' == *classname) {
-					first = (heapGetElement((u2) first.stackObj.pos + 1));
-					--len;
-					++classname;
-				}
-				if (first.UInt != NULLOBJECT.UInt) {
-					if ('L' == *classname) {
-						char *tmp = classname + 1;
-						len -= 2;
-						classname = (char *) malloc(len);
-						strncpy(classname, tmp, len);
+
+				/* we have to make some dirty hacks here
+  				 since we are not storing typing informations for arrays */
+				if (*classname == '[') {
+					while ('[' == *classname) {
+						/* we hope to get useful information
+	 						 from the objects stored in the array.
+							 this only takes the first object in the array,
+							 yet it could be extended to gathering
+							 all stored object's typing informations */
+						if (first.stackObj.magic != OBJECTMAGIC || first.UInt == NULLOBJECT.UInt || HEAPOBJECTMARKER(first.stackObj.pos).status != HEAPALLOCATEDARRAY) {
+							performcheck = 0;
+							opStackPush((slot) (u4)0);
+							break;
+						}
+						first = heapGetElement(first.stackObj.pos + 1);
+						/* remove the leading '[' */
+						--len;
+						++classname;
 					}
+					if (first.UInt == NULLOBJECT.UInt) {
+						performcheck = 0;
+						opStackPush((slot) (u4)1);
+					}
+					/* A class identifier is Lclassname; */
+					if ('L' == *classname) {
+						len -= 2;
+						++classname;
+					} else {
+						/* a primitive type */
+						performcheck = 0;
+						opStackPush((slot) (u4)1);
+					}
+				}
+
+				if (performcheck == 1) {
 					methodStackPush(cN);
 					methodStackPush(mN);
 					if (!findClass(classname, len)) {
-						mN = methodStackPop();
-						cN = methodStackPop();
-						errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
+						errorExit(-3, "class '%s' not found.\n", classname);
 					}
 					u2 target = cN;
 					cN = first.stackObj.classNumber;
