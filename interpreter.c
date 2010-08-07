@@ -1371,12 +1371,12 @@ findClass
 				/* we have to make some dirty hacks here
   				 since we are not storing typing informations for arrays */
 				if (
-getU1(classname)=='['
-//*classname == '['
+//getU1(classname)=='['
+*classname == '['
 ) {
 					while (
-getU1(classname)=='['
-//'[' == *classname
+//getU1(classname)=='['
+'[' == *classname
 ) {
 						/* we hope to get useful information
 	 						 from the objects stored in the array.
@@ -1398,8 +1398,8 @@ getU1(classname)=='['
 					}
 					/* A class identifier is Lclassname; */
 					if (
-getU1(classname)=='L'
-//'L' == *classname
+//getU1(classname)=='L'
+'L' == *classname
 ) {
 						len -= 2;
 						++classname;
@@ -1443,12 +1443,12 @@ getU1(classname)=='L'
 				/* we have to make some dirty hacks here
   				 since we are not storing typing informations for arrays */
 				if (
-getU1(classname)=='['
-//*classname == '['
+//getU1(classname)=='['
+*classname == '['
 ) {
 					while (
-getU1(classname)=='['
-//'[' == *classname
+//getU1(classname)=='['
+'[' == *classname
 ) {
 						/* we hope to get useful information
 	 						 from the objects stored in the array.
@@ -1471,8 +1471,8 @@ getU1(classname)=='['
 					}
 					/* A class identifier is Lclassname; */
 					if (
-getU1(classname)=='L'
-//'L' == *classname
+//getU1(classname)=='L'
+'L' == *classname
 ) {
 						len -= 2;
 						++classname;
