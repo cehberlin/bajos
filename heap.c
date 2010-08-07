@@ -13,7 +13,13 @@
 #include "heap.h"
 // heap 
 void heapInit()	{
+#if (AVR8||LINUX)
 if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("malloc error\n");exit(-1);}			// heap fixed size!!
+#else
+// make it better
+heapBase=(slot*)((u4)(apClassFileBase+MAXBYTECODE));
+#endif
+
 	while (heapTop > 0 )			*(heapBase+(--heapTop))= NULLOBJECT;
 DEBUGPRINTHEAP;
 }
