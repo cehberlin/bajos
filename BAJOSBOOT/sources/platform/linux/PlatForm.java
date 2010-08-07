@@ -11,5 +11,4 @@ public native char nativeCharIn();
 public native void nativeCharOut(char c);
 public native void exit (int status);
 public native int currentTimeMillis();
-
 }
