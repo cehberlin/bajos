@@ -81,13 +81,13 @@ void DelayUs(int j)
 }
 
 void DelayMs(int i)
-{ while(i--) DelayUs(10); /* FIXME: correct delay value ??? /*1000 */*/
+{ while(i--) DelayUs(10); /* FIXME: correct delay value ??? /*1000 */
 }
 
 /* --- wait until LCD finish current operation --- */
 void LCD_Wait( void )
 {
-  DelayMs(10);/*5); /* 10 */*/
+  DelayMs(10);/*5); /* 10 */
 }
 
 /* --- send data to LCD --- */
