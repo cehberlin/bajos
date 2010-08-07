@@ -37,7 +37,7 @@ public class DisplayZBuffer extends DisplayHSB
 					al.addElement(new Line(pl.pointAt((i+1)%pl.size()),pl.pointAt(i)));
 				// Parallelen zur y-Achse weglassen
 		for (int j=0; j < al.size();j++)
-			for (int i=1; i < al.size(); i++)	// sortieren der Lines nach y-Gr�e
+			for (int i=1; i < al.size(); i++)	// sortieren der Lines nach y-Groesse
 				if (((Line)al.elementAt(i-1)).anf.y < ((Line)al.elementAt(i)).anf.y)
 				{
 					l=(Line)al.elementAt(i-1);
