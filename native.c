@@ -4,12 +4,19 @@
 */
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
+// remember
+// invokespecial Operand Stack
+// ..., objectref, [arg1, [arg2 ...]] -> ...
+// invokestatic: Operand Stack
+// ..., [arg1, [arg2 ...]] -> ...
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef UNIX
+#ifdef LINUX
 #include <termios.h>
 #include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
 #endif
 #include <string.h>
 #include "definitions.h"
@@ -19,48 +26,104 @@
 #include "scheduler.h"
 #include "heap.h"
 #include "native.h"
+#if (AVR32UC3A||AVR32AP7000)
+#include "EVK1100/gpiouc3a.h"
+#include "EVK1100/evk1100.h"
+#include "EVK1100/dip204.h"
+#include "EVK1100/countuc3a.h"
+#include "EVK1100/rtcuc3a.h"
+#include "EVK1100/intcuc3a.h"
+#include "iobinding.h"
+#endif 
+#ifdef AVR8
+#include "AVR8/lcd.h"
+#include <avr/interrupt.h>
+#endif
 // all native methods have a return value
 // 0-> is a Java native void function
 // 1-> is an Java native function with anyone return value (in stack)
 // alle native methoden haben einen eindeutigen namen!!
-// native methods of class Serial: className, methodName,...,NULL
 // fill this arrays
-char*	nativeCharon[]={"platform/Charon","nativeCharOut","nativeCharIn",NULL};
-char* nativeString[]={"java/lang/String","nativeCharAt","nativeStringLength",NULL};
-//						   classname		0				1				2
-// add arrays for other classes
-char* nativeThread[]={"java/lang/Thread","start","yield","sleep","currentThread","getPriority","setPriority","interrupt","interrupted",
-"isInterrupted","isDaemon","setDaemon","join",NULL};
-char* nativeObject[]={"java/lang/Object","notify","notifyAll","wait","waitTime","getDataAddress",NULL};
-char* nativeSystem[]={"java/lang/System","exit","currentTimeMillis",NULL};
+char*	nativePlatForm[]={"platform/PlatForm",
+		"nativeCharOut",
+		"nativeCharIn",
+		"getButtons",
+		"setOnBoardLEDs",
+		"charLCDOut", 
+		"controlLCD",
+		"currentTimeMillis",
+		"exit",NULL}
+;char* nativeString[]={"java/lang/String",
+		"nativeCharAt",
+		"nativeStringLength",NULL};
+char*	nativeThread[]={"java/lang/Thread",
+		"start",
+		"yield",
+		"sleep",
+		"currentThread",
+		"getPriority",
+		"setPriority",
+		"interrupt",
+		"interrupted",
+		"isInterrupted",
+		"isDaemon",
+		"setDaemon",
+		"join",NULL};
+char*	nativeObject[]={"java/lang/Object",
+		"notify",
+		"notifyAll",
+		"wait",
+		"waitTime",
+		"getDataAddress",NULL};
+char*	nativeFloat[]={"java/lang/Float",
+		"nativeParseFloat",
+		"floatToIntBits",
+		"intBitsToFloat",
+		"floatToCharArray",NULL};
 
 // fill this array
-char**	nativeNames[]={nativeCharon,nativeString,nativeThread,nativeObject,nativeSystem};
+char**	nativeNames[]={	nativePlatForm,
+			nativeString,
+			nativeThread,
+			nativeObject,
+			nativeFloat};
 
 char ** nativeName;
-u2	numNativeClasses=sizeof(nativeNames)/sizeof(char**);
+//(sizeof(word)/sizeof(*word));
+u2	numNativeClasses=sizeof(nativeNames)/sizeof(*nativeNames);
 u2 numMethods=0;
 u1*	nativeCNMN;
-int numEntryNativeCNMN=40; //???
+int numEntryNativeCNMN=80; //???
 u2 i;
 
 char	nativeDispatch( u2 cN, u2 mN,u2 local)	{
 //printf("nummezthods %d:\n",numMethods);
 for(i=0;i<numMethods;i++)	{
 //printf(": %d %x %x  %x\n",i,(((u2)*(nativeCNMN+2*i)<<8)+(u2)(*(nativeCNMN+2*i+1))),cN,mN);
-if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)cN<<8)+mN))break;
-
+if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 }
+//printf(": %d %x %x  %x\n",i,(((u2)*(nativeCNMN+2*i)<<8)+(u2)(*(nativeCNMN+2*i+1))),cN,mN);
+
 switch(i)					{
 	case	0: return nativeCharOut(local);
 	case	1: return nativeCharIn();
-	case	2: return nativeCharAt(local);
-	case	3: return nativeStringLength(local);
-	case	4: return start(local);
-	case	16: return notify(local);
-	case	17: return notifyAll(local);
-	case	18:	return wait(local);	// ???
-	default: printf(" native method not found: %d %d %d",i,cN,mN);
+	case	2: return getButtons();
+	case	3: return setOnBoardLEDs(local);
+	case	4: return charLCDOut(local);
+	case	5: return controlLCD(local); 
+	case	6: return currentTimeMillis();
+	case	7: return javaExit(local);
+	case	8: return nativeCharAt(local);
+	case	9: return nativeStringLength(local);
+	case	10: return start(local);
+	case	22: return notify(local);
+	case	23: return notifyAll(local);
+	case	24: return wait(local);	// ???
+	case	27: return nativeParseFloat(local);
+	case 	28: return typeConvert(local);
+	case	29: return typeConvert(local);
+	case	30: return floatToCharArray(local);
+	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
 			   exit(-1);		}							}
 
 void	initNativeDispatch()	{
@@ -72,14 +135,19 @@ for(i=0;i < numNativeClasses;i++)		   {
 		nativeName=nativeNames[i];
 		if (strncmp( *nativeName,
 getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3),
-		strlen(*nativeName))==0)	 
+		strlen(*nativeName))==0)	 	{
 			while((*(++nativeName))!=NULL)	{
+		//	printf("%s %d\n",*nativeName,strlen(*nativeName));
+			methodDescr=NULL;
 			if (findMethodByName((u1*)*nativeName,strlen(*nativeName),methodDescr,methodDescrLength)) 	{
 				*(nativeCNMN+numMethods++)=(u1)cN;
 				*(nativeCNMN+numMethods++)=(u1)mN;	
-/*				printf("%s %d %d    %d\n",	*nativeName,cN,mN,numMethods/2	);										*/
+		//		printf("%s %d %d    %d\n",	*nativeName,cN,mN,numMethods/2	);										
 		}
-												}	}	}
+												}	
+											}	
+												
+												}	}
 numMethods/=2;				}
 
 //"actplatform/Serial","nativeIntOut","nativeFloatOut","println","nativeCharOut","nativeCharIn"
@@ -89,7 +157,7 @@ char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
 	return 0;							}
 // 1
-#ifdef UNIX
+#ifdef LINUX
 char	nativeCharIn()	{
 struct termios oldt,newt;
 	int ch;
@@ -102,12 +170,47 @@ struct termios oldt,newt;
 opStackPush((slot)(u4)ch);
 return 1;	
 }
-#else
+#endif
+
+#if ( AVR32UC3A|| AVR32AP7000)
+char	nativeCharIn()	{
+char ch=conIn();
+opStackPush((slot)(u4)ch);
+return 1;}
+#endif
+
+#ifdef AVR8
 char (*conIn)()=(void*)(0xF004);
 char	nativeCharIn()	{
 char ch=conIn();
 opStackPush((slot)(u4)ch);
 return 1;}
+// added 2008 by: Stephan Bauer, FHW-BA Berlin
+// Bayer Schering Pharma AG
+u1 rowLCD=0;
+u1 columnLCD=0;
+#define LCDRowLength 15
+
+char charLCDOut(u2 local)	{
+LCD_Putch(opStackGetValue(local+1).UInt);
+if (rowLCD == LCDRowLength){
+rowLCD=0;
+columnLCD=(columnLCD+1)&0xf7;
+}
+else rowLCD++;
+return 0;					}
+
+char controlLCD(u2 local)	{
+u4 val=opStackGetValue(local+1).UInt;
+// 0x00000000 clear
+// 0x0100yyxx cursor at x y
+switch ((val&0xff000000)>>24)	{
+case 0x00: LCD_SendCmd(1);
+CASE 0x01:	if (val&0x0000ff00)LCD_SendCmd(0xc0+(val&0x000000ff));
+			else LCD_SendCmd(0x80+(val&0x000000ff));
+}
+return 0; 					}
+
 #endif
 //"java/lang/Thread","start"/*5*/,"yield","currentThread","getPriority()","setPriority","interrupt","interrupted",
 //"isInterrupted","isDaemon","setDaemon","join"," jointimeout"
@@ -172,6 +275,7 @@ char jointimeout(u2 local){return 0; }
 char notify(){	// not tested yet aug2007
 u1 i;
 ThreadControlBlock* cb=actualThreadCB;
+printf("notify %04x\n",opStackGetValue(local));
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(253);};
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
@@ -184,12 +288,15 @@ return 0; }
 
 char notifyAll() {
 u1 i;
+return 0;
 ThreadControlBlock* cb=actualThreadCB;
-if (HEAPOBJECTMARKER(opStackGetValue(local).UInt).mutex!=MUTEXBLOCKED)	{ };
+printf("notifyall %04x\n",opStackGetValue(local));
+if (HEAPOBJECTMARKER(opStackGetValue(local)./*UInt*/stackObj.pos).mutex!=MUTEXBLOCKED)	{exit(249); };
 //darf nicht sein ->IllegalMonitorStateException
 for (i=1; i < numThreads;i++)	{
 cb=cb->succ;
-if ((cb->status==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).stackObj.pos))
+if ((cb->status==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))//stackObj.pos)) //!!!bh
+//cb->status=THREADNOTBLOCKED;
 cb->status=THREADWAITAWAKENED;
 }
 return 0; }
@@ -198,6 +305,8 @@ return 0; }
 char wait() {
 //slot mySlot=opStackPop();
 u1 i;
+
+printf("wait %04x numthr %d\n",opStackGetValue(local), numThreads);
 if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{ exit(254);};
 //darf nicht sein ->IllegalMonitorStateException
 HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; // lock abgeben
@@ -216,6 +325,279 @@ char getDataAddress (u4 obj)	{
 return 1;	// ret val is  on Stack !!
 }
 
-//"java/lang/System","exit","currentTimeMillis"
-char exitVM(u2 local){return 0; }
-char currentTimeMillis(){return 1; }
+
+#ifdef AVR32UC3A
+// its the evk1100
+/*
+## Author: Adrian Lang, Fritz-Haber-Institut, IT 2006
+## Method: byte getButtons();
+## Parameters: none
+## Return Value:
+##     Button State in 8 Bit array (0: Button not pressed; 1: Button pressed)
+##     MSB                        ..                      LSB
+##     PB0  PB1  PB2 JoystickPress JSUp JSRight JSDown JSLeft
+*/
+char	getButtons() {
+	int buttons[8] = {GPIO_PUSH_BUTTON_0, GPIO_PUSH_BUTTON_1, GPIO_PUSH_BUTTON_2, GPIO_JOYSTICK_PUSH, GPIO_JOYSTICK_UP, GPIO_JOYSTICK_RIGHT, GPIO_JOYSTICK_DOWN, GPIO_JOYSTICK_LEFT};
+	u1 n = 0;
+	u1 ch = 0;
+	for (; n < 8 ; ++n) 
+		gpio_enable_pin_glitch_filter(buttons[n]);
+
+	for (n = 0 ; n < 8 ; ++n) 
+		ch = (ch << 1) | !gpio_get_pin_value(buttons[n]);
+
+	opStackPush((slot) (u4) ch);
+	return 1;
+}
+
+/*
+## Author: Adrian Lang, Fritz-Haber-Institut, IT 2006
+## Method: void setOnBoardLEDs(char);
+## Parameters:
+##     char state which is to be set
+##     MSB                          ..                         LSB
+##     LED1 LED2 LED3 LED4 LED5_red LED5_green LED6_red LED6_green
+## Return Value: void
+*/
+char	setOnBoardLEDs(u2 local) {
+	char state = opStackGetValue(local+1).UInt;
+	int LEDs[8] = {LED0_GPIO, LED1_GPIO, LED2_GPIO, LED3_GPIO, LED4_GPIO, LED5_GPIO, LED6_GPIO, LED7_GPIO};
+	int n = 0;
+
+	(state & 0x80) ? gpio_clr_gpio_pin(LEDs[0]) : gpio_set_gpio_pin(LEDs[0]);
+	for ( n = 1 ; n <= 7 ; ++n) {
+		((state << n) & 0x80) ? gpio_clr_gpio_pin(LEDs[n]) : gpio_set_gpio_pin(LEDs[n]);
+	}
+
+	return 0;
+}
+static u4 timersec = 0;
+static u1 timeOut = 0;
+char charLCDOut(u2 local) {
+	char c = opStackGetValue(local+1).UInt;
+	dip204_write_data(c);
+	return 0;
+}
+
+char controlLCD(u2 local) {
+	int control = opStackGetValue(local+1).UInt;
+	switch (control)
+	{
+		case 0x0000: dip204_clear_display(); 
+		CASE 0x0001: dip204_show_cursor();
+		CASE 0x0002: dip204_hide_cursor(); break;
+		/* Parameters of set_cursor_position: lower 2 Byte and higher 2 Byte of control */
+		default: dip204_set_cursor_position(control % 0xFFFF, control / 0xFFFF); break;
+	};
+	return 0;
+}
+
+
+void delay_ms(unsigned short time_ms)
+{
+unsigned long u32CountVal,u32CompareVal;
+  timeOut = 0;
+  u32CountVal = Get_sys_count();
+
+  u32CompareVal = u32CountVal  + ((unsigned long)time_ms * (FOSC0 / 1000)); // WARNING: MUST FIT IN 32bits.
+
+  Set_sys_compare(u32CompareVal); // GO
+
+  //  The previous COMPARE write succeeded.
+  // Loop until the COUNT&COMPARE match triggers.
+  while (!timeOut);
+}
+
+void compare_irq_handler()
+{
+	timeOut = 1;
+	//Disable the compare and exception generation feature: set COMPARE to 0.
+	Set_sys_compare(0);
+}
+
+
+/*
+## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
+## Method: void rtc_irq(void);
+## Parameters: none
+## Return Value: none
+##
+## Interrupt handler for Timer
+*/
+#if __GNUC__
+__attribute__((__interrupt__))
+#elif __ICCAVR32__
+/* RTC Interrupt  */
+#pragma handler = RTC_INT_GROUP, 1
+__interrupt
+#endif
+void rtc_irq()
+{
+  timersec++;
+  // clear the interrupt flag
+  rtc_clear_interrupt(&AVR32_RTC);
+}
+
+/*
+## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
+## Method: void initTimer(void);
+## Parameters: none
+## Return Value: none
+##
+## start the timer, set the interrupt handling method
+*/
+char initTimer() 
+{
+  // Disable all interrupts. */
+  Disable_global_interrupt();
+  // The INTC driver has to be used only for GNU GCC for AVR32.
+#if __GNUC__
+  // Initialize interrupt vectors.
+  INTC_init_interrupts();
+  // Register the RTC interrupt handler to the interrupt controller.
+  INTC_register_interrupt(&rtc_irq, AVR32_RTC_RTC_IRQ, INT0);
+#endif
+  // Initialize the RTC
+  if (!rtc_init(&AVR32_RTC, RTC_OSC_32KHZ,4))// 1khz
+  {
+    //usart_write_line(&AVR32_USART0, "Error initializing the RTC\r\n");
+    printf("Error initializing the RTC\r\n");
+    while(1);
+  }
+  // Set top value to 0 to generate an interruption every seconds */
+  rtc_set_top_value(&AVR32_RTC, 0);
+  // Enable the interruptions
+  rtc_enable_interrupt(&AVR32_RTC);
+  // Enable the RTC
+  rtc_enable(&AVR32_RTC);
+  // Enable global interrupts
+  Enable_global_interrupt();
+
+  return 0;
+}
+
+/*
+## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
+## Method: int currentTimeMillis(void);
+## Parameters: none
+## Return Value: int, get the value of the timer
+*/
+char currentTimeMillis() {
+	opStackPush((slot) (u4) timersec);
+	return 1;
+}
+#endif
+
+
+#ifdef AVR8
+#define		STRING(a,b)		#a" "#b
+#define		INLINEASM(a,b)	STRING(a,b)
+// atmega128 Monitor functions
+#define		loadInSRam1		(2*(0xf000+26))
+void exit(int n)	{
+asm	 (INLINEASM(jmp,0xf002));
+}
+#endif
+
+#ifdef AVR32UC3A
+void exit(int n)	{
+goto *0x80000000;
+}
+#endif
+
+#ifdef NGW100
+char currentTimeMillis(){return 0;};
+char controlLCD(u2 local){ return 0;}
+char charLCDOut(u2 local){return 0;}
+#endif
+#if LINUX || AVR8 || NGW100
+char getButtons()	{
+
+return 1;
+}
+
+
+char setOnBoardLEDs(u2 local)	{
+
+return 0;
+}
+#endif
+
+
+
+char typeConvert(u2 local)	{
+opStackPush(opStackGetValue(local));
+return 1;
+}
+
+
+// char arr to float
+char nativeParseFloat(u2 local)	{
+slot mySlot=opStackGetValue(local); // the char array
+u1 buf[mySlot.stackObj.arrayLength];
+f4 f;
+for (i=0;i<mySlot.stackObj.arrayLength;i++) 
+buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
+buf[mySlot.stackObj.arrayLength]=0;
+scanf(buf,"%f",&f);
+opStackPush((slot)f);
+return 1;
+}
+
+char floatToCharArray(u2 local)	{
+slot mySlot;
+f4 f=opStackGetValue(local).Float;	// the float
+u1 buf[8];
+snprintf(buf,8,"%8f",f);
+heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
+mySlot.stackObj.pos=heapPos;
+mySlot.stackObj.magic=OBJECTMAGIC;
+mySlot.stackObj.type=STACKNEWARRAYOBJECT;
+mySlot.stackObj.arrayLength=(u1)8;// char array length
+opStackPush(mySlot);
+HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
+HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
+HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
+for(i=0; i<8; i++)		heapSetElement(( slot)(u4)(*(buf+i)),heapPos++);
+return 1;
+}
+
+
+char javaExit(u2 local)	{
+exit(opStackGetValue(local).UInt);
+return 0;
+}
+
+
+
+
+#ifdef LINUX
+char charLCDOut(u2 local){return 0;}
+char controlLCD(u2 local){return 0;}
+void timer_Init()	{}
+char currentTimeMillis()	{
+struct timeval start;
+gettimeofday(&start,NULL);
+opStackPush((slot)(u4)((start.tv_sec*1000+start.tv_usec/1000)&0xFFFFFFFF));
+return 1;
+}
+#endif
+
+#ifdef AVR8
+u4 timerMilliSeconds=0;
+void timer_Init()	{
+OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt
+		TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	// Vorteiler 1024 zu Systemtakt 20 MHz??
+		TIMSK |= (1<<OCIE0);
+		sei();	// global interrupt zulassen
+}
+char currentTimeMillis()	{
+opStackPush((slot)(u4)timerMilliSeconds);
+	return 1;
+}
+SIGNAL(SIG_OUTPUT_COMPARE0)		{
+	timerMilliSeconds++;	
+}
+
+#endif

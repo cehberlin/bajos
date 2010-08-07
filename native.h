@@ -15,6 +15,13 @@ char nativeFloatOut(u2 local);
 char nativeStringOut(u2 local);
 char nativeCharOut(u2 local);
 char nativeCharIn();
+char getButtons();
+char setOnBoardLEDs(u2);
+char charLCDOut(u2);
+char controlLCD(u2);
+char currentTimeMillis();
+char javaExit(u2);
+void myExit(u4);
 char nativeStringLength(u2 local);
 
 char nativeCharAt(u2 local);
@@ -37,8 +44,11 @@ char notifyAll();
 char wait();
 char waitTime(u2 local);
 
-char exitVM(u2 local);
+char javaExit(u2);
 char currentTimeMillis();
-
+char nativeParseFloat(u2);
+char typeConvert(u2);
+char floatToCharArray(u2);
+void timer_Init();
 #endif
 
