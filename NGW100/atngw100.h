@@ -32,7 +32,11 @@
 #define CONFIG_ATNGW100_EXT_FLASH	1
 
 #define CFG_HZ				1000
-
+#define CFG_OSC1_HZ 12000000
+#define OSC1_FREQ CFG_OSC1_HZ
+#define FOSC0 20000000
+#define FOSC1 12000000
+//bh 
 /*
  * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
  * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency
