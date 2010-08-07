@@ -3,7 +3,7 @@
 # See the file "license.terms" for information on usage and redistribution of this file.
 #
 
-# java for 8 Bit uC at arduinoMega
+# java for 8 Bit uC atmega1280 at arduinoMega
 #=================================#
 # working without monitor (standalone application)
 # make all am -> generates bajos.bin (jvm, boot classes and appl classes) and burns at arduinoMega
@@ -36,6 +36,8 @@ JAVAAPPSOURCES		= javatests/AM.java
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
 PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
 
+OBJFILES		+=	$(PLATFORMASMSOURCES:.asm =.o)
+
 # GOALS
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 DEFS+= -DWITHMON
@@ -65,7 +67,7 @@ $(TARGETFILE):	${OBJFILES}
 	@echo Creating binary image to \`bajos.bin\'	.
 	@${CC} --version
 
-endif
+endif	#withmon
 
 withmon:
 	@:
