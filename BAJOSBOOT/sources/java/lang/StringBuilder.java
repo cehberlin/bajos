@@ -138,7 +138,7 @@ public final class StringBuilder	{
   }
   public StringBuilder append(boolean bool)
   {
-    return append(bool ? "true" : "false");
+    return append(Boolean.toString(bool));
   }
 
   public StringBuilder append(char ch)
