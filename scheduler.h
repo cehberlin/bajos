@@ -1,5 +1,5 @@
 /*
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // scheduler invokes after completation of a byte code instruction 
