@@ -1,3 +1,59 @@
+/* bamo32 routines 
+			rjmp    program_start		// 0x80000000
+		      	nop
+		 	bral	monitor			// 0x80000004
+			bral	conIn			// 0x80000008
+			bral	conOut			// 0x8000000c
+		 	bral	addressConIn		// 0x80000010
+		 	bral	hexConIn		// 0x80000014
+		 	bral	hexConOut		// 0x80000018
+		 	bral	byteConIn		// 0x8000001c
+		 	bral	byteConOut		// 0x80000020
+		 	bral	wordConIn		// 0x80000024
+		 	bral	wordConOut		// 0x80000028
+		 	bral	clearScreen		// 0x8000002c
+			bral	getMilliSec		// 0x80000030
+			bral	dip204_write_data	// 0x80000034
+			bral	controlLCD	 	// 0x80000038
+			bral	adcGetValue		// 0x8000003c
+			bral	pwmStart		// 0x80000040
+			bral	pwmStop			// 0x80000044
+			bral	setOnBoardLEDs		// 0x80000048
+			bral	getButtons		// 0x8000004c
+*/
+
+startmon = 0x80000000;
+Monitor = 0x80000004;
+conIn = 0x80000008;
+conOut = 0x8000000C;
+
+addressConIn = 0x80000010;
+hexConIn = 0x80000014;
+hexConOut = 0x80000018;
+byteConIn = 0x8000001C;
+
+byteConOut = 0x80000020;
+wordConIn = 0x80000024;
+wordConOut = 0x80000028;
+clearScreen = 0x8000002c;
+
+GetMilliSec = 0x80000030;
+Dip204_write_data = 0x80000034;
+ControlLCD = 0x80000038;
+AdcGetValue = 0x8000003c;
+
+PwmStart = 0x80000040;
+PwmStop = 0x80000044;
+SetOnBoardLEDs = 0x80000048;
+GetButtons = 0x8000004c;
+
+ConStat	= 0x80000050;
+Ser1Out = 0x80000054;
+Ser1In	= 0x80000058;
+Ser1RTS	= 0x8000005c;
+
+Ser1DTR	= 0x80000060;
+
 /******************************************************************************
  * AVR32 AT32UC3A0512 GNU LD script file.
  *
@@ -42,11 +98,12 @@ OUTPUT_FORMAT("elf32-avr32", "elf32-avr32", "elf32-avr32")
 OUTPUT_ARCH(avr32:uc)
 
 ENTRY(_start)
-
+/* bh app programs are loaded and start */
+/* all ram in external dyn ram */
 MEMORY
 {
   FLASH (rxai!w) : ORIGIN = 0x80020000, LENGTH = 0x00060000
-  INTRAM (wxa!ri) : ORIGIN = 0x00000004, LENGTH = 0x0000FFFC
+  INTRAM (wxa!ri) : ORIGIN = 0xD0100000, LENGTH = 0x00200000
   USERPAGE : ORIGIN = 0x80800000, LENGTH = 0x00000200
 }
 
