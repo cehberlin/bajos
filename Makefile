@@ -129,7 +129,9 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/Thread.java $(LANG)/Exception.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java
 
-AVR8APPSOURCES	= 	javatests/AM.java
+
+#AVR8APPSOURCES	= 	javatests/AM.java
+AVR8APPSOURCES	= 	javatests/Charon.java
 
 #			javatests/Temperature.java
 #			 $(LANG)/Math.java \
@@ -151,10 +153,10 @@ BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
 CHARONSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON/ds182x.c \
 		$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
-CHARONASMSOURCES = $(APPPATH)CHARON/theend.asm
+CHARONASMSOURCES = $(APPPATH)CHARON/routines.asm
 
 ARDUINOMEGASOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
-ARDUINOMEGAASMSOURCES = $(APPPATH)ARDUINOMEGA/theend.asm
+ARDUINOMEGAASMSOURCES = $(APPPATH)ARDUINOMEGA/routines.asm
 
 UC3ASOURCES	= $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c 
 
@@ -260,13 +262,17 @@ ch:
 CH:	
 	@:
 
-all:	clean compile bootclasses bootpack apppack
+all:	clean compile bootclasses compCharon bootpack avr8app
 
 compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800900,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff,--defsym=__stack=0x800800    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x807e00 -mtiny-stack -mno-tablejump -mshort-calls 
+
+
+
+#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800a00,--defsym=__heap_start=0x8022b00,--defsym=__heap_end=0x807Dff,--defsym=__stack=0x807E00    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 
 #	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--defsym=__heap_end=0x807eff  -Wl,--defsym=__stack=0x807f00   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
@@ -286,7 +292,8 @@ bootpack:
 	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
 	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
 
-apppack:
+.PHONY:	avr8app
+avr8app:
 	@echo -n generate file: avr8app\; numClasses: 
 	@printf %4d `echo $(AVR8APPCLASSES)| wc -w` |tee  avr8app
 	@for i in $(AVR8APPCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8app;	cat $$i >> avr8app;	done
@@ -294,15 +301,12 @@ apppack:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -mtiny-stack -o $@ $< 
 
 %o : %asm
 	@echo $(MSG_COMPILING)
 	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
 endif #charon
-
-
-
 
 
 ifeq  ($(TARGETHW), AM)
@@ -314,11 +318,11 @@ ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 # Linker script file if any
 #LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
 DEFS+= -DWITHMON
-all:	clean  bootclasses compAM bootpack apppack compile
+all:	clean  bootclasses compAM bootpack amapp compile
 
 else
 CLASSFILEBASE=(2*0xB000)
-all:	clean  bootclasses compAM bootpack apppack compile upLoad
+all:	clean  bootclasses compAM bootpack amapp compile upLoad
 
 endif
 withmon:
@@ -334,9 +338,14 @@ compile: $(TARGETFILE)
 
 upLoad:
 	$(OBJCOPY) -Oihex -Ibinary bajos.bin  bajos.hex
-	avrdude -p m1280 -c avrispmkII -e -P usb  -Uflash:w:bajos.hex:i
+	avrdude -p m1280 -c avrispmkII -D -e -P usb  -Uflash:w:bajos.hex:i
+	
+writeFusesM:	# 4 k word boot section, start from boot section after reset
+	avrdude -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
+	avrdude -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd8:m
+	avrdude -p m1280 -c avrispmkII -P usb  -Uefuse:w:0xf5:m
 
-writeFuses:
+writeFusesA:	# 4 k word boot section, start from address 0000 after reset
 	avrdude -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
 	avrdude -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd9:m
 	avrdude -p m1280 -c avrispmkII  -P usb  -Uefuse:w:0xf5:m
@@ -353,6 +362,7 @@ $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
 	@${CC} --version
+
 ##		@rm ${EXE}
 ## -Wl,-u,vfprintf -lprintf_flt
 else
@@ -368,27 +378,29 @@ $(TARGETFILE):	${OBJFILES}
 	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
 	$(VERBOSE_CMD)cat $(BIN) > bajos.bin
 	$(VERBOSE_CMD)(((i=`ls -l $(BIN) | cut -f5 -d' '`));while ((i < $(CLASSFILEBASE)));  do  ((i=i+1)); echo -e -n "\000" >> bajos.bin;  done)
-	$(VERBOSE_CMD)cat avr8bootpack >> bajos.bin
-	$(VERBOSE_CMD)cat avr8app >> bajos.bin
+	cat avr8bootpack >> bajos.bin
+	cat amapp >> bajos.bin
 	@echo Creating binary image to \`bajos.bin\'	.
 	@${CC} --version
 endif
+
+.PHONY:	bootpack
 bootpack:
 	@echo -n generate file: avr8bootpack\; numClasses: 
 	@printf %4d `echo $(AVR8BOOTCLASSES)| wc -w` |tee  avr8bootpack
 	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
 	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
 
-
-apppack:
-	@echo -n generate file: avr8app\; numClasses: 
-	@printf %4d `echo $(AVR8APPCLASSES)| wc -w` |tee  avr8app
-	@for i in $(AVR8APPCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8app;	cat $$i >> avr8app;	done
-	@echo "  length:" `ls -l avr8app | cut -f5 -d' '`
+.PHONY:	amapp
+amapp:
+	@echo -n generate file: amapp\; numClasses: 
+	@printf %4d `echo $(AVR8APPCLASSES)| wc -w` |tee  amapp
+	@for i in $(AVR8APPCLASSES) ;do printf %4d `cat $$i| wc -c` >> amapp;	cat $$i >> amapp;	done
+	@echo "  length:" `ls -l amapp | cut -f5 -d' '`
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall $(DEFS) ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall $(DEFS) ${DEBUGGEN}  -mmcu=$(PART) -mtiny-stack -o $@ $<
 
 %o : %asm
 	@echo $(MSG_COMPILING)
