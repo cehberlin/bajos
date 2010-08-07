@@ -203,10 +203,16 @@ void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
 }
 
 void exit(int n)	{
+#ifdef DEBUGOPSTACK
+printf(" maxOperandenStack: x%x",maxOpStack);
+#endif //DEBUOPSTACK
+#ifdef DEBUGMETHODSTACK
+printf(" maxMethodStack: x%x",maxMethodStack);
+#endif //DEBUGMETHODSTACK
 #ifndef	WITHMON  
 asm volatile	(" ma: rjmp	ma	");
 #else
 goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
-#endif
+#endif //WITHMON
 }
 
