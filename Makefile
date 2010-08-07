@@ -30,9 +30,9 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK COMMAND LINE
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
-$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100  clean java clobber,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
+$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100 java,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
 
-java:
+java:	
 	@:
 
 
@@ -40,10 +40,18 @@ ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,
 $(error only one target hardware accepted)
 endif
 
+
+
 TARGETHW = noTarget
-ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
-TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS))
+ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS)))"
+TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS))
 endif
+
+ifeq "1"  "$(words $(MAKECMDGOALS))"
+$(error what is to do with $(TARGETHW): clean compile program ...)
+endif
+
+
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # ENVIRONMENT SETTINGS
@@ -185,10 +193,13 @@ PART		= atmega128
 CC		= $(AVR8ROOT)avr-gcc
 TEXTSEGMENT	= 0x100
 STACKSEGMENT	= 0x4000
-.PHONY: avr8
+
+avr8:
 	@:
 
-avr8:	${OBJFILES}
+compile: $(TARGETFILE)
+
+$(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
@@ -216,21 +227,23 @@ ifeq  ($(TARGETHW), avr32-linux)
 CC		= avr32-linux-gcc
 CPPFLAGS	= -DAVR32LINUX
 endif
+
+compile: $(TARGETFILE)
+
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$(TARGETFILE) 
 
-avr32-linux:	$(TARGETFILE)
+avr32-linux:
 	@:
 
-linux:		$(TARGETFILE)
+linux:	
 	@:
 
 
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c 
 	@echo $(MSG_COMPILING)
-	echo $(TARGETHW)
 	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall  ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
@@ -278,8 +291,12 @@ LDFLAGS		= -march=$(ARCH) -mpart=$(PART) \
 LOADLIBES	= -lc
 LDLIBS		= $(LIBS:%=-l%)
 
-.PHONY:	evk1100
-evk1100: $(OBJFILES)
+evk1100:
+	@:
+
+compile: $(TARGETFILE)
+
+$(TARGETFILE): $(OBJFILES)
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD)$(CC) $(LDFLAGS) $(filter %.o,$+) $(LOADLIBES) $(LDLIBS) -o $(TARGETFILE)
 	$(VERBOSE_NL)
@@ -305,9 +322,11 @@ program: $(TARGETFILE)
 	@echo $(MSG_PROGRAMMING)
 	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 	sleep 2
-	cat $(BOOTCLASSES) > mytemp$(PPID)
-	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp$(PPID)
-	rm mytemp$(PPID)
+	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TARGETFILE).bin
+	@printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
+	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
+	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp
+	@rm mytemp
 	ifneq ($(call LastWord,$(filter cpuinfo chiperase program secureflash debug readregs,$(MAKECMDGOALS))),program)
 	@$(SLEEP) $(SLEEPUSB)
 	else
@@ -343,11 +362,14 @@ OPT		= 2
 # Set your target processor
 
 # Link: create ELF output file from object files
-ngw100: $(TARGETFILE)
+ngw100: 
 	@:
 
-stk1000: $(TARGETFILE)
+stk1000: 
 	@:
+
+compile:	$(TARGETFILE)
+	
 
 $(TARGETFILE): 	$(OBJFILES)
 	@echo $(MSG_LINKING)
