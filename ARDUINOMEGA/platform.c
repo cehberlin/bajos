@@ -87,7 +87,7 @@ stdout = stdin=stderr = &uartAVR8;
 
 /* all class files stored for linux in DS (malloc)*/
 /* for avr8 all class files in flash */
-void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+void initVM(){	/* read, analyze classfiles and fill structures*/
 u1* addr;
 char buf[4];
 heapInit();	/* linux avr8 malloc , others hard coded!*/
