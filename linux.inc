@@ -9,7 +9,7 @@
 # TOOLS, SOURCES AND FLAGS
 ifeq  ($(TARGETHW), linux)
 CC		= gcc
-CPPFLAGS	= -DLINUX
+CPPFLAGS	= -DLINUX -DDEBUGOPSTACK -DDEBUGMETHODSTACK
 all:	clean compile bootclasses
 else
 CC		= avr32-linux-gcc
