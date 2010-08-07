@@ -5,11 +5,13 @@
 .global strncmpFlashFlash
 .global strncmpRamFlash
 .global getCharsFromFlash
+.global printStringFromFlash
 
 #ifndef WITHMON
 .global startUart0
 #endif
 
+.extern	conOut
 /* RAMPZ ist set to 1 in platform.c init()*/
 // assume : Z ist free; RAMPZ never changed
 getU1Flash:	movw	ZL,r24
@@ -70,4 +72,10 @@ getCharsFromFlash1:	elpm	r21,Z+
 			dec	r22
 			brne	getCharsFromFlash1
 			ret
-
+// from r24, n r22, n!==0 !!!!
+printStringFromFlash:	movw	ZL,r24
+printStringFromFlash1:	elpm	r24,Z+
+			call 	0xf006
+			dec	r22
+			brne	printStringFromFlash1
+			ret
