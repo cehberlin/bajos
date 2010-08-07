@@ -1244,12 +1244,24 @@ nativeVoidReturn:
 			DEBUGPRINTLN1("checkcast");
 			first = opStackPop();
 			if (first.UInt != NULLOBJECT.UInt) {
-				methodStackPush(cN);
-				methodStackPush(mN);
 				u2 targetclass = getU2(0);
-				if ('[' != *(char *)getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3)) {
-					if (!findClass(getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3),	// className
-					               getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
+				char *classname = getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3);
+				int len = getU2(CP(cN, getU2(CP(cN,targetclass)+1))+1);
+				while ('[' == *classname) {
+					first = (heapGetElement((u2) first.stackObj.pos + 1));
+					--len;
+					++classname;
+				}
+				if (first.UInt != NULLOBJECT.UInt) {
+					if ('L' == *classname) {
+						char *tmp = classname + 1;
+						len -= 2;
+						classname = (char *) malloc(len);
+						strncpy(classname, tmp, len);
+					}
+					methodStackPush(cN);
+					methodStackPush(mN);
+					if (!findClass(classname, len)) {
 						mN = methodStackPop();
 						cN = methodStackPop();
 						errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
@@ -1264,9 +1276,6 @@ nativeVoidReturn:
 						mN=methodStackPop();
 						cN=methodStackPop();
 					}
-				} else {
-					mN=methodStackPop();
-					cN=methodStackPop();
 				}
 			}
 			opStackPush(first);
@@ -1276,21 +1285,39 @@ nativeVoidReturn:
 			first = opStackPop();
 			u2 targetclass = getU2(0);
 			if (first.UInt != NULLOBJECT.UInt) {
-				methodStackPush(cN);
-				methodStackPush(mN);
-				if (!findClass(getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3),	// className
-				               getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
-					errorExit(-1, "class not found %d %d",cN,mN);
+				char *classname = getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3);
+				int len = getU2(CP(cN, getU2(CP(cN,targetclass)+1))+1);
+				while ('[' == *classname) {
+					first = (heapGetElement((u2) first.stackObj.pos + 1));
+					--len;
+					++classname;
 				}
-				u2 target = cN;
-				cN = first.stackObj.classNumber;
-				if (checkInstance(target)) {
-					opStackPush((slot) (u4)1);
+				if (first.UInt != NULLOBJECT.UInt) {
+					if ('L' == *classname) {
+						char *tmp = classname + 1;
+						len -= 2;
+						classname = (char *) malloc(len);
+						strncpy(classname, tmp, len);
+					}
+					methodStackPush(cN);
+					methodStackPush(mN);
+					if (!findClass(classname, len)) {
+						mN = methodStackPop();
+						cN = methodStackPop();
+						errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
+					}
+					u2 target = cN;
+					cN = first.stackObj.classNumber;
+					if (checkInstance(target)) {
+						opStackPush((slot) (u4)1);
+					} else {
+						opStackPush((slot) (u4)0);
+					}
+					mN=methodStackPop();
+					cN=methodStackPop();
 				} else {
 					opStackPush((slot) (u4)0);
 				}
-				mN=methodStackPop();
-				cN=methodStackPop();
 			} else {
 				opStackPush((slot) (u4)0);
 			}
@@ -1331,7 +1358,7 @@ nativeVoidReturn:
 			s2 *local_cnt = (s2 *) malloc(sizeof(s2));
 			*local_cnt = 0;
 			opStackPush(createDims(dim, local_cnt));	// call recursive function to allocate heap for arrays
-			free (cnt);
+			free (local_cnt);
 
 		CASE	GOTO_W:
 			DEBUGPRINTLN1("goto_w (not tested)");	// mb jf

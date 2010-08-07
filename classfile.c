@@ -75,7 +75,7 @@ u1 findNumArgs(u2 methodRef)	{	//  count BCDFIJLSZ in runden Klammern!!
 		if (!object) {
 			if (c=='L') {
 				object = 1; n++;
-			} else if ((c=='B')||(c=='C')||(c=='D')||(c=='F')||(c=='I')||(c=='J')||(c=='S')||(c=='Z')) {
+			} else if ((c=='B')||(c=='C')||(c=='F')||(c=='I')||(c=='S')||(c=='Z')) {
 				n++;
 			}
 		}
@@ -191,7 +191,7 @@ u1 findClass(const char* className,u1 classNameLength)	{  // out: cN
 					)]+1)){
 			continue;
 		}
-		if (strncmp(className,(char*)getAddr(cs[cN].constant_pool[	
+		if (strncmp(className,(const char*)getAddr(cs[cN].constant_pool[	
 					getU2(	cs[cN].constant_pool[
 						getU2(cs[cN].this_class)]+1			
 					)
