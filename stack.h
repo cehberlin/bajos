@@ -7,7 +7,7 @@
 
 #ifndef __STACK__
 #define __STACK__
-void	opStackInit();
+void	opStackInit(slot**);
 void	opStackPush(slot val);
 slot	opStackPop();
 slot	opStackPeek();
@@ -17,7 +17,7 @@ void	opStackSetValue(u2 pos,slot val);
 u2	opStackGetSpPos();
 void	opStackSetSpPos(u2 pos);
 
-void	methodStackInit();
+void	methodStackInit(u2** m);
 void	methodStackPush(u2 val);
 u2	methodStackPop();
 u2 	methodStackPeek();
