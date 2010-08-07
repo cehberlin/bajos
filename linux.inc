@@ -124,6 +124,15 @@ compPC:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
 		$(APPCLASSPATH)/ProducerConsumer.java
 
+SchedulerTest:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Buffer.class \
+		$(APPCLASSPATH)/SchedulerTest.class 
+
+compSchedulerTest:
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH} \
+		$(APPCLASSPATH)/SchedulerTest.java
+
+
 ADC:	 
 	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/ADC.class
 

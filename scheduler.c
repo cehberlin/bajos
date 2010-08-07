@@ -24,7 +24,7 @@ methodStackInit(&(t->methodStackBase));
 t->methodSpPos=(numThreads==0)?0:5;
 t->tid=tid++;
 t->priority=(actualThreadCB==NULL) ?NORMPRIORITY:actualThreadCB->priority;
-t->numTicks=0;
+t->numTicks=t->priority+1;//+1 because 0 ticks are stupid
 t->state=THREADNOTBLOCKED;
 t->pred=(actualThreadCB==NULL)?t:actualThreadCB;
 t->succ=(actualThreadCB==NULL)?t:actualThreadCB->succ;
@@ -68,8 +68,13 @@ numThreads--;			}
 
 void scheduler(void)	{
 if (numThreads==1) return;
+//A Thread runs until his numTicks is 0
+if((actualThreadCB->numTicks && ((actualThreadCB->state)==THREADNOTBLOCKED)))
+{
+  actualThreadCB->numTicks--;
+  return;
+}
 /* scheduling -> next thread*/
-/* at thread change after each byte code*/
 methodStackPush(local);
 methodStackPush(cN);
 methodStackPush(mN);
@@ -85,14 +90,16 @@ do 	{
 	((HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex)
 		==MUTEXBLOCKED))
 	continue;
-/* awakened and mutexnotblocked*/
-if ((actualThreadCB->state)==THREADWAITAWAKENED)	{
-HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
-actualThreadCB->state=THREADNOTBLOCKED;
-actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
-break;							}
+	/* awakened and mutexnotblocked*/
+	//if ((actualThreadCB->state)==THREADWAITAWAKENED)	{ //not nesessary because no other state ist possible
+	HEAPOBJECTMARKER((actualThreadCB->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
+	actualThreadCB->state=THREADNOTBLOCKED;
+	actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+	break;							
+	//}
 	} while (1);
-
+//reset numTicks
+actualThreadCB->numTicks= actualThreadCB->priority+1;
 methodStackBase=actualThreadCB->methodStackBase;
 methodStackSetSpPos(actualThreadCB->methodSpPos);
 opStackBase=actualThreadCB->opStackBase;

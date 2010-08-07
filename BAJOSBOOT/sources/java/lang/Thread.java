@@ -28,7 +28,7 @@ public abstract class Thread
   // to say, they are read-only.
 
   private Thread _TVM_nextThread;
-   public final static int MAX_PRIORITY = 10;
+  public final static int MAX_PRIORITY = 10;
 
   private int _TVM_waitingOn;
   private int _TVM_sleepUntil;

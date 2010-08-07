@@ -4,7 +4,7 @@
 */
 /* C-functions for native methods*/
 /* native void method -> C-function ret value 0*/
-/* native non void method -> c-cunction ret value 1 (ret value on java -opStack)*/
+/* native non void method -> c-function ret value 1 (ret value on java -opStack)*/
 /* remember:*/
 /* invokespecial Operand Stack*/
 /* ..., objectref, [arg0, [arg1 ...]] -> ...*/
@@ -60,9 +60,19 @@ char yield()	{return 0; }
 /*7*/
 char currentThread(){return 1; }
 /*8*/
-char getPriority(){return 1; }
+char getPriority(){
+	opStackPush((slot)(u4)actualThreadCB->priority);
+	return 1; 
+}
 /*9*/
-char setPriority(){return 0; }
+char setPriority(){
+	slot prio;
+	prio=opStackGetValue(local+1);
+	if(prio.bytes[0]>=MINPRIORITY && prio.bytes[0]<=MAXPRIORITY){
+		actualThreadCB->priority=prio.bytes[0];
+	}
+	return 0; 
+}
 /*10*/
 char interrupt(){return 0; }
 /*11*/

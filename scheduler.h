@@ -9,6 +9,8 @@
 #define	DEFAULTTICKS 5
 // number of byte code instructions, counter
 #define NORMPRIORITY 5
+#define MAXPRIORITY 10
+#define MINPRIORITY 0
 
 void createThread(void);
 void deleteThread(void);
