@@ -54,15 +54,16 @@ AVR8ROOT=
 AVR32ROOT=/usr/bin/
 AVR32BIN = $(AVR32DIR)
 #AVR32INC = $(AVR32ROOT)INCLUDES
-AVR32INC = /home/Desktop/AT32UC3A-1.1.1/INCLUDES
+AVR32UC3AINC = $(APPPATH)/AVR32UC3AINC
+AVR32AP7000INC = $(APPPATH)/AVR32AP7000INC
 # java-files
 CLASSPATH = $(APPPATH)
 APPCLASSPATH = $(CLASSPATH)javatests
-BOOTCLASSPATH=${CLASSPATH}/BAJOSBOOT/classes
-LANG= ${BOOTCLASSPATH}/java/lang
-IO=${BOOTCLASSPATH}/java/io
-UTIL= ${BOOTCLASSPATH}/java/util
-PLATFORM= ${BOOTCLASSPATH}/platform
+BOOTCLASSPATH=${CLASSPATH}BAJOSBOOT/classes/
+LANG= ${BOOTCLASSPATH}java/lang
+IO=${BOOTCLASSPATH}java/io
+UTIL= ${BOOTCLASSPATH}java/util
+PLATFORM= ${BOOTCLASSPATH}platform
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # SOURCES AND TARGETS
@@ -162,12 +163,12 @@ CC = gcc
 linux:	$(TGTFILE)
 $(TGTFILE):		${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$@ 
+	$(VERBOSE_CMD) ${CC} -g $(filter %.o,$+)   -o$@ 
 	
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall   -DLINUX ${DEBUGGEN} -o $@ $<
+	$(VERBOSE_CMD) $(CC) -c -g $(CPPFLAGS) -Wall   -DLINUX ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
 endif
@@ -184,7 +185,7 @@ FLASH = internal@0x80000000,512Kb
 PROG_CLOCK = xtal
 DEFS = -D BOARD=EVK1100
 # Include path
-INC_PATH = $(AVR32INC)
+INC_PATH = $(AVR32UC3AINC)
 # Linker script file if any
 LINKER_SCRIPT = $(APPPATH)EVK1100/link_uc3a0512.lds
 # Options to request or suppress warnings: [-fsyntax-only] [-pedantic[-errors]] [-w] [-Wwarning...]
@@ -270,7 +271,7 @@ ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
 
 CC=$(AVR32BIN)avr32-gcc
 MCPU = ap7000
-CC_FLAGS = -Wall  -c  -mcpu=$(MCPU) -O$(OPT) 
+CC_FLAGS =  -Wall -c  -mcpu=$(MCPU) -O$(OPT) 
 # -Werror -g
 ARCH = ap
 # Part: {none|ap7xxx|uc3xxxxx}
@@ -289,7 +290,7 @@ stk1000: ap7000
 ap7000:	$(TGTFILE)
 $(TGTFILE):	$(OBJFILES) 
 	@echo $(MSG_LINKING)
-	$(CC) $(filter %.o,$+) $(LD_FLAGS) -o $@
+	$(CC)  $(filter %.o,$+) $(LD_FLAGS) -o $@
 	@echo
 	@echo $(MSG_BINARY_IMAGE)
 	$(OBJCOPY) -O binary $@  $@.bin
@@ -298,7 +299,7 @@ $(TGTFILE):	$(OBJFILES)
 # Compile: create object files from C source files.
 %.o: %.c	
 	@echo $(MSG_COMPILING)
-	$(CC) $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32INC) -I/home/Desktop/u-boot-1.3.0.atmel.1/include -o $@ $<
+	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
 	@echo
 
 #program your avr32 device
@@ -502,7 +503,9 @@ debug:
 # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+JAVACOMP			=javac
+JAVACOMPFLAGS		=-g:none -source 1.4 -verbose
+JAVACOMPBOOTCLASSES	=-bootclasspath ${BOOTCLASSPATH}
 
 A:
 	./$(TARGET)   ${LANG}/Object.class \
@@ -518,7 +521,7 @@ A:
     	$(APPCLASSPATH)/A.class
 
 compA:	
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/A.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/A.java
 AA:
 	./$(TARGET)    ${LANG}/Object.class \
 	${PLATFORM}/PlatForm.class \
@@ -530,10 +533,10 @@ AA:
 	$(APPCLASSPATH)/AA.class
 
 compAA:	
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/AA.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/AA.java
 
 compB:
-	javac -verbose  -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/B.java
+	javac -verbose -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/B.java
 
 B:	 
 	./$(TARGET)    ${LANG}/Object.class \
@@ -548,7 +551,7 @@ B:
   	 $(APPCLASSPATH)/B.class
 	
 compC:
-	javac -verbose  -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/C.java
+	javac -verbose  -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/C.java
 
 C:	 
 	./$(TARGET)    ${LANG}/Object.class \
@@ -566,7 +569,7 @@ C:
 
 
 compD:
-	javac -verbose  -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/D.java
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/D.java
 
 D:	 
 	./$(TARGET)  ${LANG}/Object.class \
@@ -584,7 +587,7 @@ EEE:
   	$(APPCLASSPATH)/EEE.class
 
 compEEE:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/EEE.java
+	javac -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/EEE.java
 
 FFF:
 	./$(TARGET)  	 $(APPCLASSPATH)/FFF.class  ${LANG}/Object.class    ${PLATFORM}/PlatForm.class  ${LANG}/System.class \
@@ -592,7 +595,7 @@ FFF:
  	${LANG}/Math.class   ${LANG}/Integer.class  ${LANG}/String.class
 
 compFFF:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/FFF.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/FFF.java
 
 GGG:	 
 	././$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
@@ -601,7 +604,7 @@ GGG:
   	$(APPCLASSPATH)/GGG.class
 
 compGGG:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/GGG.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/GGG.java
 
 HHH:	 
 	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
@@ -610,7 +613,7 @@ HHH:
   	$(APPCLASSPATH)/HHH.class
 
 compHHH:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/HHH.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/HHH.java
 
 My:	 
 	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
@@ -620,7 +623,7 @@ My:
   	$(APPCLASSPATH)/My.class $(APPCLASSPATH)/Ball.class
 
 compMy:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
 
 T:	 
 	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
@@ -628,7 +631,7 @@ T:
 	$(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
 
 compT:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
 	
 PC:	 
 	./$(TARGET)   	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
@@ -638,7 +641,7 @@ PC:
   	$(APPCLASSPATH)/ProducerConsumer.class  $(APPCLASSPATH)/Buffer.class ${LANG}/Object.class
 
 compPC:
-	javac -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/ProducerConsumer.java
+	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/ProducerConsumer.java
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # MESSAGES
