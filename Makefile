@@ -2,7 +2,7 @@
 # HWR/Fachbereich Berufsakademie (BA) - Java Operating System for Microcontroller
 # atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
 # goals
-# avr8 linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
+# charon ch arduinoMega am linux avr32-linux evk1100 ngw100 stk1000 clean java (for tests)
 # make clean goal
 # make compile goal
 # make debug compile verbose goal
@@ -38,21 +38,30 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK COMMAND LINE
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
-$(if   $(filter avr8 linux avr32-linux evk1100 stk1000 ngw100,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
+$(if   $(filter CH charon ch arduinoMega am AM linux avr32-linux evk1100 stk1000 ngw100,$(MAKECMDGOALS)), ,$(error wrong or incomplete command line))
 
-ifneq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
+ifneq "1"  "$(words $(filter charon ch CH arduinoMega am  AM evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
 $(error only one target hardware accepted)
 endif
 
 TARGETHW = noTarget
-ifeq "1"  "$(words $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
-TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS))
+
+ifeq "1"  "$(words $(filter charon ch arduionoMega am evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
+TARGETHW = $(filter charon ch arduionoMega AM evk1100 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS))
+endif
+
+
+ifneq  "" "$(filter CH ch charon,$(MAKECMDGOALS))"
+TARGETHW=CH
+endif
+
+ifneq  "" "$(filter AM am arduinoMega,$(MAKECMDGOALS))"
+TARGETHW=AM
 endif
 
 ifeq "1"  "$(words $(MAKECMDGOALS))"
 $(error what is to do with $(TARGETHW): clean compile program ...)
 endif
-
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # ENVIRONMENT SETTINGS
@@ -95,6 +104,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
 			$(LANG)/Runtime.java \
 			$(IO)/OutStream.java $(IO)/InStream.java 
+
 ifeq  ($(TARGETHW), stk1000)
 BOOTSOURCES+=		${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
 			${GRAPHICS}/DisplayZBuffer.java ${GRAPHICS}/DisplayKonstanten.java \
@@ -104,7 +114,7 @@ BOOTSOURCES+=		${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
 endif
 
 # add appl. classes for avr32linux, because there is an error (or timing problem 
-## betwenn minikermit and bajos!!
+## beetween minikermit and bajos!!
 #			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
 #			$(LANG)/StringBuilder.java \
@@ -112,12 +122,14 @@ endif
 
 # a small subset of java system sources for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
-			$(LANG)/String.class $(LANG)/StringBuffer.java \
+			$(LANG)/String.java $(LANG)/StringBuffer.java \
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java
+
+AVR8APPSOURCES	= 	javatests/AM.java
 
 #			javatests/Temperature.java
 #			 $(LANG)/Math.java \
@@ -125,6 +137,8 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 
 BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
 AVR8BOOTCLASSES	= $(AVR8BOOTSOURCES:.java=.class)
+AVR8APPCLASSES 	= $(AVR8APPSOURCES:.java=.class)
+
 #java binaries and flags
 JAVACOMP		= javac
 JAVACOMPFLAGS		= -g:none -source 1.4 -verbose
@@ -135,13 +149,16 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 		nativedispatch.c $(APPPATH)JAVALANGNATIVE/langnative.c
-AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
-		$(APPPATH)AVR8/platform.c $(APPPATH)AVR8/native.c
+CHARONSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON/ds182x.c \
+		$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
+CHARONASMSOURCES = $(APPPATH)CHARON/theend.asm
+
+ARDUINOMEGASOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
+ARDUINOMEGAASMSOURCES = $(APPPATH)ARDUINOMEGA/theend.asm
 
 UC3ASOURCES	= $(APPPATH)EVK1100/platform.c $(APPPATH)EVK1100/native.c 
 
-ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
-else
+ifneq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 UC3ASOURCES+=   $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
 		$(APPPATH)EVK1100/rtc.c $(APPPATH)EVK1100/pwm.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
@@ -149,22 +166,27 @@ UC3ASOURCES+=   $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
 		$(APPPATH)EVK1100/flashc.c $(APPPATH)EVK1100/sdramc.c \
 		$(APPPATH)EVK1100/gpio.c $(APPPATH)EVK1100/usart.c 
 endif
+
 NGW100SOURCES	= $(APPPATH)NGW100/pio.c $(APPPATH)NGW100/intc.c \
 		$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/pm_at32ap7000.c \
 		$(APPPATH)NGW100/usart.c \
 		$(APPPATH)NGW100/platform.c  $(APPPATH)NGW100/native.c
-ASSSOURCESNGW100	= $(APPPATH)NGW100/exception.S $(APPPATH)NGW100/crt0.S
+
+ASSSOURCESNGW100 = $(APPPATH)NGW100/exception.S $(APPPATH)NGW100/crt0.S
+
 STK1000SOURCES	= $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/usart.c\
 		$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c \
 		$(APPPATH)STK1000/ltv350qv.c $(APPPATH)STK1000/at32stk1000.c \
 		$(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c $(APPPATH)STK1000/intc.c \
 		$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
 		$(APPPATH)STK1000/bmplib.c $(APPPATH)STK1000/platform.c $(APPPATH)STK1000/native.c
+
 LINUXSOURCES	= $(APPPATH)LINUX/platform.c $(APPPATH)LINUX/native.c
 
 ASSSOURCESUC3A	= $(APPPATH)/EVK1100/crt0.S
-ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
-else
+
+# EVK1100 bajos can be loaded from monitor bamo32 (cs.ba-berlin.de)
+ifneq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 ASSSOURCESUC3A+= $(APPPATH)/EVK1100/trampoline.S $(APPPATH)/EVK1100/exception.S
 endif
 
@@ -181,16 +203,19 @@ BIN		= $(TARGETFILE:$(TGTTYPE)=.bin)
 # BINUTILS-BINARIES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 RM		= rm -Rf
-ifeq ($(findstring avr8,$(MAKECMDGOALS)),avr8)
+
+ifneq  "" "$(filter CH AM,$(TARGETHW))"
 OBJDUMP		= $(AVR8ROOT)avr-objdump
 OBJCOPY		= $(AVR8ROOT)avr-objcopy
 SIZE		= $(AVR8ROOT)avr-size
+CC = avr-gcc
 else
 OBJDUMP		= $(AVR32BIN)avr32-objdump
 OBJCOPY		= $(AVR32BIN)avr32-objcopy
 SIZE		= $(AVR32BIN)avr32-size
 PROGRAM		= $(AVR32BIN)avr32program
 endif
+
 SLEEP		= sleep
 SLEEPUSB	= 9
 
@@ -213,28 +238,41 @@ verbose:
 	@:
 endif
 
+
+
+
+
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # THE RULES
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-ifeq  ($(TARGETHW), avr8)
-OBJFILES	= $(BAJOSSOURCES:.c=.o) $(AVR8SOURCES:.c=.o)
+
+ifeq  ($(TARGETHW), CH)
+OBJFILES	= $(BAJOSSOURCES:.c=.o) $(CHARONSOURCES:.c=.o) $(CHARONASMSOURCES:.asm=.o)
 ARCH		= AVR5
 PART		= atmega128
-CC		= avr-gcc
 TEXTSEGMENT	= 0x100
 STACKSEGMENT	= 0x4000
 
-avr8:
+charon:
+	@:
+ch:
+	@:
+CH:	
 	@:
 
-all:	clean compile bootclasses bootpack
+all:	clean compile bootclasses bootpack apppack
 
 compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
 	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800900,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff,--defsym=__stack=0x800800    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+
+#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--defsym=__heap_end=0x807eff  -Wl,--defsym=__stack=0x807f00   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
+
+
+
 # ... <- stack 0x1100 data -> bss ->  0x2200 heap->
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
@@ -248,11 +286,114 @@ bootpack:
 	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
 	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
 
+apppack:
+	@echo -n generate file: avr8app\; numClasses: 
+	@printf %4d `echo $(AVR8APPCLASSES)| wc -w` |tee  avr8app
+	@for i in $(AVR8APPCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8app;	cat $$i >> avr8app;	done
+	@echo "  length:" `ls -l avr8app | cut -f5 -d' '`
+
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
-endif #avr8
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
 
+%o : %asm
+	@echo $(MSG_COMPILING)
+	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
+endif #charon
+
+
+
+
+
+ifeq  ($(TARGETHW), AM)
+OBJFILES	= $(BAJOSSOURCES:.c=.o) $(ARDUINOMEGASOURCES:.c=.o) $(ARDUINOMEGAASMSOURCES:.asm=.o)
+ARCH		= AVR5
+PART		= atmega1280
+DEFS = -DAVR8 -DAM
+ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
+# Linker script file if any
+#LINKER_SCRIPT	= $(APPPATH)EVK1100/link_uc3a0512.lds
+DEFS+= -DWITHMON
+all:	clean  bootclasses compAM bootpack apppack compile
+
+else
+CLASSFILEBASE=(2*0xB000)
+all:	clean  bootclasses compAM bootpack apppack compile upLoad
+
+endif
+withmon:
+	@:
+arduinoMega:
+	@:
+am:
+	@:
+AM:	
+	@:
+
+compile: $(TARGETFILE)
+
+upLoad:
+	$(OBJCOPY) -Oihex -Ibinary bajos.bin  bajos.hex
+	avrdude -p m1280 -c avrispmkII -e -P usb  -Uflash:w:bajos.hex:i
+
+writeFuses:
+	avrdude -p m1280 -c avrispmkII  -P usb  -Ulfuse:w:0xff:m
+	avrdude -p m1280 -c avrispmkII  -P usb  -Uhfuse:w:0xd9:m
+	avrdude -p m1280 -c avrispmkII  -P usb  -Uefuse:w:0xf5:m
+
+ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
+$(TARGETFILE):	${OBJFILES}
+	@echo $(MSG_LINKING)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802100 
+
+#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+
+##		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
+## ... <- stack 0x1100 data -> bss ->  0x2200 heap->
+	@echo $(MSG_BINARY_IMAGE)
+	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
+	@${CC} --version
+##		@rm ${EXE}
+## -Wl,-u,vfprintf -lprintf_flt
+else
+$(TARGETFILE):	${OBJFILES}
+	@echo $(MSG_LINKING)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802100 
+
+#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+
+##		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
+## ... <- stack 0x1100 data -> bss ->  0x2200 heap->
+	@echo $(MSG_BINARY_IMAGE)
+	$(VERBOSE_CMD) $(AVR8ROOT)avr-objcopy -O binary $(TARGETFILE)  $(BIN)
+	$(VERBOSE_CMD)cat $(BIN) > bajos.bin
+	$(VERBOSE_CMD)(((i=`ls -l $(BIN) | cut -f5 -d' '`));while ((i < $(CLASSFILEBASE)));  do  ((i=i+1)); echo -e -n "\000" >> bajos.bin;  done)
+	$(VERBOSE_CMD)cat avr8bootpack >> bajos.bin
+	$(VERBOSE_CMD)cat avr8app >> bajos.bin
+	@echo Creating binary image to \`bajos.bin\'	.
+	@${CC} --version
+endif
+bootpack:
+	@echo -n generate file: avr8bootpack\; numClasses: 
+	@printf %4d `echo $(AVR8BOOTCLASSES)| wc -w` |tee  avr8bootpack
+	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
+	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
+
+
+apppack:
+	@echo -n generate file: avr8app\; numClasses: 
+	@printf %4d `echo $(AVR8APPCLASSES)| wc -w` |tee  avr8app
+	@for i in $(AVR8APPCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8app;	cat $$i >> avr8app;	done
+	@echo "  length:" `ls -l avr8app | cut -f5 -d' '`
+
+%.o: %.c
+	@echo $(MSG_COMPILING)
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall $(DEFS) ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
+
+%o : %asm
+	@echo $(MSG_COMPILING)
+	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -Wall -DCH -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -gstabs -Wa,-ahlms=$(<:.asm=.lst)  -c $< -o $@
+endif #arduinoMega
 
 ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
 OBJFILES	= $(BAJOSSOURCES:.c=.o) $(LINUXSOURCES:.c=.o) 
@@ -307,8 +448,8 @@ OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
 CC		= $(AVR32BIN)avr32-gcc
 ARCH		= ucr1
 # Part: {none|ap7xxx|uc3xxxxx}
-PART		= uc3a0512   # suse 10.3
-#PART = uc3a0512es  #suse 11.1
+#PART		= uc3a0512   # suse 10.3
+PART = uc3a0512es  #suse 11.1
 # Flash memories: [{cfi|internal}@address,size]...
 FLASH		= internal@0x80000000,512Kb
 # Clock source to use when programming: [{xtal|extclk|int}]
@@ -702,6 +843,10 @@ compNGW100:
 
 compCharon:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/Charon.java
+
+compAM:	
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/AM.java
+
 
 compEVK1100:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(APPCLASSPATH)/EVK1100.java
