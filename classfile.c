@@ -381,8 +381,8 @@ a=getU2(pc+6);
 pc+=8;		
 		if (a==0) continue; // native method
 		for (m=0; m<a;m++)																						{ // attributes of method
-		char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
-			if (strncmp("Code", (char*)adr,4)==0)	{
+		const char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
+			if (strncmp("Code", adr,4)==0)	{
 #ifdef DEBUG
 				printf("\t\tCode: attribute_length: %d\n",getU4(pc));
 				printf("\t\tCode: max_stack: %d\n", getU2(pc+4));
@@ -411,26 +411,26 @@ pc+=etl*8;
 					printf("\t\tCode: attributes_count: %d\n",	h);
 #endif
 					for (i=0;i< h;i++)	{
-						char*addr=getAddr(c->constant_pool[getU2(0)]+3);
-						if (strncmp("LineNumberTable",(char*)addr, 15)==0 )	pc=getU4(0)+pc;	
-						if (strncmp("LocalVariableTable",(char*)addr, 18)==0)	pc=getU4(0)+pc;	
+						const char*addr=getAddr(c->constant_pool[getU2(0)]+3);
+						if (strncmp("LineNumberTable",addr, 15)==0 )	pc=getU4(0)+pc;	
+						if (strncmp("LocalVariableTable",addr, 18)==0)	pc=getU4(0)+pc;	
 										}		}
-			if (strncmp("Exceptions", (char*)adr,10)==0)		{
+			if (strncmp("Exceptions", adr,10)==0)		{
 #ifdef DEBUG
 			printf("exception object\n");
 #endif
 			mN=n;
-			u4 n=getU4(0);
-			n=getU2(0);
+			u4 n2=getU4(0); //attribute_length. don't need that.
+			n2=getU2(0);
 #ifdef DEBUG
-			for (i=0;i<n;i++)	
+			for (i=0;i<n2;i++)	
 			printf("\t\t\texception: nr: %d class: %d\n",i,getU2(pc+2*i));
 #endif
-pc+=2*n;
+pc+=2*n2;
 			//pc=(u2)getU4(0)+pc;
 			}
-			if (strncmp("Synthetic", (char*)adr,9)==0)		pc+=4;
-			if (strncmp("Deprecated",(char*) adr,10)==0)	pc+=4;								}
+			if (strncmp("Synthetic", adr,9)==0)		pc+=4;
+			if (strncmp("Deprecated", adr,10)==0)	pc+=4;								}
 	}	// methods_count
 }
 	

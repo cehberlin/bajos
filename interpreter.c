@@ -54,6 +54,7 @@ static s2	count;
 
 void run() {	// in: classNumber,  methodNumber cN, mN
 	u1 code, byte1, byte2;
+	u2 heapPos;
 	pc	= getStartPC();
 	do {		//while(1)
 		code	= getU1(0);
@@ -401,7 +402,6 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 		CASE	FMUL:
 			DEBUGPRINTLN1("FMUL");
 			opStackPoke(( slot)(opStackPop().Float * opStackPeek().Float));
-			DEBUGPRINTSTACK;	//mb jf
 
 		CASE	DMUL:
 			DNOTSUPPORTED;
@@ -703,9 +703,8 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 				relPc = (u2)((relPc + 4) & 0xfffc); // next pc as multiple of 4 from address of 0xab (lookupswitch)
 				pc = relPc +getStartPC();// pcMethodStart;	// set pc to begin of default address
 				u4 offset = getU4(0);	// default offset
-				u4 matches = getU4(0);
-				u4 count;
-				for (count=0;count < matches;count++) {
+				u4 matches;
+				for (matches = getU4(0) ; matches > 0; --matches) {
 					u4 match = getU4(0);
 					u4 tmpOffset = getU4(0);
 					if (key == match) {
@@ -1176,7 +1175,7 @@ nativeVoidReturn:
 
 		CASE	ANEWARRAY:
 			DEBUGPRINTLN1("anewarray");	// mb jf
-			u2 local_index = getU2(0); // index into the constant_pool
+			pc+=2; // index into the constant_pool. Bajos performs no verification
 			s2 *cnt = (s2 *) malloc(sizeof(s2));
 			*cnt = 0;
 			opStackPush(createDims(1, cnt));	// call recursive function to allocate heap for arrays
@@ -1407,7 +1406,7 @@ nativeVoidReturn:
 
 		CASE	MULTIANEWARRAY:
 			DEBUGPRINTLN1("multianewarray");	// mb jf
-			u2 index = getU2(0); // index into the constant_pool
+			pc+=2; // index into the constant_pool. Bajos performs no verification
 			u1 dim = getU1(0);	// dimensions
 
 			s2 *local_cnt = (s2 *) malloc(sizeof(s2));
@@ -1466,29 +1465,28 @@ u1 checkInstance(const u2 target) {
 	return (target == cN);
 }
 
-slot createDims(u4 dimsLeft, s2 *count) {
+slot createDims(u4 dimsLeft, s2 *dimSize) {
 	slot act_array = NULLOBJECT;
 	if (dimsLeft == 0) {
 		return act_array;
 	}
-	if (*count == 0) {
-		*count = (s2) opStackPop().Int;
+	if (*dimSize == 0) {
+		*dimSize = (s2) opStackPop().Int;
 	}
-	if (*count < 0) {
+	if (*dimSize < 0) {
 		NEGATIVEARRAYSIZEEXCEPTION;
-	} else if (*count > (MAXHEAPOBJECTLENGTH-1)) {
+	} else if (*dimSize > (MAXHEAPOBJECTLENGTH-1)) {
 		ARRAYINDEXOUTOFBOUNDSEXCEPTION;
 	} else {
-		u4 heapPos = getFreeHeapSpace(*count + 1); // + marker
+		u2 heapPos = getFreeHeapSpace(*dimSize + 1); // + marker
 		act_array.stackObj.pos=heapPos;
 		act_array.stackObj.magic=OBJECTMAGIC;
-		act_array.stackObj.arrayLength=*count;
+		act_array.stackObj.arrayLength=*dimSize;
 		HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 		HEAPOBJECTMARKER(heapPos++).magic=OBJECTMAGIC;
 		s2 *cnt = (s2 *) malloc(sizeof(s2));
 		*cnt = 0;
-		u2 i;
-		for ( i = 0 ; i < *count ; ++i) {
+		for ( i = 0 ; i < *dimSize ; ++i) {
 			heapSetElement(createDims(dimsLeft - 1, cnt), heapPos++);
 		}
 		free (cnt);
@@ -1516,7 +1514,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 		CLASSNOTFOUNDERR(identifier);
 	}
 
-	heapPos = getFreeHeapSpace(getU2(cs[cN].fields_count) + 1);	// + marker
+	u2 heapPos = getFreeHeapSpace(getU2(cs[cN].fields_count) + 1);	// + marker
 	first.stackObj.pos=heapPos;
 	first.stackObj.magic=OBJECTMAGIC;
 	first.stackObj.classNumber=cN;
@@ -1556,7 +1554,6 @@ void handleException() {
 
 	DEBUGPRINTLN2("trying to catch class number %d", classNumberFromPushedObject);
 	DEBUGPRINTLN2("%d catch clauses", n);
-	u2 i;
 	for (i = 0 ; i < n ; ++i) {
 		u2 cur_catch = METHODCODEEXCEPTIONBASE(cN,mN) + 8*i;
 

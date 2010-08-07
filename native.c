@@ -127,9 +127,9 @@ u2	numNativeClasses=sizeof(nativeNames)/sizeof(*nativeNames);
 u2	numMethods=0;
 u1*	nativeCNMN;
 int	numEntryNativeCNMN=MAXNATIVEMETHODS;
-u2 	i;
 
 char	nativeDispatch()	{
+u2 i;
 for(i=0;i<numMethods;i++)	
 	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
@@ -194,6 +194,7 @@ switch(i)					{
 void	initNativeDispatch()	{
 char* methodDescr=NULL;	// without signature
 u2 methodDescrLength=0;
+u2 i;
 if ((nativeCNMN=(u1*)malloc(2*numEntryNativeCNMN*sizeof(u1)))==NULL) exit(-1);
 for(i=0;i < numNativeClasses;i++)		   {
 	for(cN=0; cN < numClasses;cN++)			{
@@ -513,6 +514,7 @@ char nativeParseFloat()	{
 slot mySlot=opStackGetValue(local); // the char array
 char buf[mySlot.stackObj.arrayLength];
 f4 f;
+u4 i;
 for (i=0;i<mySlot.stackObj.arrayLength;i++) 
 buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
 buf[mySlot.stackObj.arrayLength]=0;
@@ -525,9 +527,10 @@ char floatToCharArray()	{
 	slot mySlot;
 	f4 f=opStackGetValue(local).Float;	// the float
 	char buf[8];
+	u1 i;
 	for(i=0; i<8; ++i) {buf[i]=0;}
 	snprintf(buf,8,"%G",f);
-	heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
+	u2 heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
 	mySlot.stackObj.pos=heapPos;
 	mySlot.stackObj.magic=OBJECTMAGIC;
 	//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
@@ -555,9 +558,9 @@ char controlLCD(){return 0;}
 void timer_Init()	{}
 
 char currentTimeMillis()	{
-struct timeval start;
-gettimeofday(&start,NULL);
-opStackPush((slot)(u4)((start.tv_sec*1000+start.tv_usec/1000)&0xFFFFFFFF));
+struct timeval timerstart;
+gettimeofday(&timerstart,NULL);
+opStackPush((slot)(u4)((timerstart.tv_sec*1000+timerstart.tv_usec/1000)&0xFFFFFFFF));
 return 1;
 }
 #endif
@@ -930,8 +933,8 @@ char drawLineHSB()
 	printf("point, z koordinate: %f\n",z2);
 	f4 h2=heapGetElement(mySlot.stackObj.pos+4).Float;
 	printf("point, h koordinate: %f\n",h2);
-	f4 s2=heapGetElement(mySlot.stackObj.pos+5).Float;
-	printf("point, s koordinate: %f\n",s2);
+	f4 _s2=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",_s2);
 	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b2);
 
@@ -967,8 +970,8 @@ char drawTriangleFill()
 	printf("point, z koordinate: %f\n",z2);
 	f4 h2=heapGetElement(mySlot.stackObj.pos+4).Float;
 	printf("point, h koordinate: %f\n",h2);
-	f4 s2=heapGetElement(mySlot.stackObj.pos+5).Float;
-	printf("point, s koordinate: %f\n",s2);
+	f4 _s2=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",_s2);
 	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b2);
 
@@ -1040,8 +1043,8 @@ char drawLineHSBZBuffer()
 	printf("point, z koordinate: %f\n",z2);
 	f4 h2=heapGetElement(mySlot.stackObj.pos+4).Float;
 	printf("point, h koordinate: %f\n",h2);
-	f4 s2=heapGetElement(mySlot.stackObj.pos+5).Float;
-	printf("point, s koordinate: %f\n",s2);
+	f4 _s2=heapGetElement(mySlot.stackObj.pos+5).Float;
+	printf("point, s koordinate: %f\n",_s2);
 	f4 b2=heapGetElement(mySlot.stackObj.pos+6).Float;
 	printf("point, b koordinate: %f\n",b2);
 	return 0;
