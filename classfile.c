@@ -29,31 +29,23 @@
 #define		BYTES(x)	((x)*2)
 #define		STRING(a,b)		#a" "#b
 #define		INLINEASM(a,b)	STRING(a,b)
-#endif
-#include <string.h>
-
-#include "classfile.h"
-
-#ifdef AVR8
-#define		loadInSRam1		(2*(0xf000+26))
+/*#define		loadInSRam1		(2*(0xf000+26))
 u2 	loadInSram1(u1*) __attribute__ ((naked));
 u2 loadInSram1(unsigned char* addr)	{
 asm	 (INLINEASM(jmp,loadInSRam1));	
 return 0;				}
-#endif
-
-#ifdef AVR8
-#define		STRING(a,b)		#a" "#b
-#define		INLINEASM(a,b)	STRING(a,b)
+*/
 // atmega128 Monitor functions
 #define		loadInSRam		(2*(0xf000+26))
 u2 	loadInSram(u1*) __attribute__ ((naked));
 u2 loadInSram(unsigned char* addr)	{
 asm	 (INLINEASM(jmp,loadInSRam));			}
 #endif
+#include <string.h>
+
+#include "classfile.h"
 
 u2 readClassFileneu(u1* fileName,u1* addr)		{
-
 #ifdef LINUX
 int fd;
 u2 classFileLength=-(u2)((long)addr%(1<<16))-1;
@@ -69,21 +61,18 @@ printf("\nLaden der AnwendungsKlassen - Geben Sie ein  'w' ein\n");
 classFileLength=(*loadInSram)(addr);
 return classFileLength;
 #endif
-
 #if (AVR32UC3A||AVR32AP7000)
 int i;
 char c=conIn(); // dummy w
 if (c =='w')	{
 conOut(4);//turn off echo
 c=conIn();	//s
-while ((c=conIn())=='p'){ 
-//if (c=='p) // apage comes
+while ((c=conIn())=='p'){ // a page comes
 c=conIn();
 c=conIn();		// address
 conOut('w');
 for (i=0; i < 256;i++) *(addr++)=conIn();
 conOut('w');}
-
 conOut(5);// turn on echo uploadendS
 while((c=conIn())==' ');
 i=0;
@@ -98,9 +87,7 @@ else	{
 conOut(5); // turn on echo
 return (u2) 0;
 }
-
 #endif
-
 }
 
 // classSTA and pc are global values for actual class and method
@@ -115,7 +102,6 @@ u4 getU4(u2 pos){	return (((u4)getU2(pos)<<16)|(u4)getU2((pos==0)?0:pos+2));	}
 u8 getU8(u2 pos){	return (((u8)getU4(pos)<<32)|(u8)getU4((pos==0)?0:pos+2));	}
 
 f4 getFloat(u2 pos){	return  getU4(pos);	}
-//u4 val=getU4(pos); return (f4)*(f4*)&val;	}
 
 double getDouble(u2 pos){	return getU8(pos);	}
 
@@ -135,16 +121,10 @@ u1 findNumArgs(u2 methodRef)	{	//  count BCDFIJLSZ in runden Klammern!!
 	u1 on=1;
 	for (i=0; i <getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,methodRef)+3))+3))+1);i++)	{
 		c=*(u1*)(getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,methodRef)+3))+3))+3)+i);
-		if (c=='(' )
-			continue;
-		if (c==')')
-			break;
-		if (c=='L'){
-			on=0;
-			n++;
-		}
-		if (c==';')
-			on=1;
+		if (c=='(' )			continue;
+		if (c==')')				break;
+		if (c=='L'){			on=0; n++; }
+		if (c==';')				on=1;
 		if (on)
 			if ((c=='B')||(c=='C')||(c=='D')||(c=='F')||(c=='I')||(c=='J')||(c=='S')||(c=='Z'))
 				n++;																				}
@@ -152,7 +132,7 @@ u1 findNumArgs(u2 methodRef)	{	//  count BCDFIJLSZ in runden Klammern!!
 }
 
 u2	findMaxLocals()	{	//cN,mN
-return getU2(getStartPC()-6);
+	return getU2(getStartPC()-6);
 }
 
 u1 findMethod(u1* className, u1 classNameLength, u1* methodName, u1 methodNameLength,u1* methodDescr,u1 methodDescrLength)		{ 
@@ -196,11 +176,9 @@ u1* findMethodByMethodNumber()		{	//mb jf  in: methodNumber, out: methodName
 }
 	
 u1 findClass(u1* className,u1 classNameLength)	{  // out: cN
-//int i;
-//for (i=0; i < classNameLength;i++)printf("%c",*(className+i));
-//printf("\n");
+//printf(" %s %x ",className,classNameLength);
 	for (cN=0; cN < numClasses;cN++)			{
-		if (classNameLength !=(u1)getU2(
+		if (classNameLength !=(u2)getU2(
 				cs[cN].constant_pool[	
 					getU2(cs[cN].constant_pool[
 						getU2(cs[cN].this_class)]+1			
@@ -212,6 +190,19 @@ u1 findClass(u1* className,u1 classNameLength)	{  // out: cN
 						getU2(cs[cN].this_class)]+1			
 					)
 					]+3),classNameLength)==0){ 
+/*
+int i;
+for (i=0; i < (u2)getU2(
+				cs[cN].constant_pool[	
+					getU2(cs[cN].constant_pool[
+						getU2(cs[cN].this_class)]+1			
+					)]+1);i++)printf("%c",*((char*)getAddr(cs[cN].constant_pool[	
+					getU2(	cs[cN].constant_pool[
+						getU2(cs[cN].this_class)]+1			
+					)
+					]+3+i)));
+printf("\n");
+*/
 			return 1;
 		}
 	}
@@ -222,99 +213,93 @@ void analyzeClass(classStructure* c)	{
 	u2 ln,i;
 	u2 attribute_name_index;
 	pc=0;
-						// static class object
-						//without gc: enough heap space for static class objects
-						HEAPOBJECTMARKER(heapTop).status=HEAPALLOCATEDSTATICCLASSOBJECT;			// static classfile object
-						HEAPOBJECTMARKER(heapTop).magic=OBJECTMAGIC;
-						HEAPOBJECTMARKER(heapTop).rootCheck=1;
-						HEAPOBJECTMARKER(heapTop).mutex = MUTEXNOTBLOCKED;
-						//HEAPOBJECTMARKER(heapTop).type = STACKSTATICCLASSOBJECT;
-
-						//HEAPOBJECTMARKER(heapTop).waitSetNumber = NUMWAITSETS;		// NULL
-						HEAPOBJECTMARKER(heapTop).length = 1; // evtl. später überschreiben	
-						cs[cN].classInfo.stackObj.pos=heapTop++;
-						cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
-						cs[cN].classInfo.stackObj.classNumber=cN;
-						//2008cs[cN].classInfo.stackObj.type	=STACKSTATICCLASSOBJECT;
+		// static class object
+		//without gc: enough heap space for static class objects
+		HEAPOBJECTMARKER(heapTop).status=HEAPALLOCATEDSTATICCLASSOBJECT;// static classfile object
+		HEAPOBJECTMARKER(heapTop).magic=OBJECTMAGIC;
+		HEAPOBJECTMARKER(heapTop).rootCheck=1;
+		HEAPOBJECTMARKER(heapTop).mutex = MUTEXNOTBLOCKED;
+		HEAPOBJECTMARKER(heapTop).length = 1; // evtl. später überschreiben	
+		cs[cN].classInfo.stackObj.pos=heapTop++;
+		cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
+		cs[cN].classInfo.stackObj.classNumber=cN;
 #ifdef DEBUG
 	printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
 #endif
-	c->magic=pc;
+		c->magic=pc;
 #ifdef DEBUG
-printf("cf\tmagic:\t%X\t", getU4(0));	// 0
+		printf("cf\tmagic:\t%X\t", getU4(0));	// 0
 #else
-pc+=4;
+		pc+=4;
 #endif
-	c->minor_version=pc++;			// 4
-	c->major_version=++pc;			// 6
+		c->minor_version=pc++;			// 4
+		c->major_version=++pc;			// 6
 #ifdef DEBUG
-	printf("version:\t%d.%d\n", getU2(0),getU2(c->minor_version));
+		printf("version:\t%d.%d\n", getU2(0),getU2(c->minor_version));
 #else
-pc+=2;
+		pc+=2;
 #endif
-	c->constant_pool_count=pc;
+		c->constant_pool_count=pc;
 #ifdef DEBUG
-	printf("cf\tconstant_pool_count:\t%d\n", getU2(pc));			//8
+		printf("cf\tconstant_pool_count:\t%d\n", getU2(pc));			//8
 #endif
-pc+=2;
+		pc+=2;
 	if ((c->constant_pool=(u2*)malloc(sizeof(u2)*getU2(c->constant_pool_count)))==NULL) // -2 möglich wegen 0!!
-		printf("malloc error\n");;
-	analyseConstantPool(c);
-	c->access_flags=pc;
+		printf("malloc error\n");
+		analyseConstantPool(c);
+		c->access_flags=pc;
 #ifdef DEBUG	
-	printf("cf\taccess_flags: %d\n",getU2(pc));
+		printf("cf\taccess_flags: %d\n",getU2(pc));
 #endif
-pc+=2;
-	c->this_class=pc;	
+		pc+=2;
+		c->this_class=pc;	
 #ifdef DEBUG
-	printf("cf\tthis_class: %d\n",getU2(pc));
+		printf("cf\tthis_class: %d\n",getU2(pc));
 #endif
-pc+=2;
-	c->super_class=pc;
+		pc+=2;
+		c->super_class=pc;
 #ifdef DEBUG	
-	printf("cf\tsuper_class: %d\n",getU2(pc));
+		printf("cf\tsuper_class: %d\n",getU2(pc));
 #endif
-pc+=2;
-	c->interfaces_count=pc;
+		pc+=2;
+		c->interfaces_count=pc;
 #ifdef DEBUG	
-	printf("cf\tinterfaces_count: %d\n",getU2(pc));
+		printf("cf\tinterfaces_count: %d\n",getU2(pc));
 #endif
-pc+=2;
+		pc+=2;
 	// c->interfaces=getAddress();	// no interfaces-> to do
 	// printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
-	c->fields_count=pc;
+		c->fields_count=pc;
 #ifdef DEBUG	
-	printf("cf\tfields_count: %d\n",getU2(pc));
+		printf("cf\tfields_count: %d\n",getU2(pc));
 #endif
-pc+=2;
-	c->field_info=NULL;
-	if (getU2(c->fields_count)!=0){ 
-		if ((	c->field_info=(u2*)malloc(sizeof(u2)*getU2(c->fields_count)))==NULL)printf("malloc error\n");
-			analyzeFields(c);
-	} 
-	c->methods_count=pc;
+		pc+=2;
+		c->field_info=NULL;
+		if (getU2(c->fields_count)!=0)	{ 
+			if ((	c->field_info=(u2*)malloc(sizeof(u2)*getU2(c->fields_count)))==NULL)
+				printf("malloc error\n");
+			analyzeFields(c);			} 
+		c->methods_count=pc;
 #ifdef DEBUG
-	printf("cf\tmethods_count: %d\n",getU2(pc));
+		printf("cf\tmethods_count: %d\n",getU2(pc));
 #endif
-pc+=2;
-	c->method_info=NULL;
-	if (getU2(c->methods_count)!=0){
-		if ((	c->method_info=(u2*)malloc(2*sizeof(u2)*getU2(c->methods_count)))==NULL)printf("malloc error\n");
-			analyseMethods(c);
-	}
-	ln=getU2(0);
+		pc+=2;
+		c->method_info=NULL;
+		if (getU2(c->methods_count)!=0)	{
+			if((c->method_info=(u2*)malloc(2*sizeof(u2)*getU2(c->methods_count)))==NULL)
+			printf("malloc error\n");
+		analyseMethods(c);				}
+		ln=getU2(0);
 	for (i=0; i <ln; i++){
 		attribute_name_index=getU2(0); // jetzt raus kriegen, was fuer ein atrr
-		if (strncmp("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9)==0){
+		if (strncmp("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9)==0)	{
 #ifdef DEBUG
 			printf("cf-attributes: count: %d ",ln);
 			printf("attribute_length: %d",getU4(pc));
 			printf(" attribute_index: %d\n",getU2(pc+4));
 #endif
-pc+=6;
-		}
-	}
-}	
+			pc+=6;																			}				}
+}
 
 void analyseConstantPool(classStructure* c){
 	u2 n,length;
@@ -484,12 +469,11 @@ pc+=8;
 u2	getStartPC()	{	//cN,mN
 	u2 attrLength = 0;  // search code-position
 	u2 i;
-for (i=0;i<getU2(METHODBASE(cN,mN)+6);i++) 					{// number of attributes
+for (i=0;i<getU2(METHODBASE(cN,mN)+6);i++) 		{// number of attributes
 if(strncmp(	"Code",
-			getAddr(	cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+attrLength)]+3	),
+			getAddr(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+8+attrLength)]+3),
 			4)==0)	
 			return (u2)METHODBASE(cN,mN)+8+14+attrLength;
-				
 			attrLength=getU4(METHODBASE(cN,mN)+8)+6;//+attrLength;		????
 			}	 // < 64K	
 return -1;
@@ -691,17 +675,17 @@ return classFileLength;
 int i;
 char c=conIn(); // dummy w
 if (c =='w')	{
-conOut(4);//turn off echo
-c=conIn();	//s
+conOut(4);		//turn off echo
+c=conIn();		//s
 while ((c=conIn())=='p'){ 
-//if (c=='p) // apage comes
+//if (c=='p) 	// apage comes
 c=conIn();
 c=conIn();		// address
 conOut('w');
 for (i=0; i < 256;i++) *(addr++)=conIn();
 conOut('w');}
 
-conOut(5);// turn on echo uploadendS
+conOut(5);		// turn on echo uploadendS
 while((c=conIn())==' ');
 i=0;
 do
@@ -712,10 +696,8 @@ return (u2)i;
 }
 else	{
 //uploadends2
-conOut(5); // turn on echo
-return (u2) 0;
+	conOut(5); // turn on echo
+	return (u2) 0;
 }
-
 #endif
-
 }
