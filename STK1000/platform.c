@@ -214,7 +214,6 @@ appClassFileBase=STK1000_SDRAM_JAVA_BASE;	/* app classes in sdram*/
 								}
 #endif
 
-#if (NGW100||STK1000|| EVK1100)
 /* analyze bootclasses, which are programmed in flash*/
 strncpy(buf,classFileBase,4);
 buf[4]=0;
@@ -230,28 +229,25 @@ analyzeClass(&cs[cN]);
 addr+=cs[cN].classFileLength+4;
 }
 printf("%d bootclasses are loaded\n",cN);
-cN=numClasses;
 /* thats to boot classes*/
 /* now the application classes*/
-cN--;
 addr=appClassFileBase;
 length=0;
 		do
 		{
 		printf("load application classes-> type \"w\" \n");
-			cN++;
 			cs[cN].classFileStartAddress=addr+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
 			printf("\n");
 			length+=cs[cN].classFileLength;
 			analyzeClass(&cs[cN]);
+			cN++;
 			printf("still another appl. class ? (y) \n");
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
 /*!!*/
-cN++;
-#endif
+numClasses=cN;
 DEBUGPRINTHEAP;
 }
 
