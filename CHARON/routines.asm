@@ -1,10 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-
-#define AVR8_FLASH_JAVA_BASE	0x6000	// 20k boot classes in flash	-> 0xB000
-
-
 .global getU1Flash
 .global strncmpFlashFlash
 .global strncmpRamFlash
