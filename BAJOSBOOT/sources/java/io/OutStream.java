@@ -1,6 +1,6 @@
 package java.io;
 import platform.*;
-import java.lang.*;
+//import java.lang.*;
 
 
 public class OutStream	{
@@ -21,7 +21,7 @@ public synchronized void  println()				{
 print('\n');							}
 
 public synchronized void print(char c)		{
-System.nativeCharOut(c);		
+PlatForm.nativeCharOut(c);		
 }
 
 public synchronized void println(char c)		{
