@@ -15,8 +15,11 @@ public class SchedulerTest extends Thread	{
 	}
 
 	public void run()	{
+//System.out.println("run "+ nr);
 		setPriority(prio);
+
 		for(int i=0;i<20;i++){
+/*
 			if(prio==4 && i==10){
 				synchronized(foo){
 					try{
@@ -26,12 +29,13 @@ public class SchedulerTest extends Thread	{
 				}		
 			}
 			System.out.println("My nr: "+ this.nr + " My prio: " + getPriority() + " Counter: " + i);
-		}
+*/		
+System.out.println("My nr: "+ this.nr + " My prio: " + getPriority() + " Counter: " + i);
+}
 	}
 
 	public static void main(String args[]){
-
-		SchedulerTest t1=new SchedulerTest(1,8);	
+		SchedulerTest t1=new SchedulerTest(1,8);
 		SchedulerTest t2=new SchedulerTest(2,4);
 		SchedulerTest t3=new SchedulerTest(3,2);
 		SchedulerTest t4=new SchedulerTest(4,8);
