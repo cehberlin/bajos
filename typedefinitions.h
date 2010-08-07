@@ -70,7 +70,7 @@ u2		methodSpPos;	// relative to methodStackBase
 u1		tid;
 u1		priority;
 u1		numTicks;
-u1		status;		// THREADNOTBLOCKED, THREADMUTEXBLOCKED, THREADWAITBLOCKED, THREADWAITAWEAKENED
+u1		state;		// THREADNOTBLOCKED, THREADMUTEXBLOCKED, THREADWAITBLOCKED, THREADWAITAWEAKENED
 struct ThreadControlBlock* 	pred;
 struct ThreadControlBlock* 	succ;
 slot	isMutexBlockedOrWaitingForObject;
