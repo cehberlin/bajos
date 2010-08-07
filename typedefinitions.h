@@ -7,15 +7,14 @@
 #include "limits.h"
 	typedef unsigned char	u1;
 	typedef signed char	s1;
-	typedef float				f4;
-	
-	#ifdef UNIX
-	#ifdef __i386__
-		typedef  unsigned short	u2;
+	typedef float		f4;
+	#if (LINUX || AVR32UC3A|| AVR32AP7000)
+	#if ( __i386__ || AVR32UC3A|| AVR32AP7000 ) 
+		typedef  unsigned short		u2;
 		typedef  unsigned int		u4;
 		typedef  unsigned long	long	u8;	
 		typedef  signed short		s2;
-		typedef  signed int			s4;
+		typedef  signed int		s4;
 	#endif
 	#ifdef __x86_64__
 		typedef  unsigned short	u2;
@@ -24,7 +23,8 @@
 		typedef  signed short		s2;
 		typedef  signed int			s4;
 	#endif
-	#else		// avr
+	#endif
+	#ifdef AVR8
 		typedef  unsigned int		u2;
 		typedef  unsigned long		u4;
 		typedef  unsigned long long	u8;
