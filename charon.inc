@@ -30,7 +30,7 @@ PLATFORMCSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHA
 			$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
 PLATFORMASMSOURCES 	= $(APPPATH)CHARON/routines.asm $(APPPATH)CHARON/routines_stack.asm
 
-OBJFILES		+=	$(PLATFORMASMSOURCES:.asm =.o)
+OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 
 
 all:	clean compile bootclasses compCharon bootpack app
