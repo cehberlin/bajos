@@ -42,8 +42,12 @@ u1 i,k;
 		      	threadPriorities[i].cb=threadPriorities[i].cb->succ;	
 		}		
 	}
-
-	errorExit(78,"thread not found");
+	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+		errorExit(78, PSTR("thread not found\n"));
+	#else
+		errorExit(78,"thread not found");
+	#endif	
+	
 	return NULL;
 }
 
@@ -199,7 +203,13 @@ void	createThread(void)			{
 	}
 	else				{
 		  cN=opStackGetValue(local).stackObj.classNumber;
-	  	  if (!findFieldByRamName("priority",8,"I",1)) errorExit(77,"field priority not found");
+	  	  if (!findFieldByRamName("priority",8,"I",1)){
+			#ifdef AVR8
+				errorExit(77,PSTR("field priority not found"));
+			#else
+				errorExit(77,"field priority not found");
+			#endif
+		  }
 		  t->pPriority=(u4*)(heapBase+opStackGetValue(local).stackObj.pos+fNO+1);
 		   // position of int field priority of the thread creating object, next field is aLive
 		  cN=opStackGetValue(local).stackObj.classNumber;  // restore class number of object
@@ -315,15 +325,18 @@ void scheduler(void)	{
 
 	threadFound=0;
 
+	//printf("threads %d\n",numThreads);
+
 	for (p=(MAXPRIORITY-1); p!=255; p--)	{
+		//printf("Prio %d\n",p);
 	  if ((found=threadPriorities[p].cb)==NULL)
 		continue;
 	  for (n=0; n < threadPriorities[p].count; n++){
 		     found=found->succ;
-//		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
+		     //printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
 		     if ((found->state)==THREADNOTBLOCKED) {
-				threadFound=1;//signal nested loop break
-				break;
+			threadFound=1;//signal nested loop break
+			break;
 		     } // I take it
 		      if ((found->state)==THREADMUTEXBLOCKED) 					continue;  // next n
 		      if ((found->state)==THREADWAITBLOCKED) 					continue;  // next n
@@ -335,12 +348,19 @@ void scheduler(void)	{
 			HEAPOBJECTMARKER((found->isMutexBlockedOrWaitingForObject).stackObj.pos).mutex=MUTEXBLOCKED;
 			found->state=THREADNOTBLOCKED;
 			found->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+			threadFound=1;//signal nested loop break
 			break; 					
 			}	 
 		} // end for n 
 		if(threadFound)break;
 	} // end for p
-	if(!threadFound)errorExit(111,"SCHEDULING ERROR!\n");
+	if(!threadFound){
+	#ifdef AVR8
+		errorExit(111,PSTR("SCHEDULING ERROR!\n"));
+	#else
+		errorExit(111,"SCHEDULING ERROR!\n");
+	#endif
+	}	
 	// assume: not all threads are blocked
 	if ((found == actualThreadCB) /*&& ((found->state)==THREADNOTBLOCKED)*/){ 
 		actualThreadCB->numTicks= *(actualThreadCB->pPriority);
