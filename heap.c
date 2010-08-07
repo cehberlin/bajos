@@ -30,25 +30,24 @@ void heapSetElement( slot e,u2 pos)	{	*(heapBase+pos) = e;		}
 
 u2	getNextHeapObjectPos(u2 pos)	{
 		return  ((pos+HEAPOBJECTMARKER(pos).length)< heapTop)?  pos+HEAPOBJECTMARKER(pos).length:(heapTop+1);
-											}
+									}
 
-u2 getFreeHeapSpace(u2 length)	{	// todo er muss genau einen Platz der Länge zurückgeben
+u2 getFreeHeapSpace(u2 length)	{	// todo er muss genau einen Platz der Länge zurückgeben !!
 //printf("length %x \n",length);
-// todo verschmelzen von löchern
-// erkennnen circularer referencen on heap ohne bezug zu opstack
+// erkennnen circularer referencen on heap ohne bezug zu opstack !!
 if ((heapTop+length-1) < MAXHEAP) 	{
 	HEAPOBJECTMARKER(heapTop).length=length;
 	heapTop+=length;
-	return heapTop-length;					} // free space on heap
+	return heapTop-length;			} // free space on heap
 
 u2 nextElementPos=0;
 do	{		// first fit
 if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE) 
 	&& ((HEAPOBJECTMARKER(nextElementPos).length)>=length))  return nextElementPos; // first fit	 
 	}	while  ((nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
- printf("vor\n");
+
 checkObjects(); 
- printf("durch\n");
+
 // noch mal probieren
  nextElementPos=0;
 do	{
@@ -74,8 +73,8 @@ oldElementPos=nextElementPos;
 // jetzt noch mal Probieren
 nextElementPos=0;
 do	{
-printf("next %x  stat: %x magic %x %x\n",nextElementPos, HEAPOBJECTMARKER(nextElementPos).status,
-HEAPOBJECTMARKER(nextElementPos).magic, HEAPOBJECTMARKER(nextElementPos).rootCheck);
+//printf("next %x  stat: %x magic %x %x\n",nextElementPos, HEAPOBJECTMARKER(nextElementPos).status,
+//HEAPOBJECTMARKER(nextElementPos).magic, HEAPOBJECTMARKER(nextElementPos).rootCheck);
 if (( HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE) 
 	&& ((HEAPOBJECTMARKER(nextElementPos).length)>=length))  return nextElementPos; // first fit	 
 	}	while  ((nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
@@ -114,7 +113,6 @@ opSPPos=*(tCB->methodStackBase+tCB->methodSpPos-1);								}
 //if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1) continue;
 }	while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop);
 // alle Objekte von den stacks erreichbar (root elements)	markiert	
- printf("in\n");
 // jetzt suche ich nur noch im heap
 // markierte objekte können referencen zu anderen objekten halten
 // diese markiere ich auch, solange bis ich keins mehr finde
