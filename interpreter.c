@@ -91,13 +91,13 @@ do {		//while(1)
 										opStackPush(( slot)((s4)((s2)getU2(0))));
 										DEBUGPRINTSTACK;	
 		CASE	LDC: 					if(getU1(CP(cN,getU1(0))) == CONSTANT_String)		{// hab ich was zum anfassen
-											mySlot.stackObj.magic=OBJECTMAGIC;
+											mySlot.stackObj.magic=CPSTRINGMAGIC;
 											u1 oldcN=cN;
 											if (!findClass((u1*)"java/lang/String",16))	{printf("string calls error\n"); exit(-4);}
 											mySlot.stackObj.classNumber=cN;
 											cN=oldcN;
 											mySlot.stackObj.pos=(u2)(((u2)cN <<8)+byte1);//CP(cN,getU2(CP(cN,byte1) + 1)); // classnumber of cp-string and pos info
-											mySlot.stackObj.type=STACKCPSTRING;
+											//mySlot.stackObj.type=STACKCPSTRING;
 											opStackPush(mySlot);									}
 										else	opStackPush(( slot)getU4(CP(cN,byte1)+1));	// int or float const value on stack
 										DEBUGPRINTLN2("ldc  push\t...,=> x%x",opStackPeek().UInt);
@@ -159,7 +159,7 @@ do {		//while(1)
 		case	SALOAD:	{	s2 index = (s2)opStackPop().Int;			//mb jf	
 								if((mySlot = opStackPeek()).UInt == NULLOBJECT.UInt)	{NULLPOINTEREXCEPTION;}
 								u2 arrayLength;
-									if (mySlot.stackObj.type==STACKCPSTRING) {
+									if ((HEAPOBJECTMARKER(mySlot.stackObj.pos).magic)==CPSTRINGMAGIC) {
 									u1 oldcN=cN;
 cN=(u1)(mySlot.stackObj.pos >>8);
 		arrayLength=getU2(     CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0x00ff)+1 )) +1 );
@@ -247,7 +247,7 @@ cN=oldcN;
 									mySlot = opStackPop();
 //	printf("myindex: %d %04x\n",index,mySlot);	
 									u2 arrayLength;
-									if (mySlot.stackObj.type==STACKCPSTRING) {
+									if ((HEAPOBJECTMARKER(mySlot.stackObj.pos).magic)==CPSTRINGMAGIC) {
 									u1 oldcN=cN;
 cN=(u1)(mySlot.stackObj.pos >>8);
 		arrayLength=getU2(     CP(cN,getU2(CP(cN,mySlot.stackObj.pos&0x00ff)+1 )) +1 );
@@ -847,40 +847,33 @@ u2 i;
 						opStackSetSpPos(opStackGetSpPos()+((getU2(METHODBASE(cN,mN))&ACC_NATIVE)?0:findMaxLocals()));
 								if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
 									if ( HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex==MUTEXNOTBLOCKED)	{
-//printf("invoke sync %04x\n",opStackGetValue(local));
-									// mutex is free, I /the thread) have not the mutex and I can get the mutex for the object
-									actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
-									HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
-									// I had not the mutex for this object (but perhaps for others), now I have the look
-									for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
-										if (actualThreadCB->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;else break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
-									// etry for this object in the array of mutexed objects for the thread
-								actualThreadCB->lockCount[i]=1;		// count (before 0)
-								actualThreadCB->hasMutexLockForObject[i]=opStackGetValue(local);
-									}
-									else	{	// mutex is blocked, is it my mutex
-									// have I always the lock ?
+										// mutex is free, I (the thread) have not the mutex and I can get the mutex for the object
+										actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
+										HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
+										// I had not the mutex for this object (but perhaps for others), now I have the look
 										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
-										if (actualThreadCB->hasMutexLockForObject[i].UInt==opStackGetValue(local).UInt) break;
+											if (actualThreadCB->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;else break;
+										if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
+										// entry for this object in the array of mutexed objects for the thread
+										actualThreadCB->lockCount[i]=1;		// count (before 0)
+										actualThreadCB->hasMutexLockForObject[i]=opStackGetValue(local);				}
+									else	{	// mutex is blocked, is it my mutex ? have I always the lock ?
+										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
+											if (actualThreadCB->hasMutexLockForObject[i].UInt==opStackGetValue(local).UInt) break;
 										if (i==MAXLOCKEDTHREADOBJECTS) { // another thread has the lock
-										actualThreadCB->status=THREADMUTEXBLOCKED;	//mutex blocked
-										actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
-										// thread sleeps, try it later
-										opStackSetSpPos(methodStackPop()+findNumArgs1+1);//(BYTECODEREF)+1); //native!!!
-										pc = methodStackPop()-1;	// before invoke
-										mN = methodStackPop();
-										cN = methodStackPop();
-										local = methodStackPop();
-										break;								// let the scheduler work
-											}
+											actualThreadCB->status=THREADMUTEXBLOCKED;	//mutex blocked
+											actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
+											// thread sleeps, try it later
+											opStackSetSpPos(methodStackPop()+findNumArgs1+1);//(BYTECODEREF)+1); //native!!!
+											pc = methodStackPop()-1;	// before invoke
+											mN = methodStackPop();
+											cN = methodStackPop();
+											local = methodStackPop();
+											break;						}		// let the scheduler work
 										else // yes I have lock
-{
-//printf("invoke sync %04x\n",opStackGetValue(local));
-										actualThreadCB->lockCount[i]++;	// count
-}
-										}	
-									};
+											actualThreadCB->lockCount[i]++;	// count
+											}	
+									}
 // no synchronized,or I have the lock
 // jetzt call die methode
 							if(getU2(METHODBASE(cN,mN))&ACC_NATIVE)							{
@@ -967,12 +960,10 @@ case	ARETURN:
 nativeVoidReturn:	DEBUGPRINTLN1("native ");
 case	RETURN:	DEBUGPRINTLN1("return");
 						if(getU2(METHODBASE(cN,mN))&ACC_SYNCHRONIZED)	{
-						// have I always the lock ?
-
-						if(getU2(METHODBASE(cN,mN))&ACC_STATIC)
+							// have I always the lock ?
+							if(getU2(METHODBASE(cN,mN))&ACC_STATIC)
 								mySlot=cs[cN].classInfo;
-						else	mySlot=opStackGetValue(local);	
-//printf("ret sync %04x\n",mySlot);
+							else mySlot=opStackGetValue(local);	
 						for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	// must be in
 							if ((actualThreadCB->hasMutexLockForObject[i]).UInt==mySlot.UInt) break;
 						if (actualThreadCB->lockCount[i]>1)	actualThreadCB->lockCount[i]--; // fertig
@@ -982,15 +973,14 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						actualThreadCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;
 						HEAPOBJECTMARKER(mySlot.stackObj.pos).mutex=MUTEXNOTBLOCKED;
 						ThreadControlBlock* myTCB=actualThreadCB;
-						for (i=1; i < numThreads; i++)	{	// alle wecken!
+						for (i=1; i < numThreads; i++)	{	// alle blocked for object wecken!
 						myTCB=myTCB-> succ;
 						if  ((myTCB->isMutexBlockedOrWaitingForObject.UInt==mySlot.UInt)&&
-						myTCB->status==THREADMUTEXBLOCKED)	{
-						myTCB->status=THREADNOTBLOCKED; //!!
-						myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;								
-						}
-															}
-								}														}
+											(myTCB->status==THREADMUTEXBLOCKED))	{
+							myTCB->status=THREADNOTBLOCKED; //!!
+							myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		}
+														}
+								}										}
 						if (methodStackEmpty())	{
 							//printf("empty method stack\n");
 							if(strncmp("<clinit>",(char*)findMethodByMethodNumber(),8) == 0){	//mb jf if not <clinit> you're done :-D
@@ -1025,7 +1015,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						mySlot.stackObj.pos=heapPos;
 						mySlot.stackObj.magic=OBJECTMAGIC;
 						mySlot.stackObj.classNumber=cN;
-						mySlot.stackObj.type=STACKNEWOBJECT;
+						//mySlot.stackObj.type=STACKNEWOBJECT;
 						DEBUGPRINTLN2("new -> push %x\n",heapPos);	// allocate on heap platz fuer.stackObjektvariablen
 						opStackPush(mySlot); // reference to.stackObject on opStack
 						HEAPOBJECTMARKER(heapPos).status = HEAPALLOCATEDNEWOBJECT;	//.stackObject
@@ -1057,7 +1047,7 @@ DEBUGPRINTSTACK;
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
 						mySlot.stackObj.pos=heapPos;
 						mySlot.stackObj.magic=OBJECTMAGIC;
-						mySlot.stackObj.type=STACKNEWARRAYOBJECT;
+						//mySlot.stackObj.type=STACKNEWARRAYOBJECT;
 						mySlot.stackObj.arrayLength=(u1)count;
 						opStackPush(mySlot);
 						HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
@@ -1091,7 +1081,7 @@ DEBUGPRINTSTACK;
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
 						mySlot.stackObj.pos=heapPos;
 						mySlot.stackObj.magic=OBJECTMAGIC;
-						mySlot.stackObj.type=STACKANEWARRAYOBJECT;
+						//mySlot.stackObj.type=STACKANEWARRAYOBJECT;
 						mySlot.stackObj.classNumber=cN;
 						opStackPush(mySlot);
 						HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
@@ -1105,6 +1095,7 @@ DEBUGPRINTSTACK;
 		CASE	ARRAYLENGTH:	DEBUGPRINTLN1("arraylength");	// mb jf
 					{
 											mySlot=opStackPop();
+/*2008 an array is not a string!!
 //						u2 ref = opStackPop().UInt;	// get reference to array from stack
 //						if(ref == 0)			NULLPOINTEREXCEPTION;
 						if (mySlot.stackObj.type==STACKCPSTRING)	{
@@ -1115,7 +1106,7 @@ cN=(u1)(mySlot.stackObj.pos >>8);
 opStackPush((slot)(u4)c);
 cN=oldcN;
 }
-else
+else*/
 opStackPush((slot)(u4)mySlot.stackObj.arrayLength);
 //?????????????
 						//opStackPoke((slot)(u4)HEAPOBJECTMARKER(opStackPeek().UInt).length);		// push length of array at ref on opStack
