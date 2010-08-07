@@ -32,7 +32,6 @@
 #include <stdlib.h>
 
 #include "hsdramc1.h"
-#include "../iobinding.h"
 
 unsigned long sdram_init(const struct sdram_info *info)
 {
