@@ -3,22 +3,23 @@
 
 // From ethernut
 
-#define COMPRESS_DISABLE
-#define COMPRESS_REENABLE
+#define COMPRESSDISABLE
+#define COMPRESSREENABLE
 
 #ifdef __IMAGECRAFT__
-
+#define __IMAGECRAFT__
+// bh defined R30 ->R0
 #define NutEnterCritical()  \
 {                           \
-    asm("in R0, 0x3F\n"     \
+    asm("in R30, 0x3F\n"     \
         "cli\n"             \
-        "push R0\n");       \
+        "push R30\n");       \
 }
 
 #define NutExitCritical()   \
 {                           \
-    asm("pop R0\n"          \
-        "out 0x3F, R0\n");  \
+    asm("pop R30\n"          \
+        "out 0x3F, R30\n");  \
 }
 
 #else
@@ -82,26 +83,22 @@
 #define DS_PIN       PIND
 #define DS_DDR       DDRD
 
-#define MAX_SEARCH   20      /* max # of attempts to find devices on a 1-wire bus */
-#define MAX_CHIP     5
+#define MAXSEARCH   20      /* max # of attempts to find devices on a 1-wire bus */
+#define MAXCHIP     1
 
-#define MULTI_DEVICE 1       /* set 1 if you have more than one device on a 1-wire bus
+#define MULTIDEVICE 0       /* set 1 if you have more than one device on a 1-wire bus
                               * set 0 if you have only one device on a 1-wire bus
-                              */
-
-#define DS_DEBUG     0       /* set 1 to display debugging information
-                              * set 0 to suppress debugging information
                               */
 
 #ifndef _NOP
 #define _NOP() asm volatile ("nop\n\t"::)
 #endif
 
- void TM_Convert_temperature(u_char idx, u_int *temp, u_int *frac);
- u_int TM_Read_temperature(u_char idx);
-  void TM_Sample_temperature(u_char idx);
-u_char TM_Init(void);
-  void TM_Scan(void);
+ void convertTemperature(u_char idx, u_int *temp, u_int *frac);
+ u_int readTemperature(u_char idx);
+  void sampleTemperature(u_char idx);
+u_char init(void);
+  void scan(void);
 
 /*
  *  Auxilliary routines

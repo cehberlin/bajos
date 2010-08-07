@@ -1,2 +1,2 @@
-float NativeGetTemperature(); 
-char getTemperature(); // why the hell is this neccesary???
+float nativeGetTemperature(); 
+//char getTemperature(); // why the hell is this neccesary???
