@@ -11,16 +11,14 @@ char isAlive();
 char start();
 char yield();
 char currentThread();
-char getPriority();
-char getPriority_static();
-char setPriority_static();
-char setPriority();
+char nativeSetPriority();
 char interrupt();
 char interrupted();
 char isInterrupted();
 char isDaemon();
 char setDaemon();
 char join();
+char sleep();
 char jointimeout();
 char nativeSleep();
 
