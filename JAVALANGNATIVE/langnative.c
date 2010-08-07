@@ -112,14 +112,14 @@ char notify(){	/* not tested yet aug2007*/
 	if (HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex!=MUTEXBLOCKED)	{
  		exit(253);
 	}
-	/*can not be ->IllegalMonitorStateException*/
+	//can not be ->IllegalMonitorStateException
 //iterate over all other threads than current one
 	for(i=0;i<(MAXPRIORITY);i++){
 		max=(threadPriorities[i].count);
 		breakNested=0;
 		cb=threadPriorities[i].cb;
-		for(k=0;i<max;k++){
-			if ((cb->state==THREADWAITBLOCKED)&&
+		for(k=0;k<max;k++){
+			if (/*(cb!=actualThreadCB)&&*/(cb->state==THREADWAITBLOCKED)&&
 			    ((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt)){	
 				cb->state=THREADWAITAWAKENED;
 				breakNested=1;
@@ -142,8 +142,8 @@ char notifyAll() {
 	for(i=0;i<(MAXPRIORITY);i++){
 		max=(threadPriorities[i].count);
 		cb=threadPriorities[i].cb;
-		for(k=0;i<max;k++){
-			if ((cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
+		for(k=0;k<max;k++){
+			if (/*(cb!=actualThreadCB)&&*/(cb->state==THREADWAITBLOCKED)&&((cb->isMutexBlockedOrWaitingForObject).UInt==opStackGetValue(local).UInt))
 				cb->state=THREADWAITAWAKENED;
 			cb=cb->succ;
 		}	
@@ -161,17 +161,16 @@ char nativeWait() {
 	HEAPOBJECTMARKER(opStackGetValue(local).stackObj.pos).mutex=MUTEXNOTBLOCKED; /* lock abgeben*/
 	actualThreadCB->isMutexBlockedOrWaitingForObject=opStackGetValue(local);
 	actualThreadCB->state=THREADWAITBLOCKED;
-
+	
 	ThreadControlBlock* myTCB;
-
 	for(i=0;i<(MAXPRIORITY);i++){
 		max=(threadPriorities[i].count);
 		myTCB=threadPriorities[i].cb;
-		for(k=0;i<max;k++){
-			/* alle blocked for object wecken!*/
-			if  ((myTCB!=actualThreadCB)&&(myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
+		for(k=0;k<max;k++){
+			//alle blocked for object wecken!
+			if  (/*(myTCB!=actualThreadCB)&&*/(myTCB->isMutexBlockedOrWaitingForObject.UInt==opStackGetValue(local).UInt)&&
 					(myTCB->state==THREADMUTEXBLOCKED)){
-				myTCB->state=THREADNOTBLOCKED; /*!!*/
+				myTCB->state=THREADNOTBLOCKED; //!!
 				myTCB->isMutexBlockedOrWaitingForObject=NULLOBJECT;		
 			}
 			
