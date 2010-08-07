@@ -147,7 +147,7 @@ void	deleteThread(void)	{
 /*
  * the scheduling process function, this function is called after every bytecode
  * one thread can run until is numTicks are 0. The numTicks a thread gets after he
- * was scheduled is his priority. The scheduler schedules if the numTicks of
+ * was scheduled is his priority. The scheduler schedules(get active) if the numTicks of
  * current thread are 0. //CEH
  */
 void scheduler(void)	{
@@ -168,13 +168,19 @@ void scheduler(void)	{
 	//set current thread on first position of priority list to ensure that on next scheduling a new thread could be run
 	threadPriorities[actualThreadCB->priority-1].cb=actualThreadCB;
 	//find highest priority list with members
-	u1 i=MAXPRIORITY-1;
-	while(threadPriorities[i].count==0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
-		i--;	
-	}
-	actualThreadCB=threadPriorities[i].cb;
+	u1 prio=MAXPRIORITY-1;
+	actualThreadCB=threadPriorities[prio].cb;
+	u1 max=(threadPriorities[prio].count);
 	do 	{
+		//this loop prevent the scheduler from spinning in one empty or complete block priority list
+		while(!max){
+			prio--;
+			actualThreadCB=threadPriorities[prio].cb;
+			max=(threadPriorities[prio].count);
+			//it should not be possible to have all threads blocked or all empty, therefore no check for prio<0
+		}
 		actualThreadCB=actualThreadCB->succ;
+		max--;
 		if ((actualThreadCB->state)==THREADNOTBLOCKED) break;
 		if ((actualThreadCB->state)==THREADMUTEXBLOCKED) continue;
 		if ((actualThreadCB->state)==THREADWAITBLOCKED) continue;
@@ -191,7 +197,7 @@ void scheduler(void)	{
 		//}
 	} while (1);
 	//reset numTicks
-	actualThreadCB->numTicks= i+1; //actualThreadCB->priority=i
+	actualThreadCB->numTicks= prio; //actualThreadCB->priority=i
 	methodStackBase=actualThreadCB->methodStackBase;
 	methodStackSetSpPos(actualThreadCB->methodSpPos);
 	opStackBase=actualThreadCB->opStackBase;

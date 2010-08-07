@@ -7,19 +7,24 @@ public class SchedulerTest extends Thread	{
 
 	int prio;
 
-	SchedulerTest child;
-
+	Object foo=new Object();
 
 	public SchedulerTest(int nr, int prio){
 		this.nr=nr;
 		this.prio=prio;
-		//child=new SchedulerTest(nr+10,prio);
 	}
 
 	public void run()	{
-		//child.start();
 		setPriority(prio);
 		for(int i=0;i<20;i++){
+			if(prio==4 && i==10){
+				synchronized(foo){
+					try{
+						foo.wait();
+					}catch(Exception e){
+					}	
+				}		
+			}
 			System.out.println("My nr: "+ this.nr + " My prio: " + getPriority() + " Counter: " + i);
 		}
 	}
