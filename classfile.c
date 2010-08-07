@@ -110,15 +110,13 @@ u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNa
 //in cN, out: cN, mN
 // rekursiv bis Objekt
 	if (!findClass(className,classNameLength)) 					{
-		DEBUGPRINTLN1("kann nicht sein die klasse gibts nicht!!");	
-		DEBUGPRINTSTRING(className,classNameLength);exit(-1);	}// out: cN
+		errorExit(-1, "kann nicht sein die klasse gibts nicht!! %c", className);	}// out: cN
 	if (findMethodByName(methodName,methodNameLength,methodDescr,methodDescrLength))
 			return cN;
 	else	
 		if (strncmp("java/lang/Object",(char*)className,classNameLength)==0) 		{
-			printf("kann nicht sein die methode gibts nicht!!: cN mN: %d %d  ",cN,mN);	
-			PRINTSTRING(methodName,methodNameLength);exit(-1);			}
-		else 
+			errorExit(-1, "kann nicht sein die methode gibts nicht!!: cN mN: %d %d %c ",cN,mN, methodName);	
+		} else 
 			return findMethod(	getAddr(CP(cN,getU2(CP(cN,  
 						getU2(cs[cN].super_class))+1))+3),
 						getU2(CP(cN,getU2(CP(cN,  
@@ -229,9 +227,8 @@ void analyzeClass(classStructure* c)	{
 		c->minor_version=pc++;			// 4
 		c->major_version=++pc;			// 6
 		if (getU2(c->major_version) > 49) 	{
-			printf("this java version is not supported yet: c->major_version %d\n",
-			getU2(c->major_version));
-			exit(-1);		}
+			errorExit(-1, "this java version is not supported yet: c->major_version %d\n", getU2(c->major_version));
+		}
 #ifdef DEBUG
 		printf("version:\t%d.%d\n", getU2(pc),getU2(pc-2));
 #endif
@@ -362,7 +359,7 @@ int i;
 					printf("\n");
 #endif
 pc+=length;
-			DEFAULT: printf("invalid constant pool identifier\n");	exit(-1);}		}
+			DEFAULT: errorExit(-1, "invalid constant pool identifier\n");}		}
 }
 
 void analyseMethods(classStructure* c){ // jan 08 not good tested
@@ -459,22 +456,19 @@ void analyzeFields(classStructure* c){
 			u4 attribute_length = getU4(0);
 
 			if (getU1(attribute_name) != CONSTANT_Utf8) {
-				printf("error while reading class file, CONSTANT_Utf8 expected\n");
-				exit(-1);
+				errorExit(-1, "error while reading class file, CONSTANT_Utf8 expected\n");
 			}
 
 			if (getU2(attribute_name + 1) == 13 && strncmp("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
 				if (attribute_length != 2) {
-					printf("error while reading class file, ConstantValue_attribute should have a length of 2\n");
-					exit(-1);
+					errorExit(-1, "error while reading class file, ConstantValue_attribute should have a length of 2\n");
 				}
 				u2 constantvalue_index = getU2(0);
 				u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
 				if (getU1(constantvalue) == CONSTANT_String) {
                     u2 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
                     if (getU1(utf8) != CONSTANT_Utf8) {
-                        printf("error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n", getU1(utf8));
-                        exit(-1);
+                        errorExit(-1, "error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n", getU1(utf8));
                     }
 
                     u2 space = getFreeHeapSpace(getU2(utf8+1));

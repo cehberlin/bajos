@@ -112,7 +112,7 @@ switch (code)	{
 			DEBUGPRINTLN2(",=> x%x",opStackPeek().UInt);
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
-	CASE	LDC_W:	PRINTSEXIT("LDC_W",nry,4);
+	CASE	LDC_W:	errorExit(-4, "LDC_W not yet realized\n");
 	CASE	LDC2_W:	DNOTSUPPORTED;
 	CASE	ILOAD:	DEBUGPRINTLN2("ILOAD -> local(%x) -> push\t...,=>",byte1);
 			opStackPush(opStackGetValue(local+getU1(0)));	//mb jf 
@@ -627,8 +627,7 @@ switch (code)	{
 							getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
 
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	printf("field %s not found\n", fieldName);
-	exit(-27);
+	errorExit(-27, "field %s not found\n", fieldName);
 }
 	// got position in constant pool --> results in position on heap
 						DEBUGPRINTLNSTRING(fieldName,fieldNameLength);
@@ -659,8 +658,7 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 							getU2(CP(cN,getU2(CP(cN,  
 							getU2(CP(cN,BYTECODEREF)+1))+1))+1));
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	printf("field %s not found\n", fieldName);
-	exit(-27);
+	errorExit(-27, "field %s not found\n", fieldName);
 }
 				DEBUGPRINTHEAP;
 							heapSetElement(opStackPop(), cs[cN].classInfo.stackObj.pos+/*i*/fNC+1);//opStackPop().UInt+i+1);
@@ -693,8 +691,7 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 
 			cN=first.stackObj.classNumber;
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	printf("field %s not found\n", fieldName);
-	exit(-27);
+	errorExit(-27, "field '%s' not found\n", fieldName);
 }
 							opStackPush(( slot)heapGetElement(first.stackObj.pos +fNO/*count+ i*/ +1).Int);//bh2007!!!!!!!
 							pc += 2;
@@ -732,8 +729,7 @@ second =opStackPop();
 
 cN=second.stackObj.classNumber;
 if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
-	printf("field %s not found\n", fieldName);
-	exit(-27);
+	errorExit(-27, "field %s not found\n", fieldName);
 }
 							// jetzt hab ich alles
 							// den Typ
@@ -782,7 +778,7 @@ if (!findFieldByName(fieldName,fieldNameLength,fieldDescr,fieldDescrLength)) {
 //bh2008
 if(opStackGetValue(local).stackObj.magic==CPSTRINGMAGIC)	{
 								if (!findClass("java/lang/String",16))	
-									{printf("string calls error\n"); exit(-4);}
+									{errorExit(-4, "string calls error\n");}
 }
 else
 
@@ -805,7 +801,7 @@ else
 										// I had not the mutex for this object (but perhaps for others), now I have the look
 										for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 											if (actualThreadCB->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;else break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
+										if (i==MAXLOCKEDTHREADOBJECTS) {errorExit(-1, "too many locks\n");	}
 										// entry for this object in the array of mutexed objects for the thread
 										actualThreadCB->lockCount[i]=1;		// count (before 0)
 										actualThreadCB->hasMutexLockForObject[i]=opStackGetValue(local);				}
@@ -863,7 +859,7 @@ else
 									HEAPOBJECTMARKER(cs[cN].classInfo.stackObj.pos).mutex=MUTEXBLOCKED;	// get the lock
 									for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	
 										if (actualThreadCB->hasMutexLockForObject[i].UInt!=NULLOBJECT.UInt)continue;else break;
-										if (i==MAXLOCKEDTHREADOBJECTS) {printf("1too many locks\n"); exit(-1);	}
+										if (i==MAXLOCKEDTHREADOBJECTS) {errorExit(-1, "too many locks\n");	}
 								actualThreadCB->lockCount[i]=1;	// count
 								actualThreadCB->hasMutexLockForObject[i]=cs[cN].classInfo;
 									}
@@ -964,8 +960,7 @@ case	RETURN:	DEBUGPRINTLN1("return");
 						{
 							mN = methodStackPop();
 							cN = methodStackPop();
-							printf("class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
-							exit(-3);
+							errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
 						}
 //printf("NEW find class in Constantpool: %x",cN);
 methodStackPush(cN);
@@ -1053,7 +1048,7 @@ cN=methodStackPop();
 								if ((actualThreadCB->hasMutexLockForObject[i]).UInt!=NULLOBJECT.UInt)
 									continue;
 								else break;
-							if (i==MAXLOCKEDTHREADOBJECTS) {printf("too many locks\n"); exit(-1);	}
+							if (i==MAXLOCKEDTHREADOBJECTS) {errorExit(-1, "too many locks\n");}
 							actualThreadCB->lockCount[i]=1;	// count
 							actualThreadCB->hasMutexLockForObject[i]=first;					}
 						else	{	// mutex ==0
@@ -1103,8 +1098,7 @@ cN=methodStackPop();
 								getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
 								mN = methodStackPop();
 								cN = methodStackPop();
-								printf("class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
-								exit(-3);
+								errorExit(-3, "class '%s' not found.\n", (char *) getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3));
 							}
 							u2 target = cN;
 							cN = first.stackObj.classNumber;
@@ -1133,7 +1127,7 @@ cN=methodStackPop();
 							methodStackPush(mN);
 							if (!findClass(getAddr(CP(cN, getU2(CP(cN,targetclass)+1))+3),	// className 
 								getU2(CP(cN,  getU2(CP(cN,targetclass)+1))+1))) {	// classNameLength
-								printf("class not found %d %d",cN,mN); exit(-1);
+								errorExit(-1, "class not found %d %d",cN,mN);
 							}
 							u2 target = cN;
 							cN = first.stackObj.classNumber;
@@ -1292,8 +1286,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 
 	// Create a class of the given type
 	if (findClass(identifier, length) == 0) {
-		printf("cannot find and therefore not raise %s\n", identifier);
-		exit(-1);
+		errorExit(-1, "cannot find and therefore not raise %s\n", identifier);
 	}
 	
 	heapPos = getFreeHeapSpace(findNumFields()+ 1);	// + marker
@@ -1311,8 +1304,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length) {
 	}
 
 /*	if (!findMethodByName("<init>", 6, "()V", 3)) {
-		printf("cannot find <init> in %s\n", identifier);
-		exit(-1);
+		errorExit(-1, "cannot find <init> in %s\n", identifier);
 	}
 printf("running <init> of %s\n", identifier);
 	methodStackPush(pc);
@@ -1381,8 +1373,7 @@ DEBUGPRINTLN2("%d catch clauses", n);
 	if (methodStackEmpty())	{
 		DEBUGPRINTLN1("we are thru, this was the top frame");
 		cN = classNumberFromPushedObject;
-		printf("unhandled %s\n", (char *) getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
-		exit(-1);
+		errorExit(-1, "unhandled %s\n", (char *) getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
 	} else {
 		DEBUGPRINTLN1("popping stack frame");
 		first=opStackPop();

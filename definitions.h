@@ -188,16 +188,6 @@
 #define PRINTLN2(f,a)		printf(f,a)
 #define PRINTLN3(f,a,b)		printf(f,a,b)
 
-#define PRINTSEXIT(s1,s2,n)	{	printf(s1"%s",s2);\
-				exit(n);	}
-#define PRINT1EXIT(f,a,n)		{	printf(f,a);\
-					printf("tschüss\n");\
-					exit(n);	}
-
-#define PRINTEXIT(f,a) 		{	printf(f,a);\
-					printf("tschüss\n");\
-					exit(-1);}
-										
 #define PRINTEXITTHREAD(a,b) {printf(a,b);\
 				if (numThreads==1)	{\
 				printf("tschüssi\n");\
