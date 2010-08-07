@@ -53,6 +53,15 @@ public final class Math {
 	public static float floor(float a) {	
 		return ((a<0.f)?(int)(a-1.f):(int)a);	
 	}
+
+	public static float rint(float a) {
+		float fl = floor(a);
+		float cl = ceil(a);
+		if (a-fl == cl-a) {
+			return (fl % 2 == 0) ? fl : cl;
+		}
+		return round(a);
+	}
 	
 	/**
 	* Returns the closest int to the argument.
