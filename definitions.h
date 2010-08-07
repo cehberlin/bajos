@@ -311,4 +311,9 @@
 #define  COLOR_CYAN      6
 #define  COLOR_WHITE     7
 
+#ifdef AM
+#define NUMBEROFINTERRUPTS 	57 //SIZE of interruptvectorarray
+#else
+#define NUMBEROFINTERRUPTS 	1
+#endif
 #endif

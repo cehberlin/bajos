@@ -29,6 +29,18 @@ void 	iterateOverThreads2(){
 }
 */
 
+void interruptThread(ThreadControlBlock* thread){ 
+	if((thread)){ 
+		if(actualThreadCB!=(thread)){ 
+			actualThreadCB->numTicks=0; 
+		} 
+		(thread)->isMutexBlockedOrWaitingForObject=NULLOBJECT; 
+		(thread)->lockCount[0]=1; 
+		(thread)->hasMutexLockForObject[0]=(thread)->obj; 
+		(thread)->state=THREADNOTBLOCKED; 
+	} 
+}
+
 /*
  * finds corresponding ThreadCB to java object by ceh
  */

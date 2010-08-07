@@ -12,26 +12,7 @@
 #define MAXPRIORITY 10
 #define MINPRIORITY 1 
 
-//This makro initalizes a interrupt Thread. The only thing you need is a global ThreadControlBlock* 
-//the threadobject must be the first value
-#define INIT_INTERRUPT_THREAD(thread) \
-	{ \
-  	(thread)=findThreadCB((slot)opStackGetValue(local+1)); \
- 	}
-//This makro could be used in every C-ISR. The only thing you need is a global ThreadControlBlock* with initialized thread --> look for INIT_INTERRUPT_THREAD
-#define INTERRUPT_THREAD(thread) \
-	{ \
-	if((thread)){ \
-		if(actualThreadCB!=(thread)){ \
-			actualThreadCB->numTicks=0; \
-		} \
-		(thread)->isMutexBlockedOrWaitingForObject=NULLOBJECT; \
-		(thread)->lockCount[0]=1; \
-		(thread)->hasMutexLockForObject[0]=(thread)->obj; \
-		(thread)->state=THREADNOTBLOCKED; \
-		} \
-	}
-
+void interruptThread(ThreadControlBlock* thread);
 ThreadControlBlock* findThreadCB(slot obj);
 void deleteNotCurrentThread(ThreadControlBlock** t);
 void notifyThread(slot obj);

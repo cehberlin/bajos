@@ -11,6 +11,12 @@ public abstract class InterruptThread extends Thread	{
 
 	public static native void cli();
 
+	public native void initInterrupt(byte vectorNr);
+
+	public static native void removeInterrupt(byte vectorNr);
+
+	public static native void forceInterrupt(byte vectorNr);
+
 	public InterruptThread(){
 		setPriority(MAX_PRIORITY);
 		start();	

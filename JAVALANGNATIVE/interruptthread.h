@@ -6,4 +6,7 @@
 //Lock
 char static_sei(void);
 char static_cli(void);
+char initInterrupt();
+char removeInterrupt();
+char forceInterrupt();
 

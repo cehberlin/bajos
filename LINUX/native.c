@@ -74,25 +74,3 @@ char currentTimeMillis()	{
 	gettimeofday(&timerstart,NULL);
 	opStackPush((slot)(u4)((timerstart.tv_sec*1000+timerstart.tv_usec/1000)&0x7FFFFFFF));
 	return 1;		}
-
-
-ThreadControlBlock* testInterruptThread=NULL;
-
-char forceTestInterrupt(){
-	INTERRUPT_THREAD(testInterruptThread);
-	return 0;
-}
-
-char initTestInterrupt(){
-	INIT_INTERRUPT_THREAD(testInterruptThread);
-  	return 0;
-}
-
-char removeTestInterrupt(){
-	deleteNotCurrentThread(&testInterruptThread);
-  	return 0;
-}
-
-
-
-

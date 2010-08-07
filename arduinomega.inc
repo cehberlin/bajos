@@ -20,8 +20,8 @@ CC		= avr-gcc
 OBJCOPY		= avr-objcopy
 PROGRAM		= avrdude
 # flasher means the avrdude device which you are using for flashing
-#FLASHER 	= stk200 
-FLASHER 	= avrispmkII -P usb 
+FLASHER 	= stk200 
+#FLASHER 	= avrispmkII -P usb 
 
 # DEVICE
 ARCH			= AVR5
@@ -37,13 +37,14 @@ CLASSFILEBASE		= 0xC480
 # JAVA SOURCES
 #JAVAAPPSOURCES		= javatests/LockSimple.java
 #JAVAAPPSOURCES		= javatests/AM.java
-JAVAAPPSOURCES		= javatests/SchedulerTest.java
+#JAVAAPPSOURCES		= javatests/SchedulerTest.java
+JAVAAPPSOURCES		= javatests/InterruptTest.java
 
 # JAVA SOURCES
 JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java $(LANG)/Math.java
 
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
-PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
+PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm $(APPPATH)ARDUINOMEGA/routines_interrupt.asm
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 

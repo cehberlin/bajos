@@ -63,10 +63,7 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
-	currentTimeMillis,
-	initTestInterrupt,
-	removeTestInterrupt,
-	forceTestInterrupt
+	currentTimeMillis
 };
 #endif
 
@@ -104,8 +101,6 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeConStat,
 	nativeSetData,
 	nativeGetData,
-	initTestInterrupt,
-	removeTestInterrupt,
 };
 #endif
 
@@ -249,7 +244,10 @@ functionForNativeMethodType functionForNativeLockMethod[] =	{
 
 functionForNativeMethodType functionForNativeInterruptThreadMethod[] =	{
 	static_sei,
-	static_cli
+	static_cli,
+	initInterrupt,
+	removeInterrupt,
+	forceInterrupt
 };
 
 /* insert array of function pointer*/

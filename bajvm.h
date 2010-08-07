@@ -54,6 +54,7 @@ GLOBAL u1	numThreads	INIT__(0);
 GLOBAL u1	tid 		INIT__(0);
 GLOBAL u4	mainThreadPriority[2];		// priority (and alive) of main thread -> immutable
 GLOBAL ThreadPriorityList  threadPriorities[MAXPRIORITY]; //array of priority lists
+GLOBAL ThreadControlBlock* interruptVectors[NUMBEROFINTERRUPTS];
 GLOBAL classStructure cs[MAXCLASSES];
 #ifndef AVR8
 GLOBAL u4	timerMilliSec 	INIT__(0);
