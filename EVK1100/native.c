@@ -113,6 +113,7 @@ opStackPush((slot)(u4)usart_getchar(&AVR32_USART1));
 return 1;
 }
 
+
 char ser1Out()	{
 while (!usart_tx_ready(&AVR32_USART1));
 usart_write_char(&AVR32_USART1, (int)opStackGetValue(local+1).UInt);
