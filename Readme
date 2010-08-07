@@ -69,7 +69,6 @@ Unpack BAJOS (bajvm and bajosboot), translate and compile for your target (avr8,
 #>make clean target				// clean all objects and executable
 #>make clean compile target			// generate target executable
 #>make clean debug compile verbose target 	// generate target executable for debugging
-#>make all target
 
 PREPARATION OF DEVELOPMENT BOARD
 CHARONII WITH ATMEGA128
