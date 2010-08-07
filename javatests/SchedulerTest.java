@@ -7,9 +7,7 @@ SchedulerTest(String name)	{
 super(name);			}
 
 	public void run()	{
-int i=3;
-System.out.print(i);
-System.out.println(" "+currentThread());
+System.out.println("time in ms: "+System.currentTimeMillis()%10000+" "+currentThread());
 
 	}
 
