@@ -160,7 +160,7 @@ u1 findSuperClass()	{
 {
 			int _i;
 			for (_i=0; _i < (getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1)); _i++)
-			printf("%c",*((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3))+_i));
+			printf("%c",*(char *)((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3))+_i));
 			 }
 */
 if (strncmp("java/lang/Object",getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1))==0)
@@ -171,7 +171,7 @@ return 0; // cN is class Object
 {
 			int _i;
 			for (_i=0; _i < (getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+1)); _i++)
-			printf("%c",*((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+3))+_i));
+			printf("%c",*(char*)((getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+3))+_i));
 			
 }
 */
