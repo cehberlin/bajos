@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 
-#define APPCLASSPATH 	"/home/Desktop/bajosavr/javatests"
-#define CLASSPATH 			"/home/Desktop/bajosavr"
+#define APPCLASSPATH 	"/repos/javatests"
+#define CLASSPATH 			"/repos/bajos"
 #define BOOTCLASSPATH	CLASSPATH"/BAJOSBOOT/classes"
 #define LANG					BOOTCLASSPATH"/java/lang"
 #define IO 						BOOTCLASSPATH"/java/io"
