@@ -17,7 +17,6 @@
 #include "pm.h"
 #include "cycle_counter.h"
 #include "spi.h"
-#include "spi.h"
 #include "rtc.h"
 #include "sdramc.h"
 
@@ -44,8 +43,9 @@ void initHW()	{
 	software_delay();
 	usart1Init();		// 1200 baud
 	usart0Init();		//bh not with monitor
-	stdIOInit(); 		//bh not with monitor
 #endif
+	stdIOInit();
+#ifndef WITHMON
 static const gpio_map_t DIP204_SPI_GPIO_MAP =		{
     {DIP204_SPI_SCK_PIN,  DIP204_SPI_SCK_FUNCTION },  // SPI Clock.
     {DIP204_SPI_MISO_PIN, DIP204_SPI_MISO_FUNCTION},  // MISO.
@@ -101,13 +101,12 @@ dip204_set_cursor_position(1,4);
 dip204_write_string("now BAJOS please:");
 //dip204_hide_cursor();
 initTimer();
-#ifndef WITHMON
 sdramc_init(48000000);//FOSC0) bh not with monitor
 #endif
 }
 
 
-
+#ifndef WITHMON
 
 /* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
 
@@ -431,7 +430,7 @@ void initTimer()
   // Enable global interrupts
   Enable_global_interrupt();
 }
-
+#endif
 int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
 //if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
@@ -472,6 +471,7 @@ setbuf(stdin, NULL);
 setbuf(stdout, NULL); 
 }
 
+#ifndef WITHMON
 void usart0Init()	{
 static const gpio_map_t USART_GPIO_MAP =
   {
@@ -640,3 +640,8 @@ char* startAddr=(char*)0x80020000;
 goto *startAddr;
 }
 */
+#else
+void exit(int status)	{
+Monitor();
+}
+#endif
