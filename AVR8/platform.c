@@ -49,15 +49,15 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "platform.h"
 #include "native.h"
 
-#define		BYTES(word)		((word)*2)
-#define		STRING(a,b)		#a" "#b
-#define		INLINEASM(a,b)		STRING(a,b)
-#define		LARGEBOOTSTART		0xf000
-#define		BOARDRAMEND		0x8000
-#define		MONSTART		LARGEBOOTSTART
-#define 	MONRAM			CHARONRAMEND-0x100
+#define		BYTES(word)	((word)*2)
+#define		STRING(a,b)	#a" "#b
+#define		INLINEASM(a,b)	STRING(a,b)
+#define		LARGEBOOTSTART	0xf000
+#define		BOARDRAMEND	0x8000
+#define		MONSTART	LARGEBOOTSTART
+#define 	MONRAM		CHARONRAMEND-0x100
 // Monitor  functions (bamo128 -> cs.ba-berlin.de)
-#define		mainLoop		BYTES(LARGEBOOTSTART+2)	// Ruecksprung in Monitor aus Programm mit goto
+#define		mainLoop	BYTES(LARGEBOOTSTART+2)	// Ruecksprung in Monitor aus Programm mit goto
 #define		saveCPU		BYTES(LARGEBOOTSTART+62)	//Time2Comp	// BOOTSTART+62		
 
 FILE uartAVR8 = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
@@ -86,12 +86,12 @@ timer_Init();	// use timer 2 for real time clock
 
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
     printf("%c",0x1b);
-      printf("%c",'[');
-//            printf("%c",'4');
-     printf("%c",fgcolor);
-      //printf("%c",';');
-      //printf("%c",40 + bgcolor);
-      printf("%c",'m');
+    printf("%c",'[');
+//  printf("%c",'4');
+    printf("%c",fgcolor);
+//printf("%c",';');
+//printf("%c",40 + bgcolor);
+    printf("%c",'m');
 }
 
 int uart_putchar(char c, FILE *stream){
@@ -107,10 +107,10 @@ int uart_getchar(FILE *stream)	{
 
 
 void timer_Init()	{
-OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt
-		TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	// Vorteiler 1024 zu Systemtakt 20 MHz??
-		TIMSK |= (1<<OCIE0);
-		sei();	// global interrupt zulassen
+	OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt
+	TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	// Vorteiler 1024 zu Systemtakt 20 MHz??
+	TIMSK |= (1<<OCIE0);
+	sei();	// global interrupt zulassen
 }
 
 

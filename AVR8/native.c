@@ -27,7 +27,6 @@
 #include "lcd.h"
 #include "ds182x.h"
 
-
 #define		STRING(a,b)		#a" "#b
 #define		INLINEASM(a,b)	STRING(a,b)
 // atmega128 Monitor functions
@@ -77,15 +76,15 @@ goto *0xf002;	//asm	 (INLINEASM(jmp,0xf002));
 // Berliner Stadtreinigung
 char getTemperature() 	{
 	init();
-	u_int temp	= readTemperature(0);
-	u_int frac;
+	u2 temp	= readTemperature(0);
+	u2 frac;
 	convertTemperature(0, &temp, &frac);	
 	opStackPush((slot) (f4) ((float)temp + (frac / 10000.f)));
 	return 1;
 }
 
 char currentTimeMillis()	{
-opStackPush((slot)(u4)timerMilliSec);
+	opStackPush((slot)(u4)timerMilliSec);
 	return 1;
 }
 
