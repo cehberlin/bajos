@@ -4,7 +4,7 @@ import java.lang.NullPointerException;
 import java.lang.ArrayIndexOutOfBoundsException;
 import java.lang.IllegalArgumentException;
 
-public class Vector extends AbstractList implements List, RandomAccess/*, Cloneable, Serializable*/ {
+public class Vector implements List {
 
 	protected Object[] elementData;
 	protected int elementCount;
