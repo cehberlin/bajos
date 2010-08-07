@@ -61,6 +61,7 @@ TTY		= /dev/ttyS0
 # C paths
 APPPATH 	= ./
 AVR8ROOT	=
+AVR8INC		=
 AVR32ROOT	= /usr/bin/
 AVR32BIN 	= $(AVR32DIR)
 #AVR32INC	= $(AVR32ROOT)INCLUDES
@@ -92,9 +93,7 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/ArithmeticException.java $(LANG)/ClassCastException.java \
 			$(LANG)/ArrayIndexOutOfBoundsException.java \
 			$(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \
-			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
 			$(UTIL)/Collection.java $(UTIL)/List.java \
-			$(UTIL)/RandomAccess.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
 			$(LANG)/Runtime.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
@@ -104,18 +103,22 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 			${GRAPHICS}/Line.java ${GRAPHICS}/Polyline.java \
 			${GRAPHICS}/AffineMatrix.java ${GRAPHICS}/ProjectionMatrix.java
 
+#			$(UTIL)/AbstractCollection.java $(UTIL)/AbstractList.java \
 #${LANG}/CharSequence.java $(LANG)/StringUtils.java 
 #			$(LANG)/StringBuilder.java \
+#			$(UTIL)/RandomAccess.java \
+
 
 # a small subset of java system sources for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
-			$(LANG)/Integer.java \
+			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Throwable.java $(LANG)/Math.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			$(LANG)/ArrayIndexOutOfBoundsException.java 
+			$(LANG)/ArrayIndexOutOfBoundsException.java \
+			javatests/Temperature.java
 
 #$(LANG)/StringBuilder.java
 
@@ -131,7 +134,9 @@ JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/class
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 BAJOSSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c native.c \
 		  scheduler.c platform.c
-AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c
+AVR8SOURCES	= $(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c $(APPPATH)AVR8/ds182x.c \
+		$(APPPATH)AVR8/thermo.c
+
 UC3ASOURCES 	= $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c \
 		$(APPPATH)EVK1100/rtcuc3a.c \
 		$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c \
@@ -200,7 +205,7 @@ ifeq  ($(TARGETHW), avr8)
 OBJFILES	= $(BAJOSSOURCES:.c=.o) $(AVR8SOURCES:.c=.o)
 ARCH		= AVR5
 PART		= atmega128
-CC		= $(AVR8ROOT)avr-gcc
+CC		= avr-gcc
 TEXTSEGMENT	= 0x100
 STACKSEGMENT	= 0x4000
 
@@ -213,7 +218,7 @@ compile: $(TARGETFILE)
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -Wl,--section-start,.data=0x801100,--defsym=__heap_start=0x802200,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) -lm -Wl,--section-start,.data=0x801100,--defsym=__heap_start=0x802300,--defsym=__heap_end=0x807fff   -o$(TARGETFILE)
 #		 -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x807fff    -o$@
 # ... <- stack 0x1100 data -> bss ->  0x2200 heap->
 	@echo $(MSG_BINARY_IMAGE)
@@ -229,7 +234,7 @@ bootpack:
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) ${CC}	-c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
+	$(VERBOSE_CMD) ${CC} $(AVR8INC) -c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
 endif #avr8
 
 
@@ -410,7 +415,7 @@ $(TARGETFILE): 	$(OBJFILES)
 	@echo
 
 
-all:	clean compile  bootsysandgraph  program logo progbootpack
+all:	clean compile  bootclasses bootgraphic  program logo progbootpack
 
 #program your avr32 device
 logo:
@@ -630,10 +635,8 @@ bootclasses:
 	make -f ./BAJOSBOOT/makefile $(TARGETHW)
 	make -f ./BAJOSBOOT/makefile boot
 
-bootsysandgraph:
+bootgraphic:
 	make -f ./BAJOSBOOT/makefile graphic
-	make -f ./BAJOSBOOT/makefile $(TARGETHW)
-	make -f ./BAJOSBOOT/makefile boot
 
 
 
@@ -708,6 +711,13 @@ My:
 
 compMy:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
+
+Temp:	 
+	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/Temperature.class
+
+compTemp:
+	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/Temperature.java
+
 
 T:	 
 	./$(TARGETFILE)   $(BOOTCLASSES) $(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
