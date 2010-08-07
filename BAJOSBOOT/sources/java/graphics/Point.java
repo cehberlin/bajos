@@ -2,6 +2,8 @@
 
 package java.graphics; 
 public class Point	{
+public float x,y,z;
+public float r,g,b;
 /*
 public float 	x,y,z;			// die Koordinaten
 public float	h,s,b;			// 0.<= float <= 255. 
