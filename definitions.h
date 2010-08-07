@@ -15,16 +15,9 @@
 	#define	HEAPALLOCATEDSTATICCLASSOBJECT	1
 	#define	HEAPALLOCATEDNEWOBJECT				2
 	#define	HEAPALLOCATEDARRAY						3
-	
-	#define	STACKNEWOBJECT						1
-	#define	STACKSTATICCLASSOBJECT			2
-	#define	STACKNEWARRAYOBJECT				3
-	#define 	STACKANEWARRAYOBJECT			4
-	#define	STACKCPSTRING							5
-	#define	STACKNEWSTRINGOBJECT			6
-	
+
 	#define OBJECTMAGIC				0xA	
-	
+	#define CPSTRINGMAGIC (OBJECTMAGIC+1)
 	#define MUTEXNOTBLOCKED			1
 	#define MUTEXBLOCKED				0
 
@@ -37,8 +30,6 @@
 #else
 	#define NULLOBJECT				((slot) (0x000fffff |  ((u4)OBJECTMAGIC<<28)|((u4)OBJECTMAGIC<<24)|((u4)OBJECTMAGIC<<20)))
 #endif
-	#define NULLTHREAD						MAXTHREADS-1
-	#define NULLCLASS						0xff	
 
 //mb jf
 #define ARRAYINDEXOUTOFBOUNDEXCEPTION	PRINTEXIT("ArrayIndexOutOfBoundException %d\n",0)
