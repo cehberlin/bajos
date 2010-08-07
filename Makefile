@@ -367,7 +367,7 @@ $(TARGETFILE): $(OBJFILES)
 	@touch $@
 	$(VERBOSE_NL)
 
-all:	clean compile bootclasses  program progbootpack
+all:	clean compile bootclasses  progbootpack program
 
 # Program MCU memory from ELF output file.
 .PHONY: program
@@ -381,7 +381,7 @@ program: $(TARGETFILE)
 progbootpack:
 	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > mytemp
 	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> mytemp;	cat $$i >> mytemp;	done
-	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mytemp
+	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80040000,512Kb -cxtal -v -R mytemp
 	@$(SLEEP) $(SLEEPUSB)
 endif
 # endif evk1100
