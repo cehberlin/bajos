@@ -27,7 +27,7 @@ FLASHER 	= avrispmkII -P usb
 ARCH			= AVR5
 PART			= atmega1280
 DEFS 			= -DAVR8 -DAM -DF_CPU=16000000 
-DEFS+= -DDEBUOPSTACK -DDEBUGMETODSTACK
+
 OPTIMIZATION		= -Os
 
 # for standalone application
@@ -40,8 +40,7 @@ CLASSFILEBASE		= 0xC480
 JAVAAPPSOURCES		= javatests/SchedulerTest.java
 
 # JAVA SOURCES
-JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java 
-#$(LANG)/Math.java
+JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java $(LANG)/Math.java
 
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
 PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
