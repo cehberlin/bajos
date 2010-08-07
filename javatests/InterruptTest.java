@@ -14,18 +14,14 @@ public class InterruptTest extends InterruptThread {
 
 	public static void main(String [] args)		{
 	
-	System.out.println("Start InterruptTest");
+		InterruptTest inter = new InterruptTest();
 
-	InterruptTest inter = new InterruptTest();
+		System.platform.initTestInterrupt(inter);
 
-	System.out.println("iniT");
-	//System.platform.initTestInterrupt(inter);
+		System.platform.forceTestInterrupt();	
 
-	
-	//System.platform.forceTestInterrupt();	
+		System.platform.removeTestInterrupt();
 
-	while(true);
-	
 	}
 }
 

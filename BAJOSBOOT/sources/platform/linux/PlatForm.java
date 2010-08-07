@@ -12,6 +12,7 @@ public native void nativeCharOut(char c);
 public native void exit (int status);
 public native int currentTimeMillis();
 public native void initTestInterrupt(InterruptThread t);
+public native void removeTestInterrupt();
 public native void forceTestInterrupt();
 public PlatForm()	{}
 }

@@ -13,6 +13,7 @@
 #define MINPRIORITY 1 
 
 ThreadControlBlock* findThreadCB(slot obj);
+void deleteNotCurrentThread(ThreadControlBlock* t);
 void notifyThread(slot obj);
 void awakeThreadFromMutex(slot obj);
 void setMutexOnObject(ThreadControlBlock* t,slot obj);

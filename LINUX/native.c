@@ -79,9 +79,9 @@ char currentTimeMillis()	{
 ThreadControlBlock* testInterruptThread=NULL;
 
 char forceTestInterrupt(){
-	printf("Interrupt occured C-Code\n");
-	//yet not tested!!
 	if(testInterruptThread){
+		//force scherduling
+		actualThreadCB->numTicks=0;
 		releaseMutexOnObject(testInterruptThread,testInterruptThread->obj,testInterruptThread);
 	}
 	return 0;
@@ -91,9 +91,17 @@ char initTestInterrupt(){
 
   slot threadObj = opStackGetValue(local+1);
 
-  printf("Thread suchen\n");
   testInterruptThread=findThreadCB(threadObj);
  
   return 0;
 }
+
+char removeTestInterrupt(){
+  deleteNotCurrentThread(testInterruptThread);
+  testInterruptThread=NULL;
+  return 0;
+}
+
+
+
 

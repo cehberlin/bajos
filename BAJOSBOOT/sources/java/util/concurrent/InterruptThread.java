@@ -12,15 +12,13 @@ public abstract class InterruptThread extends Thread	{
 	public static native void cli();
 
 	public InterruptThread(){
-		System.out.println("InterruptThread Konstruktor");
 		setPriority(MAX_PRIORITY);
 		start();	
 	}
 
 	public void run()	{
-		System.out.println("run started");
+		Lock.lock(this);
 		while(true){
-			Lock.lock(this);
 			Lock.lock(this);
 			isr();		
 		}

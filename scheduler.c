@@ -288,7 +288,18 @@ void removeThreadFromPriorityList(ThreadControlBlock* t){
 }
 
 /*
- * Delete one thread by Christopher-Eyk Hrabia
+ * Delete one thread, which is not actualThread by Christopher-Eyk Hrabia
+ */
+void deleteNotCurrentThread(ThreadControlBlock* t){
+	removeThreadFromPriorityList(t);
+	free(t->methodStackBase);
+	free(t->opStackBase);
+	free(t);
+	numThreads--;
+}
+
+/*
+ * Delete actualThread by Christopher-Eyk Hrabia
  */
 void	deleteThread(void)	{
 	*((actualThreadCB->pPriority)+1)=(u4)0;		// isALive == false
@@ -297,11 +308,10 @@ void	deleteThread(void)	{
 	while(threadPriorities[i].count == 0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
 	}
-	free(actualThreadCB->methodStackBase); /*/ crash -> to do*/ /*EDIT CEH: AFTER IMPLEMENTING NEW SCHEDULING IT SEEMS TO WORK*/
+	free(actualThreadCB->methodStackBase);
 	free(actualThreadCB->opStackBase);
 	free(actualThreadCB);
 	actualThreadCB =threadPriorities[i].cb;
-	actualThreadCB->numTicks=0;	// force scheduling
 	methodStackBase=actualThreadCB->methodStackBase;
 	methodStackSetSpPos(actualThreadCB->methodSpPos);
 	opStackBase=actualThreadCB->opStackBase;
@@ -322,7 +332,7 @@ void	deleteThread(void)	{
 void scheduler(void)	{
 	if (numThreads == 1) return;
 	//A Thread runs until his numTicks is 0
-	if(((--actualThreadCB->numTicks) && ((actualThreadCB->state)==THREADNOTBLOCKED)))	return;
+	if(((actualThreadCB->numTicks--) && ((actualThreadCB->state)==THREADNOTBLOCKED)))	return;
 		// select a runnable thread
 	u1 p,n,threadFound;
 	ThreadControlBlock*	found;
@@ -337,9 +347,9 @@ void scheduler(void)	{
 		continue;
 	  for (n=0; n < threadPriorities[p].count; n++){
 		     found=found->succ;
-		     printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
+		     //printf("in sched prio: %d, n: %d, t->state: %d\n",p,found->tid,found->state); 
 		     if ((found->state)==THREADNOTBLOCKED) {
-			printf("New Thread= %d\n",found->tid); 
+			//printf("New Thread= %d\n",found->tid); 
 			threadFound=1;//signal nested loop break
 			break;
 		     } // I take it
