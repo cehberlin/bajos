@@ -14,9 +14,10 @@
 #include "bajvm.h"
 #include "heap.h"
 #include <string.h>
-#if AVR8 && (!XPLAIN) 
+#ifdef AVR8 
 #include <avr/pgmspace.h>
 #endif
+extern void printStringFromFlash(u1*,u1);
 #include "classfile.h"
 
 extern const char* nativeClassNames[];
@@ -25,7 +26,7 @@ extern const functionForNativeMethodType* funcArray[];
 extern functionForNativeMethodType functionForNativePlatFormMethod[];
 
 
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 /* ARDUINOMEGA holds the classfiles in instruction flash!*/
 /* RAMPZ = 1 (ever) -> classfiles are in te upper half of flash */
 /* address of classfile byte in flash 0x0000 to 0xffff */
@@ -90,14 +91,14 @@ u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDe
 			u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)];
 			u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 4)];
 			if(	fieldNameLength == getU2(fieldname + 1) &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpFlashFlash
 #else
 strncmp
 #endif
 (fieldName,(const char*) getAddr(fieldname + 3), getU2(fieldname + 1)) == 0 &&
 				fieldDescrLength == getU2(fielddescr + 1) &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpFlashFlash
 #else
 strncmp
@@ -120,14 +121,14 @@ u1 findFieldByRamName(const char* fieldName,u1 fieldNameLength, const char* fiel
 			u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)];
 			u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 4)];
 			if(	fieldNameLength == getU2(fieldname + 1) &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
 (fieldName,(const char*) getAddr(fieldname + 3), getU2(fieldname + 1)) == 0 &&
 				fieldDescrLength == getU2(fielddescr + 1) &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -149,16 +150,16 @@ u1 findMethod(const char* className, const u1 classNameLength, const char* metho
 /* recursive down to object*/
 //printf("%4x %4x %4x %4x\n", 0x8000+(unsigned int)className/2,classNameLength,0x8000+ (unsigned int)methodName/2,methodNameLength);
 	if (!
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 findClassFlash
 #else
 findClass
 #endif
 
 		(className,classNameLength)) 					{ 
-		CLASSNOTFOUNDERR(className);	}/* out: cN*/
+		CLASSNOTFOUNDERR((const char*)className,classNameLength);	}/* out: cN*/
 	if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 findMethodByNameFlash
 #else
 findMethodByName
@@ -167,7 +168,7 @@ findMethodByName
 			return 1;
 	else	
 		if (classNameLength == 16 &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -185,7 +186,7 @@ strncmp
 						methodDescrLength);
 }
 
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 u1 findMethodByNameFlash(const char* name, const u1 len, const char* methodDescr, const u1 methodDescrLength)	{
 /*  in: classNumber cN, out: methodNumber mN*/
 /* non recursive */
@@ -209,7 +210,7 @@ u1 findMethodByName(const char* name, const u1 len, const char* methodDescr, con
 	for (mN=0; mN < getU2(cs[cN].methods_count); mN++)		
 		if (len==getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+2)]+1))
 			if(
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -219,7 +220,7 @@ strncmp
 				if (methodDescr!=NULL)	{		
 					if (methodDescrLength==getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+4)]+1))
 						if(
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -240,14 +241,14 @@ u1* findMethodByMethodNumber()		{	/*mb jf  in: methodNumber, out: methodName*/
 /* in cN out cN*/
 u1 findSuperClass()	{
 if (16 == getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+1) &&
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
  strncmpRamFlash
 #else
  strncmp
 #endif
 ("java/lang/Object",getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3), 16) ==0 )
 return 0; /* cN is class Object */
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 findClassFlash
 #else
 findClass
@@ -256,7 +257,7 @@ findClass
 return 1;
 }
 
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 u1 findClassFlash(const char* className,u1 classNameLength)	{  /* out: cN*/
 	for (cN=0; cN < numClasses;cN++)			{
 		if (classNameLength !=(u2)getU2(
@@ -288,7 +289,7 @@ u1 findClass(const char* className,u1 classNameLength)	{  /* out: cN*/
 			continue;
 		}
 		if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -320,7 +321,7 @@ void analyzeClass(classStructure* c)	{
 		cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
 		cs[cN].classInfo.stackObj.classNumber=cN;
 #ifdef DEBUG
-  #if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"), cN);
   #else
 	printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
@@ -328,7 +329,7 @@ void analyzeClass(classStructure* c)	{
 #endif
 		c->magic=pc;  /* relative position in classfile*/
 #ifdef DEBUG
-  #if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tmagic:\t %X\t"), getU4(pc));
   #else
 	printf("cf\tmagic:\t %X\t", getU4(pc));
@@ -338,7 +339,7 @@ void analyzeClass(classStructure* c)	{
 		c->minor_version=pc++;			/* 4*/
 		c->major_version=++pc;			/* 6*/
 		if (getU2(c->major_version) > 49) 	{
-			#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+			#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 				errorExit(-1, PSTR("this java version is not supported yet: c->major_version %x\n"), getU2(c->major_version));
 			#else
 				errorExit(-1, "this java version is not supported yet: c->major_version %x\n", getU2(c->major_version));
@@ -347,7 +348,7 @@ void analyzeClass(classStructure* c)	{
 		}
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("version:\t%d.%d\n"), getU2(pc),getU2(pc-2));
 #else
 	printf("version:\t%d.%d\n", getU2(pc),getU2(pc-2));
@@ -358,7 +359,7 @@ void analyzeClass(classStructure* c)	{
 		c->constant_pool_count=pc;
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tconstant_pool_count:\t%d\n"), getU2(pc));
 #else
 	printf("cf\tconstant_pool_count:\t%d\n", getU2(pc));
@@ -368,7 +369,7 @@ void analyzeClass(classStructure* c)	{
 		pc+=2;
 	if ((c->constant_pool=(u2*)malloc(sizeof(u2)*getU2(c->constant_pool_count)))==NULL) /* -2 möglich wegen 0!!*/
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("malloc error\n"));
 #else
 	printf("malloc error\n");
@@ -378,7 +379,7 @@ void analyzeClass(classStructure* c)	{
 		c->access_flags=pc;
 #ifdef DEBUG	
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\taccess_flags: %x\n"),getU2(pc));
 #else
 	printf("cf\taccess_flags: %x\n",getU2(pc));
@@ -389,7 +390,7 @@ void analyzeClass(classStructure* c)	{
 		c->this_class=pc;	
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tthis_class: %d\n"),getU2(pc));
 #else
 	printf("cf\tthis_class: %d\n",getU2(pc));
@@ -400,7 +401,7 @@ void analyzeClass(classStructure* c)	{
 		c->super_class=pc;
 #ifdef DEBUG	
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tsuper_class: %d\n"),getU2(pc));
 #else
 	printf("cf\tsuper_class: %d\n",getU2(pc));
@@ -411,7 +412,7 @@ void analyzeClass(classStructure* c)	{
 		c->interfaces_count=pc;
 #ifdef DEBUG	
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tinterfaces_count: %d\n"),getU2(pc));
 #else
 	printf("cf\tinterfaces_count: %d\n",getU2(pc));
@@ -422,7 +423,7 @@ void analyzeClass(classStructure* c)	{
 		c->interfaces=pc;	
  		pc+= getU2(c->interfaces_count) * 2;
 	/*
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tinterfaces: %d\n"),getU2(c->interfaces));
 #else
 	printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
@@ -431,7 +432,7 @@ void analyzeClass(classStructure* c)	{
 		c->fields_count=pc;
 #ifdef DEBUG	
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tfields_count: %d\n"),getU2(pc));
 #else
 	printf("cf\tfields_count: %d\n",getU2(pc));
@@ -443,7 +444,7 @@ void analyzeClass(classStructure* c)	{
 		if (getU2(c->fields_count)!=0)	{ 
 			if ((	c->field_info=(u2*)malloc(sizeof(u2)*getU2(c->fields_count)))==NULL)
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("malloc error\n"));
 #else
 	printf("malloc error\n");
@@ -453,7 +454,7 @@ void analyzeClass(classStructure* c)	{
 		c->methods_count=pc;
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf\tmethods_count: %d\n"),getU2(pc));
 #else
 	printf("cf\tmethods_count: %d\n",getU2(pc));
@@ -465,7 +466,7 @@ void analyzeClass(classStructure* c)	{
 		if (getU2(c->methods_count)!=0)	{
 			if((c->method_info=(u2*)malloc(2*sizeof(u2)*getU2(c->methods_count)))==NULL)
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("malloc error\n"));
 #else
 	printf("malloc error\n");
@@ -476,7 +477,7 @@ void analyzeClass(classStructure* c)	{
 	for (i=0; i <ln; i++){
 		attribute_name_index=getU2(0); /* jetzt raus kriegen, was fuer ein atrr*/
 		if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -484,21 +485,21 @@ strncmp
 ("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9) == 0)	{
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cf-attributes: count: %d "),ln);
 #else
 	printf("cf-attributes: count: %d ",ln);
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("attribute_length: %d"),getU4(pc));
 #else
 	printf("attribute_length: %d",getU4(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("attribute_index: %d\n"),getU2(pc+4));
 #else
 	printf("attribute_index: %d\n",getU2(pc+4));
@@ -517,7 +518,7 @@ void analyzeConstantPool(classStructure* c){
 			case	CONSTANT_Class:							/*    7 */
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:Class\t\t-> name:\t%d\n"),n,getU2(pc));
 #else
 	printf("\tcp %d\t:Class\t\t-> name:\t%d\n",n,getU2(pc));
@@ -528,7 +529,7 @@ pc+=2;
 			CASE	CONSTANT_String:							/*    8 */
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:String\t\t-> string:\t%d\n"),n,getU2(pc));
 #else
 	printf("\tcp %d\t:String\t\t-> string:\t%d\n",n,getU2(pc));
@@ -539,14 +540,14 @@ pc+=2;
 			CASE	CONSTANT_Fieldref:							/*    9 */
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:Fieldref\t-> class: %d "),	n,getU2(pc));
 #else
 	printf("\tcp %d\t:Fieldref\t-> class: %d ",	n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("name_and_type:\t%d\n"),	getU2(pc+2));
 #else
 	printf("name_and_type:\t%d\n",	getU2(pc+2));
@@ -557,14 +558,14 @@ pc+=4;
 			CASE	CONSTANT_InterfaceMethodref:				/*   11 */
 #ifdef DEBUG					
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:InterfaceMethodref->class: %d "),n,getU2(pc));
 #else
 	printf("\tcp %d\t:InterfaceMethodref->class: %d ",n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("name_and_type_index\t%d\n"),getU2(pc+2));
 #else
 	printf("name_and_type_index\t%d\n",getU2(pc+2));
@@ -575,14 +576,14 @@ pc+=4;
 			CASE	CONSTANT_Methodref: 						/*    10  nur Methoden, die aufgerufen werden!!!*/
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:Methodref\t-> class: %d "),n,getU2(pc));
 #else
 	printf("\tcp %d\t:Methodref\t-> class: %d ",n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("name_and_type:\t%d\n"), getU2(pc+2));
 #else
 	printf("name_and_type:\t%d\n", getU2(pc+2));
@@ -593,7 +594,7 @@ pc+=4;
 			CASE	CONSTANT_Integer:			/*    3*/
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("cp %d\t: Integer -> name:\t%d\n"),n,getU4(pc));
 #else
 	printf("cp %d\t: Integer -> name:\t%d\n",n,getU4(pc));
@@ -604,14 +605,14 @@ pc+=4;
 			CASE	CONSTANT_NameAndType:					/*    12*/
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:nameAndType\t-> name:\t%d "),n,getU2(pc));
 #else
 	printf("\tcp %d\t:nameAndType\t-> name:\t%d ",n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("descriptor:\t %d\n"),getU2(pc+2));
 #else
 	printf("descriptor:\t %d\n",getU2(pc+2));
@@ -622,7 +623,7 @@ pc+=4;
 			CASE	CONSTANT_Float:	 							/*    4 */
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:Float:\t%f  \n"),n,getFloat(pc));
 #else
 	printf("\tcp %d\t:Float:\t%f  \n",n,getFloat(pc));
@@ -639,7 +640,7 @@ pc+=4;
 #ifdef DEBUG
 				int i;
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tcp %d\t:Utf8:\t\t-> "),n);
 #else
 	printf("\tcp %d\t:Utf8:\t\t-> ",n);
@@ -647,14 +648,14 @@ pc+=4;
 
 					for (i=0; i < length;i++)
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("%c"),getU1(pc+i));
 #else
 	printf("%c",getU1(pc+i));
 #endif
 	/* utf8 chars ???*/
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\n"));
 #else
 	printf("\n");
@@ -663,7 +664,7 @@ pc+=4;
 #endif
 pc+=length;
 			DEFAULT:
-				#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-1, PSTR("invalid constant pool identifier\n"));
 				#else
 					errorExit(-1, "invalid constant pool identifier\n");
@@ -680,14 +681,14 @@ c->nativeFunction=NULL;
 		c->method_info[n]=pc; /* absolute in classfile*/
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tmethod %d\taccess_flags: %04x"),n,getU2(pc));
 #else
 	printf("\tmethod %d\taccess_flags: %04x",n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR(" name: %04x "),getU2(pc+2));
 #else
 	printf(" name: %04x ",getU2(pc+2));
@@ -695,7 +696,7 @@ c->nativeFunction=NULL;
 
 		//BHDEBUGPRINTSTRING(METHODNAMESTR(cN,n),METHODNAMESTRLENGTH(cN,n));
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR(" descriptor: %04x "),getU2(pc+4));
 #else
 	printf(" descriptor: %04x ",getU2(pc+4));
@@ -703,7 +704,7 @@ c->nativeFunction=NULL;
  /*Signature*/
 		//BHDEBUGPRINTSTRING(METHODDESCRSTR(cN,n),METHODDESCRSTRLENGTH(cN,n));
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR(" tattribute_count: %04x\n"),a=getU2(pc+6));
 #else
 	printf(" tattribute_count: %04x\n",a=getU2(pc+6));
@@ -715,7 +716,7 @@ pc+=8;
 		if (a==0) {
 for (i=0; i < (/*sizeof(nativeClassNames)/sizeof(char*)*/numNativeClassNames); i++)
 	if (!
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -729,7 +730,7 @@ strncmp
 		for (m=0; m<a;m++)									{ /* attributes of method*/
 		const char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
 			if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -738,28 +739,28 @@ strncmp
 	{
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: attribute_length: %d\n"),getU4(pc));
 #else
 	printf("\t\tCode: attribute_length: %d\n",getU4(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: max_stack: %d\n"), getU2(pc+4));
 #else
 	printf("\t\tCode: max_stack: %d\n", getU2(pc+4));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: max_locals: %d\n"),getU2(pc+6));
 #else
 	printf("\t\tCode: max_locals: %d\n",getU2(pc+6));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: code_length: %d\n\t\t"),getU4(pc+8));
 #else
 	printf("\t\tCode: code_length: %d pc: %d\n\t\t",getU4(pc+8),pc);
@@ -769,7 +770,7 @@ strncmp
 pc+=12;				
 #ifdef DEBUG
 				for (i=0;i <getU4(pc-4);i++)
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("%2x "),getU1(pc+i));
 #else
 	printf("%2x ",getU1(pc+i));
@@ -780,7 +781,7 @@ pc+=getU4(pc-4);
 etl=getU2(0);
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\n\t\tCode: exception_table_length: %d\n"),etl);
 #else
 	printf("\n\t\tCode: exception_table_length: %d\n",etl);
@@ -789,28 +790,28 @@ etl=getU2(0);
 
 					for (i=0;i <etl;i++)	{
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\t\texception: nr: %d startPC: %d\n"),i,getU2(pc+8*i));
 #else
 	printf("\t\t\texception: nr: %d startPC: %d\n",i,getU2(pc+8*i));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\t\texception: nr: %d endPC: %d\n"),i,getU2(8*i+2));
 #else
 	printf("\t\t\texception: nr: %d endPC: %d\n",i,getU2(8*i+2));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\t\texception: nr: %d handlerPC: %d\n"),i,getU2(8*i+4));
 #else
 	printf("\t\t\texception: nr: %d handlerPC: %d\n",i,getU2(8*i+4));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\t\texception: nr: %d catchType: %d\n"),i,getU2(8*i+6));
 #else
 	printf("\t\t\texception: nr: %d catchType: %d\n",i,getU2(8*i+6));
@@ -822,7 +823,7 @@ pc+=etl*8;
 					u2 h=getU2(0);
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\tCode: attributes_count: %d\n"),	h);
 #else
 	printf("\t\tCode: attributes_count: %d\n",	h);
@@ -832,14 +833,14 @@ pc+=etl*8;
 					for (i=0;i< h;i++)	{
 						const char*addr=getAddr(c->constant_pool[getU2(0)]+3);
 						if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
 ("LineNumberTable",addr, 15) == 0 )	pc=getU4(0)+pc;	
 						if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -847,7 +848,7 @@ strncmp
 ("LocalVariableTable",addr, 18) == 0)	pc=getU4(0)+pc;	
 										}		}
 			if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -855,7 +856,7 @@ strncmp
 ("Exceptions", adr,10) == 0)		{
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("exception object\n"));
 #else
 	printf("exception object\n");
@@ -868,7 +869,7 @@ strncmp
 #ifdef DEBUG
 			for (i=0;i<n2;i++)	
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\t\t\texception: nr: %d class: %d\n"),i,getU2(pc+2*i));
 #else
 	printf("\t\t\texception: nr: %d class: %d\n",i,getU2(pc+2*i));
@@ -879,14 +880,14 @@ pc+=2*n2;
 			/*pc=(u2)getU4(0)+pc;*/
 			}
 			if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
 ("Synthetic", adr,9) == 0)		pc+=4;
 			if (
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
@@ -903,28 +904,28 @@ void analyzeFields(classStructure* c){
 		c->field_info[n]=pc; 	/* absolute in classfile*/
 #ifdef DEBUG
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %x\taccess_flags: %d\n"),n,getU2(pc));
 #else
 	printf("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tname: %d\n"),n,getU2(pc+2));
 #else
 	printf("\tfield %d\tname: %d\n",n,getU2(pc+2));
 #endif
 
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tdescriptor: %d\n"),n,getU2(pc+4));
 #else
 	printf("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4));
 #endif
  						/*Signature*/
 
-#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tattribute_count: %d\n"),n,getU2(pc+6));
 #else
 	printf("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
@@ -943,7 +944,7 @@ void analyzeFields(classStructure* c){
 			u4 attribute_length = getU4(0);
 
 			if (getU1(attribute_name) != CONSTANT_Utf8) {
-				#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-1, PSTR("error while reading class file, CONSTANT_Utf8 expected\n"));
 				#else
 					errorExit(-1, "error while reading class file, CONSTANT_Utf8 expected\n");
@@ -951,14 +952,14 @@ void analyzeFields(classStructure* c){
 			}
 
 			if (getU2(attribute_name + 1) == 13 && 
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
 ("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
 				if (attribute_length != 2) {
-					#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+					#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 						errorExit(-1, PSTR("error while reading class file, ConstantValue_attribute should have a length of 2\n"));
 					#else
 						errorExit(-1, "error while reading class file, ConstantValue_attribute should have a length of 2\n");
@@ -970,7 +971,7 @@ strncmp
 				if (getU1(constantvalue) == CONSTANT_String) {
                     u2 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
                     if (getU1(utf8) != CONSTANT_Utf8) {
-				#if AVR8 && (!XPLAIN)	// change all avr8 string to flash strings gives more data ram space for java!!
+				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 					errorExit(-1, PSTR("error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n"), getU1(utf8));
 				#else
 					errorExit(-1, "error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n", getU1(utf8));
@@ -999,7 +1000,7 @@ u2	getStartPC()	{	/*cN,mN*/
 	u2 i;
 for (i=0;i<getU2(METHODBASE(cN,mN)+6);i++) 		{/* number of attributes*/
 if(
-#if AVR8 && (!XPLAIN)
+#ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
