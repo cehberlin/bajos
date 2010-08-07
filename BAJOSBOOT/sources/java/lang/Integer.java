@@ -87,9 +87,9 @@ package java.lang;
 	return toString(value);
     }
 
-/*	public boolean equals(Object obj) {
+	public boolean equals(Object obj) {
 		return obj instanceof Integer && ((Integer) obj).value == this.value;
-	}*/
+	}
 }
 
  

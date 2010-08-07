@@ -29,6 +29,9 @@ Known differences are:
 - no complete exception handling
 - less than 256 classes/methods/local variables in methods
 - less than 16 kwords (32 bit) on heap
+- Array objects have no type information
+- No typechecking in the bytecode handlers for *ASTORE
+- *RETURN throws no IllegalMonitorStateException
 The amount of used boot- and system-classes und the complexity of exception handling
 must be adapted on the available memory space on your target system.
 Java software can be developed with these limits on a PC and compiled with javac.
@@ -127,6 +130,9 @@ Die bekanntesten Abweichungen sind:
 - kein vollständiges Exception Handling
 - weniger als 256 Klassen;256 Methoden/Klasse; 256 lokale Vars. für Methoden
 - weniger als 16K Worte a 32 Bit auf dem Heap.
+- Arrays haben keine Typinformationen 
+- Die Handler für die *ASTORE-Bytecodes führen keine Typüberprüfung durch
+- *RETURN kann keine IllegalMonitorStateException auslösen
 
 Der Umfang der verwendeten Boot- und Systemklassen und das
 programmspeicheraufwendige Exception-Handling muß dem vorhandenen
