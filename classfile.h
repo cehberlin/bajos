@@ -31,5 +31,5 @@ u1 findClassFlash(const char* className,u1 classNameLength);
 u1* findMethodByMethodNumber();	// mb jf
 
 u2 getStartPC();
-u1 strncmpFlashFlash(char* , char*,u1);
-u1 strncmpRamFlash(char* , char*,u1);
+u1 strncmpFlashFlash(const char* , const char*,u1);
+u1 strncmpRamFlash(const char* ,const  char*,u1);
