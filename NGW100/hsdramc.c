@@ -19,16 +19,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-/*bh#include <common.h>*/
-/*#define CFG_HSDRAMC*/
-/*#ifdef CFG_HSDRAMC*/
+//bh#include <common.h>
+//#define CFG_HSDRAMC
+//#ifdef CFG_HSDRAMC
 #include "atngw100.h"
 #include <avr32/io.h>
 #include "sdram.h"
 
 #include "clk.h"
 #include "memory-map.h"
-/*#include <asm/io.h>*/
+//#include <asm/io.h>
 #include <stdlib.h>
 
 #include "hsdramc1.h"
@@ -78,7 +78,7 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 * 1. A minimum pause of 200 us is provided to precede any
 	 *    signal toggle.
 	 */
-/*	udelay(200);*/
+//	udelay(200);
 sdram_delay(200);
 	/*
 	 * 2. A Precharge All command is issued to the SDRAM
@@ -149,7 +149,7 @@ sdram_delay(200);
 	return sdram_size;
 }
 
-/*#endif /* CFG_HSDRAMC */*/
+//#endif /* CFG_HSDRAMC */
 
 static void sdram_delay(int us)
 {

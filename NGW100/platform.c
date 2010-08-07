@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "pio.h"
 #include "gpio.h"
 #include "usart.h"
@@ -47,9 +48,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "atngw100.h"
 #include "pm_at32ap7000.h"
 #include "cycle_counter.h"
-#include "platform.h"
 #include "../definitions.h"
+#include "../typedefinitions.h"
 #include "../bajvm.h"
+#include "../heap.h"
+#include "../classfile.h"
+#include "platform.h"
 #include "native.h"
 
 #define __raw_writel(v,a)	(*(volatile unsigned int   *)(a) = (v))
@@ -120,6 +124,69 @@ U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
   Set_sys_compare(((next_compare==0)?1:next_compare)); /* GO*/
 }
 
+/* all class files stored for linux in DS (malloc)*/
+/* for avr8 all class files in flash */
+/* for uc3a and standalone ap7000:	bootclasses in flash*/
+/* 		application classes  DS(Ram) -> hard coded !!!*/
+void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+	u4 length;
+	u1 i=0;
+char* addr;
+u4 temp;
+char buf[5];
+
+
+#ifdef NGW100
+classFileBase=(char*)NGW_FLASH_JAVA_BASE;  	/* boot classes in flash*/
+appClassFileBase=(char*)NGW_SDRAM_JAVA_BASE;	/* app classes in sdram*/
+#endif
+
+	heapInit();	/* linux avr8 malloc , others hard coded!*/
+	length=0;
+
+#if (NGW100||STK1000|| EVK1100)
+/* analyze bootclasses, which are programmed in flash*/
+strncpy(buf,classFileBase,4);
+buf[4]=0;
+sscanf(buf,"%4d",&temp);
+numClasses=(u1)temp;
+addr=classFileBase+4; /* after numclasses*/
+for (cN=0; cN<numClasses;cN++)	{
+strncpy(buf,addr,4);
+sscanf(buf,"%4d",&temp);
+cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
+cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
+analyzeClass(&cs[cN]);	
+addr+=cs[cN].classFileLength+4;
+}
+printf("%d bootclasses are loaded\n",cN);
+cN=numClasses;
+/* thats to boot classes*/
+/* now the application classes*/
+cN--;
+addr=appClassFileBase;
+length=0;
+		do
+		{
+		printf("load application classes-> type \"w\" \n");
+			cN++;
+			cs[cN].classFileStartAddress=addr+length;
+			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
+			printf("\n");
+			length+=cs[cN].classFileLength;
+			analyzeClass(&cs[cN]);
+			printf("still another appl. class ? (y) \n");
+			if (conIn()!='y') break;
+		} 
+		while(cs[cN].classFileLength !=0);
+/*!!*/
+cN++;
+#endif
+DEBUGPRINTHEAP;
+}
+
+
+
 char conIn()	{
 	return (char) usart_getchar(&AVR32_USART1);
 }
@@ -188,4 +255,37 @@ gpio_map_t usart_piomap = {			\
 
 void exit(int status)	{
 	nativeExit(0);
+}
+
+
+u2 readClassFile(char* fileName,char* addr)		{
+
+#if (AVR32UC3A||AVR32AP7000)
+int i;
+char c=conIn(); /* dummy w*/
+if (c =='w')	{
+conOut(4);		/*turn off echo*/
+c=conIn();		/*s*/
+while ((c=conIn())=='p'){ 
+/*if (c=='p) 	// apage comes*/
+c=conIn();
+c=conIn();		/* address*/
+conOut('w');
+for (i=0; i < 256;i++) *(addr++)=conIn();
+conOut('w');}
+conOut(5);		/* turn on echo uploadend*/
+while((c=conIn())==' ');
+i=0;
+do
+{ i+=16*i+ ((c<='9')? (c-'0'): (c-'a'+10));
+conOut(c);}
+while ((c=conIn())!= 0xa);
+return (u2)i;
+}
+else	{
+/*uploadends2*/
+	conOut(5); /* turn on echo*/
+	return (u2) 0;
+}
+#endif
 }

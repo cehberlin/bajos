@@ -10,8 +10,8 @@
  * - Supported devices:  All AVR32 devices.
  * - AppNote:
  *
- * \author               Atmel Corporation: http:/*www.atmel.com \n*/
- *                       Support and FAQ: http:/*support.atmel.no/*/
+ * \author               Atmel Corporation: http://www.atmel.com \n
+ *                       Support and FAQ: http://support.atmel.no/
  *
  *****************************************************************************/
 
@@ -351,7 +351,7 @@ int pm_read_module_domain_scaler(unsigned int module_domain)
     return INVALID_ARGUMENT;
 
   cksel = pm->cksel >> offset;
-  /* Check if prescaler is enabled*/
+  // Check if prescaler is enabled
   if (cksel & AVR32_PM_CKSEL_CPUDIV_MASK)
     divider = 1 << ((cksel & AVR32_PM_CKSEL_CPUSEL_MASK) + 1);
   else
@@ -367,7 +367,7 @@ int pm_set_clock_domain_scaler(unsigned int clock_domain, int divider)
   unsigned int offset;
   int divsel;
 
-  /* Count trailing zeros*/
+  // Count trailing zeros
   divsel = ctz(divider);
 
   if ((divsel > 8) || ((1 << divsel) != divider))
@@ -376,7 +376,7 @@ int pm_set_clock_domain_scaler(unsigned int clock_domain, int divider)
   if (divsel > 0)
     divsel = (divsel - 1) | AVR32_PM_CKSEL_CPUDIV_MASK;
 
-  /* Get offset for bitfields*/
+  // Get offset for bitfields
   switch (clock_domain){
     case PM_PBB_DOMAIN:
       offset = AVR32_PM_CKSEL_PBBSEL_OFFSET;
