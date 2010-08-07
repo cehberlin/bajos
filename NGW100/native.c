@@ -21,12 +21,6 @@
 #include "../scheduler.h"
 #include "../heap.h"
 #include "native.h"
-#include "../EVK1100/gpiouc3a.h"
-#include "../EVK1100/evk1100.h"
-#include "../EVK1100/dip204.h"
-#include "../EVK1100/countuc3a.h"
-#include "../EVK1100/rtcuc3a.h"
-#include "../EVK1100/intcuc3a.h"
 #include "platform.h"
 
 char nativeCharOut()		{

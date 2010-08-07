@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stdio.h>
 #include "pio.h"
+#include "gpio.h"
 #include "usart.h"
 #include "sdram.h"
 #include "hsdramc1.h"
