@@ -10,8 +10,8 @@
  * - Supported devices:  All AVR32 devices.
  * - AppNote:
  *
- * \author               Atmel Corporation: http:/*www.atmel.com \n*/
- *                       Support and FAQ: http:/*support.atmel.no/*/
+ * \author               Atmel Corporation: http://www.atmel.com \n
+ *                       Support and FAQ: http://support.atmel.no/
  *
  *****************************************************************************/
 
@@ -45,11 +45,11 @@
 
 #include "compiler.h"
 #include "pm.h"
-#include "compatibility.h"
+
 
 /*! \name PM Writable Bit-Field Registers
  */
-/*! @{*/
+//! @{
 
 typedef union
 {
@@ -135,7 +135,7 @@ typedef union
   avr32_pm_bod_t                BOD;
 } u_avr32_pm_bod_t;
 
-/*! @}*/
+//! @}
 
 
 /*! \brief Sets the mode of the oscillator 0.
@@ -145,11 +145,11 @@ typedef union
  */
 static void pm_set_osc0_mode(volatile avr32_pm_t *pm, unsigned int mode)
 {
-  /* Read*/
+  // Read
   u_avr32_pm_oscctrl0_t u_avr32_pm_oscctrl0 = {pm->oscctrl0};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl0.OSCCTRL0.mode = mode;
-  /* Write*/
+  // Write
   pm->oscctrl0 = u_avr32_pm_oscctrl0.oscctrl0;
 }
 
@@ -184,11 +184,11 @@ void pm_disable_clk0(volatile avr32_pm_t *pm)
 
 void pm_enable_clk0_no_wait(volatile avr32_pm_t *pm, unsigned int startup)
 {
-  /* Read register*/
+  // Read register
   u_avr32_pm_oscctrl0_t u_avr32_pm_oscctrl0 = {pm->oscctrl0};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl0.OSCCTRL0.startup = startup;
-  /* Write back*/
+  // Write back
   pm->oscctrl0 = u_avr32_pm_oscctrl0.oscctrl0;
 
   pm->mcctrl |= AVR32_PM_MCCTRL_OSC0EN_MASK;
@@ -208,11 +208,11 @@ void pm_wait_for_clk0_ready(volatile avr32_pm_t *pm)
  */
 static void pm_set_osc1_mode(volatile avr32_pm_t *pm, unsigned int mode)
 {
-  /* Read*/
+  // Read
   u_avr32_pm_oscctrl1_t u_avr32_pm_oscctrl1 = {pm->oscctrl1};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl1.OSCCTRL1.mode = mode;
-  /* Write*/
+  // Write
   pm->oscctrl1 = u_avr32_pm_oscctrl1.oscctrl1;
 }
 
@@ -247,11 +247,11 @@ void pm_disable_clk1(volatile avr32_pm_t *pm)
 
 void pm_enable_clk1_no_wait(volatile avr32_pm_t *pm, unsigned int startup)
 {
-  /* Read register*/
+  // Read register
   u_avr32_pm_oscctrl1_t u_avr32_pm_oscctrl1 = {pm->oscctrl1};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl1.OSCCTRL1.startup = startup;
-  /* Write back*/
+  // Write back
   pm->oscctrl1 = u_avr32_pm_oscctrl1.oscctrl1;
 
   pm->mcctrl |= AVR32_PM_MCCTRL_OSC1EN_MASK;
@@ -271,11 +271,11 @@ void pm_wait_for_clk1_ready(volatile avr32_pm_t *pm)
  */
 static void pm_set_osc32_mode(volatile avr32_pm_t *pm, unsigned int mode)
 {
-  /* Read*/
+  // Read
   u_avr32_pm_oscctrl32_t u_avr32_pm_oscctrl32 = {pm->oscctrl32};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl32.OSCCTRL32.mode = mode;
-  /* Write*/
+  // Write
   pm->oscctrl32 = u_avr32_pm_oscctrl32.oscctrl32;
 }
 
@@ -307,12 +307,12 @@ void pm_disable_clk32(volatile avr32_pm_t *pm)
 
 void pm_enable_clk32_no_wait(volatile avr32_pm_t *pm, unsigned int startup)
 {
-  /* Read register*/
+  // Read register
   u_avr32_pm_oscctrl32_t u_avr32_pm_oscctrl32 = {pm->oscctrl32};
-  /* Modify*/
+  // Modify
   u_avr32_pm_oscctrl32.OSCCTRL32.osc32en = 1;
   u_avr32_pm_oscctrl32.OSCCTRL32.startup = startup;
-  /* Write back*/
+  // Write back
   pm->oscctrl32 = u_avr32_pm_oscctrl32.oscctrl32;
 }
 
@@ -344,15 +344,15 @@ void pm_cksel(volatile avr32_pm_t *pm,
 
   pm->cksel = u_avr32_pm_cksel.cksel;
 
-  /* Wait for ckrdy bit and then clear it*/
+  // Wait for ckrdy bit and then clear it
   while (!(pm->poscsr & AVR32_PM_POSCSR_CKRDY_MASK));
 }
 
 
 void pm_gc_setup(volatile avr32_pm_t *pm,
                   unsigned int gc,
-                  unsigned int osc_or_pll, /* Use Osc (=0) or PLL (=1)*/
-                  unsigned int pll_osc, /* Sel Osc0/PLL0 or Osc1/PLL1*/
+                  unsigned int osc_or_pll, // Use Osc (=0) or PLL (=1)
+                  unsigned int pll_osc, // Sel Osc0/PLL0 or Osc1/PLL1
                   unsigned int diven,
                   unsigned int div)
 {
@@ -436,7 +436,7 @@ void pm_wait_for_pll0_locked(volatile avr32_pm_t *pm)
 {
   while (!(pm->poscsr & AVR32_PM_POSCSR_LOCK0_MASK));
 
-  /* Bypass the lock signal of the PLL*/
+  // Bypass the lock signal of the PLL
   pm->pll[0] |= AVR32_PM_PLL0_PLLBPL_MASK;
 }
 
@@ -445,27 +445,27 @@ void pm_wait_for_pll1_locked(volatile avr32_pm_t *pm)
 {
   while (!(pm->poscsr & AVR32_PM_POSCSR_LOCK1_MASK));
 
-  /* Bypass the lock signal of the PLL*/
+  // Bypass the lock signal of the PLL
   pm->pll[1] |= AVR32_PM_PLL1_PLLBPL_MASK;
 }
 
 
 void pm_switch_to_clock(volatile avr32_pm_t *pm, unsigned long clock)
 {
-  /* Read*/
+  // Read
   u_avr32_pm_mcctrl_t u_avr32_pm_mcctrl = {pm->mcctrl};
-  /* Modify*/
+  // Modify
   u_avr32_pm_mcctrl.MCCTRL.mcsel = clock;
-  /* Write back*/
+  // Write back
   pm->mcctrl = u_avr32_pm_mcctrl.mcctrl;
 }
 
 
 void pm_switch_to_osc0(volatile avr32_pm_t *pm, unsigned int fosc0, unsigned int startup)
 {
-  pm_enable_osc0_crystal(pm, fosc0);            /* Enable the Osc0 in crystal mode*/
-  pm_enable_clk0(pm, startup);                  /* Crystal startup time - This parameter is critical and depends on the characteristics of the crystal*/
-  pm_switch_to_clock(pm, AVR32_PM_MCSEL_OSC0);  /* Then switch main clock to Osc0*/
+  pm_enable_osc0_crystal(pm, fosc0);            // Enable the Osc0 in crystal mode
+  pm_enable_clk0(pm, startup);                  // Crystal startup time - This parameter is critical and depends on the characteristics of the crystal
+  pm_switch_to_clock(pm, AVR32_PM_MCSEL_OSC0);  // Then switch main clock to Osc0
 }
 
 

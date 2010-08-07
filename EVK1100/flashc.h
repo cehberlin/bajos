@@ -51,6 +51,7 @@
 #include <stddef.h>
 #include "compiler.h"
 
+
 //! Number of flash regions defined by the FLASHC.
 #define AVR32_FLASHC_REGIONS  (AVR32_FLASHC_FLASH_SIZE /\
                                (AVR32_FLASHC_PAGES_PR_REGION * AVR32_FLASHC_PAGE_SIZE))

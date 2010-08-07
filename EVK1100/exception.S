@@ -45,47 +45,7 @@
 
 
 #include <avr32/io.h>
-// if suse 10.3
-#define AVR32_SR_M_SIZE                                         3
-#define AVR32_SR_M_OFFSET                                      22
-#define AVR32_INTC_AUTOVECTOR                                        0
-#define AVR32_INTC_AUTOVECTOR_MASK                          0x00003fff
-#define AVR32_INTC_AUTOVECTOR_OFFSET                                 0
-#define AVR32_INTC_AUTOVECTOR_SIZE                                  14
-#define AVR32_INTC_CAUSE                                             0
-#define AVR32_INTC_CAUSE_MASK                               0x0000003f
-#define AVR32_INTC_CAUSE_OFFSET                                      0
-#define AVR32_INTC_CAUSE_SIZE                                        6
-#define AVR32_INTC_ICR                                      0x00000200
-#define AVR32_INTC_ICR_CAUSE                                         0
-#define AVR32_INTC_ICR_CAUSE_MASK                           0x0000003f
-#define AVR32_INTC_ICR_CAUSE_OFFSET                                  0
-#define AVR32_INTC_ICR_CAUSE_SIZE                                    6
-#define AVR32_INTC_INT0                                     0x00000000
-#define AVR32_INTC_INT1                                     0x00000001
-#define AVR32_INTC_INT2                                     0x00000002
-#define AVR32_INTC_INT3                                     0x00000003
-#define AVR32_INTC_INTLEVEL                                         30
-#define AVR32_INTC_INTLEVEL_INT0                            0x00000000
-#define AVR32_INTC_INTLEVEL_INT1                            0x00000001
-#define AVR32_INTC_INTLEVEL_INT2                            0x00000002
-#define AVR32_INTC_INTLEVEL_INT3                            0x00000003
-#define AVR32_INTC_INTLEVEL_MASK                            0xc0000000
-#define AVR32_INTC_INTLEVEL_OFFSET                                  30
-#define AVR32_INTC_INTLEVEL_SIZE                                     2
-#define AVR32_INTC_IPR                                      0x00000000
-#define AVR32_INTC_IPR_AUTOVECTOR                                    0
-#define AVR32_INTC_IPR_AUTOVECTOR_MASK                      0x00003fff
-#define AVR32_INTC_IPR_AUTOVECTOR_OFFSET                             0
-#define AVR32_INTC_IPR_AUTOVECTOR_SIZE                              14
-#define AVR32_INTC_IPR_INTLEVEL                                     30
-#define AVR32_INTC_IPR_INTLEVEL_INT0                        0x00000000
-#define AVR32_INTC_IPR_INTLEVEL_INT1                        0x00000001
-#define AVR32_INTC_IPR_INTLEVEL_INT2                        0x00000002
-#define AVR32_INTC_IPR_INTLEVEL_INT3                        0x00000003
-#define AVR32_INTC_IPR_INTLEVEL_MASK                        0xc0000000
-#define AVR32_INTC_IPR_INTLEVEL_OFFSET                              30
-#define AVR32_INTC_IPR_INTLEVEL_SIZE                                 2
+
 
 //! @{
 //! \verbatim

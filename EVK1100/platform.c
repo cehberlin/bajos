@@ -22,8 +22,8 @@
 #include "rtc.h"
 #include "sdramc.h"
 
-#include "../typedefinitions.h"
 #include "../bajvm.h"
+#include "../typedefinitions.h"
 #include "platform.h"
 
 
@@ -108,6 +108,71 @@ sdramc_init(48000000);/*FOSC0) bh not with monitor*/
 }
 
 
+
+/* all class files stored for linux in DS (malloc)*/
+/* for avr8 all class files in flash */
+/* for uc3a and standalone ap7000:	bootclasses in flash*/
+/* 		application classes  DS(Ram) -> hard coded !!!*/
+void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+	u4 length;
+	u1 i=0;
+char* addr;
+u4 temp;
+char buf[5];
+classFileBase=(char*)UC3A_FLASH_JAVA_BASE;  	/* boot classes in flash*/
+/* use malloc!! */
+appClassFileBase=(char*)UC3A_SDRAM_JAVA_BASE;	/* app classes in sdram*/
+	heapInit();	/* linux avr8 malloc , others hard coded!*/
+	length=0;
+#if (NGW100||STK1000|| EVK1100)
+/* analyze bootclasses, which are programmed in flash*/
+strncpy(buf,classFileBase,4);
+buf[4]=0;
+sscanf(buf,"%4d",&temp);
+numClasses=(u1)temp;
+addr=classFileBase+4; /* after numclasses*/
+for (cN=0; cN<numClasses;cN++)	{
+strncpy(buf,addr,4);
+sscanf(buf,"%4d",&temp);
+cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
+cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
+analyzeClass(&cs[cN]);	
+addr+=cs[cN].classFileLength+4;
+}
+printf("%d bootclasses are loaded\n",cN);
+cN=numClasses;
+/* thats to boot classes*/
+/* now the application classes*/
+cN--;
+addr=appClassFileBase;
+length=0;
+		do
+		{
+		printf("load application classes-> type \"w\" \n");
+			cN++;
+			cs[cN].classFileStartAddress=addr+length;
+			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
+			printf("\n");
+			length+=cs[cN].classFileLength;
+			analyzeClass(&cs[cN]);
+			printf("still another appl. class ? (y) \n");
+			if (conIn()!='y') break;
+		} 
+		while(cs[cN].classFileLength !=0);
+/*!!*/
+cN++;
+#endif
+
+DEBUGPRINTHEAP;
+}
+
+
+
+
+
+
+
+
 #ifndef WITHMON
 
 /* This source file is part of the ATMEL AVR32-SoftwareFramework-AT32UC3A-1.2.2ES Release */
@@ -128,8 +193,8 @@ sdramc_init(48000000);/*FOSC0) bh not with monitor*/
  * - Supported devices:  All AVR32 devices with : SPI and PWM
  * - AppNote:
  *
- * \author               Atmel Corporation: http:/*www.atmel.com \n*/
- *                       Support and FAQ: http:/*support.atmel.no/*/
+ * \author               Atmel Corporation: http: www.atmel.com 
+ *                       Support and FAQ: http: support.atmel.no
  *
  *****************************************************************************/
 
@@ -192,8 +257,8 @@ sdramc_init(48000000);/*FOSC0) bh not with monitor*/
  *
  * \section contactinfo Contact Information
  * For further information, visit
- * <A href="http:/*www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n*/
- * Support and FAQ: http:/*support.atmel.no/*/
+ * <A href="http: www.atmel.com/products/AVR32/">Atmel AVR32</A>.\n
+ * Support and FAQ: http: support.atmel.no
  */
 
 
@@ -406,7 +471,7 @@ __attribute__((__interrupt__))	void rtc_irq(){
 */
 void initTimer() 
 {
-  /* Disable all interrupts. */*/
+  /* Disable all interrupts. */
   Disable_global_interrupt();
   /* The INTC driver has to be used only for GNU GCC for AVR32.*/
 #if __GNUC__
@@ -423,7 +488,7 @@ void initTimer()
     {printf("Error initializing the RTC\r\n");
     exit(-1);	}
   }
-  /* Set top value to 0 to generate an interruption every Milli-seconds */*/
+  /* Set top value to 0 to generate an interruption every Milli-seconds */
   rtc_set_top_value(&AVR32_RTC, 0);
   /* Enable the interruptions*/
   rtc_enable_interrupt(&AVR32_RTC);
@@ -601,8 +666,8 @@ void local_start_pll0(volatile avr32_pm_t* pm)
   /*
   void pm_gc_setup(volatile avr32_pm_t* pm,
                   unsigned int gc,
-                  unsigned int osc_or_pll, /* Use Osc (=0) or PLL (=1)*/
-                  unsigned int pll_osc, /* Sel Osc0/PLL0 or Osc1/PLL1*/
+                  unsigned int osc_or_pll, //Use Osc (=0) or PLL (=1)
+                  unsigned int pll_osc,  // Sel Osc0/PLL0 or Osc1/PLL1
                   unsigned int diven,
                   unsigned int div) {
   */
@@ -647,3 +712,35 @@ void exit(int status)	{
 Monitor();
 }
 #endif
+
+u2 readClassFile(char* fileName,char* addr)		{
+#if (AVR32UC3A||AVR32AP7000)
+int i;
+char c=conIn(); /* dummy w*/
+if (c =='w')	{
+conOut(4);		/*turn off echo*/
+c=conIn();		/*s*/
+while ((c=conIn())=='p'){ 
+/*if (c=='p) 	// apage comes*/
+c=conIn();
+c=conIn();		/* address*/
+conOut('w');
+for (i=0; i < 256;i++) *(addr++)=conIn();
+conOut('w');}
+conOut(5);		/* turn on echo uploadend*/
+while((c=conIn())==' ');
+i=0;
+do
+{ i+=16*i+ ((c<='9')? (c-'0'): (c-'a'+10));
+conOut(c);}
+while ((c=conIn())!= 0xa);
+return (u2)i;
+}
+else	{
+/*uploadends2*/
+	conOut(5); /* turn on echo*/
+	return (u2) 0;
+}
+#endif
+}
+

@@ -12,8 +12,8 @@
  * - Supported devices:  All AVR32 devices with an SPI module can be used.
  * - AppNote:
  *
- * \author               Atmel Corporation: http:/*www.atmel.com \n*/
- *                       Support and FAQ: http:/*support.atmel.no/*/
+ * \author               Atmel Corporation: http://www.atmel.com \n
+ *                       Support and FAQ: http://support.atmel.no/
  *
  ******************************************************************************/
 
@@ -57,7 +57,7 @@
 
 /*! \name SPI Writable Bit-Field Registers
  */
-/*! @{*/
+//! @{
 
 typedef union
 {
@@ -95,12 +95,12 @@ typedef union
   avr32_spi_csr0_t              CSR;
 } u_avr32_spi_csr_t;
 
-/*! @}*/
+//! @}
 
 
 #ifdef FREERTOS_USED
 
-/*! The SPI mutex.*/
+//! The SPI mutex.
 static xSemaphoreHandle xSPIMutex;
 
 #endif
@@ -145,10 +145,10 @@ int spi_initSlave(volatile avr32_spi_t *spi,
     return SPI_ERROR_ARGUMENT;
   }
 
-  /* Reset.*/
+  // Reset.
   spi->cr = AVR32_SPI_CR_SWRST_MASK;
 
-  /* Will use CSR0 offsets; these are the same for CSR0 to CSR3.*/
+  // Will use CSR0 offsets; these are the same for CSR0 to CSR3.
   spi->csr0 = ((spi_mode >> 1) << AVR32_SPI_CSR0_CPOL_OFFSET) |
               (((spi_mode & 0x1) ^ 0x1) << AVR32_SPI_CSR0_NCPHA_OFFSET) |
               ((bits - 8) << AVR32_SPI_CSR0_BITS_OFFSET);
@@ -159,10 +159,10 @@ int spi_initSlave(volatile avr32_spi_t *spi,
 
 int spi_initTest(volatile avr32_spi_t *spi)
 {
-  /* Reset.*/
+  // Reset.
   spi->cr = AVR32_SPI_CR_SWRST_MASK;
-  spi->mr |= AVR32_SPI_MR_MSTR_MASK | /* Master Mode.*/
-             AVR32_SPI_MR_LLB_MASK;   /* Local Loopback.*/
+  spi->mr |= AVR32_SPI_MR_MSTR_MASK | // Master Mode.
+             AVR32_SPI_MR_LLB_MASK;   // Local Loopback.
 
   return SPI_OK;
 }
@@ -177,10 +177,10 @@ int spi_initMaster(volatile avr32_spi_t *spi, const spi_options_t *options)
     return SPI_ERROR_ARGUMENT;
   }
 
-  /* Reset.*/
+  // Reset.
   spi->cr = AVR32_SPI_CR_SWRST_MASK;
 
-  /* Master Mode.*/
+  // Master Mode.
   u_avr32_spi_mr.mr = spi->mr;
   u_avr32_spi_mr.MR.mstr = 1;
   u_avr32_spi_mr.MR.modfdis = options->modfdis;
@@ -220,11 +220,11 @@ int spi_selectChip(volatile avr32_spi_t *spi, unsigned char chip)
   while (pdFALSE == xSemaphoreTake(xSPIMutex, 20));
 #endif
 
-  /* Assert all lines; no peripheral is selected.*/
+  // Assert all lines; no peripheral is selected.
   spi->mr |= AVR32_SPI_MR_PCS_MASK;
 
   if (spi->mr & AVR32_SPI_MR_PCSDEC_MASK) {
-    /* The signal is decoded; allow up to 15 chips.*/
+    // The signal is decoded; allow up to 15 chips.
     if (chip > 14) {
       return SPI_ERROR_ARGUMENT;
     }
@@ -252,10 +252,10 @@ int spi_unselectChip(volatile avr32_spi_t *spi, unsigned char chip)
     }
   }
 
-  /* Assert all lines; no peripheral is selected.*/
+  // Assert all lines; no peripheral is selected.
   spi->mr |= AVR32_SPI_MR_PCS_MASK;
 
-  /* Last transfer, so deassert the current NPCS if CSAAT is set.*/
+  // Last transfer, so deassert the current NPCS if CSAAT is set.
   spi->cr = AVR32_SPI_CR_LASTXFER_MASK;
 
 #ifdef FREERTOS_USED
@@ -284,7 +284,7 @@ int spi_setupChipReg(volatile avr32_spi_t *spi,
     return -baudDiv;
   }
 
-  /* Will use CSR0 offsets; these are the same for CSR0 to CSR3.*/
+  // Will use CSR0 offsets; these are the same for CSR0 to CSR3.
   u_avr32_spi_csr.csr = 0;
   u_avr32_spi_csr.CSR.cpol = options->spi_mode >> 1;
   u_avr32_spi_csr.CSR.ncpha = (options->spi_mode & 0x1) ^ 0x1;
@@ -314,7 +314,7 @@ int spi_setupChipReg(volatile avr32_spi_t *spi,
 #ifdef FREERTOS_USED
   if (!xSPIMutex)
   {
-    /* Create the SPI mutex.*/
+    // Create the SPI mutex.
     vSemaphoreCreateBinary(xSPIMutex);
     if (!xSPIMutex)
     {

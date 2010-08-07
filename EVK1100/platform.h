@@ -8,6 +8,8 @@
 #include "evk1100.h"	
 #include "gpio.h"
 #include "pm.h"
+
+u2 readClassFile(char* fileName,char* addr);
 char	conIn();
 void	conOut(char c);
 void	hexConOut(char c);
@@ -22,7 +24,6 @@ void stdIOInit();
 void usart0Init();
 void usart1Init();
 void initHW();
-
 
 
 void local_start_pll0(volatile avr32_pm_t* pm);

@@ -31,6 +31,7 @@
 #include "pwm.h"
 #include "adc.h"
 #include "platform.h" 
+
 /*suse 10.3*/
 #include "compatibility.h"
 

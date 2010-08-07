@@ -15,3 +15,8 @@ char ser1DTR();
 char pwmStart();
 char pwmStop();
 char adcGetValue();
+#ifdef WITHMON
+void Monitor(int);
+int GetMilliSec();
+int AdcGetValue();
+#endif

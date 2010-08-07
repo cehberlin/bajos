@@ -1,7 +1,2 @@
 do not use board.h!!!
-compile wit withmon for evk1100 with monitor
-do only use int's
-
-
-make chiperase hilft manchmal bei evk1100!!
-mytemp als bootpck für evk1100 ist idiotisch -> avr32bootpack
+there are conflicts with norwegian preprocessor directives
