@@ -36,7 +36,7 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. 
 
 \* ************************************************************************ */
-// development board CharonII
+/* development board CharonII*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -56,21 +56,21 @@ POSSIBILITY OF SUCH DAMAGE.
 #define		BOARDRAMEND	0x8000
 #define		MONSTART	LARGEBOOTSTART
 #define 	MONRAM		CHARONRAMEND-0x100
-// Monitor  functions (bamo128 -> cs.ba-berlin.de)
-#define		mainLoop	BYTES(LARGEBOOTSTART+2)	// Ruecksprung in Monitor aus Programm mit goto
-#define		saveCPU		BYTES(LARGEBOOTSTART+62)	//Time2Comp	// BOOTSTART+62		
+/* Monitor  functions (bamo128 -> cs.ba-berlin.de)*/
+#define		mainLoop	BYTES(LARGEBOOTSTART+2)	/* Ruecksprung in Monitor aus Programm mit goto*/
+#define		saveCPU		BYTES(LARGEBOOTSTART+62)	/*Time2Comp	// BOOTSTART+62		*/
 
 FILE uartAVR8 = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
 
 SIGNAL(SIG_OUTPUT_COMPARE2) __attribute__ ((naked));
-SIGNAL(SIG_OUTPUT_COMPARE2) {asm volatile  (INLINEASM(jmp,saveCPU));} // monitor für step-betrieb 
+SIGNAL(SIG_OUTPUT_COMPARE2) {asm volatile  (INLINEASM(jmp,saveCPU));} /* monitor für step-betrieb */
 
 char (*conIn)()=(void*)(0xF004);
 
 int __attribute__((weak)) _read (int file, char * ptr, int len){
 int i;
-//if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);
-//if (file != 0)return unimplemented_syscall("_read with filedes != 0");
+/*if ( !do_not_use_oscall_coproc ) return _read_sim(file, ptr, len);*/
+/*if (file != 0)return unimplemented_syscall("_read with filedes != 0");*/
 for ( i = 0; i < len; i++ ){
 ptr[i] = (char)conIn();
 }
@@ -81,16 +81,16 @@ return len;
 void initHW(){
 stdout = stdin=stderr = &uartAVR8;	
 LCD_Init();
-timer_Init();	// use timer 2 for real time clock
+timer_Init();	/* use timer 2 for real time clock*/
 }
 
 void VT102Attribute (u1 fgcolor, u1 bgcolor)	{
     printf("%c",0x1b);
     printf("%c",'[');
-//  printf("%c",'4');
+/*  printf("%c",'4');*/
     printf("%c",fgcolor);
-//printf("%c",';');
-//printf("%c",40 + bgcolor);
+/*printf("%c",';');*/
+/*printf("%c",40 + bgcolor);*/
     printf("%c",'m');
 }
 
@@ -107,15 +107,15 @@ int uart_getchar(FILE *stream)	{
 
 
 void timer_Init()	{
-	OCR0=0x58;		// Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt
-	TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	// Vorteiler 1024 zu Systemtakt 20 MHz??
+	OCR0=0x58;		/* Timer zählt bis OCR0, dann Int und Reset Timer, Experimentell bestimmt*/
+	TCCR0 = (1<<CS02) | (1<<CS00) | (1<<WGM01);	/* Vorteiler 1024 zu Systemtakt 20 MHz??*/
 	TIMSK |= (1<<OCIE0);
-	sei();	// global interrupt zulassen
+	sei();	/* global interrupt zulassen*/
 }
 
 
 void exit(int n)	{
-goto *0xf002;	//asm	 (INLINEASM(jmp,0xf002));
+goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
 }
 
 

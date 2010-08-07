@@ -113,7 +113,7 @@ u_int readTemperature(u_char idx)	{
     #if !MULTI_DEVICE
      writeByte(0xCC); /* skip ROM */
     #else
-u_char *ptr_tmp=&tm_romdta[8*idx]; //bh
+u_char *ptr_tmp=&tm_romdta[8*idx]; /*bh*/
      writeByte(0x55); /* match ROM */
      cnt = 8;
      do	writeByte(*ptr_tmp++);
@@ -334,11 +334,11 @@ static u_char reset(void)	{
     cbi(DS_PORT, DQ);       /* pull DQ line low */
    delay(32);           /* leave it low for 480us */                           /* allow DQ line to return high */
     cbi(DS_DDR, DQ);        /* set DQ pin direction - input */
-   // sbi(DS_PORT, DQ);       /* enable AVR internal pull-up resistor */
+   /* sbi(DS_PORT, DQ);       /* enable AVR internal pull-up resistor */*/
    delay(4);            /* wait for presence */
                             /* get presence signal */
    if(bit_is_set(DS_PIN, DQ))	presence = 1; else presence = 0;
-//    bit_is_set(DS_PIN, DQ) ? (presence = 1) : (presence = 0);
+/*    bit_is_set(DS_PIN, DQ) ? (presence = 1) : (presence = 0);*/
    delay(20);           /* wait for end of timeslot */
     return presence;        /* presence signal returned
                              * 0 = presence, 1 = no part
