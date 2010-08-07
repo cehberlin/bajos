@@ -21,7 +21,6 @@ Erweiterungen von:
 // no utf8 but ascii
 // ignore some attributes
 // no classloader
-// static fields must be the first elements in a class before others !!!!!!!!!!!!!!!!!!!!!
 // no ...
 // and errors ........................................................................
 /*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX -> Target Systems*/
@@ -33,6 +32,9 @@ Erweiterungen von:
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "AVR8/lcd.h"
+#endif
+#ifdef AVR32UC3A
+	#include "iobinding.h"
 #endif
 
 #include "definitions.h"

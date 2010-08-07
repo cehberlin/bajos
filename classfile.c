@@ -17,6 +17,9 @@
 	#include <unistd.h>
 	#include <stdlib.h>
 #endif
+#ifdef AVR32UC3A
+	#include "iobinding.h"
+#endif
 #ifdef AVR8
 	#include <ctype.h>
 	#include <stdint.h>

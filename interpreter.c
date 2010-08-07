@@ -1492,6 +1492,7 @@ slot createDims(u4 dimsLeft, s2 *dimSize) {
 		HEAPOBJECTMARKER(heapPos++).magic=OBJECTMAGIC;
 		s2 *cnt = (s2 *) malloc(sizeof(s2));
 		*cnt = 0;
+		int i;
 		for ( i = 0 ; i < *dimSize ; ++i) {
 			heapSetElement(createDims(dimsLeft - 1, cnt), heapPos++);
 		}
