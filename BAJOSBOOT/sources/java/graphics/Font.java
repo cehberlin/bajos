@@ -4,7 +4,7 @@ public class Font
 {
 	int color, bgColor;
 	int windowX1, windowX2, windowY1, windowY2;
-	byte fontIndex, fixedFont, autoLineFeed;
+	int fontIndex, fixedFont, autoLineFeed;
 		
     public Font()
     {
@@ -20,9 +20,9 @@ public class Font
     	windowX2=Display.xMax-1;
     	windowY1=0;
     	windowY2=Display.yMax-1;
-    	fontIndex=(byte)0;
-    	fixedFont=(byte)0;
-    	autoLineFeed=(byte)1;
+    	fontIndex=0;
+    	fixedFont=0;
+    	autoLineFeed=1;
     }
     
     public void setValues()
@@ -83,27 +83,27 @@ public class Font
 		this.windowY2 = windowY2;
 	}
 
-	public byte getFontIndex() {
+	public int getFontIndex() {
 		return fontIndex;
 	}
 
-	public void setFontIndex(byte fontIndex) {
-		this.fontIndex = fontIndex;
+	public void setFontIndex(int i) {
+		this.fontIndex = i;
 	}
 
-	public byte getFixedFont() {
+	public int getFixedFont() {
 		return fixedFont;
 	}
 
-	public void setFixedFont(byte fixedFont) {
+	public void setFixedFont(int fixedFont) {
 		this.fixedFont = fixedFont;
 	}
 
-	public byte getAutoLineFeed() {
+	public int getAutoLineFeed() {
 		return autoLineFeed;
 	}
 
-	public void setAutoLineFeed(byte autoLineFeed) {
+	public void setAutoLineFeed(int autoLineFeed) {
 		this.autoLineFeed = autoLineFeed;
 	}
 	
