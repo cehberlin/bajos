@@ -105,7 +105,6 @@ DEBUGPRINTHEAP;
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u2 length;
 // use malloc!!
-printf("nun los\n");
 #ifdef EVK1100
 classFileBase=(u1*)UC3A_FLASH_JAVA_BASE;  	// boot classes in flash
 apClassFileBase=(u1*)UC3A_SDRAM_JAVA_BASE;	// app classes in sdram
@@ -157,7 +156,6 @@ sscanf(buf,"%4d",&temp);
 numClasses=(u1)temp;	// erstmal die boot klassen
 addr=classFileBase+4; // after numclasses
 for (cN=0; cN<numClasses;cN++)	{
-printf("Klasse: %d\n",cN);
 strncpy(buf,addr,4);
 sscanf(buf,"%4d",&temp);
 cs[cN].classFileStartAddress=addr+4;	// after length of class
@@ -165,7 +163,7 @@ cs[cN].classFileLength=temp;//(u1)(*addr)+256*(u1)(*(addr+1));
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
 }
-
+printf("%d Bootklassen geladen\n",cN);
 cN=numClasses;
 // das waren die boot klassen
 // jetzt die Anwenderklassen
@@ -175,7 +173,7 @@ addr=apClassFileBase;
 length=0;
 		do
 		{
-		printf("laden der Anwenderklassen-> Geben Sie w ein %d\n",cN);
+		printf("laden der Anwenderklassen-> Geben Sie w ein \n");
 			cN++;
 			cs[cN].classFileStartAddress=apClassFileBase+length;
 			cs[cN].classFileLength=readClassFile(NULL,cs[cN].classFileStartAddress);
