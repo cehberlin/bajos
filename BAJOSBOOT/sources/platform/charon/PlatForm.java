@@ -27,4 +27,7 @@ public native void nativeSetBarGraph(int value);
 public native byte nativeGetDIL();
 public native void nativeSetPort(char port, byte value);
 public native byte nativeGetPort(char port);
+public native byte nativeSer1In();
+public native void nativeSer1Out(byte c);
+public native byte nativeSer1Stat();
 }
