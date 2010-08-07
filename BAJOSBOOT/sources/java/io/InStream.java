@@ -1,6 +1,6 @@
 package java.io; 
 import platform.*;
-import java.lang.*;
+//import java.lang.*;
 
 
 public class InStream	{
@@ -11,7 +11,7 @@ this.platform=platform;
 }
 */
 public char read()	{
-return System.nativeCharIn();
+return PlatForm.nativeCharIn();
 
 }
 }
