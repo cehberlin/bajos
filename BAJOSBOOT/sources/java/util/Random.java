@@ -7,11 +7,15 @@ public class Random
 {
   private int iPrevSeed, iSeed;
   
-  public Random (long seed)
+  public Random (int seed)
   {
     iPrevSeed = 1;
-    iSeed = (int) seed;
+    iSeed = seed;
   }
+
+	public Random () {
+		this(System.currentTimeMillis());
+	}
   
   /**
    * @return A random positive or negative integer.
