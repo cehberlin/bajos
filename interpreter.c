@@ -1613,25 +1613,24 @@ DEBUGPRINTLN2("trying to catch class number %d", classNumberFromPushedObject);
 DEBUGPRINTLN2("%d catch clauses", n);
 	u2 i;
 	for (i = 0 ; i < n ; ++i) {
+		u2 cur_catch = METHODCODEEXCEPTIONBASE(cN,mN) + 8*i;
 
 		/* checking if catch range is usable */
-		if (!(	((pc-getStartPC()-1) >= getU2(METHODCODEEXCEPTIONBASE(cN,mN)+2+8*i))
-			&&	((pc-getStartPC()-1) < getU2(METHODCODEEXCEPTIONBASE(cN,mN)+4+8*i)))) {
-			DEBUGPRINTLN2("pc: %d", pc-getStartPC()-1);
-			DEBUGPRINTLN2("start: %d", getU2(METHODCODEEXCEPTIONBASE(cN,mN)+2+8*i));
-			DEBUGPRINTLN2("end: %d", getU2(METHODCODEEXCEPTIONBASE(cN,mN)+4+8*i));
+		if (	pc - getStartPC() - 1 < getU2(cur_catch + 2)
+			||	pc - getStartPC() - 1 >= getU2(cur_catch + 4)) {
+			DEBUGPRINTLN2("pc: %d", pc - getStartPC() - 1);
+			DEBUGPRINTLN2("start: %d", getU2(cur_catch + 2));
+			DEBUGPRINTLN2("end: %d", getU2(cur_catch + 4));
 			DEBUGPRINTLN1("not my range");
 			continue;
 		}
 
 		// checking whether the catch's catched class is in the code exception table
 		methodStackPush(cN);
-		methodStackPush(mN);
-		if (findClass(getAddr(CP(cN, getU2(CP(cN,getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i))+1))+3),	// className 
-				getU2(CP(cN,  getU2(CP(cN,getU2(METHODCODEEXCEPTIONBASE(cN,mN)+8+8*i))+1))+1))	// classNameLength
+		if (findClass(getAddr(CP(cN, getU2(CP(cN,getU2(cur_catch + 8))+1))+3),	// className 
+				getU2(CP(cN,  getU2(CP(cN,getU2(cur_catch + 8))+1))+1))	// classNameLength
 				== 0) {
 			DEBUGPRINTLN2("Exception class not found:  %d\n",cN);
-			mN=methodStackPop();
 			cN=methodStackPop();
 			continue; // class is not in the class table - broken code.
 		}
@@ -1639,31 +1638,15 @@ DEBUGPRINTLN2("%d catch clauses", n);
 		// Ya well, this is the catched class's number in code exception table
 		u1 classNumberInCodeExceptionTable=cN;
 		DEBUGPRINTLN2("classNumberInCodeExceptionTable: %d", classNumberInCodeExceptionTable);
-		mN=methodStackPop();
 		
 		cN = classNumberFromPushedObject;
 
 		/* start catching */
-		while (cN != 0) {
-			DEBUGPRINTLN2("trying to catch %d",cN);
-			// Class name we are trying to catch
-			DEBUGPRINTLN2("which is %s", getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].this_class)]+1)]+3));
-
-			if (classNumberInCodeExceptionTable == cN) {
-				DEBUGPRINTLN1("catching!");
-				cN=methodStackPop();
-				pc=getStartPC()+getU2(METHODCODEEXCEPTIONBASE(cN,mN)+6+8*i);
-				return;
-			}
-
-			if (getU2(cs[cN].super_class) == 0) {
-				// sadly, you are not my man. let's try the next one.
-				break;
-			}
-
-			// location of the super class's utf8_info
-			//i = cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)];
-			findClass(getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+3), getU2(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].super_class)]+1)]+1));
+		if (checkInstance(classNumberInCodeExceptionTable)) {
+			DEBUGPRINTLN1("catching!");
+			cN=methodStackPop();
+			pc=getStartPC()+getU2(cur_catch + 6);
+			return;
 		}
 		cN=methodStackPop();
 	}

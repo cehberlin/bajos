@@ -332,8 +332,9 @@ void analyzeClass(classStructure* c)	{
 #ifdef DEBUG	
 		printf("cf\tinterfaces_count: %d\n",getU2(pc));
 #endif
-		pc+=2 + getU2(c->interfaces_count) * 2;
-	// c->interfaces=getAddress();	// no interfaces-> to do
+		pc+=2;
+		c->interfaces=pc;	
+ 		pc+= getU2(c->interfaces_count) * 2;
 	// printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
 		c->fields_count=pc;
 #ifdef DEBUG	
