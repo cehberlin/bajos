@@ -75,6 +75,10 @@ PLATFORMASMSOURCES	= $(APPPATH)EVK1100/crt0.S
 all:	clean compile bootclasses compEVK1100 bootpack
 	@echo generating bajvm.bin avr32bootpack javatests/EVK1100.class
 
+burnbajvm:
+	@echo $(MSG_PROGRAMMING)
+	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+
 else # without monitor
 PLATFORMCSOURCES	+= $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
 			$(APPPATH)EVK1100/rtc.c $(APPPATH)EVK1100/pwm.c \
@@ -96,7 +100,7 @@ all:	clean compile bootclasses  compEVK1100 burnbootpack burnbajvm run
 
 burnbajvm:
 	@echo $(MSG_PROGRAMMING)
-	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
 #	$(VERBOSE_CMD) $(PROGRAM) --part UC3A0512ES program  -F bin -O 0x80040000 -finternal@0x80040000,256Kb -cxtal -v -R avr32bootpack
 #	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
 #	@$(SLEEP) 2
@@ -137,8 +141,8 @@ $(TARGETFILE): $(OBJFILES)
 
 #with and without monitor
 bootpack:
-	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
-	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
+	$(VERBOSE_CMD) printf %4d `echo $(JAVABOOTCLASSES)| wc -w` > avr32bootpack
+	$(VERBOSE_CMD) for i in $(JAVABOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
 	@echo generating avr32bootpack
 
 burnbootpack:	bootpack
