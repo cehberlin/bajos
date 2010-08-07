@@ -18,6 +18,8 @@ public native void charLCDOut(char c);
 public native void controlLCD(int control);
 public native void exit (int status);
 public native int currentTimeMillis();
+public native float getTemperature();
+
 
 /*Grafik-Methoden*/
 public native void drawPointRGB(int x,int y, int color);
