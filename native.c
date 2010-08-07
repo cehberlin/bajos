@@ -59,6 +59,7 @@ const char*	nativePlatForm[]={
 		"controlLCD",
 		"currentTimeMillis",
 		"exit",
+#ifndef AVR8
 		"drawPointRGB",
 		"drawFillRectRGB",
 		"drawRectangleRGB",
@@ -81,7 +82,9 @@ const char*	nativePlatForm[]={
 		"setFontColor",
 		"drawChar",
 		"drawCharAt",
-		"getCharWidth",NULL};
+		"getCharWidth",
+#endif
+NULL};
 
 const char*	nativeString[]={"java/lang/String",
 		"nativeCharAt",
@@ -126,10 +129,17 @@ const char**	nativeName;
 u2	numNativeClasses=sizeof(nativeNames)/sizeof(*nativeNames);
 u2	numMethods=0;
 u1*	nativeCNMN;
-int	numEntryNativeCNMN=MAXNATIVEMETHODS;
+u2	numEntryNativeCNMN=MAXNATIVEMETHODS;
+u2 	i;
+
+// count the native methods in platform
+#ifdef AVR8
+#define NUMNATIVPLATFORMMETHODS	8
+#else
+#define NUMNATIVPLATFORMMETHODS	31
+#endif
 
 char	nativeDispatch()	{
-u2 i;
 for(i=0;i<numMethods;i++)	
 	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
@@ -141,6 +151,7 @@ switch(i)					{
 	case	5: return controlLCD(); 
 	case	6: return currentTimeMillis();
 	case	7: return javaExit();
+#ifndef AVR8
 	case	8: return drawPointRGB();
 	case	9: return drawFillRectRGB();
 	case	10: return drawRectangleRGB();
@@ -164,32 +175,33 @@ switch(i)					{
 	case	28: return drawChar();
 	case	29: return drawCharAt();
 	case	30: return getCharWidth();
-	case	31: return nativeCharAt();
-	case	32: return nativeStringLength();
-	case	33: return start();
-	/*	34	"yield",
-		35	"sleep",
-		36	"currentThread",
-		37	"getPriority",
-		38	"setPriority",
-		39	"interrupt",
-		40	"interrupted",
-		41	"isInterrupted",
-		42	"isDaemon",
-		43	"setDaemon",
-		44	"join",*/ //+12
-	case	45: return notify();
-	case	46: return notifyAll();
-	case	47: return wait();	// ???
-	/*	48	"waitTime",
-		49	"getDataAddress",NULL};*/ //51
-	case	50: return nativeParseFloat();
-	case 	51: return typeConvert();
-	case	52: return typeConvert();
-	case	53: return floatToCharArray();
+#endif
+	case	NUMNATIVPLATFORMMETHODS+0: return nativeCharAt(local);
+	case	NUMNATIVPLATFORMMETHODS+1: return nativeStringLength(local);
+	case	NUMNATIVPLATFORMMETHODS+2: return start(local);
+	/*	3	"yield",
+		4	"sleep",
+		5	"currentThread",
+		6	"getPriority",
+		7	"setPriority",
+		8	"interrupt",
+		9	"interrupted",
+		10	"isInterrupted",
+		11	"isDaemon",
+		12	"setDaemon",
+		13	"join",*/
+	case	NUMNATIVPLATFORMMETHODS+14: return notify(local);
+	case	NUMNATIVPLATFORMMETHODS+15: return notifyAll(local);
+	case	NUMNATIVPLATFORMMETHODS+16: return wait(local);	// ???
+	/*	17	"waitTime",
+		18	"getDataAddress",NULL};*/ //51
+	case	NUMNATIVPLATFORMMETHODS+19: return nativeParseFloat(local);
+	case 	NUMNATIVPLATFORMMETHODS+20: return typeConvert(local);
+	case	NUMNATIVPLATFORMMETHODS+21: return typeConvert(local);
+	case	NUMNATIVPLATFORMMETHODS+23: return floatToCharArray(local);
 
-	default: printf(" native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);
-			   exit(-1);		}							}
+	default: errorExit(-1," native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);		}							}
+
 
 void	initNativeDispatch()	{
 char* methodDescr=NULL;	// without signature
