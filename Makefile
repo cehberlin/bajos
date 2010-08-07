@@ -39,7 +39,7 @@ $(if   $(filter CH charon ch arduinoMega am AM linux avr32-linux evk1100 evk1104
 
 # WHATS TARGETHARDWARE
 TARGETHW = noTarget
-ifneq "1"  "$(words $(filter charon ch CH arduinoMega am  AM evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
+ifneq "1"  "$(words $(filter charon ch CH arduinoMega am  AM evk1100 evk1104 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS)))"
 $(error only one target hardware accepted)
 else
 TARGETHW = $(filter charon ch arduionoMega AM evk1100 evk1104 ngw100 stk1000 linux avr32-linux java,$(MAKECMDGOALS))
@@ -93,7 +93,9 @@ JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 JAVABOOTCLASSES	= $(JAVABOOTSOURCES:.java=.class)			
 JAVAAPPCLASSES 	= $(JAVAAPPSOURCES:.java=.class)
 
-OBJFILES	= $(BAJOSCSOURCES:.c=.o) $(PLATFORMCSOURCES:.c=.o) $(PLATFORMASMSOURCES:.asm=.o)
+
+OBJFILES	= $(BAJOSCSOURCES:.c=.o) $(PLATFORMCSOURCES:.c=.o)
+
 
 # APP PATH
 APPPATH 	= ./
