@@ -228,12 +228,14 @@ void analyzeClass(classStructure* c)	{
 						HEAPOBJECTMARKER(heapTop).magic=OBJECTMAGIC;
 						HEAPOBJECTMARKER(heapTop).rootCheck=1;
 						HEAPOBJECTMARKER(heapTop).mutex = MUTEXNOTBLOCKED;
+						//HEAPOBJECTMARKER(heapTop).type = STACKSTATICCLASSOBJECT;
+
 						//HEAPOBJECTMARKER(heapTop).waitSetNumber = NUMWAITSETS;		// NULL
 						HEAPOBJECTMARKER(heapTop).length = 1; // evtl. später überschreiben	
 						cs[cN].classInfo.stackObj.pos=heapTop++;
 						cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
 						cs[cN].classInfo.stackObj.classNumber=cN;
-						cs[cN].classInfo.stackObj.type	=STACKSTATICCLASSOBJECT;
+						//2008cs[cN].classInfo.stackObj.type	=STACKSTATICCLASSOBJECT;
 #ifdef DEBUG
 	printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
 #endif
@@ -511,7 +513,7 @@ void analyzeClass(classStructure* c)	{
 						cs[cN].classInfo.stackObj.pos=heapTop++;
 						cs[cN].classInfo.stackObj.magic=OBJECTMAGIC;
 						cs[cN].classInfo.stackObj.classNumber=cN;
-						cs[cN].classInfo.stackObj.type	=STACKSTATICCLASSOBJECT;
+						cs[cN].classInfo.stackObj	=STACKSTATICCLASSOBJECT;
 	fprintf(OUTSTREAM,"class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
 
 	c->magic=pc;
