@@ -9,15 +9,13 @@ public class PlatForm	{
 public PlatForm()	{}
 public native char nativeCharIn();
 public native void nativeCharOut(char c);
-public native byte getButtons();
-public native void setOnBoardLEDs(byte status);
-public native void charLCDOut(char c);
-public native void controlLCD(int control);
+//public native byte getButtons();
+//public native void setOnBoardLEDs(byte status);
+//public native void charLCDOut(char c);
+//public native void controlLCD(int control);
 public native void exit (int status);
 public native int currentTimeMillis();
-public native float getTemperature();
-
-
+//public native float getTemperature();
 /*Grafik-Methoden*/
 public native void drawPointRGB(int x,int y, int color);
 public native void drawFillRectRGB(int x1, int y1, int x2, int y2, int color);
@@ -46,5 +44,4 @@ public native void setFontColor(int fgcolor, int bkcolor);
 public native int drawChar(char c);
 public native int drawCharAt(int x, int y, char c, int fgcolor, int bkcolor);
 public native int getCharWidth(char c);
-
 }
