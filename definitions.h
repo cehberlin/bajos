@@ -2,12 +2,16 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// fuer lehrzwecke,...
 
 #ifndef __DEFINITIONS__
 #define __DEFINITIONS__
 
 #include "typedefinitions.h"
+// RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 java class base
+// bamo128 -> 0xE000 to 0xFFFF
+#define AVR8_FLASH_JAVA_BASE	0x6000	// 20k boot classes in flash	-> 0xB000
+#define AVR8_FLASH_APP_BASE 	0xB000	// 12k application classes	-> 0xD800
+
 // UC3A is evk1100
 #define UC3A_FLASH_BASE		0x80000000	// internal 512 KB flash
 #define UC3A_FLASH_JAVA_BASE	0x80040000	// boot classes in flash

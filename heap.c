@@ -2,9 +2,7 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-/* fuer lehrzwecke,...*/
-/* version 0.1 vom 1.10.07*/
-/* version 0.3 vom 23.11.08*/
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +16,7 @@ void heapInit()	{
 if  ((heapBase=(  slot*)malloc(sizeof( slot)*(size_t)MAXHEAP))==NULL) { printf("malloc error\n");exit(-1);}			/* heap fixed size!!*/
 #else
 /* make it better*/
-heapBase=(slot*)((u4)(apClassFileBase+MAXBYTECODE));
+heapBase=(slot*)((u4)(appClassFileBase+MAXBYTECODE));
 #endif
 while (heapTop > 0 )			*(heapBase+(--heapTop))= NULLOBJECT;
 DEBUGPRINTHEAP;
