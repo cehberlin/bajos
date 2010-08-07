@@ -7,7 +7,7 @@
 // denke gut für charonII mit 32K SRam
 	#define MAXCLASSES 			24
 	#define MAXBYTECODE 			(16384)		// 16384 !!! class file bytes < 16 kB	
-	#define MAXHEAP				(/*1024*/400)			// number of u4 entries for heap-elements	
+	#define MAXHEAP				(/*1024*/4000)			// number of u4 entries for heap-elements	
 	#define MAXHEAPOBJECTLENGTH 		4096
 	#define MAXTHREADS			16
 	#define MAXLOCKEDTHREADOBJECTS 		8
