@@ -3,7 +3,7 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// eine jvm auch für 8 Bit MC !!, z.B. atmega128 CharonII, linux und avr32
+// a jvm for 8 Bit MC !!, z.B. atmega128 CharonII and linux and avr32
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
 
