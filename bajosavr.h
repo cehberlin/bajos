@@ -2,7 +2,7 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// eine jvm auch für 8 Bit MC !!, z.B. CharonII
+// eine jvm auch für 8 Bit MC !!, z.B. atmega128 CharonII, linux und avr32
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
 
@@ -19,7 +19,7 @@
 	void initHW();
 	void executeClInits();
 	void VT102Attribute (u1 fgcolor, u1 bgcolor)	;
-	#ifndef UNIX 
+	#ifdef AVR8
 
 	/* CPU frequency */
 	//#define F_CPU 1000000UL
@@ -52,13 +52,16 @@ GLOBAL slot*	heapBase 	INIT__(NULL);
 GLOBAL u2		heapPos INIT__(0);
 GLOBAL u2		heapTop INIT__(MAXHEAP);
 GLOBAL u1*		classFileBase INIT__(NULL);
+#if (AVR32UC3A|| AVR32AP7000)
+GLOBAL u1*		apClassFileBase INIT__(NULL);
+#endif
 GLOBAL u1		numClasses	INIT__(0);
 GLOBAL 			ThreadControlBlock*  actualThreadCB	INIT__(NULL);
 GLOBAL u1		numThreads	INIT__(0);
 GLOBAL u1		tid INIT__(0);
 GLOBAL classStructure cs[MAXCLASSES];				// class structure decl und def Verschwendung!!
 GLOBAL char* 	nry	INIT__(" ->  not realized yet\n");
-#ifndef UNIX
+#ifdef AVR8
 GLOBAL 	 FILE uart_str;
 #endif
 #endif
