@@ -175,8 +175,8 @@
 #define		IF_ACMPEQ	0xa5	//mb, jf
 #define		IF_ACMPNE	0xa6	//mb, jf
 #define		GOTO		0xa7	//mb, jf
-#define		JSR			0xa8	//mb, jf
-#define		RET			0xa9	//mb, jf
+#define		JSR			0xa8	//mb, jf deprecated
+#define		RET			0xa9	//mb, jf deprecated
 #define		TABLESWITCH	0xaa	//mb, jf
 #define		LOOKUPSWITCH	0xab	//mb, jf
 #define		IRETURN		0xac	//mb, jf
@@ -215,7 +215,7 @@
 #define		IFNULL		0xc6	//mb jf
 #define		IFNONNULL	0xc7	//mb jf
 #define		GOTO_W		0xc8	//mb jf
-#define		JSR_W		0xc9	//mb jf
+#define		JSR_W		0xc9	//mb jf deprecated
 
 void run();
 u2 getStartPC();
