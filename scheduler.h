@@ -8,12 +8,9 @@
 #define __SCHEDULER__
 #define	DEFAULTTICKS 5
 // number of byte code instructions, counter
-
 #define NORMPRIORITY 5
 
-
-
-void	createThread(void);
-void	deleteThread(void);
+void createThread(void);
+void deleteThread(void);
 void scheduler(void);
 #endif
