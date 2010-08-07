@@ -44,10 +44,15 @@
 #endif
 
 //mb jf
-#define ARRAYINDEXOUTOFBOUNDSEXCEPTION	raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
-#define NEGATIVEARRAYSIZEEXCEPTION		raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 35)
-#define NULLPOINTEREXCEPTION			raiseExceptionFromIdentifier("java/lang/NullPointerException", 29)
-#define ARITHMETICEXCEPTION				raiseExceptionFromIdentifier("java/lang/ArithmeticException", 28)
+#define ARRAYINDEXOUTOFBOUNDSEXCEPTION raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
+#define NEGATIVEARRAYSIZEEXCEPTION raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36)
+#define NULLPOINTEREXCEPTION raiseExceptionFromIdentifier("java/lang/NullPointerException", 30)
+#define ARITHMETICEXCEPTION raiseExceptionFromIdentifier("java/lang/ArithmeticException", 29)
+#define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
+
+
+#define DNOTSUPPORTED printf("Double precision primitive data types (double and long) are not supported.\n"); exit (-2);
+
 
 #define PRINTSTRING(p,l) {\
 			int _i;\

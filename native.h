@@ -9,7 +9,7 @@
 #include "bajvm.h"
 #include "stack.h"
 void initNativeDispatch();
-char nativeDispatch( u2 cN, u2 mN,u2 local);
+char nativeDispatch(u2 local);
 char nativeIntOut(u2 local);
 char nativeFloatOut(u2 local);
 char nativeStringOut(u2 local);

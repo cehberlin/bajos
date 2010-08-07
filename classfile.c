@@ -54,8 +54,6 @@ u8 getU8(u2 pos){return (((u8)getU4(pos)<<32)|(u8)getU4((pos==0)?0:pos+2));	}
 
 f4 getFloat(u2 pos)	{	return  getU4(pos);	}
 
-double getDouble(u2 pos)	{ return getU8(pos);	}
-
 void* getAddr(u2 pos)	{	return CLASSSTA+pos;	}
 
 u1 findMain()			{	
@@ -90,22 +88,24 @@ u2	findMaxLocals()	{	//cN,mN
 // in cN fieldName fieldDescr
 // out cN, fNC fNO 
 // return 1 -> found 
-u1 findFieldByName(const char* fieldName,u1 fieldNameLength, char* fieldDescr,u1 fieldDescrLength)	{
-fNO=0;
-do	{
-u1 numFields=findNumFields();
-for(fNC=0; fNC < numFields; fNC++){
-	if(fieldNameLength == getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 1))	{
-		if(strncmp(fieldName,(char*) getAddr(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 3),
-				getU2(cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)] + 1)) == 0)	{
-										break;
-														}
-													}
-							}
-fNO+=fNC;
-if (fNC<numFields) return 1; 
-} while (findSuperClass());
-return 0;
+u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDescr,u1 fieldDescrLength)	{
+	fNO=0;
+	do	{
+		u1 numFields = findNumFields();
+		for(fNC = 0 ; fNC < numFields ; ++fNC) {
+			u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 2)];
+			u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[fNC] + 4)];
+			if(	fieldNameLength == getU2(fieldname + 1) &&
+				strncmp(fieldName,(const char*) getAddr(fieldname + 3), getU2(fieldname + 1)) == 0 &&
+				fieldDescrLength == getU2(fielddescr + 1) &&
+				strncmp(fieldDescr,(const char*) getAddr(fielddescr + 3), getU2(fielddescr + 1)) == 0)	{
+						break;
+			}
+		}
+		fNO += fNC;
+		if (fNC < numFields) return 1; 
+	} while (findSuperClass());
+	return 0;
 }
 
 u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNameLength, char* methodDescr,u1 methodDescrLength)		{ 
@@ -131,16 +131,16 @@ u1 findMethod(char* className, u1 classNameLength, char* methodName, u1 methodNa
 						methodDescrLength);
 }
 
-u1 findMethodByName(const char* name, u1 len, char* methodDescr, u1 methodDescrLength)	{
+u1 findMethodByName(const char* name, u1 len, const char* methodDescr, u1 methodDescrLength)	{
 //  in: classNumber cN, out: methodNumber mN
 // non recursiv
 	for (mN=0; mN < getU2(cs[cN].methods_count); mN++)		
 		if (len==getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+2)]+1))
-			if(strncmp((char*)name,(char*)getAddr(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+2)]+3),
+			if(strncmp(name,(char*)getAddr(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+2)]+3),
 			getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+2)]+1))==0)	{
 				if (methodDescr!=NULL)	{		
 					if (methodDescrLength==getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+4)]+1))
-						if(strncmp((char*)methodDescr,(char*)getAddr(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+4)]+3),
+						if(strncmp(methodDescr,(char*)getAddr(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+4)]+3),
 								getU2(cs[cN].constant_pool[getU2(METHODBASE(cN,mN)+4)]+1))==0)			return 1;
 												}
 				else		return 1;																					}
@@ -181,7 +181,7 @@ findClass(getAddr(cs[cN].constant_pool[getU2(cs[cN].constant_pool[getU2(cs[cN].s
 return 1;
 }
 	
-u1 findClass(char* className,u1 classNameLength)	{  // out: cN
+u1 findClass(const char* className,u1 classNameLength)	{  // out: cN
 //printf(" name %s %x  ",className,classNameLength);
 	for (cN=0; cN < numClasses;cN++)			{
 		if (classNameLength !=(u2)getU2(
@@ -191,7 +191,7 @@ u1 findClass(char* className,u1 classNameLength)	{  // out: cN
 					)]+1)){
 			continue;
 		}
-		if (strncmp((char*)className,(char*)getAddr(cs[cN].constant_pool[	
+		if (strncmp(className,(char*)getAddr(cs[cN].constant_pool[	
 					getU2(	cs[cN].constant_pool[
 						getU2(cs[cN].this_class)]+1			
 					)
@@ -351,12 +351,9 @@ pc+=4;
 #endif
 pc+=4;
 			CASE	CONSTANT_Long:							//    5 
-					printf("trying to load (unsupported) long.\n");
- 					exit(-1);
-			
+					DNOTSUPPORTED;
 			CASE	CONSTANT_Double:		//    6 
-					printf("trying to load (unsupported) double.\n");
- 					exit(-1);
+					DNOTSUPPORTED;
 			CASE	CONSTANT_Utf8:							//    1
 					length=getU2(0);
 #ifdef DEBUG

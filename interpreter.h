@@ -219,9 +219,9 @@
 
 void run();
 u2 getStartPC();
-u1 checkInstance(u2 target);
-void raiseExceptionFromIdentifier(char identifier[], u1 length);
+u1 checkInstance(const u2 target);
+void raiseExceptionFromIdentifier(const char identifier[], const u1 length);
 void handleException();
 
-slot createDims(u4 dimsLeft, u2 *count);
+slot createDims(u4 dimsLeft, s2 *count);
 #endif

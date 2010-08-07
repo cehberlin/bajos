@@ -17,18 +17,18 @@ void analyzeClass(classStructure* c);
 void analyseConstantPool(classStructure* c);
 void analyseMethods(classStructure* c);
 void analyzeFields(classStructure* c);
-u1 findClass(char* name,u1 len);
+u1 findClass(const char* name,u1 len);
 u1 findSuperClass();
 u1 findNumArgs(u2 method);
 u2 findMaxLocals();	//mb jf
 u1 findNumFields();
-u1 findFieldByName(const char* fieldName,u1 fieldNameLength, char* fieldDescr,u1 fieldDescrLength);
+u1 findFieldByName(const char* fieldName,u1 fieldNameLength, const char* fieldDescr,u1 fieldDescrLength);
 u1 findMain();
 u1 findMethod(char* className, u1 classNameLength,
 		char* methodName, u1 methodNameLength,
 		char* methodDescr,u1 methodDescrLength);
 u1 findMethodByName(	const char* name,u1 len,
-			char* methodDescr,u1 methodDescrLength);
+			const char* methodDescr,u1 methodDescrLength);
 u1* findMethodByMethodNumber();	// mb jf
 
 u2	getStartPC();

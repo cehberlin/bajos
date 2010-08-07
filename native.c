@@ -49,7 +49,7 @@
 // 1-> is an Java native function with anyone return value (in stack)
 // native methods have an unique name!!
 // fill this arrays
-char*	nativePlatForm[]={
+const char*	nativePlatForm[]={
 		"platform/PlatForm",
 		"nativeCharOut",
 		"nativeCharIn",
@@ -83,11 +83,11 @@ char*	nativePlatForm[]={
 		"drawCharAt",
 		"getCharWidth",NULL};
 
-char*	nativeString[]={"java/lang/String",
+const char*	nativeString[]={"java/lang/String",
 		"nativeCharAt",
 		"nativeStringLength",NULL};
 
-char*	nativeThread[]={"java/lang/Thread",
+const char*	nativeThread[]={"java/lang/Thread",
 		"start",
 		"yield",
 		"sleep",
@@ -101,35 +101,35 @@ char*	nativeThread[]={"java/lang/Thread",
 		"setDaemon",
 		"join",NULL};
 
-char*	nativeObject[]={"java/lang/Object",
+const char*	nativeObject[]={"java/lang/Object",
 		"notify",
 		"notifyAll",
 		"wait",
 		"waitTime",
 		"getDataAddress",NULL};
 
-char*	nativeFloat[]={"java/lang/Float",
+const char*	nativeFloat[]={"java/lang/Float",
 		"nativeParseFloat",
 		"floatToIntBits",
 		"intBitsToFloat",
 		"floatToCharArray",NULL};
 
 // fill this array
-char**	nativeNames[]={	
+const char**	nativeNames[]={	
 			nativePlatForm,
 			nativeString,
 			nativeThread,
 			nativeObject,
 			nativeFloat	};
 
-char**	nativeName;
+const char**	nativeName;
 u2	numNativeClasses=sizeof(nativeNames)/sizeof(*nativeNames);
 u2	numMethods=0;
 u1*	nativeCNMN;
 int	numEntryNativeCNMN=MAXNATIVEMETHODS;
 u2 	i;
 
-char	nativeDispatch( u2 cN, u2 mN,u2 local)	{
+char	nativeDispatch(u2 local)	{
 for(i=0;i<numMethods;i++)	
 	if ((((u2)*(nativeCNMN+2*i)<<8)+(*(nativeCNMN+2*i+1)))==(((u2)(cN<<8))+mN))break;
 switch(i)					{
