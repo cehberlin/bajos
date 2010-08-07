@@ -3,52 +3,33 @@
  */
 public class SchedulerTest extends Thread	{
 
-	int nr;
-
-	int prio;
-
-	Object foo=new Object();
-
-	public SchedulerTest(int nr, int prio){
-		this.nr=nr;
-		this.prio=prio;
-	}
+SchedulerTest(String name)	{
+super(name);			}
 
 	public void run()	{
-//System.out.println("run "+ nr);
-		setPriority(prio);
+int i=3;
+System.out.print(i);
+System.out.println(" "+currentThread());
 
-		for(int i=0;i<20;i++){
-/*
-			if(prio==4 && i==10){
-				synchronized(foo){
-					try{
-						foo.wait();
-					}catch(Exception e){
-					}	
-				}		
-			}
-			System.out.println("My nr: "+ this.nr + " My prio: " + getPriority() + " Counter: " + i);
-*/		
-System.out.println("My nr: "+ this.nr + " My prio: " + getPriority() + " Counter: " + i);
-}
 	}
 
 	public static void main(String args[]){
-		SchedulerTest t1=new SchedulerTest(1,8);
-		SchedulerTest t2=new SchedulerTest(2,4);
-		SchedulerTest t3=new SchedulerTest(3,2);
-		SchedulerTest t4=new SchedulerTest(4,8);
-		SchedulerTest t5=new SchedulerTest(5,5);
+		SchedulerTest t1=new SchedulerTest("T1");
+		SchedulerTest t2=new SchedulerTest("T2");
+		SchedulerTest t3=new SchedulerTest("T3");
+		SchedulerTest t4=new SchedulerTest("T4");
+		SchedulerTest t5=new SchedulerTest("T5");
+		t1.setPriority(3);
+		t2.setPriority(3);
+		t4.setPriority(6);
+		t5.setPriority(6);
+
 		t1.start();
 		t2.start();
 		t3.start();
 		t4.start();
-		t5.start();
-		int mynr=0;
-		int prio=5;
-		for(int i=0;i<20;i++){
-			System.out.println("Main:My nr: "+ mynr + " My prio: " + prio + " Counter: " + i);
-		}								
-	}
+		t5.start();			}
+
 }
+
+
