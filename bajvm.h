@@ -1,6 +1,6 @@
 /*
 * BAJOS BA-JAVA OPERATING SYSTEM
-* FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
+* HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // a jvm for 8 Bit MC !!, z.B. atmega128 CharonII and linux and avr32
@@ -17,6 +17,7 @@
 #include "definitions.h"
 
 	void initVM(int argc, char* argv[]);
+	void initHW();
 	void executeClInits();
 	void errorExit(char nr,const char *format, ...);
 
