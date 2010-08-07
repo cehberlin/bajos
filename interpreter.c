@@ -163,7 +163,7 @@ switch (code)	{
 						/* a string is not an array!!!*/
 			lengthArray=first.stackObj.arrayLength;
 			if (count < 0 || lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
-				ARRAYINDEXOUTOFBOUNDEXCEPTION;
+				raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
 			opStackPoke(( slot)heapGetElement((u2)first.stackObj.pos/*UInt*/+count+1));
 #ifdef DEBUG
 			switch (code)								{
@@ -228,15 +228,19 @@ switch (code)	{
 	case	AASTORE:
 	case	BASTORE:
 	case	CASTORE:
-	case	SASTORE:DEBUGPRINTSTACK;
+	case	SASTORE:
+			DEBUGPRINTLN1("xASTORE");
+			DEBUGPRINTSTACK;
 			second = opStackPop();
 			count = (s2)(opStackPop().Int);
 			first = opStackPop();
 			lengthArray=first.stackObj.arrayLength;				
 			if(first.UInt==((slot)NULLOBJECT).UInt)						{
-			printf("count %d %d\n",count,lengthArray);	NULLPOINTEREXCEPTION;	}
+				printf("count %d %d\n",count,lengthArray);
+				raiseExceptionFromIdentifier("java/lang/NullPointerException", 30);
+			}
 			if	(count < 0 	|| lengthArray < count||count > (MAXHEAPOBJECTLENGTH-1))	
-							ARRAYINDEXOUTOFBOUNDEXCEPTION;		
+				raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
 			heapSetElement(second,first.stackObj.pos+count+1);
 			DEBUGPRINTSTACK;
 			DEBUGPRINTHEAP;
@@ -1014,9 +1018,9 @@ if (i<numFields) break; else count+=numFields;
 						methodName = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+3);
 						methodNameLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+1))+1);
 						DEBUGPRINTLNSTRING(methodName,methodNameLength);
-						DEBUGPRINTLNSTRING(methodDescr,methodDescrLength);		
 						methodDescr = (u1*)getAddr(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+3);
 						methodDescrLength = getU2(CP(cN,getU2(CP(cN,getU2(CP(cN,BYTECODEREF)+3))+3))+1);
+						DEBUGPRINTLNSTRING(methodDescr,methodDescrLength);		
 						className = NULL;
 						if((code == INVOKEVIRTUAL)|| (code == INVOKEINTERFACE))			{
 
@@ -1275,7 +1279,10 @@ cN=methodStackPop();
 						DEBUGPRINTSTACK;
 						count = (s2)opStackPop().UInt;
 						if(count < 0){	NEGATIVEARRAYSIZEEXCEPTION;}
-						if (count > (MAXHEAPOBJECTLENGTH-1))	ARRAYINDEXOUTOFBOUNDEXCEPTION;
+ 						if (count > (MAXHEAPOBJECTLENGTH-1)) {
+ 							raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40);
+ 						}
+
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
 						first.stackObj.pos=heapPos;
 						first.stackObj.magic=OBJECTMAGIC;
@@ -1299,10 +1306,12 @@ cN=methodStackPop();
 						DEBUGPRINTHEAP;
 					 //2a b7  0  1 2a 10  6 b5  0  2 2a 10 30 b5  0  3 2a  4 b5  0  4 2a 12  5 b5  0  6 2a  6 bc  a b5  0  7 b1
 		CASE	ANEWARRAY:	DEBUGPRINTLN1("anewarray");	// mb jf
-						exit(-77); // not tested
 						count =(s2) opStackPop().Int;
-						if(count < 0)								NEGATIVEARRAYSIZEEXCEPTION;
-						if (count > (MAXHEAPOBJECTLENGTH-1))	{ARRAYINDEXOUTOFBOUNDEXCEPTION;}
+ 						if (count < 0) {
+ 							raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36);
+ 						} else if (count > (MAXHEAPOBJECTLENGTH-1)) {
+ 							raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 39);
+						} else {
 						// resolve type of array / interface /.stackObject from constant pool at index
 						// check access flags (public etc.) ... --> VM specs
 						heapPos=getFreeHeapSpace(count+ 1);	// + marker
@@ -1310,6 +1319,7 @@ cN=methodStackPop();
 						first.stackObj.magic=OBJECTMAGIC;
 						//first.stackObj.type=STACKANEWARRAYOBJECT;
 						first.stackObj.classNumber=cN;
+						first.stackObj.arrayLength=count;
 						opStackPush(first);
 						HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 						HEAPOBJECTMARKER(heapPos++).magic=OBJECTMAGIC;
@@ -1318,6 +1328,7 @@ cN=methodStackPop();
 						pc += 2;	// skip indexbyte 1 & 2
 						DEBUGPRINTSTACK;
 						DEBUGPRINTHEAP;
+						}
 		CASE	ARRAYLENGTH:	DEBUGPRINTLN1("arraylength");	// mb jf
 						first=opStackPop();
 /*2008 an array is not a string!!
@@ -1382,6 +1393,31 @@ else*/
 		CASE	ATHROW:	DEBUGPRINTLN1("athrow");
 					handleException();
 
+        CASE    CHECKCAST: DEBUGPRINTLN1("checkcast");
+                    u1 class_cp2 = getU1(cs[cN].constant_pool[getU2(0)]);
+                    if (class_cp2 != CONSTANT_Class) {
+                        printf("invalid class file. Trying to call CHECKCAST for non-class/array/interface type\n");
+                        exit(-1);
+                    }
+                    first = opStackPop();
+                    if (first.UInt != ((slot)NULLOBJECT).UInt) {
+                        // Do some check here
+                    }
+
+        CASE    INSTANCEOF: DEBUGPRINTLN1("instanceof");
+                    u1 class_cp3 = getU1(cs[cN].constant_pool[getU2(0)]);
+                    if (class_cp3 != CONSTANT_Class) {
+                        printf("invalid class file. Trying to call INSTANCEOF for non-class/array/interface type\n");
+                        exit(-1);
+                    }
+                    first = opStackPop();
+                    if (first.UInt != ((slot)NULLOBJECT).UInt) {
+                        // Do some check here
+                        opStackPush((slot) 1);
+                    } else {
+                        opStackPush((slot) 0);
+                    }
+
 		CASE	WIDE:		DEBUGPRINTLN1("wide (not tested)");	// mb jf
 					{
 						// not tested because so many locals are hard to implement on purpose  14.12.2006
@@ -1415,7 +1451,9 @@ else*/
 		CASE	MULTIANEWARRAY:	DEBUGPRINTLN1("multianewarray");	// mb jf
 					{
 					exit(-77);
-						u1 dim = getU1(pc++);	// dimensions
+ 						u2 index = getU2(0); // index into the constant_pool
+ 						u1 dim = getU1(0);	// dimensions
+
 						u4* topCount = 0;
 						u4 ref;		//reference to array
 						topCount = (u4*)malloc(1*sizeof(u4));	// allocate memory for pointer

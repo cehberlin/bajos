@@ -1,7 +1,5 @@
 package java.lang;
 
-//import josx.platform.rcx.LCD;
-
 /**
  * An expandable string of characters. Actually not very expandable!
  * 09/25/2001 added number formatting thanks to Martin E. Nielsen.
@@ -52,29 +50,17 @@ char[] characters;
                         end = curPos;
                 else
                         System.arraycopy(characters, end, characters, start, curPos-end);
-                        
+
                 curPos -= end-start;
         }
-        
+
         return this;
   }
 
   public StringBuffer append (String s)
   {
     // Reminder: compact code more important than speed
-    char[] sc = s.toCharArray();
-    int cl = characters.length;
-    int sl = sc.length;
-    char [] nc = characters;
-    if (sl + curPos > cl)
-    {
-        nc = new char[sl + curPos];
-        System.arraycopy (characters, 0, nc, 0, curPos);
-    }
-    System.arraycopy (sc, 0, nc, curPos, sl);
-    characters = nc;
-    curPos += sl;
-    return this;
+    return append(s.toCharArray());
   }
 
   public StringBuffer append (java.lang.Object aObject)
@@ -89,35 +75,62 @@ char[] characters;
   
   public StringBuffer append (char aChar)
   {
-    return append (new String (new char[] { aChar }, 0, 1));
+    if (curPos >= characters.length)
+    {
+        char [] nc = new char [1 + curPos];
+        System.arraycopy (characters, 0, nc, 0, curPos);
+        characters = nc;
+    }
+    characters[curPos++] = aChar;
+    return this;
+  }
+
+  public StringBuffer append (char[] aChars) {
+    int cl = characters.length;
+    int sl = aChars.length;
+    char [] nc = characters;
+    if (sl + curPos > cl)
+    {
+        nc = new char[sl + curPos];
+        System.arraycopy (characters, 0, nc, 0, curPos);
+    }
+    System.arraycopy (aChars, 0, nc, curPos, sl);
+    characters = nc;
+    curPos += sl;
+    return this;
   }
 
   public StringBuffer append (int aInt)
   {
-	if ( aInt < 0 ) {
-	    characters[ curPos++ ] = '-';
-	    aInt = -aInt;
-	} // if
+	if (aInt == 0) {
+	    return this.append('0');
+	}
 
-	int pow = ( int )Math.floor( Math.log( aInt ) / log10 );
+	int lPos = 0;
+	char[] buff;
+        int pow;
+
+	if ( aInt < 0 ) {
+            aInt = -aInt;
+            pow = ( int )Math.floor( Math.log( aInt ) / log10 );
+            buff = new char[pow + 2];
+	    buff[ lPos++ ] = '-';
+	} else {
+            pow = ( int )Math.floor( Math.log( aInt ) / log10 );
+            buff = new char[pow + 1];
+        }
 
 	int div = 0;
 	while ( pow >= 0 ) {
 	    div = ( int ) ( aInt / (int)Math.pow( 10, pow ) );
-	    
-	    characters[ curPos++ ] = numbers[ div ];
+	    buff[ lPos++ ] = numbers[ div ];
 	    aInt -= div * (int)Math.pow( 10, pow );
 	    pow--;
 	} // while
 	
-	return this;
+	return this.append(buff);
   }
-/*
-  public StringBuffer append (long aLong)
-  {
-        return append("<longs not supported>");
-  }
-*/
+
   public StringBuffer append (float aFloat)
   {
     try {
@@ -128,17 +141,7 @@ char[] characters;
     
     return this;
   }
-/*
-  public StringBuffer append (double aDouble)
-  {
-    try {
-        append ((float)aDouble, 8);
-    } catch (ArrayIndexOutOfBoundsException e) {
-        curPos = Math.min(characters.length, curPos);
-    }
-    
-    return this;
-  }*/
+  
   public String toString()
   {
     return new String (characters, 0, curPos);
@@ -163,18 +166,18 @@ char[] characters;
   }
   
     /**
-     * Helper method for converting floats and doubles.
+     * Helper method for converting floats
      *
      * @author Martin E. Nielsen
      **/
     private StringBuffer append( float number, int significantDigits ) {
 
-	if ( number == 0 ) {
+	if ( number == 0.f ) {
 	    characters[ curPos++ ] = '0';
 	    return this;
 	} // if
 	    
-	if ( number < 0 ) {
+	if ( number < 0.f ) {
 	    characters[ curPos++ ] = '-';
 	    number = -number;
 	} // if
@@ -198,9 +201,9 @@ char[] characters;
 
 	// Force it to start with at least "0." if necessarry
 	pow = Math.max( 0, pow );
-        float divisor = (float)Math.pow(10, pow);
+        float divisor = Math.pow(10, pow);
         
-	// Loop over the significant digits (17 for double, 8 for float)
+	// Loop over the significant digits (8 for float)
 	for ( int i = 0, end = significantDigits+insignificantDigits, div; i < end; i++  ) {
 
 	    // Add the '.' when passing from 10^0 to 10^-1

@@ -58,7 +58,7 @@ package java.lang;
 public final class Float {
  
   /**
-   * The maximum positive value a <code>double</code> may represent
+   * The maximum positive value a <code>float</code> may represent
    * is 3.4028235e+38f.
    */
   public static final float MAX_VALUE = 3.4028235e+38f;
@@ -103,9 +103,9 @@ public final class Float {
    *
    * @param value the <code>float</code> argument
    */
-  public Float(float value)	{
-    this.value = value;		}
-
+  public Float(float value) {
+    this.value = value;
+  }
 
   /**
    * Create a <code>Float</code> from the specified <code>String</code>.
@@ -166,84 +166,6 @@ int len=floatToCharArray(f).length;
 
 public static  native char[] floatToCharArray(float f);
 
-  /**
-   * Convert a float value to a hexadecimal string.  This converts as
-   * follows:
-   * <ul>
-   * <li> A NaN value is converted to the string "NaN".
-   * <li> Positive infinity is converted to the string "Infinity".
-   * <li> Negative infinity is converted to the string "-Infinity".
-   * <li> For all other values, the first character of the result is '-'
-   * if the value is negative.  This is followed by '0x1.' if the
-   * value is normal, and '0x0.' if the value is denormal.  This is
-   * then followed by a (lower-case) hexadecimal representation of the
-   * mantissa, with leading zeros as required for denormal values.
-   * The next character is a 'p', and this is followed by a decimal
-   * representation of the unbiased exponent.
-   * </ul>
-   * @param f the float value
-   * @return the hexadecimal string representation
-   * @since 1.5
-   */
-/*
-  public static String toHexString(float f)
-  {
-    if (isNaN(f))
-      return "NaN";
-    if (isInfinite(f))
-      return f < 0 ? "-Infinity" : "Infinity";
-
-    int bits = floatToIntBits(f);
-    StringBuilder result = new StringBuilder();
-    
-    if (bits < 0)
-      result.append('-');
-    result.append("0x");
-
-    final int mantissaBits = 23;
-    final int exponentBits = 8;
-    int mantMask = (1 << mantissaBits) - 1;
-    int mantissa = bits & mantMask;
-    int expMask = (1 << exponentBits) - 1;
-    int exponent = (bits >>> mantissaBits) & expMask;
-
-    result.append(exponent == 0 ? '0' : '1');
-    result.append('.');
-    // For Float only, we have to adjust the mantissa.
-    mantissa <<= 1;
-    result.append(Integer.toHexString(mantissa));
-    if (exponent == 0 && mantissa != 0)
-      {
-        // Treat denormal specially by inserting '0's to make
-        // the length come out right.  The constants here are
-        // to account for things like the '0x'.
-        int offset = 4 + ((bits < 0) ? 1 : 0);
-        // The silly +3 is here to keep the code the same between
-        // the Float and Double cases.  In Float the value is
-        // not a multiple of 4.
-        int desiredLength = offset + (mantissaBits + 3) / 4;
-        while (result.length() < desiredLength)
-          result.insert(offset, '0');
-      }
-    result.append('p');
-    if (exponent == 0 && mantissa == 0)
-      {
-        // Zero, so do nothing special.
-      }
-    else
-      {
-        // Apply bias.
-        boolean denormal = exponent == 0;
-        exponent -= (1 << (exponentBits - 1)) - 1;
-        // Handle denormal.
-        if (denormal)
-          ++exponent;
-      }
-
-    result.append(Integer.toString(exponent));
-    return result.toString();
-  }
-*/
   /**
    * Creates a new <code>Float</code> object using the <code>String</code>.
    *

@@ -20,8 +20,6 @@ Erweiterungen von:
 // no access flags evaluation
 // no utf8 but ascii
 // ignore some attributes
-// no interfaces
-// no inner classes
 // no classloader
 // static fields must be the first elements in a class before others !!!!!!!!!!!!!!!!!!!!!
 // no ...
@@ -120,18 +118,30 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
 
 #if (LINUX||AVR8)
-	if ((classFileBase=(u1*)malloc((size_t)MAXBYTECODE))==NULL)
-	 {printf("malloc error\n");exit(-1);}
+    classFileBase=(u1*)malloc((size_t) MAXBYTECODE);
+    if (classFileBase==NULL) {
+        printf("malloc error while trying to allocate %d bytes for class files.\n", MAXBYTECODE);
+        exit(-1);
+    }
+
 	// Platz fuer classfiles -> fixed size
 #endif
 	heapInit();	// linux avr8 malloc , others hard coded!
 	length=0;
 #ifdef LINUX
+    if (argc > MAXCLASSES) {
+        printf ("ERROR: trying to load %d classes, MAXCLASSES is %d\n", argc, MAXCLASSES);
+        exit(-1);
+    }
 		for (cN=0; cN < argc; cN++)			{
 			cs[cN].classFileStartAddress=classFileBase+length;
 			cs[cN].classFileLength=readClassFile((u1*)argv[cN+1],cs[cN].classFileStartAddress);
 			analyzeClass(&cs[cN]);
-			length+=cs[cN].classFileLength;	}
+			length+=cs[cN].classFileLength;
+	        if (length > MAXBYTECODE) {
+    	        printf("MAXBYTECODE reached!\n"); exit(-1);
+    	    }
+}
 #endif
 
 #if (NGW100||STK1000|| EVK1100)

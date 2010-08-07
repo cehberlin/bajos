@@ -124,5 +124,18 @@ for (;len >=0; --len) ca[len]=charAt(len);
     //}    
 //    return false;
   }
+
+public String concat(String str) {
+	if (str.length() == 0)
+		return this;
+	if (length() == 0)
+		return str;
+
+	char[] newStr = new char[str.length() + length()];
+	System.arraycopy (toCharArray(), 0, newStr, 0, length());
+	System.arraycopy (str.toCharArray(), 0, newStr, length(), str.length());
+	return new String(newStr, 0, str.length() + length());
+}
+
 }
 

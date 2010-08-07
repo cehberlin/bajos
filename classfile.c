@@ -294,12 +294,12 @@ void analyzeClass(classStructure* c)	{
 #ifdef DEBUG
 		printf("cf\tmagic:\t%X\t", getU4(pc));	// 0
 #endif
-		pc+=4;
+		pc=4; /* NOT +=4, because getU*(pc) increases pc when pc = 0 */
 		c->minor_version=pc++;			// 4
 		c->major_version=++pc;			// 6
-		if (c->major_version > 49) 	{
+		if (getU2(c->major_version) > 49) 	{
 			printf("this java version is not supported yet: c->major_version %d\n",
-			getU2(pc));
+			getU2(c->major_version));
 			exit(-1);		}
 #ifdef DEBUG
 		printf("version:\t%d.%d\n", getU2(pc),getU2(pc-2));
@@ -332,7 +332,7 @@ void analyzeClass(classStructure* c)	{
 #ifdef DEBUG	
 		printf("cf\tinterfaces_count: %d\n",getU2(pc));
 #endif
-		pc+=2;
+		pc+=2 + getU2(c->interfaces_count) * 2;
 	// c->interfaces=getAddress();	// no interfaces-> to do
 	// printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
 		c->fields_count=pc;
@@ -417,15 +417,12 @@ pc+=4;
 #endif
 pc+=4;
 			CASE	CONSTANT_Long:							//    5 
-#ifdef DEBUG
-					printf("\tcp %d\t:Long ->name:\t%ld\n",n,getU8(pc));
-#endif
-pc+=8;			
+					printf("trying to load (unsupported) long.\n");
+ 					exit(-1);
+			
 			CASE	CONSTANT_Double:		//    6 
-#ifdef DEBUG
-					printf("\tcp %d\t:Double -> name:\t%lf\n",n,getDouble(pc));
-#endif
-pc+=8;
+					printf("trying to load (unsupported) double.\n");
+ 					exit(-1);
 			CASE	CONSTANT_Utf8:							//    1
 					length=getU2(0);
 #ifdef DEBUG
@@ -492,7 +489,7 @@ pc+=etl*8;
 										}		}
 			if (strncmp("Exceptions", (char*)adr,10)==0)		{
 #ifdef DEBUG
-			printf("exeception object\n");
+			printf("exception object\n");
 #endif
 			mN=n;
 			u4 n=getU4(0);
@@ -510,36 +507,68 @@ pc+=2*n;
 }
 	
 void analyzeFields(classStructure* c){
-	int n,a;
-	u2 startStaticObject=heapTop-1;
-	u2 numStaticFields=0;
+	int n, a, cur_a;
+	u2 startStaticObject = heapTop - 1;
+    u2 numStaticFields=0;
 	for (n=0; n<getU2(c->fields_count);n++)	{  //fields
-		c->field_info[n]=pc; 																				// absolute in classfile
+		c->field_info[n]=pc; 	// absolute in classfile
 #ifdef DEBUG
 		printf("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
 		printf("\tfield %d\tname: %d\n",n,getU2(pc+2));
 		printf("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4)); 						//Signature
-		printf("\tfield %d\tattribute_count: %d\n",n,a=getU2(pc+6));
+		printf("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
 #endif
-a=getU2(pc+6);
-pc+=8;
-//bh nov08 static fields am Anfang muß einfach raus
-//		if (0x0008&getU2(pc-8))	 	// only static fields in class objects
-// wenn die Klasse keine static Elements hat, braucht überhaupt nichts auf den Stack
-// sonst Platz für alle fields!!
-//bh 19.nov if (0x0008&getU2(pc-8))
- numStaticFields++;
-			heapSetElement((slot)(u4)0x77, heapTop++); // initialize the heap elements	
-		if ( a>0)	{
-				pc+=6; // assume first is constant_value attribute
-				if (getU1(CP(cN,getU2(pc)))==CONSTANT_String)	/*string to do*/;
-				else		heapSetElement((slot)getU4(CP(cN,getU2(0))+1),heapTop-1); //   n+1 !!no double, float
-				 pc+=(a-1)*6; // go over Synthetic and Deprecated attributes
-					}
-	}
-	HEAPOBJECTMARKER(startStaticObject).length = (numStaticFields > 0)? (heapTop-startStaticObject):1;
-}
+		pc += 6;
+		a = getU2(0);
+//		if (0x0008 & getU2(pc-8)) {// only static fields in class objects
+			heapSetElement((slot)(u4)0x77, heapTop++); // initialize the heap elements
+//		}
+		numStaticFields++;
+		for (cur_a = 0; cur_a < a; ++cur_a) {
+			u2 attribute_name_index = getU2(0);
+			u1 attribute_name = cs[cN].constant_pool[attribute_name_index];
+			u4 attribute_length = getU4(0);
 
+			if (getU1(attribute_name) != CONSTANT_Utf8) {
+				printf("error while reading class file, CONSTANT_Utf8 expected\n");
+				exit(-1);
+			}
+
+			if (getU2(attribute_name + 1) == 13 && strncmp("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
+				if (getU2(c->field_info[n]) & 0x0008 == 0) {
+					printf("error while reading class file, ConstantValue for nonstatic field\n");
+					exit(-1);
+				}
+
+				if (attribute_length != 2) {
+					printf("error while reading class file, ConstantValue_attribute should have a length of 2\n");
+					exit(-1);
+				}
+				u2 constantvalue_index = getU2(0);
+				u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
+				if (getU1(constantvalue) == CONSTANT_String) {
+					/*string to do*/;
+                    u1 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
+                    if (getU1(utf8) != CONSTANT_Utf8) {
+                        printf("error while reading class file, CONSTANT_String target is no Utf8 entry\n");
+                        exit(-1);
+                    }
+
+                    u2 space = getFreeHeapSpace(getU2(utf8+1));
+                    int i;
+                    for (i = 0 ; i < getU2(utf8+1) ; ++i) {
+                        *((u2*)space) = getU2(utf8+1+1+i);
+                    }
+				} else {
+					heapSetElement((slot)getU4(constantvalue+1),heapTop-1); //   n+1 !!no double, float
+				}
+			} else {
+				pc += attribute_length; // continue
+			}
+		}
+	}
+	HEAPOBJECTMARKER(startStaticObject).length = (numStaticFields > 0)? heapTop-startStaticObject : 1;
+}
 
 u2	getStartPC()	{	//cN,mN
 	u2 attrLength = 0;  // search code-position

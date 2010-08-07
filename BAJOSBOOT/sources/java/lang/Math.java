@@ -1,5 +1,5 @@
 package java.lang;
-// change float to double
+
 // Burkhart Holznagel (burkhart.holznagel@ba-berlin.de)
 /**
  * Mathematical functions.
@@ -11,11 +11,11 @@ public final class Math {
 	// Math constants
 	public static final float E 		 = 2.718281828459045f;
 	public static final float PI 		 = 3.141592653589793f;
-   	public static final float NaN       = 0.0f / 0.0f;
-   
-   static final float PI2 = 1.570796326794897f;
-	static final float ln10      = 2.30258509299405f;
-	static final float ln2       = 0.69314718055995f;
+	public static final float NaN       = 0.0f / 0.0f;
+
+	public static final float PI2 = 1.570796326794897f;
+	public static final float ln10      = 2.30258509299405f;
+	public static final float ln2       = 0.69314718055995f;
 	
         // Used by log() and exp() methods
 	private static final float LOWER_BOUND = 0.9999999f;
@@ -116,27 +116,30 @@ public final class Math {
 	*/	
 	public static float exp(float a)
 	{
-	    boolean neg = a < 0.f ? true : false;
-	    if (a < 0.f)
-                a = -a;
+	    if (a == 0.f) {
+	    	return 1.f;
+	    }
+	
+	    boolean neg;
+	    if (a < 0.f) {
+		neg = true;
+		a = -a;
+            } else {
+            	neg = false;
+            }
+
             int fac = 1;
     	    float term = a;
     	    float sum = 0.f;
     	    float oldsum = 0.f;
-    	    float end;
 
     	    do {
     	        oldsum = sum;
     	        sum += term;
-    
-    	        fac++;
-        
-    	        term *= a/fac;
-	        end = sum/oldsum;
-      	    } while (end < LOWER_BOUND || end > UPPER_BOUND);
+    	        term *= a/(++fac);
+      	    } while (oldsum == 0 || (sum/oldsum < LOWER_BOUND) || (sum/oldsum > UPPER_BOUND));
 
             sum += 1.0f;
-            
 	    return neg ? 1.0f/sum : sum;
 	}
 	
@@ -148,33 +151,44 @@ public final class Math {
 	*/
 	public static float log(float x)
 	{
-	        if (x < 1.0f)
-	                return -log(1.0f/x);
-	                
-	        float m=0.0f;
+		if (x <= 0.f) {
+			throw new ArithmeticException();
+		}
+
+		if (x == 1.0f) {
+			return 0.f;
+		}
+
+		if (x < 1.0f) {
+			return -log(1.0f/x);
+		}
+
+	        float m=-1.0f;
 	        float p=1.0f;
-	        while (p <= x) {
+
+	        while (p < x) {
 	                m++;
 	                p=p*2.f;
 	        }
-	        
-	        m = m - 1.f;
+
 	        float z = x/(p/2.f);
-	        
+
 	        float zeta = (1.0f - z)/(1.0f + z);
 	        float n=zeta;
 	        float ln=zeta;
 	        float zetasup = zeta * zeta;
-	        
-	        for (int j=1; true; j++)
+
+	        for (int j = 1; true; j++)
 	        {
 	                n = n * zetasup;
 	                float newln = ln + n / (2.f * j + 1.f);
 	                float term = ln/newln;
-	                if (term >= LOWER_BOUND && term <= UPPER_BOUND)
+	                if (term >= LOWER_BOUND && term <= UPPER_BOUND) {
 	                        return m * ln2 - 2.f * ln;
+	                }
 	                ln = newln;
 	        }
+
 	}
 
 	/**

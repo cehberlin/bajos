@@ -1,20 +1,15 @@
 package java.lang;
+//bh
 import java.io.*;
 import platform.*;
-//import java.graphics.*;
 /**
  * System utilities.
  */
-public final class System extends PlatForm
+public final class System
 {
-//public final static PlatForm	platform=new PlatForm();
-//public static final OutStream out = new OutStream(platform);
-//public static final InStream in = new InStream(platform);
-//public static final Graphics graphics=new Graphics(platform);
-
-public static final OutStream out = new OutStream();
-public static final InStream in = new InStream();
-//public static final Graphics graphics=new Graphics(this);
+public final static PlatForm	platform=new PlatForm();
+public static final OutStream out = new OutStream(platform);
+public static final InStream in = new InStream(platform);
 
 private System() {}
   
@@ -32,9 +27,9 @@ private System() {}
    * @author 22.02.2008; Anna Maria Damm; FHW-BA Berlin; Bayer Schering Pharma AG
    * Terminate the application.m
    */
-//  public static void exit(int code) {
-//	/*platform.*/exit(code);
-//   }
+  public static void exit(int code) {
+	platform.exit(code);
+   }
  
   /**
    * @authors 22.02.2008; Anna Maria Damm; FHW-BA Berlin; Bayer Schering Pharma AG
@@ -45,9 +40,9 @@ private System() {}
    * be since January 1st, 1970).
    */
  //bh public static native long currentTimeMillis();
-//public static int currentTimeMillis() {
-//	return /*platform.*/currentTimeMillis();
-//   }
+public static int currentTimeMillis() {
+	return platform.currentTimeMillis();
+   }
  
   /**
    * Get the singleton instance of Runtime.

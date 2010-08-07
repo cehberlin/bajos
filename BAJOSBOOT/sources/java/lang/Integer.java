@@ -23,8 +23,7 @@ package java.lang;
      *
      * @serial
      */
-     static char buf [] = new char [12] ; 
-//    static String aaa=new String("AAA");
+
     private int value;
 
     /**
@@ -48,31 +47,32 @@ package java.lang;
      * @return  a string representation of the argument in base&nbsp;10.
      */
     public static synchronized String toString(int i) {
-       int q, r,charPos = 12; 
-       char sign = 0 ; 
-  //     if (i>0) return aaa;
-    if (i == Integer.MIN_VALUE) return "-2147483648";
-       if (i < 0) { 
-          sign = '-' ; 
-          i = -i ; 
-       }
-       
-       for (;;) { 
-          q = i/10; ; 
-          r = i-(q*10) ;
-       //   if ((charPos>1)&&(charPos<12))
-          buf [--charPos] = (char) ((int) '0' + r) ; 
-          i = q ; 
-          if (i == 0) break ; 
-       }
-       if (sign != 0) {
-         //  if ((charPos>1)&&(charPos<12))
-         buf [--charPos] = sign ; 
-         
-       }
-   
-//      for (int f=0; f < 12;f++) System.out.println(buf[f]);
-   return new String ( buf, charPos, 12 - charPos) ; 
+	int q, r,charPos = 12;
+	char sign = 0;
+	
+	if (i == Integer.MIN_VALUE) {
+		return "-2147483648";
+	}
+	
+	char buf [] = new char [12];
+	if (i < 0) { 
+		sign = '-';
+		i = -i;
+	}
+
+	for (;;) {
+		q = i/10;
+		r = i-(q*10);
+		buf [--charPos] = (char) ((int) '0' + r);
+		i = q;
+		if (i == 0) break;
+	}
+	
+	if (sign != 0) {
+		buf [--charPos] = sign;
+	}
+
+	return new String ( buf, charPos, 12 - charPos);
    }
 
    /**
@@ -86,6 +86,10 @@ package java.lang;
     public String toString()  {
 	return toString(value);
     }
+
+	public boolean equals(Object obj) {
+		return obj instanceof Integer && ((Integer) obj).value == this.value;
+	}
 }
 
  
