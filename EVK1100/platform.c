@@ -41,7 +41,7 @@ void initHW()	{
 //On EVK1100, check GCLK0 pin with an oscilloscope, the frequency should be 48MHz. On EVK1100, GCLK_0 is pin number //51 (PB19) Since LED5 is also on PB19, you should also see LED5 turn red.
 	local_start_pll0(&AVR32_PM);
 /* Now toggle LED0 using a GPIO */
-	gpio_tgl_gpio_pin(LED0_GPIO);
+//	gpio_tgl_gpio_pin(LED0_GPIO);
 	software_delay();
 	usart1Init();		// 1200 baud
 	usart0Init();		//bh not with monitor
