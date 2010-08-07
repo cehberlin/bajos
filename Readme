@@ -106,14 +106,12 @@ native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefin
 These are in the first row related to the memory partioning and the serial communication line binding.
 
 COMPILING JAVA SOURCES FOR BAJOS
-Since BAJOSBOOT is not J2SE compatible yet , it is necessary to compile java classes against BAJOSBOOT. A corresponding call of javac might look like
-> javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
+Since BAJOSBOOT is not J2SE compatible yet , it is necessary to compile java classes with Sun's javac against BAJOSBOOT. A corresponding call of javac might look like
+#> javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
 where $(BAJOSBOOT) is the directory containing the BAJOSBOOT classes (currently "BAJOSBOOT/sources" below Bajos root) and $(TARGET) and $(SOURCES) point to the application's binary and source directories.
 
 KNOWN BUGS
 look at bugs ??...
-
-
 
 
 
