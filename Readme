@@ -102,6 +102,11 @@ memory equipment and a C-compiler. Adaptations are to be carried out in the file
 native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefinitions.h
 These are in the first row related to the memory partioning and the serial communication line binding.
 
+COMPILING FOR BAJOS
+Since BAJOSBOOT is not fully J2SE compatible, it is necessary to compile java classes against BAJOSBOOT. A corresponding call of javac might look like
+> javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
+where $(BAJOSBOOT) is the directory containing the BAJOSBOOT classes (currently "BAJOSBOOT/sources" below Bajos root) and $(TARGET) and $(SOURCES) point to the application's binary and source directories.
+
 KNOWN BUGS
 look at bugs ??...
 
@@ -244,6 +249,14 @@ limits.h
 typedefinitions.h
 und betreffen im wesentlichen die Speicheraufteilung und die Anbindung
 der Schnittstelle zum PC (serial).
+
+FÜR BAJOS KOMPILIEREN
+Da BAJOSBOOT nicht J2SE-kompatibel ist, müssen Klassen gegen BAJOSBOOT kompiliert werden. Ein entsprechender javac-Aufruf könnte wie folgt aussehen:
+> javac -g:none -source 1.4 -extdirs . -bootclasspath $(BAJOSBOOT) -d $(TARGET) -sourcepath $(SOURCES) $(SOURCEFILE)
+Dabei ist $(BAJOSBOOT) das Verzeichnis, in dem sich die BAJOSBOOT-Klassen befinden (zur Zeit "BAJOSBOOT/sources" vom Bajos-Verzeichnis aus) und $(TARGET) und $(SOURCES) zeigen auf die Klassen- und Quell-Verzeichnisse der zu kompilierenden Anwendung.
+
+KNOWN BUGS
+look at bugs ??...
 
 Known Bugs
 many ???
