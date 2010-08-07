@@ -55,7 +55,7 @@ GLOBAL u4	timerMilliSec 	INIT__(0);
 #endif
 
 GLOBAL u1	timeOut 	INIT__(0);
-GLOBAL u2	endBajos	INIT__(0);
+//GLOBAL u2	endBajos	INIT__(0);
 #ifdef AVR8
 GLOBAL FILE 	uartAVR8;
 #endif
