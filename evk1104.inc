@@ -14,6 +14,9 @@
 # run with monitor: g 0x80002000 command bajos
 
 CC		= avr32-gcc
+OBJCOPY		= avr32-objcopy
+PROGRAM		= avr32program 
+
 # CPU architecture: {ap|ucr1|ucr2}
 ARCH = ucr2
 # Part: {none|ap7xxx|uc3xxxxx}
@@ -60,33 +63,44 @@ JAVABOOTSOURCES	+= 	$(LANG)/Math.java \
 JAVAAPPSOURCES		= javatests/EVK1104.java
 
 PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c 
-PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
+
+#PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
 
 
 # GOALS
+CPPFLAGS	+=-MD -MP -MT
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 DEFS		+= -D WITHMON
 LINKER_SCRIPT 	= $(APPPATH)EVK1104/link_uc3a3256withmon.lds
 # Extra flags to use when linking
-#LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
-LD_EXTRA_FLAGS	= -Wl,--gc-sections   -nostartfiles
+#LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib 
+#-Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections  
+#-nostartfiles
 all:	clean compile bootclasses compEVK1104 bootpack
 	@echo generating bajvm.bin avr32bootpack javatests/EVK1104.class
+
+burnbajvm:
+	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+
 
 else # without monitor
 PLATFORMCSOURCES	+= $(APPPATH)EVK1104/intc.c $(APPPATH)EVK1104/pm.c \
 			$(APPPATH)EVK1104/rtc.c \
-			$(APPPATH)EVK1104/spi.c \
-			$(APPPATH)EVK1104/adc.c\
+			$(APPPATH)EVK1104/spi.c $(APPPATH)EVK1104/isp.c \
+			$(APPPATH)EVK1104/adc.c $(APPPATH)EVK1104/pm_conf_clocks.c \
 			$(APPPATH)EVK1104/flashc.c $(APPPATH)EVK1104/sdramc.c \
-			$(APPPATH)EVK1104/gpio.c $(APPPATH)EVK1104/usart.c 
+			$(APPPATH)EVK1104/gpio.c $(APPPATH)EVK1104/usart.c \
+			$(APPPATH)EVK1104/power_clocks_lib.c
+
+PLATFORMASMSOURCES	= $(APPPATH)/EVK1104/exception.S  $(APPPATH)/EVK1104/crt0.S  $(APPPATH)/EVK1104/trampoline.S
 
 # $(APPPATH)EVK1104/pwm.c $(APPPATH)EVK1104/dip204.c 
 # Extra flags to use when linking
-# LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib -Wl,-e,_trampoline
-LD_EXTRA_FLAGS	= -Wl,--gc-sections  -Wl,-e,_trampoline -nostartfiles
+# LD_EXTRA_FLAGS = -Wl,--gc-sections -nostdlib  -Wl,-e,_trampoline
+LD_EXTRA_FLAGS	= -Wl,--gc-sections -Wl,-e,_trampoline  -nostartfiles
 LINKER_SCRIPT	= $(APPPATH)EVK1104/link_uc3a3256.lds
 
 all:	clean compile bootclasses  compEVK1104 burnbootpack burnbajvm
@@ -95,7 +109,7 @@ all:	clean compile bootclasses  compEVK1104 burnbootpack burnbajvm
 .PHONY: burnbajvm
 
 burnbajvm:
-	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
 
 
 endif	#monitor
@@ -105,7 +119,6 @@ withmon:
 
 evk1104:
 	@:
-
 
 
 $(TARGETFILE): $(OBJFILES)
@@ -123,17 +136,29 @@ $(TARGETFILE): $(OBJFILES)
 	$(VERBOSE_NL)
 
 # Preprocess & assemble: create object files from assembler source files.
-%.o: %.S %.asm
-	@echo $(MSG_ASSEMBLING)
-	$(VERBOSE_CMD)$(CC) -c $(CPPFLAGS) $(ASFLAGS) -o $@ $<
+%.o: %.S
+	@echo $(MSG_ASSEMBLING) 
+	$(VERBOSE_CMD)$(CC) -c $(CPPFLAGS) -MD -MP -MT '$*.x' $(ASFLAGS) -o $@ $<
+	@touch $*.d
 	@touch $@
 	$(VERBOSE_NL)
 
+
+
+# Preprocess & assemble: create object files from assembler source files.
+#%.o: %.S %.asm
+#	@echo $(MSG_ASSEMBLING)
+#	$(VERBOSE_CMD)$(CC) -c $(CPPFLAGS) $(ASFLAGS) -o $@ $<
+#	@touch $@
+#	$(VERBOSE_NL)
+
 #with and without monitor
 bootpack:
-	$(VERBOSE_CMD) printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
-	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
+	$(VERBOSE_CMD) printf %4d `echo $(JAVABOOTCLASSES)| wc -w` > avr32bootpack
+	$(VERBOSE_CMD) for i in $(JAVABOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
 	@echo generating avr32bootpack
+
+
 
 burnbootpack:	bootpack
 	avr32program  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
