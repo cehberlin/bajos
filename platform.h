@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "typedefinitions.h"
 #include "definitions.h"
-#include "bajosavr.h"
+#include "bajvm.h"
 	void initHW();
 
 	void VT102Attribute (u1 fgcolor, u1 bgcolor)	;

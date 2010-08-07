@@ -9,7 +9,7 @@
 	typedef signed char		s1;
 	typedef float			f4;
 	#if (LINUX || AVR32UC3A|| AVR32AP7000)
-	#if ( __i386__ || AVR32UC3A|| AVR32AP7000 ) 
+	#if ( __i386__ || AVR32UC3A|| AVR32AP7000 || AVR32LINUX ) 
 		typedef  unsigned short		u2;
 		typedef  unsigned int		u4;
 		typedef  unsigned long	long	u8;	
@@ -33,14 +33,13 @@
 	#endif
 
 typedef struct 	{
-	u4 status:2;			// 0 -> free for further use; 1 -> allcated static class object; 2-> allocated other object; 3-> allocated arrays
-	u4 rootCheck:1;			// 0 -> 1-> root object (opstack or static) or free or "object in object" !!!
-	u4	mutex:1;			// mutex for object
-	u4 length:16;			// max 8k 4 byte alloated slots for object!!elements for an object,array on the heap, including heapObjMarker
-							// expandable 
-	u4 magic:4;				//  um Objects und prim types auf dem heap zu unterscheiden !!!!!
-	u4 xxx:8;
-							// reducable
+	u4 status:2;	// 0 -> free for further use; 1 -> allcated static class object; 2-> allocated other object; 3-> allocated arrays
+	u4 rootCheck:1;	// 0 -> 1-> root object (opstack or static) or free or "object in object" !!!
+	u4 mutex:1;	// mutex for object
+	u4 length:16;	// max 8k 4 byte alloated slots for object!!elements for an object,array on the heap, including heapObjMarker
+			// expandable 
+	u4 magic:4;	//  um Objects und prim types auf dem heap zu unterscheiden !!!!!
+	u4 xxx:8;	// reducable
 					}  heapObjectMarker ;
 
 #define classNumber arrayLength
@@ -84,25 +83,25 @@ u1		lockCount[MAXLOCKEDTHREADOBJECTS];
 #define	CONSTANTPOOLCOUNT(cN)	((u2) *cs[cN].classFileStartAddress+8)
 
 typedef struct 	{
-		u1* classFileStartAddress;		// Speicheradresse fuer classfile-bytes
-		u2  classFileLength;			// << 64K	
-		u4 magic;						// kann weg
-		u2 minor_version;				// kann weg
-		u2 major_version;				// kann weg
-		u2 constant_pool_count;			// kann weg
-		u2* constant_pool;				//cp_info constant_pool[constant_pool_count-1];
-		u2 access_flags;
-		u2 this_class;					// kann weg
-		u2 super_class;					// kann weg
-		u2 interfaces_count;			// kann weg
-		u2* interfaces;					//u2 interfaces[interfaces_count];
-		u2 fields_count;
-		u2* field_info;					// field_info fields[fields_count];
-		// nur ConstantValue attribute
-		u2 methods_count;
-		u2* method_info;				//method_info methods[methods_count];
-		u2 attributes_count;
-		u2* attribute_info;				//attribute_info attributes[attributes_count];
-		slot classInfo;
-	} 		classStructure ;
+	u1*	classFileStartAddress;	// Speicheradresse fuer classfile-bytes
+	u2	classFileLength;	// << 64K	
+	u2	magic;		// kann weg
+	u2	minor_version;	// kann weg
+	u2	major_version;	// kann weg
+	u2	constant_pool_count;	// kann weg
+	u2*	constant_pool;	//cp_info constant_pool[constant_pool_count-1];
+	u2	access_flags;
+	u2	this_class;				
+	u2	super_class;				
+	u2	interfaces_count;			
+	u2*	interfaces;	//u2 interfaces[interfaces_count];
+	u2	fields_count;
+	u2*	field_info;	// field_info fields[fields_count];
+	// nur ConstantValue attribute
+	u2	methods_count;
+	u2*	method_info;	//method_info methods[methods_count];
+	u2	attributes_count;
+	u2*	attribute_info;	//attribute_info attributes[attributes_count];
+	slot	classInfo;
+		} 		classStructure ;
 #endif

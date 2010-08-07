@@ -24,7 +24,6 @@ int [] ii= new int[3];
 	d.ii[2]=888;
 	
 System.out.println(d.m+4);
-
 System.out.println(7.8f+Math.PI);
 System.out.println(d.ii[0]);
 System.out.println(d.ii[1]);
@@ -90,6 +89,7 @@ if (isprime==true) System.out.println(i);
 	}
 //System.out.println(" is prime");
 	}
+
 	public void handle()	{
 for ( int  i=200; i< 210; i++)		
 System.out.println(i);	

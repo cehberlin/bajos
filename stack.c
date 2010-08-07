@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bajosavr.h"
+#include "bajvm.h"
 #include "definitions.h"
 #include "stack.h"
 

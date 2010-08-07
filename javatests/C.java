@@ -2,13 +2,28 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-public class C {//extends Thread {
+import java.graphics.*;
 
-	public static void main(String [] args){
-int i=0;
-while (true) System.out.println(i++);
-}
+public class C 
+{
+
+	public static void main(String [] args)
+	{		
+
+		System.out.println ("Starting a.class ...");
+		
+		System.out.println (" make a Display Object...");
+		Display dp = new Display();
+		
+
+		dp.font.drawString("Java draw String\n");
 
 
+		System.out.println (" ENDE");
 
+		while (true) {
+
+		}
+
+	}
 }

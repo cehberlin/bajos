@@ -1,0 +1,14 @@
+erst habe ich bajos_bh von herrn hecht nov08  genommen
+dann habe ich interpreter.c von herrn lang sept08 hinzugefügt
+damit auch floatcmp richtig
+bajosavr in bajvm
+classfile.* aus bajvm03 ok
+interpreter.* aus bajvm03 ??
+static field first eliminiert
+eingefügt
+NEW
+GETFIELD
+PUTFIELD
+GETSTATIC
+PUTSTATIC
+für variablenvererbung

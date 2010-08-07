@@ -6,7 +6,7 @@
 // version 0.1 vom 1.10.07
 #ifndef __NATIVE__
 #define __NATIVE__
-#include "bajosavr.h"
+#include "bajvm.h"
 #include "stack.h"
 void	initNativeDispatch();
 char	nativeDispatch( u2 cN, u2 mN,u2 local);
@@ -22,10 +22,41 @@ char controlLCD(u2);
 char currentTimeMillis();
 char javaExit(u2);
 void myExit(u4);
-char drawPoint(u2);
-char nativeStringLength(u2 local);
+
+/*char drawPoint(u2);
+char drawRect(u2);
+char drawfillRect(u2);
+char clearScreen(u2);	
+char nativeStringLength(u2 local);*/
+
+char drawPointRGB(u2 local);
+char drawFillRectRGB(u2 local);
+char drawRectangleRGB(u2 local);
+char clearScreenRGB(u2 local);
+char drawRoundRectRGB(u2 local);
+char drawEllipseRGB(u2 local);
+char drawCircleRGB(u2 local);
+char drawLineRGB(u2 local);
+char drawPointHSB(u2 local);
+char drawLineHSB(u2 local);
+char drawTriangleFill(u2 local);
+char clearZBuffer();
+char drawPointHSBZBuffer(u2 local);
+char drawLineHSBZBuffer(u2 local);
+
+/*Schrift-Methoden*/
+char setFont(u2 local);
+char setFontWindow(u2 local);
+char setFontAutoLineFeed(u2 local);
+char setFontFixedFont(u2 local);
+char setFontCursor(u2 local);
+char setFontColor(u2 local);
+char drawChar(u2 local);
+char drawCharAt(u2 local);
+char getCharWidth(u2 local);
 
 char nativeCharAt(u2 local);
+char nativeStringLength(u2 local);
 
 char start();
 char yield();
@@ -48,8 +79,7 @@ char waitTime(u2 local);
 char javaExit(u2);
 char currentTimeMillis();
 char nativeParseFloat(u2);
-char floatToIntBits(u2 local);
-char intBitsToFloat(u2 local);
+char typeConvert(u2);
 char floatToCharArray(u2);
 
 #endif

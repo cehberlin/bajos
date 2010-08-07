@@ -2,74 +2,58 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-public class A {//extends Thread {
-int [] ii= new int[7];
-//float f=3.37F;
-String s= new String(" Welt ");
+import java.io.*;
+import java.graphics.*;
 
-	public static void main(String [] args){
-	A a= new A();
-	a.ii[1]=45;
-	System.out.println ("Starting timer ...");
-	System.out.println (" OK");
-	byte b; int n = 0xFFFFFF;
-	while (true) {
-	//	c = System.platform.getButtons();
-	//	System.platform.LCDControl(0);
-	//	System.platform.LCDControl(0x0F02);
-	//	System.platform.LCDOut( (byte) c );
-	//	n = (n + 1 ) % 4;
-		n = (n * 2);
-	//	System.out.println( c);
-	//	System.out.println( n );
-		if (n < -1000 ) n = 0xFFFFFF;
-		System.platform.setOnBoardLEDs( (byte) n );
-	//	System.out.println(" 1");
-		if (System.platform.getButtons()>0) {
-			System.out.println(System.platform.currentTimeMillis());
-		}
+public class A extends Aparent
+{
+int whow=99;
 
-		if (System.platform.getButtons() >= 128) {
-			System.exit(0);
-		}
-	}
-	
+public A()	{
+System.out.println ("im Konstruktor von a");
+}
+	public static void main(String [] args)
+	{
+System.out.println ("Starting a.class ...");
+A a=new A();
+a.m=a.n;
+a.arr[2]=8;
+st=99;
+//a.n=55;
+System.out.println ("Starting a.class ...");
 
+A.xMax=317;
+System.out.println(Aparent.xMax);
+System.out.println(A.xMax);
+System.out.println(Aparent.yMax);
+System.out.println(A.yMax);
+System.out.println(a.n);
+System.out.println(a.arr[2]);
 
-
-
+		System.out.println ("Starting a.class ...");
+		System.out.println (" OK");
+		
+		System.out.println (" make a Display Object...");
+		DisplayZBuffer dp = new DisplayZBuffer();
 /*
+		System.out.println (" OK");		
+		System.out.println (" draw fillRect...");
+		dp.setColor(0xff0000); //rot
+		dp.fillRect(20,20,30,30);
+		System.out.println (" OK");
+		
+		System.out.println (" draw drawRect...");
+		dp.setColor(0x000000); //schwarz
+		dp.drawRect(60, 60, 30, 30);
+		System.out.println (" OK");
+		
+		System.out.println (" draw drawLine...");
+		dp.drawLine(300, 200, 10, 100);
+		System.out.println (" OK");
 
-	System.platform.controlLCD(0);
-	System.platform.charLCDOut('a');
-	System.out.println(6);
-	char c=System.in.read();
-System.out.println('Y');
-	System.out.println(c);
-//System.out.println(a.f);
-	System.out.println("bur"+a.ii[0]+a.s);
-	a.doit();
-	System.out.println(a.ii[3]);
-	System.out.print("hallo");
-	System.out.println(a.s);
-	n=3;
-	int m=4;
-	System.out.println(3*4);
-	while(m<10) {System.out.println("xx "+m++);}
-	int time = System.currentTimeMillis();
-	do	{
-	if ((System.currentTimeMillis()-time)>5000)	{
-	time=System.currentTimeMillis();
-	System.out.println("hallo");
-	continue;}
-	} while(true);
+		while (true) {
+
+		}
 */
-}
-
-void doit()	{
-/*synchronized (this)*/	{
-ii[3]=33;
-}
-
-}
+	}
 }

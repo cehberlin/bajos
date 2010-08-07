@@ -4,11 +4,12 @@
 */
 // fuer lehrzwecke,...
 // version 0.1 vom 1.10.07
+// version 0.3 vom 23.11.08
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "definitions.h"
-#include "bajosavr.h"
+#include "bajvm.h"
 #include "stack.h"
 #include "heap.h"
 // heap 

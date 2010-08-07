@@ -3,13 +3,14 @@
 #include <stdio.h>
 
 
-#define APPCLASSPATH 	"/repos/javatests"
-#define CLASSPATH 			"/repos/bajos"
-#define BOOTCLASSPATH	CLASSPATH"/BAJOSBOOT/classes"
-#define LANG					BOOTCLASSPATH"/java/lang"
-#define IO 						BOOTCLASSPATH"/java/io"
-#define UTIL						BOOTCLASSPATH"/java/util"
-#define PLATFORM			BOOTCLASSPATH"/platform"
+#define APPCLASSPATH 		"/home/nutzer/workspace/bajos_bh/javatests"
+#define CLASSPATH 		"/home/nutzer/workspace/bajos_bh"
+#define BOOTCLASSPATH		CLASSPATH"/BAJOSBOOT/classes"
+#define LANG			BOOTCLASSPATH"/java/lang"
+#define IO 			BOOTCLASSPATH"/java/io"
+#define UTIL			BOOTCLASSPATH"/java/util"
+#define PLATFORM		BOOTCLASSPATH"/platform"
+#define GRAPHICS 		BOOTCLASSPATH"/java/graphics"
 #define NUMCLASSES		(sizeof(classFiles)/sizeof(classFiles[0]))
 
 int main(int argc, char* argv[])	{
@@ -35,7 +36,12 @@ const char* classFiles[] ={
 						LANG"/RuntimeException.class",  
 						LANG"/InterruptedException.class", 
 						IO"/OutStream.class",
-  	 					IO"/InStream.class"
+  	 					IO"/InStream.class",
+  	 					GRAPHICS"/Display.class",
+						GRAPHICS"/DisplayHSB.class",
+						GRAPHICS"/DisplayZBuffer.class",
+						GRAPHICS"/Point.class",
+						GRAPHICS"/Font.class"
   	 					};
 
 FILE*  readFile,*writeFile;

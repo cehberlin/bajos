@@ -1,10 +1,119 @@
-a java virtual machine and bootclasses
-running on  8Bit AVR's (atmega128-CharonII Board with 32KRAM)),
-32 Bit AVR's (AVR32UC3A, AVR32AP7000, NGW100, STK1100, EVK1000)
-in a very experimental state.
-try this:
-// correct paths in makefile
-// #> make linux
-// #> make A
+23.11.08 
+BAJOS zusammen mit BAJOSBOOT ist eine Java Laufzeitumgebung für Mikrocontroller.
+BAJOS wurde für den 8 Bit Controller atmega128, die 32 Bit Controller
+AVR32UC3A und AVR32AP7000 getestet und läuft auch unter Linux auf dem PC.
+Voraussetzung für die Installation von BAJOS ist:
+	- ein C-Compiler (gcc) auf einem Entwicklungs-PC
+	- eine (serielle) Schnittstelle zwischen PC und Entwicklungsboard
+	- mindestens 80 KByte Programmspeicher auf dem Controllerboard
+	- mindestens 4 KByte Datenspeicher auf dem Controllerboard
+Die Bootklassen in BAJOSBOOT umfassen notwendige Klassen der
+JVM-Spezifikation, weitere nützliche Systemklassen sowie in
+der Klasse PlatForm.java die Anbindung der Laufzeitumgebung
+an die gegebene Hardware-Konfiguration.
+
+Eigenschaften und Grenzen von BAJOS
+BAJOS beinhaltet einen Bytecodeinterpreter, Exception Handling, Threadunterstützung,
+Unterstützung der Sychronisationsmechanismen von Java, native Methoden-Interface
+und einen Garbagecollector.
+Beim gegenwärtigen Stand ist BAJOS angelehnt an die JVM-Spezifikation
+(gegenwärtig nur < Version 1.6) mit Ausnahmen und Einschränkungen.
+Die bekanntesten Abweichungen sind:
+- kein long Datentyp
+- kein double Datentyp
+- keine Unicode-Unterstützung
+- keine Laufzeitauswertung einiger Klassen/Methoden/Field-Attribute
+- keine überladenen native Methoden
+- kein vollständiges Exception Handling
+- keine vollständige Garbage Collection
+- weniger als 256 Klassen;256 Methoden/Klasse; 256 lokale Vars. für Methoden
+- weniger als 16K Worte a 32 Bit auf dem Heap.
+Was heißt das:
+not finalizers of objects
+not exception handling für jeden Bytecode
+??????????????????????
+Javasoftware kann mit diesen Einschränkungen auf dem PC entwickelt
+und mit javac compiliert werden, Classfiles - auf Fremdmaschinen compiliert -
+eingebunden werden.
+
+Historie
+Zur Vertiefung von Vorlesungsinhalten (Programmierung in Java und C/C++,
+Betriebssysteme, Embedded Systems) enstand die Idee, eine JVM zu realisieren.
+Nach konzeptioneller Arbeit, in der die wichtigsten Datenstrukturen
+definiert wurden, entstand 2006 eine Version, welche auf Linux lauffähig
+war. Diese wurde relativ schnell auf Boards mit dem atmega128 portiert
+(Charon II mit 32 KByte externen Ram und wenig später auf den
+MICA2Dot der Firma Crossbow, welcher nur mit dem internen Mikrokontroller-Speicher
+auskommt). 2007 erfolgte eine Portierung auf die 32 Bit Prozessoren
+AVR32UC3A und AVR32AP7000 (unter Linux und als standalone Anwendung). Für das
+Entwicklungsboard STK1000 wird gegenwärtig eine grafische Bibliothek für das
+LCD-Display auf diesem Board entwickelt.
+Neben der intensiven Arbeit an der Erweiterung, Erhöhung der Stabilität und Verbesserung
+des Laufzeitverhaltens wird an der Weiterentwicklung (z.B.Verbesserung des Thread-Schedulers)
+und an der Realisierung von Applikationen (Steuerung von Robotern, ferngesteuerten Mobilen,..)
+gearbeitet.
+
+Installation und Inbetriebnahme
+
+Vorbereitung auf dem PC
+Installation die GNU-C-Entwicklungstools für die gewünschte Plattform
+(avrgcc oder avr32-gcc).
+Entpacken von BAJOS und BAJOSBOOT.
+Anpassen der Pfade im Makefile.
+Übersetzen von BAJOS für die Plattform im Verzeichnis bajos.
+#>make clean	// löscht alle Objekte und Executables
+#>make linux	// avr8, stk1000, evk1100 ngw100 erzeugt die entsprechenden Zielexecutables
+#>make debug linux // erzeugt Executable für Debugging
+Mehrere Ziele können gleichzeitig angegeben werden.
+#>make clean linux
 
 
+Vorbereitung des Entwicklungsboards
+CharonII mit atmega128
+Hier ist es zweckmäßig den Monitor bamo128 (cs.ba-berlin.de) mit einem
+Programmiergerät in die oberen 4 KWorte des Instruktionsspeichers (16Bit) zu brennen und den atmega128 zum Start auf der Bootloaderadresse 0xF000 (Wortadresse) zu programmieren.
+Dann kann mittels ISP-Programming über bamo128 und Terminalprogramms (minikermit von
+cs.ba-berlin.de) die JVM in den Instruktionsspeicher Mikrocontroller geladen werden.
+Nach Start von bajos werden die  Bootklassen (ca. 1 Dutzend Klassen, notwendig
+für die Java-Laufzeitumgebung) und anschließend die Anwenderklassen geladen.
+Die Class-Files werden hier in den RAM geladen. Die Anpassung von BAJOS an den vorhandenen
+Datenspeicher erfolgt vor dem Compilieren in limits.h.
+
+STK1000, NGW100, EVK1000 mit AR32AP7000 bzw.AVR32UC3A
+Hier werden BAJOS und das Bootklassenpaket mit einem Programmiergerät in den
+Flashspeicher geschrieben, die Anwendungsklassen werden nach dem Start von BAJOS in den
+RAM nachgeladen.
+#> make program stk1000
+Lädt und startet die JVM und die Bootklassen (mbc) und startet die JVM. Diese
+lädt über die Terminalschnittstelle die Anwenderklassen nach und startet die Abarbeitung.
+Gegenwärtig arbeitet der C-Compiler und Linker nur mit dem
+knappen internen Speicher und der Speicher für den Java-Heap, die Java-Stacks und die
+Anwendungs-Classfiles wird hart über Pointer (in bajvm.c -> eine unbefriedigende Lösung) an den großen externen RAM gebunden.
+Es wird für den AVR32UC3A auf dem Board EVK1100 an einem Monitor gearbeitet, der auch
+eine In-System-Programmierung des Flash ermöglicht und ein Laden der Class-Files
+nach dem Starten von BAJOS ermöglicht.
+
+Nach dem Starten von BAJOS und dem Laden aller Klassen ermöglicht jede Variante die
+Interaktion mit einem Terminal, in Linux das aufrufende Terminal und bei den Entwicklunsgboards über die serielle Schnittstelle mit einem Terminalprogramm (z.B. minikermit von cs.ba-berlin.de). Dazu ist erfolgt in Java die Anbindung in die Systemklassen OutStream und InStream, so daß Ein-/Ausgaben über System.out.println(..) und System.in.read() getätigt werden können.
+
+Tools
+Die Boot- und Systemklassen werden in einem Schwung geladen. Dazu gibt es unter Linux
+Make-Ziele z.B. 
+#> make A
+Startet die JVM lädt automatisch die alle im Makefile angegebenen notwendigen Klassen
+#> make compA
+ist eine Hilfe zum Kompilieren der Anwenderklasse A.java
+Für Mikrokontroller gibt es das Tool packer.c um ein Boot-Class-Package zu erzeugen (z.B. mbc).
+
+Dieses wird beim Laden der JVM mit
+Portierung auf andere Plattformen
+Aus den positiven Erfahrungen bei der Portierung auf 8-64 Bit Maschinen mit Datenspeicherung
+im big endian/little endian Mode sehen wir keine Probleme, BAJOS auf andere Hardwareplattformen mit der oben angegebenen Mindestspeicheraustattung zu portieren.
+
+Known Bugs
+???
+
+ToDo
+Anpassung an java 1.6
+Exception Handling für alle betroffenen Bytecodes realsieren
+....

@@ -1,0 +1,14 @@
+// bajvm 10.11.08 sind die quellen von herrn hecht vom sept08
+// interpreter.c und packer.c von herrn lang vom sept08
+// und von hn classfile.c mit der aufhebung der beschränkung: static fields first!!
+// ich hoffe das ist der aktuelle stand!!
+// einmal durch 4.7.06 unix
+// lief am 24.8.06 erstmals auf atmega128
+// lief im Herbst 07 auf AVR32
+// 14.8.06 sie lief das erste mal durch (in Unix)
+// april 2007-> threads, scheduling, funtionsüberladung, native-dispatch
+// mai 2007 -> garbage collection, exception handling
+// jan08 synchronized, wait notify
+// 11.11.08 ein dicker vererbungsfehler für fields new getfield putfield
+// getstatic putstatic xaload xastore
+My FFF

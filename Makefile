@@ -1,10 +1,7 @@
 # Hey -  this is a -*- makefile -*-
-# for atmega128 (CharonII), linux, avr32UCA (EVK1000), avr32AP7000(NGW100,STK1000)
+# for atmega128 (CharonII), linux, avr32UCA (EVK1100), avr32AP7000(NGW100,STK1000)
 # goals
-# avr8			build avr8
-# uc3a		build uc3a
-# ap7000		build ap7000
-# linux			build linux
+# avr8 evk1100 ngw100 stk1000 linux avr32-linux
 # avr8 debug
 # ...
 # avr8 dump
@@ -22,7 +19,6 @@
 # xxx program
 # verbose
 # clean
-# clobber
 
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # FUNCTIONS
@@ -34,7 +30,7 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 # test command line - make it better
 #$(if   $(filter avr8 linux uc3a ap7000 clean A,$(MAKECMDGOALS)), ,$(error wrong command line))
-TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux ,$(MAKECMDGOALS))
+TARGETHW = $(filter avr8 evk1100 ngw100 stk1000 linux avr32-linux,$(MAKECMDGOALS))
 ifdef $TARGETHW
 ifneq "1"  "$(words $(TARGETHW))"
 $(error only one target hardware accepted)
@@ -48,14 +44,14 @@ endif
 #the serial communication lines
 TTY		= /dev/ttyS0
 
-APPPATH = /repos/bajos/
+APPPATH = ./
 
 AVR8ROOT=
 AVR32ROOT=/usr/bin/
 AVR32BIN = $(AVR32DIR)
 #AVR32INC = $(AVR32ROOT)INCLUDES
-AVR32UC3AINC = $(APPPATH)/AVR32UC3AINC
-AVR32AP7000INC = $(APPPATH)/AVR32AP7000INC
+AVR32UC3AINC = $(APPPATH)AVR32UC3AINC
+AVR32AP7000INC = $(APPPATH)AVR32AP7000INC
 # java-files
 CLASSPATH = $(APPPATH)
 APPCLASSPATH = $(CLASSPATH)javatests
@@ -65,24 +61,30 @@ IO=${BOOTCLASSPATH}java/io
 UTIL= ${BOOTCLASSPATH}java/util
 PLATFORM= ${BOOTCLASSPATH}platform
 
+BOOTCLASSES = $(LANG)/String.class $(LANG)/StringBuffer.class $(LANG)/System.class $(LANG)/Thread.class $(LANG)/Math.class $(LANG)/Throwable.class $(LANG)/Exception.class $(LANG)/Object.class $(LANG)/Error.class $(LANG)/ArithmeticException.class $(LANG)/ClassCastException.class $(LANG)/Integer.class $(LANG)/StringBuilder.class $(LANG)/Runtime.class $(LANG)/RuntimeException.class $(LANG)/InterruptedException.class $(PLATFORM)/PlatForm.class $(IO)/OutStream.class $(IO)/InStream.class 
+
+BOOTPACK = mbc
+
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-# SOURCES AND TARGETS
+# C-SOURCES AND TARGETS
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
-BAJOSSOURCES=bajosavr.c classfile.c interpreter.c heap.c stack.c native.c scheduler.c platform.c
+BAJOSSOURCES=bajvm.c classfile.c interpreter.c heap.c stack.c native.c scheduler.c platform.c
 AVR8SOURCES=$(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c
 UC3ASOURCES = $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c $(APPPATH)EVK1100/rtcuc3a.c\
-$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c $(APPPATH)EVK1100/gpiouc3a.c \
+$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c $(APPPATH)EVK1100/gpiouc3a.c\
 $(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c $(APPPATH)EVK1100/sdramc.c iobinding.c
-AP7000SOURCES= iobinding.c  
-NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c $(APPPATH)NGW100/pio.c \
-$(APPPATH)AVR32AP7000/usartap7000.c
+AP7000SOURCES= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
+NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
+
 STK1000SOURCES=$(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
-$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/ltv350qv.c \
+$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/fontlib.c $(APPPATH)STK1000/ltv350qv.c \
 $(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
-$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/usart.c $(APPPATH)STK1000/sdram.c \
-$(APPPATH)STK1000/bmp_lib.c
+$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/sdram.c \
+$(APPPATH)STK1000/bmplib.c
+
 # verrückt
 ASSSOURCESUC3A =  $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
+
 TARGET		=  $(basename $(call FirstWord,$(BAJOSSOURCES)))
 TGTTYPE   = $(suffix $(TARGET))
 TGTFILE   = $(TARGET)
@@ -157,21 +159,38 @@ $(TGTFILE):		${OBJFILES}
 	$(VERBOSE_CMD) ${CC}	-c   -Wall -DAVR8 ${DEBUGGEN}  -mmcu=$(PART) -o $@ $<
 endif
 
+
 ifeq  ($(TARGETHW), linux)
-OBJFILES  = $(BAJOSSOURCES:.c=.o)
 CC = gcc
+endif
+
+ifeq  ($(TARGETHW), avr32-linux)
+CC=avr32-linux-gcc
+CPPFLAGS+=-DAVR32LINUX
+endif
+
+ifeq ($(filter $(TARGETHW) ,linux avr32-linux), $(TARGETHW))
+#ifeq  ($(TARGETHW), linux) 
+OBJFILES  = $(BAJOSSOURCES:.c=.o)
+avr32-linux:	linux
+
 linux:	$(TGTFILE)
 $(TGTFILE):		${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD) ${CC} -g $(filter %.o,$+)   -o$@ 
+	$(VERBOSE_CMD) ${CC}  $(filter %.o,$+)   -o$@ 
 	
 # Preprocess, compile & assemble: create object files from C source files.
-%.o: %.c
+%.o: %.c 
 	@echo $(MSG_COMPILING)
-	$(VERBOSE_CMD) $(CC) -c -g $(CPPFLAGS) -Wall   -DLINUX ${DEBUGGEN} -o $@ $<
+	$(VERBOSE_CMD) $(CC) -c $(CPPFLAGS) -Wall   -DLINUX ${DEBUGGEN} -o $@ $<
 	@touch $@
 	$(VERBOSE_NL)
 endif
+
+
+
+
+
 
 ifeq  ($(TARGETHW), evk1100)
 OBJFILES  = $(BAJOSSOURCES:.c=.o) $(ASSSOURCESUC3A:.S=.o) $(UC3ASOURCES:.c=.o)
@@ -246,7 +265,7 @@ program: $(TGTFILE)
 	@echo $(MSG_PROGRAMMING)
 	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TGTFILE)
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R mbc
+	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80000000,512Kb -cxtal -e -v -R $(BOOTPACK)
 
 ifneq ($(call LastWord,$(filter cpuinfo chiperase program secureflash debug readregs,$(MAKECMDGOALS))),program)
 	@$(SLEEP) $(SLEEPUSB)
@@ -267,8 +286,10 @@ OBJFILES=$(AP7000SOURCES:.c=.o) $(BAJOSSOURCES:.c=.o) $(STK1000SOURCES:.c=.o)
 PLATFORM=STK1000
 endif
 
-ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
 
+
+ 
+ifeq ($(filter $(TARGETHW) ,stk1000 ngw100), $(TARGETHW))
 CC=$(AVR32BIN)avr32-gcc
 MCPU = ap7000
 CC_FLAGS =  -Wall -c  -mcpu=$(MCPU) -O$(OPT) 
@@ -276,7 +297,7 @@ CC_FLAGS =  -Wall -c  -mcpu=$(MCPU) -O$(OPT)
 ARCH = ap
 # Part: {none|ap7xxx|uc3xxxxx}
 PART = ap7000
-LD_FLAGS   = -march=$(ARCH) -mpart=$(PART) 
+LD_FLAGS   = -march=$(ARCH) -mpart=$(PART)
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 OPT = 2
@@ -305,7 +326,7 @@ $(TGTFILE):	$(OBJFILES)
 all:
 	make compB
 	cd BAJOSBOOT; make; cd ..
-	./a.out mbc
+	./a.out $(BOOTPACK)
 	$(MAKE) program
 
 #program your avr32 device
@@ -315,7 +336,7 @@ program:
 	sleep 3
 	$(VERBOSE_CMD) $(PROGRAM)    $(JTAG_PORT)  program  -e -v -f0,8Mb  $(TGTFILE).bin
 	sleep 2
-	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R mbc
+	$(VERBOSE_CMD) $(PROGRAM)  program -F bin -O 0x40000  -f@0x00040000,512Kb  -e -v -R $(BOOTPACK)
 	sleep 3 
 	$(VERBOSE_CMD) $(PROGRAM)   run
 endif
@@ -335,6 +356,7 @@ clean:
 	-$(VERBOSE_CMD)$(RM) $(TGTFILE)
 	-$(VERBOSE_CMD)$(RM) $(OBJFILES)
 	-$(VERBOSE_CMD)$(RM) *.o
+	-$(VERBOSE_CMD)$(RM) */*.o
 	$(VERBOSE_NL)
 
 # Rebuild the project.
@@ -511,34 +533,83 @@ debug:
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 JAVACOMP			=javac
 JAVACOMPFLAGS		=-g:none -source 1.4 -verbose
-JAVACOMPBOOTCLASSES	=-bootclasspath ${BOOTCLASSPATH}
+JAVACOMPBOOTCLASSES	=-bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/classes -extdirs .
+
+GRAPHICS= ${BOOTCLASSPATH}java/graphics
+
+packer: packer.c
+	g++ packer.c -o packer
+
+$(BOOTCLASSES): $(BOOTSOURCES)
+	make -f BAJOSBOOT/makefile
+
+$(BOOTPACK): packer $(BOOTCLASSES)
+	./packer $(BOOTPACK) $(BOOTCLASSES)
+
+
 
 A:
-	./$(TARGET)   ${LANG}/Object.class \
-	${PLATFORM}/PlatForm.class \
- 	${LANG}/Thread.class \
- 	${LANG}/Float.class \
- 	${LANG}/System.class \
- 	${LANG}/Math.class \
- 	 ${LANG}/String.class \
-	${LANG}/StringBuffer.class \
-  	 ${IO}/OutStream.class \
-  	 ${IO}/InStream.class \
-  	 ${LANG}/Integer.class \
-  	 ${LANG}/StringBuilder.class \
-    	$(APPCLASSPATH)/A.class
+	./$(TARGET)   ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
+		$(APPCLASSPATH)/A.class \
+		$(APPCLASSPATH)/Aparent.class
 
 compA:	
-	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/A.java
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  $(APPCLASSPATH)/Aparent.java $(APPCLASSPATH)/A.java
+
+	
 AA:
-	./$(TARGET)    ${LANG}/Object.class \
-	${PLATFORM}/PlatForm.class \
- 	${LANG}/System.class \
- 	 ${LANG}/String.class \
-	${LANG}/Integer.class \
-  	 ${IO}/OutStream.class \
-  	 ${IO}/InStream.class \
-	$(APPCLASSPATH)/AA.class
+	./$(TARGET)   ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
+	$(APPCLASSPATH)/AA.class 
 
 compAA:	
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/AA.java
@@ -547,29 +618,64 @@ compB:
 	javac -verbose -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/B.java
 
 B:	 
-	./$(TARGET)    ${LANG}/Object.class \
-	${PLATFORM}/PlatForm.class \
- 	${LANG}/System.class \
-	${LANG}/String.class \
-	 ${LANG}/StringBuilder.class \
-	 ${LANG}/Integer.class \
-	 ${IO}/OutStream.class \
-  	 ${IO}/InStream.class \
-  	 ${LANG}/Integer.class \
+	./$(TARGET)   ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	 $(APPCLASSPATH)/B.class
 	
 compC:
 	javac -verbose  -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/C.java
 
 C:	 
-	./$(TARGET)    ${LANG}/Object.class \
-	${PLATFORM}/PlatForm.class \
- 	${LANG}/System.class \
-	${LANG}/String.class \
-	 ${LANG}/StringBuilder.class \
-	 ${LANG}/Integer.class \
-	 ${IO}/OutStream.class \
- 	 ${IO}/InStream.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
 	$(APPCLASSPATH)/C.class
 
 # javac -g:none B.java		// no debug info (line number table)
@@ -580,73 +686,253 @@ compD:
 	javac -verbose  -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/D.java
 
 D:	 
-	./$(TARGET)  ${LANG}/Object.class \
-	${PLATFORM}/PlatForm.class \
- 	${LANG}/System.class \
-	${LANG}/String.class \
-	 ${IO}/OutStream.class \
-  	 ${IO}/InStream.class \
+	./$(TARGET)  ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	 $(APPCLASSPATH)/D.class
 
 EEE:	 
-	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class ${LANG}/System.class ${LANG}/Float.class\
- 	 ${LANG}/Math.class ${LANG}/Thread.class	 ${LANG}/String.class \
- 	${IO}/OutStream.class   	 ${IO}/InStream.class  ${LANG}/Integer.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	$(APPCLASSPATH)/EEE.class
 
 compEEE:
 	javac -source 1.4 -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/EEE.java
 
 FFF:
-	./$(TARGET)  	 $(APPCLASSPATH)/FFF.class  ${LANG}/Object.class    ${PLATFORM}/PlatForm.class  ${LANG}/System.class \
-	${IO}/OutStream.class   	 ${IO}/InStream.class   ${LANG}/StringBuilder.class \
- 	${LANG}/Math.class   ${LANG}/Integer.class  ${LANG}/String.class
+	./$(TARGET)  	 $(APPCLASSPATH)/FFF.class  ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class 
 
 compFFF:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/FFF.java
 
 GGG:	 
-	././$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
- 	${LANG}/Thread.class  	 ${LANG}/String.class   	 ${LANG}/Math.class \
- 	${IO}/OutStream.class   	 ${IO}/InStream.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	$(APPCLASSPATH)/GGG.class
 
 compGGG:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/GGG.java
 
 HHH:	 
-	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
- 	${LANG}/Thread.class  	 ${LANG}/String.class   	 ${LANG}/Math.class \
- 	${IO}/OutStream.class   	 ${IO}/InStream.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	$(APPCLASSPATH)/HHH.class
 
 compHHH:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/HHH.java
 
 My:	 
-	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
- 	${LANG}/Thread.class  	 ${LANG}/String.class   	 ${LANG}/Math.class  ${LANG}/Throwable.class\
- 	${LANG}/Exception.class ${LANG}/Integer.class ${LANG}/StringBuilder.class \
- 	${IO}/OutStream.class   	 ${IO}/InStream.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
   	$(APPCLASSPATH)/My.class $(APPCLASSPATH)/Ball.class
 
 compMy:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/My.java
 
 T:	 
-	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
-	${IO}/OutStream.class   	 ${IO}/InStream.class   ${LANG}/Integer.class ${LANG}/StringBuilder.class ${LANG}/String.class \
+	./$(TARGET)    ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
 	$(APPCLASSPATH)/T2.class $(APPCLASSPATH)/T1.class
 
 compT:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/T1.java $(APPCLASSPATH)/T2.java
 	
 PC:	 
-	./$(TARGET)   	${PLATFORM}/PlatForm.class  	${LANG}/System.class \
- 	${LANG}/Thread.class  	 ${LANG}/String.class     ${LANG}/Throwable.class\
- 	${LANG}/Exception.class ${LANG}/Integer.class ${LANG}/StringBuilder.class \
- 	${IO}/OutStream.class ${LANG}/InterruptedException.class   	 ${IO}/InStream.class \
-  	$(APPCLASSPATH)/ProducerConsumer.class  $(APPCLASSPATH)/Buffer.class ${LANG}/Object.class
+	./$(TARGET)     ${LANG}/Runtime.class \
+		${LANG}/String.class \
+		${LANG}/Float.class \
+		${LANG}/Object.class \
+		${PLATFORM}/PlatForm.class \
+ 		${LANG}/System.class \
+ 		${LANG}/Thread.class \
+ 		${LANG}/Math.class \
+ 		${LANG}/Throwable.class \
+ 		${LANG}/Exception.class \
+		${LANG}/Error.class \
+		${LANG}/CharSequence.class \
+		${LANG}/ArithmeticException.class \
+		${LANG}/ClassCastException.class \
+ 		${LANG}/Integer.class \
+ 		${LANG}/StringBuilder.class \
+		${LANG}/StringUtils.class \
+		${LANG}/RuntimeException.class \
+		${LANG}/InterruptedException.class \
+		${IO}/OutStream.class \
+  		${IO}/InStream.class \
+  		${GRAPHICS}/Display.class \
+		${GRAPHICS}/DisplayHSB.class \
+		${GRAPHICS}/DisplayZBuffer.class \
+		${GRAPHICS}/Point.class \
+		${GRAPHICS}/Font.class \
+		$(APPCLASSPATH)/Buffer.class $(APPCLASSPATH)/ProducerConsumer.class 
 
 compPC:
 	javac -g:none -source 1.4 -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/ProducerConsumer.java

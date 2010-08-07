@@ -4,7 +4,7 @@
 */
 #include<stdio.h>
 #include "definitions.h"
-#include "bajosavr.h"
+#include "bajvm.h"
 #include "classfile.h"
 #include "stack.h"
 #include "scheduler.h"

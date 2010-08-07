@@ -233,16 +233,10 @@ lcdc_conf_t ltv350qv_conf ={
 	//print(usart, "Filling frame buffer with data\n");
 	/* print the image into the virtual framebuffer */
 	//myfill(&ltv350qv_conf);
-unsigned short x,y;
-//unsigned char red,green,blue;
-for (x=20; x<300;x++)	 {
-setPixelRGB(x, 30, 255, 0, 0);
-setPixelRGB(x, 200, 0, 255, 0);
-	}
-for (y=30; y<200;y++)	 {
-setPixelRGB(20, y, 0, 0, 255);
-setPixelRGB(300, y,255, 255, 255);
-}
+	
+	lcdInitZBuffer();
+	initFont();
+	lcdSelectFontFromArray(0);
 
 stdIOInit();
 #endif
