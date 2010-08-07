@@ -46,7 +46,7 @@ GLOBAL u1		numThreads	INIT__(0);
 GLOBAL u1		tid INIT__(0);
 GLOBAL classStructure cs[MAXCLASSES];				// class structure decl und def Verschwendung!!
 GLOBAL char* 	nry	INIT__(" ->  not realized yet\n");
-GLOBAL u4 timerSec INIT__(0);
+//GLOBAL u4 timerSec INIT__(0);
 GLOBAL u4 timerMilliSec INIT__(0);
 GLOBAL u1 timeOut INIT__(0);
 #ifdef AVR8
