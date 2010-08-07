@@ -133,7 +133,7 @@ compSchedulerTest:
 		$(APPCLASSPATH)/SchedulerTest.java
 
 LockTest:	 
-	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Buffer.class \
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) \
 		$(APPCLASSPATH)/LockTest.class 
 
 compLockTest:
