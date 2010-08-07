@@ -3,8 +3,7 @@
 * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// a jvm for 8 Bit MC !!, z.B. atmega128 CharonII and linux and avr32
-// fuer lehrzwecke,...
+// a jvm for 8 Bit MC !!, e.g. atmega128 CharonII and linux and avr32
 // version 0.1 vom 1.10.07
 
 #ifndef __BAJOSAVR__
@@ -16,10 +15,7 @@
 #include "limits.h"
 #include "definitions.h"
 
-	void initVM(int argc, char* argv[]);
-	void initHW();
-	void executeClInits();
-	void errorExit(char nr,const char *format, ...);
+void errorExit(char nr,const char *format, ...);
 
 #ifdef __DEF_GLOBALS__
 		#define GLOBAL
@@ -39,17 +35,27 @@ GLOBAL slot*	opStackBase	INIT__(NULL);
 GLOBAL u2* 	methodStackBase INIT__(NULL);
 GLOBAL slot*	heapBase 	INIT__(NULL);
 GLOBAL u2	heapTop		INIT__(MAXHEAP);
+#ifndef AVR8
 GLOBAL char*	classFileBase	INIT__(NULL);
+#endif
 #if (AVR32UC3A|| AVR32AP7000)
-GLOBAL char*	apClassFileBase INIT__(NULL);
+GLOBAL char*	appClassFileBase INIT__(NULL);
 #endif
 GLOBAL u1	numClasses	INIT__(0);
 GLOBAL 		ThreadControlBlock*  actualThreadCB	INIT__(NULL);
 GLOBAL u1	numThreads	INIT__(0);
 GLOBAL u1	tid 		INIT__(0);
 GLOBAL classStructure cs[MAXCLASSES];
+#ifndef AVR8
 GLOBAL u4	timerMilliSec 	INIT__(0);
+#else
+#ifndef WITHMON
+GLOBAL u4	timerMilliSec 	INIT__(0);
+#endif
+#endif
+
 GLOBAL u1	timeOut 	INIT__(0);
+GLOBAL u2	endBajos	INIT__(0);
 #ifdef AVR8
 GLOBAL FILE 	uartAVR8;
 #endif
