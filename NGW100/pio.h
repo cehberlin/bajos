@@ -1,4 +1,27 @@
+/* This header file is part of the ATMEL AVR32-SoftwareFramework-AT32AP7000-1.0.0 Release */
+
 /*This file has been prepared for Doxygen automatic documentation generation.*/
+/*! \file *********************************************************************
+ *
+ * \brief pio driver functions
+ *
+ * This file contains basic pio driver functions.
+ *
+ *
+ * - Compiler:           IAR EWAVR32 and GNU GCC for AVR32
+ * - Supported devices:  All AVR32 devices with a PIO module can be used.
+ *                       The example is written for AP7000 and STK1000.
+ * - AppNote:            AVR32111 - Using the AVR32 PIO Controller
+ *
+ * \author               Atmel Corporation: http://www.atmel.com \n
+ *                       Support email: avr32@atmel.com
+ *
+ * $Name:  $
+ * $Revision: 1.5 $
+ * $RCSfile: pio.h,v $
+ * $Date: 2006/05/10 12:01:41 $
+ *****************************************************************************/
+
 /* Copyright (C) 2006-2008, Atmel Corporation All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,25 +65,53 @@
  * A type definitions of pins and module connectivity.
  * First column is the pin number, the second is pio connectivity
  */
-typedef char avr32_piomap_t[][2];
 
 typedef struct
 {
-  unsigned char pin;              
-  unsigned char function;         
+  unsigned char pin;              //!< Module pin.
+  unsigned char function;         //!< Module function.
 } gpio_map_t[];
 
 #define PIO_INVALID_ARGUMENT -1
 #define PIO_SUCCESS           0
 
+/*!
+ * This function will return the baseaddress for a port
+ * \param *port The port number
+ * \return The port's baseaddress
+ */
 extern volatile avr32_pio_t *pioGetHandle(int port);
 
+/*!
+ * This function will put a single pin under a module's control. API for gpio module.
+ * \param *pin The pin number
+ * \param *function The PIO module which to enable
+ * \return PIO_SUCCESS or PIO_INVALID_ARGUMENT
+ */
 extern int gpio_enable_module_pin(int pin, int function);
 
+/*!
+ * This function will put a single pin under a module's control
+ * \param *pin The pin number
+ * \param *function The PIO module which to enable
+ * \return PIO_SUCCESS or PIO_INVALID_ARGUMENT
+ */
 extern int pio_setup_pin(int pin, int function);
 
-//extern void pio_enable_module(const gpio_map_t piomap, int size);
+/*!
+ * This function will enable a module pin for a given set of pins and respective modules
+ * \param *piomap A list of pins and pio connectivity
+ * \param size The number of pins in *piomap
+ * \return nothing
+ */
+extern void pio_enable_module(const gpio_map_t piomap, int size);
 
+/*!
+ * This function will enable a module pin for a given set of pins and respective modules
+ * \param *piomap A list of pins and pio connectivity
+ * \param size The number of pins in *piomap
+ * \return nothing
+ */
 extern void gpio_enable_module(const gpio_map_t piomap, int size);
 
 #endif
