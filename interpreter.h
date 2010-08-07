@@ -218,7 +218,6 @@
 #define		JSR_W		0xc9	//mb jf
 
 void run();
-u2 getStartPC();
 u1 checkInstance(const u2 target);
 void raiseExceptionFromIdentifier(const char identifier[], const u1 length);
 void handleException();

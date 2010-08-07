@@ -12,11 +12,11 @@
 #include <math.h>
 #include <string.h>
 #include "typedefinitions.h"
+#include "classfile.h"
 #include "definitions.h"
 #include "bajvm.h"
 #include "stack.h"
 #include "heap.h"
-#include "classfile.h"
 #include "interpreter.h"
 #include "scheduler.h"
 
@@ -472,8 +472,10 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 
 		CASE	IUSHR:
 			DEBUGPRINTLN1("IUSHR");
-			opStackPoke(( slot)(opStackPop().UInt >> opStackPeek().UInt));
-
+			first=(slot)(opStackPop().Int&0x0000001f);
+			second =opStackPop();
+			if (second.Int<0) opStackPush((slot)((second.Int >> first.Int)+ (2 << ~first.Int)));
+			else opStackPush((slot)(second.Int >> first.Int));
 		CASE	LUSHR:
 			DNOTSUPPORTED;
 
@@ -531,7 +533,7 @@ void run() {	// in: classNumber,  methodNumber cN, mN
 
 		CASE	I2B:
 			DEBUGPRINTLN1("I2B");
-			opStackPoke(( slot)(opStackPeek().Int & 0x000000ff));
+			opStackPoke(( slot)(opStackPeek().UInt & 0x000000ff));
 
 		CASE	I2S:
 			DEBUGPRINTLN1("I2S");
@@ -1104,15 +1106,10 @@ nativeVoidReturn:
 				cN = methodStackPop();
 				CLASSNOTFOUNDERR((char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3));
 			}
-//printf("NEW find class in Constantpool: %x",cN);
 			methodStackPush(cN);
 			fNO= getU2(cs[cN].fields_count);
 			while (findSuperClass()) fNO+=getU2(cs[cN].fields_count);
-// all fields of class and super classes on heap
-//printf("count %d %d\n",count,cN);
 			cN=methodStackPop();
-//printf(" Gesamt heap slots %x \n", count);
-//count=getU2(cs[cN].fields_count);
 			heapPos=getFreeHeapSpace(fNO/*count getU2(cs[cN].fields_count)*/+ 1);// + marker
 			first.stackObj.pos=heapPos;
 			first.stackObj.magic=OBJECTMAGIC;
