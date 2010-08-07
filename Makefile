@@ -112,12 +112,14 @@ BOOTSOURCES	= 	$(JPLATFORM)/PlatForm.java \
 # a small subset for the small controller
 AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/String.class $(LANG)/StringBuffer.java \
-			$(LANG)/StringBuilder.java $(LANG)/Integer.java \
+			$(LANG)/Integer.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Throwable.java $(LANG)/Math.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			javatests/ProducerConsumer.java javatests/Buffer.java
+			javatests/A.java
+
+#$(LANG)/StringBuilder.java
 
 BOOTCLASSES	= $(BOOTSOURCES:.java=.class)			
 AVR8BOOTCLASSES	= $(AVR8BOOTSOURCES:.java=.class)
@@ -342,7 +344,7 @@ $(TARGETFILE): $(OBJFILES)
 	@touch $@
 	$(VERBOSE_NL)
 
-all:	clean compile programm bootclasses bootgraphic progbootpack
+all:	clean compile program bootclasses bootgraphic progbootpack
 
 # Program MCU memory from ELF output file.
 .PHONY: program
@@ -388,6 +390,7 @@ OPT		= 2
 # Set your target processor
 
 # Link: create ELF output file from object files
+
 ngw100: 
 	@:
 
@@ -411,11 +414,8 @@ $(TARGETFILE): 	$(OBJFILES)
 	$(CC)  $(CC_FLAGS) $(DEBUGGEN) -D$(PLATFORM) -DAVR32AP7000 -I$(AVR32UC3AINC) -I$(AVR32AP7000INC) -o $@ $<
 	@echo
 
-all:
-	make compB
-	cd BAJOSBOOT; make; cd ..
-	./a.out $(BOOTPACK)
-	$(MAKE) program
+all:	clean compile bootclasses bootgraphic program logo progbootpack
+
 
 #program your avr32 device
 logo:
