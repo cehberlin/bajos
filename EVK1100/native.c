@@ -47,7 +47,6 @@
 #  define EXAMPLE_ADC_POTENTIOMETER_PIN       AVR32_ADC_AD_1_PIN
 #  define EXAMPLE_ADC_POTENTIOMETER_FUNCTION  AVR32_ADC_AD_1_FUNCTION
 
-
 char nativeCharOut()		{
 char val=opStackGetValue(local+1).UInt;
 	printf("%c",val);
@@ -58,7 +57,7 @@ char ch=conIn();
 opStackPush((slot)(u4)ch);
 return 1;}
 
-
+#ifndef WITHMON
 char conIn()	{
 return usart_getchar(&AVR32_USART0);
 }
@@ -73,8 +72,14 @@ if (usart_test_hit(&AVR32_USART0)){ opStackPush((slot)(u4)66); return 1;	} // in
 if (!usart_tx_ready(&AVR32_USART0)){opStackPush((slot)(u4)77); return 1;	} // no input, transmit ready
 opStackPush((slot)(u4)0);	// no char available, transmit no ready
 return 1;	}
+#else
+char  conStat()	{
+opStackPush((slot)(u4)ConStat());
+return 1;
+}
+#endif
 
-
+#ifndef WITHMON
 // Robert Vietzke HMI Berlin-Wannsee 2009
 //gpio_clr_gpio_pin(unsigned int pin)
 //gpio_set_gpio_pin(unsigned int pin)
@@ -113,7 +118,31 @@ return 0;
 char  ser1Stat()	{
 
 return 1;		}
+#else
+char  ser1Stat()	{
 
+return 1;		}
+
+char ser1Out()	{
+Ser1Out(opStackGetValue(local+1).UInt);
+return 0;	}
+
+char ser1In()	{
+opStackPush((slot)Ser1In());
+return 1;	}
+
+char ser1RTS()	{
+Ser1RTS(opStackGetValue(local+1).UInt);
+return 0;	}
+
+char ser1DTR()	{
+Ser1DTR(opStackGetValue(local+1).UInt);
+return 0;	}
+
+
+#endif
+
+#ifndef WITHMON
 /*
 ## Author: Adrian Lang, Fritz-Haber-Institut, IT 2006
 ## Method: byte getButtons();
@@ -132,11 +161,17 @@ char	getButtons() {
 
 	for (n = 7 ; n<255 ; n--) 
 		ch = (ch << 1) | !gpio_get_pin_value(buttons[n]);
-
 	opStackPush((slot) (u4) ch);
 	return 1;
 }
+#else
+char	getButtons() {
+opStackPush((slot) (u4) GetButtons());
+	return 1;
+}
+#endif
 
+#ifndef WITHMON
 /*
 ## Author: Adrian Lang, Fritz-Haber-Institut, IT 2006
 ## Method: void setOnBoardLEDs(char);
@@ -158,17 +193,30 @@ char	setOnBoardLEDs() {
 
 	return 0;
 }
-
+#else
+char	setOnBoardLEDs() {
+	SetOnBoardLEDs( opStackGetValue(local+1).UInt);
+return 0;
+}
+#endif
+#ifndef WITHMON
 char charLCDOut() {
 	char c = opStackGetValue(local+1).UInt;
 	dip204_write_data(c);
 	return 0;
 }
-
+#else
+char charLCDOut() {
+	char c = opStackGetValue(local+1).UInt;
+	Dip204_write_data(c);
+	return 0;
+}
+#endif
 // 0000 0000 -> clear
 // 0000 0001 -> showCursor
 // 0000 0002 -> hideCursor
 // 0001 xxyy -> setCursor
+#ifndef WITHMON
 char controlLCD() {
 	int control = opStackGetValue(local+1).UInt;
 	switch (control)
@@ -181,7 +229,11 @@ char controlLCD() {
 	};
 	return 0;
 }
-
+#else
+char controlLCD() 	{
+	ControlLCD(opStackGetValue(local+1).UInt);
+return 0;		}
+#endif
 
 /*
 ## Author: H.-Christian Hecht, CoMedServ GmbH, IT 2006
@@ -189,17 +241,34 @@ char controlLCD() {
 ## Parameters: none
 ## Return Value: int, get the value of the timer
 */
+#ifndef WITHMON
 char currentTimeMillis() {
 	opStackPush((slot) (u4) timerMilliSec);
 	return 1;
 }
+#else
+char currentTimeMillis() {
+	opStackPush((slot) (u4) GetMilliSec());
+	return 1;
+}
+#endif
 
+#ifndef WITHMON
 char nativeExit()	{
 	exit(opStackGetValue(local+1).UInt);
+return 0;
 }
+#else
+char nativeExit()	{
+	Monitor(opStackGetValue(local+1).UInt);
+
+return 0;
+}
+#endif
 
 
 //			Felix Fehlberg; FHW-BA Berlin; Berliner Volksbank eG
+#ifndef WITHMON
 char pwmStart(){
 int channel	= opStackGetValue(local+1).UInt;
 int pulseLength	= opStackGetValue(local+2).UInt;
@@ -233,10 +302,25 @@ pwm_channel_init(channel, &pwm_channel); // Set channel configuration to channel
 pwm_stop_channels(1 << channel); // Stop channel
 return(0);
 }
+#else
+char pwmStart(){
+int channel	= opStackGetValue(local+1).UInt;
+int pulseLength	= opStackGetValue(local+2).UInt;
+int frequency	= opStackGetValue(local+3).UInt;
+PwmStart(channel,pulseLength,frequency);
+return 0;	}
+char pwmStop(){
+int channel = opStackGetValue(local+1).UInt;
+PwmStop(channel);
+return 0;
+}
+#endif
+
 
 // function adcGetValue: do init and loop to display ADC values (Temp / Light / Poti)
 // added 13.03.2009 by: Steffen Kalisch, FHW-BA Berlin
 // Sana IT-Services GmbH
+#ifndef WITHMON
 char adcGetValue()	{
 	int channel = opStackGetValue(local+1).UInt;
 	int mode = opStackGetValue(local+2).UInt;
@@ -293,3 +377,13 @@ char adcGetValue()	{
 opStackPush((slot)(s4)(rw));
 return(1);
 }
+#else
+char adcGetValue()	{
+	int channel = opStackGetValue(local+1).UInt;
+	int mode = opStackGetValue(local+2).UInt;
+	int rw;
+rw=AdcGetValue(channel, mode);
+opStackPush((slot)(s4)(rw));
+return(1);
+}
+#endif
