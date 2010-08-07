@@ -15,6 +15,6 @@
 // -> alles im Makefile $(BOOTSOURCES)
 // -> es musste auch bajvm.c angepasst werden, weil numClasses und length als ascii in mytemp(mbc)
 // Funktion errorExit(Fehlernummer, formatstring für printf) in bajvm.c eingefügt
-// make A jetzt -> make A java
-// make compA jetzt -> make compA java
+// make A jetzt -> make A linux
+// make compA jetzt -> make compA linux
 // einige ungereimtheiten im makefile bereinigt
