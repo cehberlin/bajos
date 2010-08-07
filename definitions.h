@@ -282,8 +282,7 @@
 #define PRINTEXITTHREAD(a,b) {printf_P(PSTR(a),b);\
 				if (numThreads==1)	{\
 				printf_P(PSTR("Bajos terminated\n"));\
-				goto *0xf002; \
-				/*exit(0);*/}\
+				exit(0);}\
 				else {	deleteThread();}\
 							}
 #else
