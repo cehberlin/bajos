@@ -2,8 +2,9 @@
 * FHW-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
-// fuer lehrzwecke,...
-// version 0.1 vom 1.10.07
+// C-functions for native methods
+// native void method -> C-function ret value 0
+// native non void method -> c-cunction ret value 1 (ret value on java -opStack)
 // remember:
 // invokespecial Operand Stack
 // ..., objectref, [arg0, [arg1 ...]] -> ...
@@ -21,14 +22,7 @@
 #include "../scheduler.h"
 #include "../heap.h"
 #include "langnative.h"
-// insert and update here arrays for classes with native methods
-// array length ->  at least up to last native method < methods_count
-// lock at methods in the *.java or *.class file in increasing order 
-// if method is non native -> insert NULL, otherwise pointer to nativce C-function
-#define STRINGCLASSMETHODS	7
-#define THREADCLASSMETHODS	15
-#define OBJECTCLASSMETHODS	9
-#define FLOATCLASSMETHODS	17
+
 
 char nativeStringLength()	{
 slot mySlot=opStackGetValue(local);
