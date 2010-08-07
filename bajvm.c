@@ -3,8 +3,9 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 // fuer lehrzwecke,...
-// version 0.1 vom 1.10.07
-// version 0.2 vom 15.3.08
+// version 0.1 - 1.10.07
+// version 0.2 - 15.3.08
+// version 0.3 - 15.1.09
 /********************************************************************************************
 Erweiterungen von:
 2006 Matthias Böhme und Jakob Fahrenkrug, Ausbildungsbetrieb: Bayer-Schering Pharma AG
@@ -24,7 +25,7 @@ Erweiterungen von:
 // no classloader
 // no ...
 // and errors ........................................................................
-/*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX -> Target Systems*/
+/*AVR8(CharonII) EVK1100 NGW100 STK1000 LINUX AVR32-LINUX -> Target Systems*/
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -46,9 +47,6 @@ Erweiterungen von:
 #include "scheduler.h"
 #include "bajvm.h"
 #include "platform.h"
-// einmal durch 4.7.06 unix
-// lief am 24.8.06 erstmals auf atmega128
-// lief im Herbst 07 auf AVR32
 
 #if !(AVR32LINUX||LINUX || AVR8 || NGW100||STK1000||EVK1100)
 #error ein Zielsystem muß es doch geben?
@@ -59,8 +57,6 @@ int main(int argc,char* argv[]){
 	initHW();
 	printf("Bajos starting\n");
 	initVM(argc-1,argv);	
-// einlesen der classfiles und erzeugen von "class-object" für klassen mit static fields
-// initialisierung des native interface
 	createThread();			// for main
 	opStackBase		= actualThreadCB->opStackBase;
 	opStackSetSpPos(0);
@@ -71,37 +67,33 @@ int main(int argc,char* argv[]){
 			256*SPH+SPL,classFileBase, heapBase, opStackBase, methodStackBase,cs);
 #endif
 	printf("start clinit\n");
-	executeClInits();		// anfangs ausfuehren aller clinit-methoden!!		
+	executeClInits();	
 	printf("<clinit> 's executed");
 	if (findMain() == 0)		{printf("no main found %d %d\n",numClasses,cN);return 1;	}	
-// wir suchen die erste Klasse mit main und fuehren main aus
-// allgemeiner: Ausfuehren von main der Klasse X sucht in Klassenhierarchie die erste main
-// no error handling!!
 	printf("  -> run <main> :\n");
 	opStackPush((slot) (u4)0);				// args parameter to main (should be a string array)
 	opStackSetSpPos(findMaxLocals());
-	run(); 									//  run main
+	run(); 							//  run main
 	return 0;
 }
 
-void executeClInits()		{ 				// alle clinit in er eingelesenen reihenfolge
+void executeClInits()		{
 //DEBUGPRINTSTACK;
 //DEBUGPRINTLOCALS;
 //DEBUGPRINTHEAP;
 	for (cN=0; cN < numClasses;cN++)	
 	if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
-// wenn <clinit>, dann gibt evtl. es static fields, die zu initialisieren sind
 			opStackSetSpPos(findMaxLocals());	
 			run();									};	
 }
 
 
-// class file stehen in linux im DS (malloc)
-// im avr8 im sram	(malloc)
-// in ap7000 und uc3a:
-// 	bootclassen im flash
-// 	anwendungsklassen im DS(Ram) -> hard coded
+// class files stored for linux in DS (malloc)
+// for avr8 in sram	(malloc)
+// for ap7000 and uc3a:
+// 	bootclasses in flash
+// 	application classes  DS(Ram) -> hard coded
 void initVM(int argc, char* argv[]){	// read, analyze classfiles and fill structures
 	u4 length;
 // use malloc!!
@@ -125,7 +117,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
     if (classFileBase==NULL) {
         MALLOCERR(MAXBYTECODE, "class files");
     }
-	// Platz fuer classfiles -> fixed size
+	// memory for classfiles -> fixed size
 #endif
 
 	heapInit();	// linux avr8 malloc , others hard coded!
@@ -146,7 +138,7 @@ apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
 
 #if (NGW100||STK1000|| EVK1100)
-// analyze der bootclasses, which are programmed in flash
+// analyze bootclasses, which are programmed in flash
 u1* addr;
 u4 temp;
 char buf[5];
@@ -190,7 +182,6 @@ cN++;//!!
 #ifdef AVR8
 		printf("load boot classes - type  'w'! -> \n"); 
 // the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
-//(*loadInSram1)(classFileBase);
 (*loadInSram)(classFileBase);
 printf("\ndone\n");
 u1* addr;
@@ -236,8 +227,6 @@ DEBUGPRINTHEAP;
 initNativeDispatch();
 printf("initNativeDispatch\n");
 }
-
-
 
 void errorExit(char nr,const char *format, ...)	 {
 va_list list;
