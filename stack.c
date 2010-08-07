@@ -22,14 +22,15 @@
 #include "stack.h"
 
 /* op stack holds  locals and operanden*/
-/* method stack holds globale variable (cN, mN, local,..)*/
+/* method stack holds global variable (cN, mN, local,..)*/
 #ifndef AVR8
 static slot* 	opSp;
 static u2* 	methodSp;
 #else
 slot* 	opSp;
 u2* 	methodSp;
-#endif
+#endif // AVR8
+
 void opStackInit(slot** m)	{		/* per thread, fixed size */
 
 #if (LINUX||AVR8||AVR32LINUX)
@@ -44,7 +45,9 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 
 #ifndef AVR8  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void opStackPush( slot val)	{	*(opSp++)=val;
-PRINTMAXSTACK;
+#ifdef DEBUGOPSTACK
+if (opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
+#endif	// DEBUGOPSTACK
 }	
 /*  sp grothws with increasing addresses*/
 /* and shows to TOS -> first free place*/
@@ -64,7 +67,10 @@ u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}
 
 /* relative to actual base*/
 void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;
-PRINTMAXSTACK;}	
+#ifdef DEBUGOPSTACK
+if (opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
+#endif	// DEBUGOPSTACK
+}	
 #endif
 
 
@@ -77,13 +83,21 @@ void methodStackInit(u2** m)	{
 #endif
 }
 #ifndef AVR8  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
-void methodStackPush(u2 val)	{	*(methodSp++)=val;		}
+void methodStackPush(u2 val)	{	*(methodSp++)=val;
+#ifdef DEBUGMETHODSTACK
+if (methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
+#endif	// DEBUGMETODSTACK
+}
 u2 methodStackPop()		{	return *(--methodSp);		}
 u2 methodStackPeek()		{	return *(methodSp-1);		}
 u2 methodStackGetSpPos()	{  	return (methodSp-methodStackBase);		}
 
 /* relative to actual base*/
-void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	}
+void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	
+#ifdef DEBUGMETHODSTACK
+if (methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
+#endif	// DEBUGMETODSTACK
+}
 
 u1 methodStackEmpty()		{	return (methodSp==methodStackBase) ? 1:0;	}
 #endif
