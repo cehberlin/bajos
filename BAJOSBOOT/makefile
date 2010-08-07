@@ -7,6 +7,8 @@ boot:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/io/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/lang/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/*.java
+	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/concurrent/*.java
+
 
 graphic:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/graphics/*.java
@@ -17,6 +19,7 @@ all:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/lang/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/graphics/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/*.java
+	javac  $(JARGS) ./BAJOSBOOT/sources/java/util/concurrent/*.java
 
 
 charon:
