@@ -8,7 +8,6 @@ u2 readClassFile(char* fileName,u1* addr);
 u1 getU1(u2 pos);
 u2 getU2(u2 pos);
 u4 getU4(u2 pos);
-u8 getU8(u2 pos);
 f4 getFloat(u2 pos);
 
 void* getAddr(u2 pos);

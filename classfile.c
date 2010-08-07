@@ -50,8 +50,6 @@ u2 getU2(u2 pos){return (((u2)getU1(pos) << 8) | (u2)getU1 ( (pos == 0) ? 0 : po
 
 u4 getU4(u2 pos){return (((u4)getU2(pos)<<16)|(u4)getU2((pos==0)?0:pos+2));	}
 
-u8 getU8(u2 pos){return (((u8)getU4(pos)<<32)|(u8)getU4((pos==0)?0:pos+2));	}
-
 f4 getFloat(u2 pos)	{	return  getU4(pos);	}
 
 void* getAddr(u2 pos)	{	return CLASSSTA+pos;	}
