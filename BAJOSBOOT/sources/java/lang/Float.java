@@ -157,13 +157,10 @@ public final class Float {
    * @return the <code>String</code> representing the <code>float</code>
    */
   public static  String toString(float f)	{
-char [] c=floatToCharArray(f);
+		return new String(floatToCharArray(f));
+	}
 
-	return new String(c,0,c.length) ;		}
-
-
-
-public static  native char[] floatToCharArray(float f);
+public static native char[] floatToCharArray(float f);
 
   /**
    * Creates a new <code>Float</code> object using the <code>String</code>.
@@ -315,48 +312,6 @@ return nativeParseFloat(str.toCharArray());
   }
 
   /**
-   * Return the value of this <code>Float</code> as a <code>byte</code>.
-   *
-   * @return the byte value
-   * @since 1.1
-   */
-  public byte byteValue()
-  {
-    return (byte) value;
-  }
-
-  /**
-   * Return the value of this <code>Float</code> as a <code>short</code>.
-   *
-   * @return the short value
-   * @since 1.1
-   */
-  public short shortValue()
-  {
-    return (short) value;
-  }
-
-  /**
-   * Return the value of this <code>Integer</code> as an <code>int</code>.
-   *
-   * @return the int value
-   */
-  public int intValue()
-  {
-    return (int) value;
-  }
-
-  /**
-   * Return the value of this <code>Integer</code> as a <code>long</code>.
-   *
-   * @return the long value
-   */
-/*  public long longValue()
-  {
-    return (long) value;
-  }
-*/
-  /**
    * Return the value of this <code>Float</code>.
    *
    * @return the float value
@@ -365,18 +320,6 @@ return nativeParseFloat(str.toCharArray());
   {
     return value;
   }
-
-  /**
-   * Return the value of this <code>Float</code> as a <code>double</code>
-   *
-   * @return the double value
-   */
-/*  public double doubleValue()
-  {
-    return value;
-  }
-
-*/
 
   /**
    * Returns <code>true</code> if <code>obj</code> is an instance of
@@ -449,7 +392,7 @@ return nativeParseFloat(str.toCharArray());
    * @return the comparison
    * @since 1.2
    */
-  public int compareTo(Float f)
+/*  public int compareTo(Float f)
   {
     return compare(value, f.value);
   }
@@ -464,7 +407,7 @@ return nativeParseFloat(str.toCharArray());
    * @return the comparison
    * @since 1.4
    */
-  public static int compare(float x, float y)
+/*  public static int compare(float x, float y)
   {
     if (isNaN(x))
       return isNaN(y) ? 0 : 1;
@@ -477,5 +420,5 @@ return nativeParseFloat(str.toCharArray());
       return 0;
 
     return x > y ? 1 : -1;
-  }
+  }*/
 }

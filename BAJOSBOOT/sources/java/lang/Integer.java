@@ -32,9 +32,48 @@ package java.lang;
      *
      * @param   value   the value to be represented by the <code>Integer</code>.
      */
-    public Integer(int value) {
-	this.value = value;
+	public Integer(int value) {
+		this.value = value;
+	}
+
+	public Integer(String s) {
+		this.value = parseInt(s, 10);
+	}
+	
+	public static int parseInt(String s) {
+		return parseInt(s, 10);
+	}
+
+	public static int parseInt(String s, int radix) {
+		if (s == null) {
+      throw new IllegalArgumentException();
     }
+    int len = s.length();
+    if (len == 0) {
+      throw new IllegalArgumentException();
+    }
+    int pos = 0;
+    int val = 0;
+    boolean neg = (s.charAt(0) == '-');
+    if (neg) {
+      if (len == 1) {
+        throw new IllegalArgumentException();
+      }
+      ++pos;
+    }
+    for (; pos < len; ++pos) {
+      int nextdigit = Character.digit(s.charAt(pos), radix);
+      if (nextdigit == -1) {
+        throw new IllegalArgumentException();
+      }
+      val = val * radix + nextdigit;
+    }
+    val = neg ? -val : val;
+		if (val < MIN_VALUE || val > MAX_VALUE) {
+      throw new IllegalArgumentException();
+    }
+		return val;
+}
 
    
     /**
@@ -47,23 +86,22 @@ package java.lang;
      * @return  a string representation of the argument in base&nbsp;10.
      */
     public static synchronized String toString(int i) {
-	int q, r,charPos = 12;
-	char sign = 0;
 	
 	if (i == Integer.MIN_VALUE) {
 		return "-2147483648";
 	}
 	
+	char sign = 0;
 	char buf [] = new char [12];
 	if (i < 0) { 
 		sign = '-';
 		i = -i;
 	}
 
+	int charPos = 12;
 	for (;;) {
-		q = i/10;
-		r = i-(q*10);
-		buf [--charPos] = (char) ((int) '0' + r);
+		int q = i/10;
+		buf [--charPos] = (char) ((int) '0' + (i-(q*10)));
 		i = q;
 		if (i == 0) break;
 	}
@@ -86,6 +124,18 @@ package java.lang;
     public String toString()  {
 	return toString(value);
     }
+
+	public static Integer valueOf(String s, int radix) {
+		return new Integer(Integer.parseInt(s, radix));
+	}
+
+	public static Integer valueOf(String s) {
+		return new Integer(Integer.parseInt(s));
+	}
+
+	public int intValue() {
+		return value;
+	}
 
 	public boolean equals(Object obj) {
 		return obj instanceof Integer && ((Integer) obj).value == this.value;
