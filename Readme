@@ -1,0 +1,10 @@
+a java virtual machine and bootclasses
+running on  8Bit AVR's (atmega128-CharonII Board with 32KRAM)),
+32 Bit AVR's (AVR32UC3A, AVR32AP7000, NGW100, STK1100, EVK1000)
+in a very experimental state.
+try this:
+// correct paths in makefile
+// #> make linux
+// #> make A
+
+
