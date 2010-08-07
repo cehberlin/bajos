@@ -569,7 +569,7 @@ D:
   	 $(APPCLASSPATH)/D.class
 
 EEE:	 
-	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class ${LANG}/System.class \
+	./$(TARGET)    ${LANG}/Object.class 	${PLATFORM}/PlatForm.class ${LANG}/System.class ${LANG}/Float.class\
  	 ${LANG}/Math.class ${LANG}/Thread.class	 ${LANG}/String.class \
  	${IO}/OutStream.class   	 ${IO}/InStream.class  ${LANG}/Integer.class \
   	$(APPCLASSPATH)/EEE.class
