@@ -34,11 +34,8 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 *m=(slot*)((u4)appClassFileBase+MAXBYTECODE+4*MAXHEAP+numThreads*(4*OPSTACKSIZE+2*METHODSTACKSIZE));
 #endif
 }
-<<<<<<< .mine
-#ifndef AVR8
-=======
+
 #ifndef AVR8 //all these functions are rewritten in assembler to increase speed => routines_stack.asm
->>>>>>> .r1129
 void opStackPush( slot val)	{	*(opSp++)=val;			}	
 /*  sp grothws with increasing addresses*/
 /* and shows to TOS -> first free place*/
@@ -60,12 +57,7 @@ u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}
 void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}	
 #endif
 
-<<<<<<< .mine
-void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;		}
-#endif
 
-=======
->>>>>>> .r1129
 void methodStackInit(u2** m)	{
 #if (LINUX||AVR8||AVR32LINUX)
 	if ((*m=(u2*)calloc((size_t)METHODSTACKSIZE,sizeof(u2)))==NULL)
