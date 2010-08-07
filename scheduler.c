@@ -33,7 +33,7 @@ findMethodByName((u1*)"run",3,(u1*)"()V",3);
 *(t->methodStackBase+2)=mN;
 *(t->methodStackBase+3)=getStartPC();
 *(t->methodStackBase+4)=findMaxLocals();
-*(t->opStackBase)=opStackGetValue(local); // referenc to caller object (from start())
+*(t->opStackBase)=opStackGetValue(local); // reference to caller object (from start())
 }
 u2 i;
 for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	{
