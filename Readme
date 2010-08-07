@@ -32,6 +32,9 @@ Was heißt das:
 not finalizers of objects
 not exception handling für jeden Bytecode
 ??????????????????????
+Der Umfang der verwendeten Boot- und Systemklassen muß dem vorhandenen
+Speicherplatz angepasst werden. Für den atmega128 nur mit 4 KByte internem Ram
+..........
 Javasoftware kann mit diesen Einschränkungen auf dem PC entwickelt
 und mit javac compiliert werden, Classfiles - auf Fremdmaschinen compiliert -
 eingebunden werden.
@@ -109,6 +112,20 @@ Dieses wird beim Laden der JVM mit
 Portierung auf andere Plattformen
 Aus den positiven Erfahrungen bei der Portierung auf 8-64 Bit Maschinen mit Datenspeicherung
 im big endian/little endian Mode sehen wir keine Probleme, BAJOS auf andere Hardwareplattformen mit der oben angegebenen Mindestspeicheraustattung zu portieren.
+
+Portieren auf andere Zielplattformen und Controller
+Voraussetzung ist ein C-Compiler und der angegebene Mindestspeicherplatz für
+Programme und Daten. Anpassungen für einen ersten Test sind in den C-Files und Headers
+native.c
+platform.c
+stack.c
+heap.c
+classfile.c
+bajvm.c
+limits.h
+typedefinitions.h
+und betreffen im wesentlichen die Speicheraufteilung und die Anbindung
+der Schnittstelle zum PC (serial).
 
 Known Bugs
 ???
