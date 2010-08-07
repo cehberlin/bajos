@@ -163,7 +163,7 @@ public class Vector extends AbstractList implements List, RandomAccess/*, Clonea
 		if (index < 0 || index >= elementCount)
 			throw new ArrayIndexOutOfBoundsException();
 		
-		for (int k = index ; k < elementCount ; ++k) {
+		for (int k = elementCount - 1; k >= index ; --k) {
 			elementData[k+1] = elementData[k];
 		}
 		elementData[index] = obj;
