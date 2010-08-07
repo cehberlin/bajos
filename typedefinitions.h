@@ -16,21 +16,21 @@ typedef char (*functionForNativeMethodType)(void);
 		typedef  unsigned int		u4;
 		typedef  unsigned long	long	u8;	
 		typedef  signed short		s2;
-		typedef  signed int			s4;
+		typedef  signed int		s4;
 	#endif
 	#ifdef __x86_64__
 		typedef  unsigned short		u2;
 		typedef  unsigned int		u4;
 		typedef  unsigned long		u8;	
 		typedef  signed short		s2;
-		typedef  signed int			s4;
+		typedef  signed int		s4;
 	#endif
 	#endif
 	#ifdef AVR8
 		typedef  unsigned int		u2;
 		typedef  unsigned long		u4;
 		typedef  unsigned long long	u8;
-		typedef  signed int			s2;		//mb added "int"
+		typedef  signed int		s2;		//mb added "int"
 		typedef  signed long 		s4;
 	#endif
 
