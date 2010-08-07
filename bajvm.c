@@ -83,7 +83,7 @@ int main(int argc,char* argv[]){
 if (findMethodByName("<clinit>",8,"()V",3))	{
 			opStackPush(cs[cN].classInfo); 
 			opStackSetSpPos(findMaxLocals());
-			run();			}	
+			run();			}
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
