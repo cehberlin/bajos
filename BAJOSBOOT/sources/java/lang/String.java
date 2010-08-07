@@ -39,12 +39,10 @@ public String(String str)
    **/
 public native int nativeStringLength();
 
-  public int length()
-  {
-  int length;
-  if ((length=nativeStringLength())!=0xffff)  return length;
-else    return characters.length;
-  }
+	public int length() {
+		int length = nativeStringLength();
+		return (length != 0xffff) ? length : characters.length;
+	}
 
   /**
    * Return the character at the given index
@@ -53,18 +51,10 @@ else    return characters.length;
  
  public native char nativeCharAt(int index);
 
-  public char charAt(int index) 
-  {
-  char c;
-    //  System.out.print('\n');
-  if ((c=nativeCharAt(index))!=0) {
- // System.out.println('B');
-  return c;}
-  else{
-  //System.out.println('C');
-    return characters[index];
-    }
-  }
+  public char charAt(int index) {
+		char c = nativeCharAt(index); 
+		return (c != 0) ? c : characters[index];
+	}
 
   /**
    * Converts the String into an array of characters
@@ -103,27 +93,25 @@ for (;len >=0; --len) ca[len]=charAt(len);
    * Compares the String with an Object
    * @return true if the String is equal to the object, false otherwise
    **/
-  public boolean equals(Object other) // to do
-  {
-    if (other == null)
-      return false;
-      
-//bh    try {
-      String os = (String)other;
-      if (os.characters.length != characters.length)
-         return false;
-         
-      for (int i=0; i<characters.length; i++)
-      {
-        if (characters[i] != os.characters[i])
-          return false;
-      }
-      
-      return true;
-   // } catch (ClassCastException e) {
-    //}    
-//    return false;
-  }
+  public boolean equals(Object other) {
+		if (other == null || ! (other instanceof String)) {
+			return false;
+		}
+
+		String os = (String)other;
+		if (os.length() != length()) {
+			System.out.println("nop2");
+			return false;
+		}
+
+		for (int i=0; i<length(); i++) {
+			if (characters[i] != os.characters[i]) {
+				System.out.println("nop3 @ " + i);
+				return false;
+			}
+		}
+		return true;
+	}
 
 public String concat(String str) {
 	if (str.length() == 0)
