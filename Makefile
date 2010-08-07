@@ -7,6 +7,7 @@
 # make compile goal
 # make debug compile verbose goal
 # make all goal
+# make clobber goal
 # make program stk1000
 # make A linux
 # make compA linux
@@ -116,8 +117,7 @@ AVR8BOOTSOURCES =	$(JPLATFORM)/PlatForm.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
 			$(LANG)/Thread.java $(LANG)/Exception.java \
-			$(LANG)/ArrayIndexOutOfBoundsException.java \
-			javatests/Temperature.java
+			$(LANG)/ArrayIndexOutOfBoundsException.java 
 
 #			$(LANG)/Throwable.java $(LANG)/Math.java \
 #$(LANG)/StringBuilder.java
@@ -228,9 +228,10 @@ $(TARGETFILE):	${OBJFILES}
 # -Wl,-u,vfprintf -lprintf_flt
 
 bootpack:
-	@printf %4d `echo $(AVR8BOOTCLASSES)| wc -w` > avr8bootpack
+	@echo -n generate file: avr8bootpack\; numClasses: 
+	@printf %4d `echo $(AVR8BOOTCLASSES)| wc -w` |tee  avr8bootpack
 	@for i in $(AVR8BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
-	echo generate file: avr8bootpack length: `ls -l avr8bootpack | cut -f5 -d' '`
+	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
 
 %.o: %.c
 	@echo $(MSG_COMPILING)
@@ -250,9 +251,10 @@ CC		= avr32-linux-gcc
 CPPFLAGS	= -DAVR32LINUX
 
 bootpack:
-	echo generate file: avr32bootpack
-	@printf %4d `echo $(BOOTCLASSES)| wc -w` > avr32bootpack
+	@echo -n generate file: avr32bootpack\; numClasses: 
+	@printf %4d `echo $(BOOTCLASSES)| wc -w` |tee  avr32bootpack
 	@for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
+	@echo "  length:" `ls -l avr32bootpack | cut -f5 -d' '`
 else
 bootpack:
 	@:
@@ -345,7 +347,7 @@ $(TARGETFILE): $(OBJFILES)
 	@touch $@
 	$(VERBOSE_NL)
 
-all:	clean compile program bootclasses bootgraphic progbootpack
+all:	clean compile bootclasses bootgraphic program progbootpack
 
 # Program MCU memory from ELF output file.
 .PHONY: program
