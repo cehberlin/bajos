@@ -26,9 +26,9 @@ FLASHER 	= avrispmkII -P usb
 # DEVICE
 ARCH			= AVR5
 PART			= atmega1280
-DEFS 			= -DAVR8 -DAM -DF_CPU=16000000
+DEFS 			= -DAVR8 -DAM -DF_CPU=16000000 
 
-OPTIMIZATION		= -Os 
+OPTIMIZATION		= -Os
 
 # for standalone application
 CLASSFILEBASE		= 0xC480
@@ -40,7 +40,7 @@ CLASSFILEBASE		= 0xC480
 JAVAAPPSOURCES		= javatests/SchedulerTest.java
 
 # JAVA SOURCES
-JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
+JAVABOOTSOURCES		+= $(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java $(LANG)/Math.java
 
 PLATFORMCSOURCES	= $(APPPATH)ARDUINOMEGA/platform.c $(APPPATH)ARDUINOMEGA/native.c
 PLATFORMASMSOURCES	= $(APPPATH)ARDUINOMEGA/routines.asm $(APPPATH)ARDUINOMEGA/routines_stack.asm
@@ -49,7 +49,7 @@ OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 
 # GOALS
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
-DEFS+= -DWITHMON
+DEFS+= -DWITHMON 
 all:	clean  bootclasses compAM bootpack app compile
 	@echo created $(BIN) arv8bootpack amapp
 
