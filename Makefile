@@ -492,8 +492,8 @@ WARNINGS	= -Wall
 DEBUG		= -g
 # Options that control optimization: [-O[0|1|2|3|s]]...
 # For further details, refer to the chapter "GCC Command Options" of the GCC manual.
-OPTIMIZATION	= -O3 -ffunction-sections -fdata-sections
-
+OPTIMIZATION	=  -ffunction-sections -fdata-sections
+#-O1; O3
 CPPFLAGS	= -march=$(ARCH) -DEVK1100 -DAVR32UC3A -mpart=$(PART) $(WARNINGS) $(DEFS) \
             $(PLATFORM_INC_PATH:%=-I%) $(INC_PATH:%=-I%) $(CPP_EXTRA_FLAGS)
 
@@ -551,6 +551,21 @@ progbootpack:
 	$(VERBOSE_CMD) for i in $(BOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr32bootpack;	cat $$i >> avr32bootpack;	done
 	$(VERBOSE_CMD) $(PROGRAM) program  -F bin -O 0x80040000  -finternal@0x80040000,512Kb -cxtal -v -R avr32bootpack
 	@$(SLEEP) $(SLEEPUSB)
+
+
+
+#with an without monitor
+progbootpackevk1104:	bootpack
+	avr32program  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
+
+#with monitor
+burnbajosevk1104:
+	avr32program  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+
+
+
+
+
 endif # endif evk1100
 
 
