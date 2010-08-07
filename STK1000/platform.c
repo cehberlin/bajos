@@ -213,7 +213,7 @@ appClassFileBase=STK1000_SDRAM_JAVA_BASE;	/* app classes in sdram*/
     	        	printf("MAXBYTECODE reached!\n"); exit(-1);	}
 								}
 #endif
-
+#ifdef STK1000
 /* analyze bootclasses, which are programmed in flash*/
 strncpy(buf,classFileBase,4);
 buf[4]=0;
@@ -227,6 +227,7 @@ cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
 cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
+printf("bootclasse %d %dloaded\n",cN,numClasses);
 }
 printf("%d bootclasses are loaded\n",cN);
 /* thats to boot classes*/
@@ -247,6 +248,7 @@ length=0;
 		} 
 		while(cs[cN].classFileLength !=0);
 /*!!*/
+#endif
 numClasses=cN;
 DEBUGPRINTHEAP;
 }
