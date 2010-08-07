@@ -70,11 +70,16 @@ PLATFORM= ${BOOTCLASSPATH}/platform
 BAJOSSOURCES=bajosavr.c classfile.c interpreter.c heap.c stack.c native.c scheduler.c platform.c
 AVR8SOURCES=$(APPPATH)AVR8/lcd.c $(APPPATH)AVR8/shift.c
 UC3ASOURCES = $(APPPATH)EVK1100/intcuc3a.c $(APPPATH)EVK1100/pmuc3a.c $(APPPATH)EVK1100/rtcuc3a.c\
-$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c $(APPPATH)EVK1100/gpiouc3a.c\
+$(APPPATH)EVK1100/dip204.c $(APPPATH)EVK1100/spi.c $(APPPATH)EVK1100/gpiouc3a.c \
 $(APPPATH)EVK1100/flashcuc3a.c $(APPPATH)EVK1100/usartuc3a.c $(APPPATH)EVK1100/sdramc.c iobinding.c
-AP7000SOURCES= iobinding.c $(APPPATH)AVR32AP7000/usartap7000.c  $(APPPATH)NGW100/pio.c
-NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c
-STK1000SOURCES=$(APPPATH)STK1000/mt481c2m32b2tg.c $(APPPATH)STK1000/sdram.c $(APPPATH)STK1000/gpiostk1000.c
+AP7000SOURCES= iobinding.c  
+NGW100SOURCES=$(APPPATH)NGW100/hsdramc.c $(APPPATH)NGW100/gpiongw100.c $(APPPATH)NGW100/pio.c \
+$(APPPATH)AVR32AP7000/usartap7000.c
+STK1000SOURCES=$(APPPATH)STK1000/lcdc.c $(APPPATH)STK1000/at32stk1000.c \
+$(APPPATH)STK1000/lib2d.c $(APPPATH)STK1000/ltv350qv.c \
+$(APPPATH)STK1000/pio.c $(APPPATH)STK1000/pm.c $(APPPATH)STK1000/spi.c \
+$(APPPATH)STK1000/utils.c $(APPPATH)STK1000/usart.c $(APPPATH)STK1000/sdram.c \
+$(APPPATH)STK1000/bmp_lib.c
 # verrückt
 ASSSOURCESUC3A =  $(APPPATH)/EVK1100/trampolineuc3a.S  $(APPPATH)/EVK1100/exceptionuc3a.S
 TARGET		=  $(basename $(call FirstWord,$(BAJOSSOURCES)))
@@ -555,7 +560,11 @@ C:
 	 ${IO}/OutStream.class \
  	 ${IO}/InStream.class \
 	$(APPCLASSPATH)/C.class
-	
+
+# javac -g:none B.java		// no debug info (line number table)
+# javap -c -l -verbose B
+
+
 compD:
 	javac -verbose  -g:none -bootclasspath ${BOOTCLASSPATH}  $(APPCLASSPATH)/D.java
 
