@@ -49,6 +49,6 @@ char currentTimeMillis();
 char nativeParseFloat(u2);
 char typeConvert(u2);
 char floatToCharArray(u2);
-void timer_Init();
+
 #endif
 
