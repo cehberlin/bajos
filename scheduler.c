@@ -31,8 +31,8 @@ void 	iterateOverThreads2(){
 
 void interruptThread(ThreadControlBlock* thread){ 
 	if((thread)){ 
-		if(actualThreadCB!=(thread)){ 
-			actualThreadCB->numTicks=0; 
+		if(currentThreadCB!=(thread)){ 
+			currentThreadCB->numTicks=0; 
 		} 
 		(thread)->isMutexBlockedOrWaitingForObject=NULLOBJECT; 
 		(thread)->lockCount[0]=1; 
@@ -54,11 +54,8 @@ u1 i,k;
 		      	threadPriorities[i].cb=threadPriorities[i].cb->succ;	
 		}		
 	}
-	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-		errorExit(78, PSTR("thread not found\n"));
-	#else
-		errorExit(78,"thread not found");
-	#endif	
+
+	errorExit(78,"thread not found");
 	
 	return NULL;
 }
@@ -122,11 +119,9 @@ void releaseMutexOnObject(ThreadControlBlock* t,slot obj,ThreadControlBlock* awa
 			for (i=0; i<MAXLOCKEDTHREADOBJECTS;i++)	/* must be in*/
 				if (t->hasMutexLockForObject[i].UInt==obj.UInt) break;
 			if (i==MAXLOCKEDTHREADOBJECTS) {
-						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-							errorExit(-1, PSTR("Unlock Exception\n"));
-						#else
-							errorExit(-1, "Unlock Exception\n");
-						#endif	
+
+				errorExit(-1, "Unlock Exception\n");
+
 				return;
 						
 			}
@@ -138,7 +133,6 @@ void releaseMutexOnObject(ThreadControlBlock* t,slot obj,ThreadControlBlock* awa
 
 				//awake a blocked thread
 				if(awakeThread){
-					printf("released\n");
 					awakeThread->state=THREADNOTBLOCKED;
 					setMutexOnObject(awakeThread,obj);
 				}else{
@@ -163,11 +157,8 @@ u2 i;
 						if (t->hasMutexLockForObject[i].UInt != NULLOBJECT.UInt) continue;
 						else break;
 					if (i==MAXLOCKEDTHREADOBJECTS) {
-						#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-							errorExit(-1, PSTR("too many locks\n"));
-						#else
-							errorExit(-1, "too many locks\n");
-						#endif	
+
+						errorExit(-1, "too many locks\n");
 						
 					}
 					/* entry for this object in the array of mutexed objects for the thread*/
@@ -187,11 +178,7 @@ u2 i;
  */
 void	createThread(void)			{
   if (numThreads == MAXTHREADS)	{
-	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-		errorExit(-2,PSTR("to many Threads\n"));
-	#else
-		errorExit(-2,"to many threads\n");
-	#endif
+	errorExit(-2,"to many threads\n");
 	} 
 	ThreadControlBlock* t=(ThreadControlBlock*) malloc(sizeof(ThreadControlBlock));
 	opStackInit(&(t->opStackBase));
@@ -201,14 +188,14 @@ void	createThread(void)			{
 	t->state=THREADNOTBLOCKED;
 	
 	//set thread in matching priority list
-	if (actualThreadCB==NULL)	{ //==the first thread (main thread) is created
+	if (currentThreadCB==NULL)	{ //==the first thread (main thread) is created
 		//init priority array because first thread is created
 		u1 i;	
 		for(i=0;i<(MAXPRIORITY);i++){
 			threadPriorities[i].cb=NULL;
 			threadPriorities[i].count=0;	
 		}	
-		actualThreadCB=t;
+		currentThreadCB=t;
 		t->obj=NULLOBJECT;
 		mainThreadPriority[0] = (u4)NORMPRIORITY;	// priority (and alive) of main thread -> immutable
 		mainThreadPriority[1] = (u4)1;		// alive -> doesnt need for main thread??
@@ -217,11 +204,7 @@ void	createThread(void)			{
 	else				{
 		  cN=opStackGetValue(local).stackObj.classNumber;
 	  	  if (!findFieldByRamName("priority",8,"I",1)){
-			#ifdef AVR8
-				errorExit(77,PSTR("field priority not found"));
-			#else
 				errorExit(77,"field priority not found");
-			#endif
 		  }
 		  t->pPriority=(u4*)(heapBase+opStackGetValue(local).stackObj.pos+fNO+1);
 		   // position of int field priority of the thread creating object, next field is aLive
@@ -274,8 +257,8 @@ void insertThreadIntoPriorityList(ThreadControlBlock* t){
 		t->succ->pred=t;
 	}
 	threadPriorities[prio].count++;
-	if ((*actualThreadCB->pPriority-1)<prio){
-		actualThreadCB->numTicks=0;		// force scheduling
+	if ((*currentThreadCB->pPriority-1)<prio){
+		currentThreadCB->numTicks=0;		// force scheduling
 	}
 }
 /*
@@ -316,19 +299,19 @@ void deleteNotCurrentThread(ThreadControlBlock** t){
  * Delete actualThread by Christopher-Eyk Hrabia
  */
 void	deleteThread(void)	{
-	*((actualThreadCB->pPriority)+1)=(u4)0;		// isALive == false
-	removeThreadFromPriorityList(actualThreadCB);
+	*((currentThreadCB->pPriority)+1)=(u4)0;		// isALive == false
+	removeThreadFromPriorityList(currentThreadCB);
 	u1 i=MAXPRIORITY-1;
 	while(threadPriorities[i].count == 0){ //it should not be possible that i becomes lower than 0 therefore NO CHECK
 		i--;	
 	}
-	free(actualThreadCB->methodStackBase);
-	free(actualThreadCB->opStackBase);
-	free(actualThreadCB);
-	actualThreadCB =threadPriorities[i].cb;
-	methodStackBase=actualThreadCB->methodStackBase;
-	methodStackSetSpPos(actualThreadCB->methodSpPos);
-	opStackBase=actualThreadCB->opStackBase;
+	free(currentThreadCB->methodStackBase);
+	free(currentThreadCB->opStackBase);
+	free(currentThreadCB);
+	currentThreadCB =threadPriorities[i].cb;
+	methodStackBase=currentThreadCB->methodStackBase;
+	methodStackSetSpPos(currentThreadCB->methodSpPos);
+	opStackBase=currentThreadCB->opStackBase;
 	opStackSetSpPos(methodStackPop());
 	pc=methodStackPop();
 	mN=methodStackPop();
@@ -346,7 +329,7 @@ void	deleteThread(void)	{
 void scheduler(void)	{
 	if (numThreads == 1) return;
 	//A Thread runs until his numTicks is 0
-	if(((actualThreadCB->numTicks--) && ((actualThreadCB->state)==THREADNOTBLOCKED)))	return;
+	if(((currentThreadCB->numTicks--) && ((currentThreadCB->state)==THREADNOTBLOCKED)))	return;
 		// select a runnable thread
 	u1 p,n,threadFound;
 	ThreadControlBlock*	found;
@@ -384,15 +367,11 @@ void scheduler(void)	{
 		if(threadFound)break;
 	} // end for p
 	if(!threadFound){
-	#ifdef AVR8
-		errorExit(111,PSTR("SCHEDULING ERROR!\n"));
-	#else
 		errorExit(111,"SCHEDULING ERROR!\n");
-	#endif
 	}	
 	// assume: not all threads are blocked
-	if ((found == actualThreadCB) /*&& ((found->state)==THREADNOTBLOCKED)*/){ 
-		actualThreadCB->numTicks= *(actualThreadCB->pPriority);
+	if ((found == currentThreadCB) /*&& ((found->state)==THREADNOTBLOCKED)*/){ 
+		currentThreadCB->numTicks= *(currentThreadCB->pPriority);
  	  	return; 
 	}
 
@@ -402,14 +381,14 @@ void scheduler(void)	{
 	methodStackPush(mN);
 	methodStackPush(pc);
 	methodStackPush((u2)(opStackGetSpPos()));
-	actualThreadCB->methodSpPos=methodStackGetSpPos();
-	actualThreadCB=found;
-	threadPriorities[*actualThreadCB->pPriority-1].cb=actualThreadCB;		
+	currentThreadCB->methodSpPos=methodStackGetSpPos();
+	currentThreadCB=found;
+	threadPriorities[*currentThreadCB->pPriority-1].cb=currentThreadCB;		
 	//reset numTicks
-	actualThreadCB->numTicks= *actualThreadCB->pPriority;
-	methodStackBase=actualThreadCB->methodStackBase;
-	methodStackSetSpPos(actualThreadCB->methodSpPos);
-	opStackBase=actualThreadCB->opStackBase;
+	currentThreadCB->numTicks= *currentThreadCB->pPriority;
+	methodStackBase=currentThreadCB->methodStackBase;
+	methodStackSetSpPos(currentThreadCB->methodSpPos);
+	opStackBase=currentThreadCB->opStackBase;
 	opStackSetSpPos(methodStackPop());
 	pc=methodStackPop();
 	mN=methodStackPop();

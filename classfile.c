@@ -339,11 +339,7 @@ void analyzeClass(classStructure* c)	{
 		c->minor_version=pc++;			/* 4*/
 		c->major_version=++pc;			/* 6*/
 		if (getU2(c->major_version) > 49) 	{
-			#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-				errorExit(-1, PSTR("this java version is not supported yet: c->major_version %x\n"), getU2(c->major_version));
-			#else
 				errorExit(-1, "this java version is not supported yet: c->major_version %x\n", getU2(c->major_version));
-			#endif
 			
 		}
 #ifdef DEBUG
@@ -664,11 +660,7 @@ pc+=4;
 #endif
 pc+=length;
 			DEFAULT:
-				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-					errorExit(-1, PSTR("invalid constant pool identifier\n"));
-				#else
-					errorExit(-1, "invalid constant pool identifier\n");
-				#endif 
+				errorExit(-1, "invalid constant pool identifier\n");
 				
 				}		}
 }
@@ -944,11 +936,7 @@ void analyzeFields(classStructure* c){
 			u4 attribute_length = getU4(0);
 
 			if (getU1(attribute_name) != CONSTANT_Utf8) {
-				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-					errorExit(-1, PSTR("error while reading class file, CONSTANT_Utf8 expected\n"));
-				#else
 					errorExit(-1, "error while reading class file, CONSTANT_Utf8 expected\n");
-				#endif	
 			}
 
 			if (getU2(attribute_name + 1) == 13 && 
@@ -959,11 +947,7 @@ strncmp
 #endif
 ("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
 				if (attribute_length != 2) {
-					#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-						errorExit(-1, PSTR("error while reading class file, ConstantValue_attribute should have a length of 2\n"));
-					#else
 						errorExit(-1, "error while reading class file, ConstantValue_attribute should have a length of 2\n");
-					#endif	
 					
 				}
 				u2 constantvalue_index = getU2(0);
@@ -971,11 +955,7 @@ strncmp
 				if (getU1(constantvalue) == CONSTANT_String) {
                     u2 utf8 = cs[cN].constant_pool[getU2(constantvalue+1)];
                     if (getU1(utf8) != CONSTANT_Utf8) {
-				#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-					errorExit(-1, PSTR("error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n"), getU1(utf8));
-				#else
 					errorExit(-1, "error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n", getU1(utf8));
-				#endif	
                         
                     }
 

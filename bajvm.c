@@ -74,26 +74,22 @@ int main(int argc,char* argv[]){
 #else
 	initVM();
 #endif
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!	
-	printf_P(PSTR("Bajos starting\n"));
-#else
-	printf("Bajos starting\n");
-#endif
+
+	verbosePrintf("Bajos starting\n");
+
 	createThread();			/* for main*/
-	opStackBase = actualThreadCB->opStackBase;
+	opStackBase = currentThreadCB->opStackBase;
 	opStackSetSpPos(0);
-	methodStackBase	= actualThreadCB->methodStackBase;
+	methodStackBase	= currentThreadCB->methodStackBase;
 	methodStackSetSpPos(0);	
 #ifdef AVR8
+	#ifndef TINYBAJOS_PRINTF
 	printf_P(PSTR("SP: %x cs: %x cFB: %x hB: %x oPSB: %x mSB: %x \n"), 
 			256*SPH+SPL,cs,AVR8_FLASH_JAVA_BASE, heapBase, opStackBase, methodStackBase);
+	#endif
 #endif
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("start clinit"));
-#else
-	printf("start clinit");
-#endif
+	verbosePrintf("start clinit");
 
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("<clinit>",8,"()V",3))	{
@@ -102,27 +98,21 @@ if (findMethodByName("<clinit>",8,"()V",3))	{
 			run();			}
 for (cN=0; cN < numClasses;cN++)
 if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("  -> run <main> :\n"));
-#else
-	printf("  -> run <main> :\n");
-#endif
+
+	verbosePrintf("  -> run <main> :\n");
 
 	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
 	run(); 				/*  run main*/
 	return 0;						}
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	errorExit(1,PSTR("\nno main found %d"),numClasses);
-#else
-	errorExit(1,"\nno main found %d",numClasses);
-#endif													
+
+	errorExit(1,"\nno main found %d",numClasses);												
 	
 	return 1;
 }
 
-
-void errorExit(char nr,const char *format, ...)	{
+#ifndef TINYBAJOS_ERROREXIT
+void errorExitFunction(char nr,const char *format, ...)	{
 	va_list list;
 	va_start(list,format);
 #ifdef AVR8
@@ -131,4 +121,6 @@ void errorExit(char nr,const char *format, ...)	{
 	vprintf(format,list);
 #endif
 	va_end(list);
-	exit(nr);				}
+	exit(nr);				
+}
+#endif

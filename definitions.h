@@ -11,9 +11,6 @@
 #endif
 
 #include "typedefinitions.h"
-//#ifdef AVR8
-//#define printf	printf_P
-//#endif
 // RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 (words) java class base 
 // 0x10000 + 0x06000 in bytes
 // bamo128 -> 0xE000 to 0xFFFF
@@ -54,6 +51,29 @@
 #define THREADWAITAWAKENED		3
 #define GARBAGEFUSIONTRIALS		20
 
+#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	#define avr8Printf( format, ...) printf_P (PSTR((format)),  ## __VA_ARGS__)
+#else
+	#define avr8Printf( format, ...) printf ((format),  ## __VA_ARGS__)
+#endif
+
+
+#ifndef TINYBAJOS_ERROREXIT
+	#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+		#define errorExit(nr, format, ...) errorExitFunction ((nr), PSTR((format)),  ## __VA_ARGS__)
+	#else
+		#define errorExit(nr, format, ...) errorExitFunction ((nr), (format),  ## __VA_ARGS__)
+	#endif	
+#else
+	#define errorExit(nr, format, ...) exit((nr))
+#endif
+
+#ifndef TINYBAJOS_PRINTF
+	#define verbosePrintf( format, ...) avr8Printf ((format),  ## __VA_ARGS__)
+#else
+	#define verbosePrintf( format, ...)
+#endif
+
 
 #if (AVR32UC3A || AVR32AP7000)
 #define NULLOBJECT			((slot) (0xfffff000 |  ((u4)OBJECTMAGIC<<8)|((u4)OBJECTMAGIC<<4)|((u4)OBJECTMAGIC)))
@@ -70,41 +90,18 @@
 	#define CLASSCASTEXCEPTION raiseExceptionFromIdentifier("java/lang/ClassCastException", 28)
 	#define ILLEGALMONITORSTATEEXCEPTION raiseExceptionFromIdentifier("java/lang/IllegalMonitorStateException", 38)
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define DNOTSUPPORTED errorExit(-2, PSTR("Double precision primitive data types (double and long) are not supported.\n"))
-#else
+
 	#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
-#endif	
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define CLASSNOTFOUNDERR(classname,classnamelength) { printf_P(PSTR("Class not found: ")); printStringFromFlash(classname,classnamelength);exit(-1);}
-#else
 	#define CLASSNOTFOUNDERR(classname,classnamelength) {errorExit(-3, "Class '%s' not found.\n", classname);}
-#endif	
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, PSTR("Unhandled exception of type '%s'.\n"), exceptionname)
-#else
 	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
-#endif	
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, PSTR("Field '%s' in class '%s' not found.\n"), fieldname, classname)
-#else
 	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
-#endif	
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, PSTR("Method '%s' in class '%s' not found.\n"), methodname, classname)
-#else
-	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)
-#endif	
+	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)	
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	#define MALLOCERR(count, target) errorExit(-7, PSTR("Malloc error while trying to allocate %d bytes for %s\n"), count, target)
-#else
-	#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)
-#endif	
+	#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)	
 
 #define CASE				break;case
 #define DEFAULT				break;default
@@ -162,106 +159,52 @@
 #define		T_LONG    			0xb    // aaray type boolean		
 
 #ifdef DEBUG
-#define TR (actualThreadCB->tid) // 1
-#ifdef AVR8
+#define TR (currentThreadCB->tid) // 1
 
 		#define OUTSTREAM stdout
-		#define	DEBUGPRINT1(s)	if (TR==actualThreadCB->tid)printf_P(PSTR(s))
-		#define	DEBUGPRINT2(f,a) if (TR==actualThreadCB->tid) printf_P(PSTR(f),a)
-		#define	DEBUGPRINT3(f,a,b) if (TR==actualThreadCB->tid) printf_P(PSTR(f),a,b)
-		#define	DEBUGPRINTLN1(s) if (TR==actualThreadCB->tid) {printf_P(PSTR(s)); printf_P(PSTR("\n"));}
-		#define	DEBUGPRINTLN2(f,a) if (TR==actualThreadCB->tid) {printf_P(PSTR(f),a); printf_P(PSTR("\n"));}
-		#define	DEBUGPRINTLN3(f,a,b) if (TR==actualThreadCB->tid) {printf_P(PSTR(f),a,b); printf_P(PSTR("\n"));}
-		#define 	DEBUGPRINTE(x,f)	if (TR==actualThreadCB->tid) printf_P(PSTR(#x ": " "%"#f" "),x)
-		#define 	PRINTE(x,f)	if (TR==actualThreadCB->tid) printf_P(PSTR(#x ": " "%"#f" "),x)
-		#define DEBUGPRINTF(a,b,c)	if (TR==actualThreadCB->tid)printf_P(PSTR(a),b,c)
-		#define DEBUGPRINTSTACK if (TR==actualThreadCB->tid){\
+		#define	DEBUGPRINT(format, ...) if (TR==currentThreadCB->tid) avr8Printf((format),  ## __VA_ARGS__)
+		#define	DEBUGPRINTLN(format, ...) if (TR==currentThreadCB->tid) {avr8Printf((format),  ## __VA_ARGS__); avr8Printf("\n");}
+
+		#define DEBUGPRINTE(x,f)	if (TR==currentThreadCB->tid) avr8Printf(#x ": " "%"#f" ",x)
+		#define PRINTE(x,f)	if (TR==currentThreadCB->tid) avr8Printf(#x ": " "%"#f" ",x)
+		#define DEBUGPRINTF(a,b,c)	if (TR==currentThreadCB->tid)avr8Printf(a,b,c)
+		#define DEBUGPRINTSTACK if (TR==currentThreadCB->tid){\
 				int i;\
 				for (i= opStackGetSpPos() > 8 ? -8 : -opStackGetSpPos() ; i < 0 ; i++){\
-				printf_P(PSTR("%08x "),((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
-		} ;	printf_P(PSTR(":|_|stack\n"));}
+				avr8Printf("%08x ",((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
+		} ;	avr8Printf(":|_|stack\n");}
 /*
-				VT102Attribute('0', COLOR_WHITE);printf_P(PSTR(" "));\
+				VT102Attribute('0', COLOR_WHITE);avr8Printf(" ");\
 				if (i==(opStackGetSpPos()))VT102Attribute ('4', COLOR_GREEN); else VT102Attribute('0', COLOR_WHITE);\
 */
-		#define DEBUGPRINTLOCALS if (TR==actualThreadCB->tid){\
+		#define DEBUGPRINTLOCALS if (TR==currentThreadCB->tid){\
 				int i;\
-				printf_P(PSTR("|.| local:"));\
+				avr8Printf("|.| local:");\
 				for (i=0; i < 8 && i < local; i++)\
-				printf_P(PSTR(" %08x"),opStackGetValue(local+i).UInt);\
-		 printf_P(PSTR("\n"));}
+				avr8Printf(" %08x",opStackGetValue(local+i).UInt);\
+		 avr8Printf("\n");}
 		
 #define DEBUGPRINTHEAP 
 /*{\
 			int i,j;\
-			printf_P(PSTR("|#|  heap:\n"));\
+			avr8Printf("|#|  heap:\n");\
 			for (j=0; j <33; j+=8){\
 			for (i=0; i < 8; i++)\
-				printf_P(PSTR(" %8x"),(*(heapBase+i+j)).UInt);printf_P(PSTR("\n"));}\
-		} printf_P(PSTR("\n"))
+				avr8Printf(" %8x",(*(heapBase+i+j)).UInt);avr8Printf("\n");}\
+		} avr8Printf("\n")
 */
 		
 #define DEBUGPRINTSTRING(p,l) {\
 			int _i;\
 			for (_i=0; _i < (l); _i++)\
-			printf_P(PSTR("%c"),*((u1*)(p)+_i));\
-			 printf_P(PSTR(" "));}
+			avr8Printf("%c",*((u1*)(p)+_i));\
+			 avr8Printf(" ");}
 
-#define DEBUGPRINTLNSTRING(p,l)	if (TR==actualThreadCB->tid){DEBUGPRINTSTRING(p,l); printf_P(PSTR("\n"));}
-
-#else //not AVR8
-		#define OUTSTREAM stdout
-		#define	DEBUGPRINT1(s)	if (TR==actualThreadCB->tid)printf(s)
-		#define	DEBUGPRINT2(f,a) if (TR==actualThreadCB->tid) printf(f,a)
-		#define	DEBUGPRINT3(f,a,b) if (TR==actualThreadCB->tid) printf(f,a,b)
-		#define	DEBUGPRINTLN1(s) if (TR==actualThreadCB->tid) {printf(s); printf("\n");}
-		#define	DEBUGPRINTLN2(f,a) if (TR==actualThreadCB->tid) {printf(f,a); printf("\n");}
-		#define	DEBUGPRINTLN3(f,a,b) if (TR==actualThreadCB->tid) {printf(f,a,b); printf("\n");}
-		#define 	DEBUGPRINTE(x,f)	if (TR==actualThreadCB->tid) printf(#x ": " "%"#f" ",x)
-		#define 	PRINTE(x,f)	if (TR==actualThreadCB->tid) printf(#x ": " "%"#f" ",x)
-		#define DEBUGPRINTF(a,b,c)	if (TR==actualThreadCB->tid)printf(a,b,c)
-		#define DEBUGPRINTSTACK if (TR==actualThreadCB->tid){\
-				int i;\
-				for (i= opStackGetSpPos() > 8 ? -8 : -opStackGetSpPos() ; i < 0 ; i++){\
-				printf("%08x ",((opStackGetValue(((opStackGetSpPos()+i)<0)?0:(opStackGetSpPos()+i)))).UInt);\
-		} ;	printf(":|_|stack\n");}
-/*
-				VT102Attribute('0', COLOR_WHITE);printf(" ");\
-				if (i==(opStackGetSpPos()))VT102Attribute ('4', COLOR_GREEN); else VT102Attribute('0', COLOR_WHITE);\
-*/
-		#define DEBUGPRINTLOCALS if (TR==actualThreadCB->tid){\
-				int i;\
-				printf("|.| local:");\
-				for (i=0; i < 8 && i < local; i++)\
-				printf(" %08x",opStackGetValue(local+i).UInt);\
-		 printf("\n");}
-		
-#define DEBUGPRINTHEAP 
-/*{\
-			int i,j;\
-			printf("|#|  heap:\n");\
-			for (j=0; j <33; j+=8){\
-			for (i=0; i < 8; i++)\
-				printf(" %8x",(*(heapBase+i+j)).UInt);printf("\n");}\
-		} printf("\n")
-*/
-		
-#define DEBUGPRINTSTRING(p,l) {\
-			int _i;\
-			for (_i=0; _i < (l); _i++)\
-			printf("%c",*((u1*)(p)+_i));\
-			 printf(" ");}
-
-#define DEBUGPRINTLNSTRING(p,l)	if (TR==actualThreadCB->tid){DEBUGPRINTSTRING(p,l); printf("\n");}
-#endif
+#define DEBUGPRINTLNSTRING(p,l)	if (TR==currentThreadCB->tid){DEBUGPRINTSTRING(p,l); avr8Printf("\n");}
 #else
 
-#define	DEBUGPRINT1(s)	
-#define	DEBUGPRINT2(f,a)
-#define	DEBUGPRINT3(f,a,b)
-#define	DEBUGPRINTLN1(s)
-#define	DEBUGPRINTLN2(f,a)
-#define	DEBUGPRINTLN3(f,a,b)
+#define	DEBUGPRINT(format, ...)
+#define	DEBUGPRINTLN(format, ...)
 #define	DEBUGPRINTE(x,f)
 #define DEBUGPRINTF(a,b)
 #define DEBUGPRINTSTACK
@@ -272,36 +215,16 @@
 #define OUTSTREAM stderr
 #endif
 
-#define PRINT1(f)		printf(f)
-#define PRINT2(f,a)		printf(f,a)
-#define PRINT3(f,a,b)		printf(f,a,b)
-#define PRINTLN1(f)		printf(f)
-#define PRINTLN2(f,a)		printf(f,a)
-#define PRINTLN3(f,a,b)		printf(f,a,b)
-#ifdef AVR8
-#define PRINTEXITTHREAD(a,b) {printf_P(PSTR(a),b);\
+#define	PRINT(format, ...)
+#define	PRINTLN(format, ...)
+
+#define PRINTEXITTHREAD(a,b) {avr8Printf(a,b);\
 				if (numThreads==1)	{\
-				printf_P(PSTR("Bajos terminated\n"));\
+				avr8Printf("Bajos terminated\n"); \
 				exit(0);}\
 				else {	deleteThread();}\
 							}
-#else
-#ifdef LINUX
-#define PRINTEXITTHREAD(a,b) {printf(a,b);\
-				if (numThreads==1)	{\
-				printf("Bajos terminated\n"); \
-				linuxExit(0);}\
-				else {	deleteThread();}\
-							}
-#else
-#define PRINTEXITTHREAD(a,b) {printf(a,b);\
-				if (numThreads==1)	{\
-				printf("Bajos terminated\n"); \
-				exit(0);}\
-				else {	deleteThread();}\
-							}
-#endif //LINUX
-#endif
+
 #define  COLOR_BLACK     0     /* VT102 Color Codes                                  */
 #define  COLOR_RED       1
 #define  COLOR_GREEN     2
@@ -316,4 +239,6 @@
 #else
 #define NUMBEROFINTERRUPTS 	1
 #endif
+
+//end of file
 #endif

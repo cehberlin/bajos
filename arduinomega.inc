@@ -30,6 +30,14 @@ DEFS 			= -DAVR8 -DAM -DF_CPU=16000000
 
 OPTIMIZATION		= -Os
 
+#############
+# TINYBAJOS #
+#############
+#Shrink bajos, but looses features 
+DEFS			+= -DTINYBAJOS_ERROREXIT # errorexit does only show error number no text
+DEFS			+= -TINYBAJOS_PRINTF # remove unnessary printfs
+
+
 # for standalone application
 CLASSFILEBASE		= 0xC480
 # fix address for class files (in words), make it better
@@ -89,6 +97,11 @@ am:
 	@:
 AM:	
 	@:
+
+#print usage of ram and flash of bajos
+printsize:
+	avr-size --mcu=$(PART) --format=avr $(TARGETFILE)
+#	avr-nm --size-sort --print-size $(TARGETFILE) # more detailed information about size of objects functions variables
 
 burnbajos:
 	$(PROGRAM) -p m1280 -c $(FLASHER) -D -e -Uflash:w:bajos.bin:a

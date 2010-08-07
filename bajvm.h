@@ -16,8 +16,10 @@
 #include "definitions.h"
 #include "scheduler.h"
 
+#ifndef TINYBAJOS_ERROREXIT
+void errorExitFunction(char nr,const char *format, ...);
+#endif
 
-void errorExit(char nr,const char *format, ...);
 void initHW(void);
 #ifdef LINUX
 void initVM(int argc, char* argv[]);
@@ -49,7 +51,7 @@ GLOBAL char*	classFileBase	INIT__(NULL);
 GLOBAL char*	appClassFileBase INIT__(NULL);
 #endif
 GLOBAL u1	numClasses	INIT__(0);
-GLOBAL 		ThreadControlBlock*  actualThreadCB	INIT__(NULL);
+GLOBAL 		ThreadControlBlock*  currentThreadCB	INIT__(NULL);
 GLOBAL u1	numThreads	INIT__(0);
 GLOBAL u1	tid 		INIT__(0);
 GLOBAL u4	mainThreadPriority[2];		// priority (and alive) of main thread -> immutable
