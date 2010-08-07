@@ -174,6 +174,7 @@ length=0;
 		while(cs[cN].classFileLength !=0);
 /*!!*/
 numClasses=cN;
+printf("numClasses %d\n", numClasses);
 DEBUGPRINTHEAP;
 }
 
