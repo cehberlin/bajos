@@ -46,7 +46,7 @@ void opStackInit(slot** m)	{		/* per thread, fixed size */
 #ifndef AVR8  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void opStackPush( slot val)	{	*(opSp++)=val;
 #ifdef DEBUGOPSTACK
-if (opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
+if ((opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
 #endif	// DEBUGOPSTACK
 }	
 /*  sp grothws with increasing addresses*/
@@ -68,7 +68,7 @@ u2 opStackGetSpPos()		{  	return (opSp-opStackBase);	}
 /* relative to actual base*/
 void opStackSetSpPos(u2 pos)	{	opSp=pos+opStackBase;
 #ifdef DEBUGOPSTACK
-if (opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
+if ((opSp-opStackBase)>maxOpStack) maxOpStack=opSp-opStackBase;
 #endif	// DEBUGOPSTACK
 }	
 #endif
@@ -85,7 +85,7 @@ void methodStackInit(u2** m)	{
 #ifndef AVR8  //all these functions are rewritten in assembler to increase speed => routines_stack.asm
 void methodStackPush(u2 val)	{	*(methodSp++)=val;
 #ifdef DEBUGMETHODSTACK
-if (methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
+if ((methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
 #endif	// DEBUGMETODSTACK
 }
 u2 methodStackPop()		{	return *(--methodSp);		}
@@ -95,7 +95,7 @@ u2 methodStackGetSpPos()	{  	return (methodSp-methodStackBase);		}
 /* relative to actual base*/
 void methodStackSetSpPos(u2 pos){	methodSp=pos+methodStackBase;	
 #ifdef DEBUGMETHODSTACK
-if (methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
+if ((methodSp-methodStackBase)>maxMethodStack) maxMethodStack=methodSp-methodStackBase;
 #endif	// DEBUGMETODSTACK
 }
 
