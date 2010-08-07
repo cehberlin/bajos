@@ -8,7 +8,7 @@
 	#define MAXCLASSES 			16
 	#define MAXBYTECODE 			0x5000 	//!!! class file bytes in flash!!
 #ifdef CH
-	#define MAXHEAP					0x400	// u4 entries for heap-elements	
+	#define MAXHEAP					0x1000	// u4 entries for heap-elements	
 	#define MAXHEAPOBJECTLENGTH 		0x40
 	#define MAXTHREADS			5
 	#define MAXLOCKEDTHREADOBJECTS 		4
