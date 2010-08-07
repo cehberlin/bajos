@@ -36,6 +36,11 @@ Studenten der Informatik an der HWR-Berlin/Fachbereich Berufsakademie
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#if LINUX||AVR32LINUX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
 #ifdef AVR8
 #include <avr/io.h>
 #include "AVR8/platform.h"
@@ -134,7 +139,7 @@ apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
 	heapInit();	// linux avr8 malloc , others hard coded!
 	length=0;
-#ifdef LINUX
+#if LINUX|| AVR32LINUX
     if (argc > MAXCLASSES)
         errorExit(-1,"ERROR: trying to load %d classes, MAXCLASSES is %d\n", argc, MAXCLASSES);
 		for (cN=0; cN < argc; cN++)			{
@@ -148,8 +153,10 @@ apClassFileBase=(char*)NGW_SDRAM_BASE;	// app classes in sdram
 }
 #endif
 
-#if (AVR32LINUX||NGW100||STK1000|| EVK1100)
+
+#if (NGW100||STK1000|| EVK1100)
 // analyze bootclasses, which are programmed in flash
+// or for AVR32LINUX loaded as packed in RAM
 char* addr;
 u4 temp;
 char buf[5];
@@ -172,9 +179,6 @@ cN=numClasses;
 // now the application classes
 cN--;
 addr-=4;
-#ifndef AVR32LINUX
-addr=apClassFileBase;
-#endif
 length=0;
 		do
 		{
@@ -189,10 +193,11 @@ length=0;
 			if (conIn()!='y') break;
 		} 
 		while(cs[cN].classFileLength !=0);
-cN++;//!!
+//!!
+cN++;
 #endif
 
-#ifdef AVR8
+#if AVR8
 		printf("load boot classes - type  'w'! -> \n"); 
 // the damned holznagelsche protokoll zum laden eines bin files mit minikermit nachbilden
 (*loadInSram)(classFileBase);
@@ -232,7 +237,7 @@ addr-=4;
 		} 
 		while(cs[cN].classFileLength !=0);
 	
-	#endif
+#endif
 numClasses=cN;
 printf("load java class: \n");
 DEBUGPRINTHEAP;
