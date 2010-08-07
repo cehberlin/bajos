@@ -50,7 +50,7 @@ Erweiterungen von:
 // lief am 24.8.06 erstmals auf atmega128
 // lief im Herbst 07 auf AVR32
 
-#if !(LINUX || AVR8 || NGW100||STK1000||EVK1100)
+#if !(AVR32LINUX||LINUX || AVR8 || NGW100||STK1000||EVK1100)
 #error ein Zielsystem muß es doch geben?
 #endif
 
@@ -118,7 +118,7 @@ classFileBase=(u1*)NGW_FLASH_JAVA_BASE;  // boot classes in flash
 apClassFileBase=(u1*)NGW_SDRAM_BASE;	// app classes in sdram
 #endif
 
-#if (LINUX||AVR8)
+#if (AVR32LINUX||LINUX||AVR8)
     classFileBase=(u1*)malloc((size_t) MAXBYTECODE);
     if (classFileBase==NULL) {
         printf("malloc error while trying to allocate %d bytes for class files.\n", MAXBYTECODE);
