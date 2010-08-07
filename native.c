@@ -59,6 +59,7 @@ const char*	nativePlatForm[]={
 		"controlLCD",
 		"currentTimeMillis",
 		"exit",
+		"getTemperature",
 #ifndef AVR8
 		"drawPointRGB",
 		"drawFillRectRGB",
@@ -134,9 +135,9 @@ u2 	i;
 
 // count the native methods in platform
 #ifdef AVR8
-#define NUMNATIVPLATFORMMETHODS	8
+#define NUMNATIVPLATFORMMETHODS	9
 #else
-#define NUMNATIVPLATFORMMETHODS	31
+#define NUMNATIVPLATFORMMETHODS	32
 #endif
 
 char	nativeDispatch()	{
@@ -151,30 +152,31 @@ switch(i)					{
 	case	5: return controlLCD(); 
 	case	6: return currentTimeMillis();
 	case	7: return javaExit();
+	case	8: return getTemperature();
 #ifndef AVR8
-	case	8: return drawPointRGB();
-	case	9: return drawFillRectRGB();
-	case	10: return drawRectangleRGB();
-	case	11: return clearScreenRGB();
-	case	12: return drawRoundRectRGB();
-	case	13: return drawEllipseRGB();
-	case	14: return drawCircleRGB();
-	case	15: return drawLineRGB();
-	case	16: return drawPointHSB();
-	case	17: return drawLineHSB();
-	case	18: return drawTriangleFill();
-	case	19: return clearZBuffer();
-	case	20: return drawPointHSBZBuffer();
-	case	21: return drawLineHSBZBuffer();
-	case	22: return setFont();
-	case	23: return setFontWindow();
-	case	24: return setFontAutoLineFeed();
-	case	25: return setFontFixedFont();
-	case	26: return setFontCursor();
-	case	27: return setFontColor();
-	case	28: return drawChar();
-	case	29: return drawCharAt();
-	case	30: return getCharWidth();
+	case	9: return drawPointRGB();
+	case	10: return drawFillRectRGB();
+	case	11: return drawRectangleRGB();
+	case	12: return clearScreenRGB();
+	case	13: return drawRoundRectRGB();
+	case	14: return drawEllipseRGB();
+	case	15: return drawCircleRGB();
+	case	16: return drawLineRGB();
+	case	17: return drawPointHSB();
+	case	18: return drawLineHSB();
+	case	19: return drawTriangleFill();
+	case	20: return clearZBuffer();
+	case	21: return drawPointHSBZBuffer();
+	case	22: return drawLineHSBZBuffer();
+	case	23: return setFont();
+	case	24: return setFontWindow();
+	case	25: return setFontAutoLineFeed();
+	case	26: return setFontFixedFont();
+	case	27: return setFontCursor();
+	case	28: return setFontColor();
+	case	29: return drawChar();
+	case	30: return drawCharAt();
+	case	31: return getCharWidth();
 #endif
 	case	NUMNATIVPLATFORMMETHODS+0: return nativeCharAt(local);
 	case	NUMNATIVPLATFORMMETHODS+1: return nativeStringLength(local);
@@ -198,7 +200,7 @@ switch(i)					{
 	case	NUMNATIVPLATFORMMETHODS+19: return nativeParseFloat(local);
 	case 	NUMNATIVPLATFORMMETHODS+20: return typeConvert(local);
 	case	NUMNATIVPLATFORMMETHODS+21: return typeConvert(local);
-	case	NUMNATIVPLATFORMMETHODS+23: return floatToCharArray(local);
+	case	NUMNATIVPLATFORMMETHODS+22: return floatToCharArray(local);
 
 	default: errorExit(-1," native method not found: %d %d %d %d %d ",i,cN,mN,numMethods,numNativeClasses);		}							}
 
@@ -541,7 +543,7 @@ char floatToCharArray()	{
 	char buf[8];
 	u1 i;
 	for(i=0; i<8; ++i) {buf[i]=0;}
-	snprintf(buf,8,"%G",f);
+	snprintf(buf,7,"%f",f);
 	u2 heapPos=getFreeHeapSpace(8+ 1);	// char arr length + marker
 	mySlot.stackObj.pos=heapPos;
 	mySlot.stackObj.magic=OBJECTMAGIC;
@@ -1093,3 +1095,16 @@ char getCharWidth(){printf("native getCharWidth\n"); return 0;}
 
 #endif
 
+#ifdef AVR8
+// added 2009 by: Hannes Walz, FHW-BA Berlin
+// Berliner Stadtreinigung
+char getTemperature() 
+{		
+	float t = NativeGetTemperature();	
+	printf("%f is kalt\n", t);
+	opStackPush((slot) (f4) NativeGetTemperature());
+	return 1;
+}
+#else
+char getTemperature() { return 0; }
+#endif
