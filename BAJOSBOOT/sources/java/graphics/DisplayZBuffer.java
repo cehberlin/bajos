@@ -12,13 +12,14 @@ public class DisplayZBuffer extends DisplayHSB
 	public void drawPoint(Point p)
     {
     	//mit zBuffer Algorithmus (Uebung 4)
-		System.platform.drawPointHSBZBuffer(p);		
+		System.platform.drawPointHSBZBuffer(p.x, p.y, p.z, p.h, p.s, p.b);		
     }
 	
 	public void drawLine(Point pa, Point pe)
 	{
 		//mit ZBuffer
-		System.platform.drawLineHSBZBuffer(pa, pe);		
+		System.platform.drawLineHSBZBuffer(pa.x, pa.y, pa.z, pa.h, pa.s, pa.b,
+											pe.x, pe.y, pe.z, pe.h, pe.s, pe.b);		
 	}
 	
 	public void scanFill(Polyline pl)

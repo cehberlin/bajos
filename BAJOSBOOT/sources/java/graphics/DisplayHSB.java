@@ -20,7 +20,7 @@ public class DisplayHSB extends Display
 	public void drawPoint(Point p)
     {
     	//mit HSB
-		System.platform.drawPointHSB(p);
+		System.platform.drawPointHSB(p.x, p.y, p.h, p.s, p.b);
     }
 
 	public void clearDisplay()
@@ -32,7 +32,8 @@ public class DisplayHSB extends Display
     public void drawLine(Point pa, Point pe)
     {
     	//nach dem DDA-Alg.
-    	System.platform.drawLineHSB(pa, pe);
+    	System.platform.drawLineHSB(pa.x, pa.y, pa.h, pa.s, pa.b, 
+    								pe.x, pe.y, pe.h, pe.s, pe.b);
     }
        
 	
@@ -48,7 +49,9 @@ public class DisplayHSB extends Display
 		// to do: sort points !!!
 		// assume: points are sorted by rising y
 
-		System.platform.drawTriangleFill(p0, p1, p2);
+		System.platform.drawTriangleFill(p0.x, p0.y, p0.h, p0.s, p0.b, 
+											p1.x, p1.y, p1.h, p1.s, p1.b, 
+											p2.x, p2.y, p2.h, p2.s, p2.b);
 	}
 	
 	public void drawPolyline(Polyline pl)						
