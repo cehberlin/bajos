@@ -181,7 +181,14 @@ stdIOInit();
 /* for avr8 all class files in flash */
 /* for uc3a and standalone ap7000:	bootclasses in flash*/
 /* 		application classes  DS(Ram) -> hard coded !!!*/
-void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+  
+  #ifdef LINUX
+void initVM(int argc, char* argv[])  {
+#else
+void initVM(void) {
+#endif
+  
+  /* read, analyze classfiles and fill structures*/
 	u4 length;
 	u1 i=0;
 char* addr;
