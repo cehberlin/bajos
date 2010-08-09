@@ -1,3 +1,4 @@
+#labels start,home,startpage,firstpage
 = Bajos=
 
 Welcome to the bajos wiki!
@@ -15,5 +16,3 @@ check http://cs.ba-berlin.de/ for latest stable revision
 <p><img src="http://cs.ba-berlin.de/stk1.jpg" alt="" width="640" height="480" /></p>
 
 <p><img src="http://cs.ba-berlin.de/stk2.jpg" alt="" width="520" height="384" /></p>
-
-
