@@ -8,7 +8,7 @@ Installation of Bajos requires:
 	- at least 4 kByte data memory on the controller board
 Boot classes in BAJOSBOOT include necessary classes of the JVM-specification, other useful system classes as well as the class PlatForm.java for binding the run time environment to the hardware configuration.
 
-BAJOS version 0.5 is developed and compiled under Suse11.1 with the atmel tools for Suse11.1 and avr32studioV2.1.2 (avr-gcc version 4.13, avr32-ggc version 4.2.2). BAJOSVers.05, compiled for AVR8 processors (atmega128, atmega1280), expects the bootclasses and application classes in the flash memory. That enlarges the data ram space for the java heap and stack.
+BAJOS version 0.6 is developed and compiled under Suse11.1 with the atmel tools for Suse11.1 and avr32studioV2.1.2 (avr-gcc version 4.13, avr32-ggc version 4.2.2). BAJOSVers.06, compiled for AVR8 processors (atmega128, atmega1280), expects the bootclasses and application classes in the flash memory. That enlarges the data ram space for the java heap and stack.
 Bajos for the ArduinoMega board with the atmega1280 and bajos for the EVk1100 board with the AVR32UC3A can be compiled as well as a stand alone application or as program, started from resident monitor (bamo128 or bamo32 in cs.ba-berlin.de).
 Every variant allows the interaction with a terminal program (RS232-serial communication) after starting.
 
@@ -56,7 +56,7 @@ Since 2007/08 BAJOS works on the AVR32 processors UC3A (stand alone application)
 BAJOS is used currently for controlling of peripheral equipment of embedded systems.
 It is planned to improve the binding of BAJOS at the AVR32 development boards, the processing
 of java 1.6 compiled classfiles, the porting to other processor architectures, to improve
-the run time behavior of BAJOS, to develop better scheduler, .....
+the run time behavior of BAJOS, including network interface modules ...
 
 INSTALLATION AND INITIALIZATION
 PREPARATIONS ON PC
@@ -86,7 +86,7 @@ PREPARATION OF DEVELOPMENT BOARDS
 
 ARDUINOMEGA WITH ATMEGA1280 as standalone application
 Install an appropriate terminal program for serial communication on your pc (e.g. kermit or minikermit from cs.ba-berlin.de, set the correct baudrate(115200baud) and interface ttyS0 or ttyUSB0 for your system).
-Download and unpack bajosV05.tar.gz. Maybe you must correct the termianl baudrate (115200) for your system in ARDUINOMEGA/arduinomega.h.
+Download and unpack bajosV06.tar.gz. Maybe you must correct the termianl baudrate (115200) for your system in ARDUINOMEGA/arduinomega.h.
 Connect your arduinoMega with a programming adapter (we user AVRispmkII via usb cable) with your pc.
 Maybe you must set set atmega1280 fuses with:
 #> make writeFusesA am		# start at 0x0000 (boot section) after reset
@@ -101,7 +101,7 @@ Your classes myst be compiled with javac against the bootclasses in with the com
 
 ARDUINOMEGA WITH ATMEGA1280 with monitor bamo128
 Load first the monitor in the arduinoMega board (see cs.ba-berlin.de - bamo128.tar.gz).
-Download and unpack bajosV05.tar.gz.
+Download and unpack bajosV06.tar.gz.
 Maybe you must set set atmega1280 fuses with:
 #> make writeFusesM am		# start at 0xf000 (boot section) after reset
 Type:
@@ -150,11 +150,11 @@ BAMo128 #>g	0	# starts at address 0x0000
 you start bajvm and the aplication.
 Primary interaction is with PC-minikermit. In the atmega128 environment the classfiles are now (version 0.5) stored in the flash. The adjustment of BAJVM for the memory limits is carried out in limits.h before compiling.
 
-STANDALONE BAJOS on EVK1100, STK1000 AND NGW100 WITH AVR32UC3A/AR32AP7000
+STANDALONE BAJOS at EVK1100, EVK1104 STK1000 AND NGW100 WITH AVR32UC3A/AR32AP7000
 BAJOS and the boot/systemclasses are written here with a programming adapter (JTAG interface)
 in the internal/external flash memory.
 The application classes are loaded after starting of BAJOS in the external RAM.
-#>make all target (target: evk1100, ngw100 or  stk1000)
+#>make all target (target: evk1100, evk1104, ngw100 or  stk1000)
 compiles and loads BAJVM and the bootclasses on the target system.
 #>make compEVK1100 evk1100
 compiles e.g. the application javatests/EVK1100.java against the bajos-bootclasses for the EVK1100 board.
@@ -162,7 +162,15 @@ Now start minikermit (cs.ba-berlin.de) on PC and reset the target system, bajvm 
 Then you can load the application classes from the command line.
 After this starts the java program execution with the main interaction over the terminal program. 
 
-BAJOS FOR AVR32-LINUX ON NGW100 OR STK1000
+
+BAJOS WITH MONITOR bamo32 (cs.ba-berlin.de) at EVK1100, EVK1104 and EVK1104 WITH AVR32UC3A
+#>make all evk1100 withmon
+generates bajvm.bin, avr32bootpack and EVK1100.class
+Load bajvm.bin and avr32bootpack with bamo32 in flash and start bajos with
+Bamo32#> g 0x8000000
+Then Bajos loads the applications classes in ram and starts the application.
+
+BAJOS FOR AVR32-LINUX at NGW100 OR STK1000
 #> make all avr32-linux
 generates on PC the executable bajvm.
 #> make compPC avr32-linux
@@ -173,7 +181,7 @@ avr32-linux and change to the SD card directory.
 Start from terminal the virtual machine and the application class. 
 ##> ./bajvm *.class
 
-PORTING ON OTHER TARGET PLATFORMS
+PORTING at OTHER TARGET PLATFORMS
 We have ported BAJOS on 8 Bit up to 64 Bit processors with little endian/big endian data memory access. Therefore it seems to have not a great effort to port BAJOS on other platforms with the indicated
 memory equipment and a C-compiler. Adaptations are to be carried out in the files:
 native.c, platform.c, stack.c, heap.c, classfile.c, bajvm.c, limits.h, typedefinitions.h
