@@ -128,7 +128,12 @@ U32 next_compare = Get_sys_count()+NB_CLOCK_CYCLE_DELAY_SHORTER;
 /* for avr8 all class files in flash */
 /* for uc3a and standalone ap7000:	bootclasses in flash*/
 /* 		application classes  DS(Ram) -> hard coded !!!*/
-void initVM(int argc, char* argv[]){	/* read, analyze classfiles and fill structures*/
+#ifdef LINUX
+void initVM(int argc, char* argv[]) {
+#else
+void initVM(void) {
+#endif
+/* read, analyze classfiles and fill structures*/
 	u4 length;
 char* addr;
 u4 temp;
