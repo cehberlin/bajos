@@ -1,3 +1,4 @@
+#labels goals,purpose
 = Goals of bajos =
 The main motivation for developing BAJOS is to create an open source software for education of computer science students at an advanced technical college. Students are to be able to translate the theoretical knowledge in practical exercises. Java is appropriate for that particularly because the java run time environment includes elements of operating systems and the java specification lets students go way for creative ideas here. The combination of application software development in java, the programming of the jvm and native code device drivers in C/C++, the use of gnu development tools, the working in groups for an extensive software system and the use of an version control system under linux 
 prepare the students for their job as software developers.
