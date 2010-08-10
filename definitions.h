@@ -15,7 +15,7 @@
 // 0x10000 + 0x06000 in bytes
 // bamo128 -> 0xE000 to 0xFFFF
 #define AVR8_FLASH_JAVA_BASE	0x8900	// +rampz;16k boot classes in flash	-> 0xc480 in words
-#define AVR8_FLASH_APP_BASE 	0xc900	// +rampz;12k application classes	-> 0xe480
+#define AVR8_FLASH_APP_BASE 	0xcc00	// +rampz;6k application classes	-> 0xe600
 
 // UC3A is evk1100
 #define UC3A_FLASH_BASE		0x80000000	// internal 512 KB flash
