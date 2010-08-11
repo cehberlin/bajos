@@ -101,12 +101,12 @@ JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 #Smaller version of bajos with reduced features
 ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
 	#Shrink bajos, but looses features 
-	DEFS			+= -DTINYBAJOS
+	DEFS			+= -DTINYBAJOS #general flag
 	DEFS			+= -DTINYBAJOS_ERROREXIT # errorexit does only show error number no text
 	DEFS			+= -DTINYBAJOS_PRINTF # remove unnessary printfs
 	DEFS			+= -DTINYBAJOS_MULTITASKING # remove multitasking feature
 	DEFS			+= -DTINYBAJOS_OTHER # remove different maybe unnessary functions
-
+	DEFS			+= -DTINYBAJOS_EXCEPTION # remove exception handling
 else
 	JAVABOOTSOURCES 	+= 	$(LANG)/Thread.java
 	JAVABOOTSOURCES		+= 	$(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java

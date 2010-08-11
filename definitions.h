@@ -82,7 +82,7 @@
 #endif
 
 //mb jf
-
+#ifndef TINYBAJOS_EXCEPTION
 	#define ARRAYINDEXOUTOFBOUNDSEXCEPTION raiseExceptionFromIdentifier("java/lang/ArrayIndexOutOfBoundsException", 40)
 	#define NEGATIVEARRAYSIZEEXCEPTION raiseExceptionFromIdentifier("java/lang/NegativeArraySizeException", 36)
 	#define NULLPOINTEREXCEPTION raiseExceptionFromIdentifier("java/lang/NullPointerException", 30)
@@ -92,16 +92,25 @@
 
 
 	#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
-
 	#define CLASSNOTFOUNDERR(classname,classnamelength) {errorExit(-3, "Class '%s' not found.\n", classname);}
-
 	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
-
 	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
-
 	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)	
-
 	#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)	
+#else
+	#define ARRAYINDEXOUTOFBOUNDSEXCEPTION errorExit(-8, "ARRAYINDEXOUTOFBOUNDS\n")
+	#define NEGATIVEARRAYSIZEEXCEPTION errorExit(-2, "NEGATIVEARRAYSIZE\n")
+	#define NULLPOINTEREXCEPTION errorExit(-2, "NULLPOINTER\n")
+	#define ARITHMETICEXCEPTION errorExit(-2, "ARITHMETIC\n")
+	#define CLASSCASTEXCEPTION errorExit(-2, "CLASSCAST\n")
+	#define ILLEGALMONITORSTATEEXCEPTION  errorExit(-2, "ILLEGALMONITORSTATE\n")
+	#define DNOTSUPPORTED errorExit(-2, "Double precision primitive data types (double and long) are not supported.\n")
+	#define CLASSNOTFOUNDERR(classname,classnamelength) {errorExit(-3, "Class '%s' not found.\n", classname);}
+	#define UNHANDLEDEXCEPTIONERR(exceptionname) errorExit(-4, "Unhandled exception of type '%s'.\n", exceptionname)
+	#define FIELDNOTFOUNDERR(fieldname, classname) errorExit(-5, "Field '%s' in class '%s' not found.\n", fieldname, classname)
+	#define METHODNOTFOUNDERR(methodname, classname) errorExit(-6, "Method '%s' in class '%s' not found.\n", methodname, classname)	
+	#define MALLOCERR(count, target) errorExit(-7, "Malloc error while trying to allocate %d bytes for %s\n", count, target)	
+#endif
 
 #define CASE				break;case
 #define DEFAULT				break;default
@@ -178,7 +187,7 @@
 				if (i==(opStackGetSpPos()))VT102Attribute ('4', COLOR_GREEN); else VT102Attribute('0', COLOR_WHITE);\
 */
 		#define DEBUGPRINTLOCALS if (TR==currentThreadCB->tid){\
-				int i;\
+				u1 i;\
 				avr8Printf("|.| local:");\
 				for (i=0; i < 8 && i < local; i++)\
 				avr8Printf(" %08x",opStackGetValue(local+i).UInt);\
@@ -186,7 +195,7 @@
 		
 #define DEBUGPRINTHEAP 
 /*{\
-			int i,j;\
+			u2 i,j;\
 			avr8Printf("|#|  heap:\n");\
 			for (j=0; j <33; j+=8){\
 			for (i=0; i < 8; i++)\
@@ -195,7 +204,7 @@
 */
 		
 #define DEBUGPRINTSTRING(p,l) {\
-			int _i;\
+			u2 _i;\
 			for (_i=0; _i < (l); _i++)\
 			avr8Printf("%c",*((u1*)(p)+_i));\
 			 avr8Printf(" ");}

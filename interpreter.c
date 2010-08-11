@@ -65,7 +65,7 @@ void run() {	/* in: classNumber,  methodNumber cN, mN*/
 	u1 code, byte1, byte2;
 	u2 heapPos;
 	pc	= getStartPC();
-	do {		/*while(1)*/
+	for (;;) {
 		code	= getU1(0);
 		byte1	= getU1(pc);
 		byte2	= getU1(pc+1);
@@ -1358,7 +1358,11 @@ findClass
 		#endif
 		CASE	ATHROW:
 			DEBUGPRINTLN("athrow");
+			#ifndef TINYBAJOS_EXCEPTION
 			handleException();
+			#else
+			exit(-101);
+			#endif
 
 		CASE    CHECKCAST:
 			DEBUGPRINTLN("checkcast");
@@ -1565,7 +1569,7 @@ findClass
 	#ifndef TINYBAJOS_MULTITASKING
 		scheduler();
 	#endif
-	} while (1);/*do*/
+	} //for (;;)
 
 	verbosePrintf("Termination\n");
 
@@ -1600,7 +1604,7 @@ u1 checkInstance(const u2 target) {
 		/* trying the interfaces.*/
 		if (cN != 0 && cN != target) {
 			u2 n = getU2(cs[cN].interfaces_count);
-			while (n-- && cN != target) {
+			while (--n && cN != target) {
 				subCheck(target, getU2(cs[cN].interfaces+n*2));
 			}
 		}
@@ -1638,6 +1642,7 @@ slot createDims(u4 dimsLeft, s2 *dimSize) {
 	return act_array;
 }
 
+#ifndef TINYBAJOS_EXCEPTION
 /*
 ** Realizes an interpreter-raised Exception
 */
@@ -1773,3 +1778,4 @@ findClass
 		handleException();
 	}
 }
+#endif TINYBAJOS_EXCEPTION

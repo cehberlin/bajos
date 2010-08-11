@@ -48,7 +48,13 @@ JAVAAPPSOURCES		= javatests/AM.java
 # TINYBAJOS #
 #############
 ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
-	#Shrink bajos, but looses features 
+	#Shrink bajos, but looses features
+	OPTIMIZATION		+= -funsigned-char -funsigned-bitfields \
+	                     -fpack-struct -fshort-enums \
+	                     -ffreestanding -g -gdwarf-2 \
+	                     -fno-inline-small-functions -fno-split-wide-types -fno-tree-scev-cprop \
+                        -ffunction-sections \
+                        -Wl,--relax,--gc-sections 
 else
 	PLATFORMASMSOURCES	+= $(APPPATH)ARDUINOMEGA/routines_interrupt.asm
 endif
@@ -103,8 +109,9 @@ AM:
 
 #print usage of ram and flash
 printsize:
-	avr-size --mcu=$(PART) --format=avr $(TARGETFILE)
-	avr-nm --size-sort --print-size $(TARGETFILE) # more detailed information about size of objects functions variables
+	avr-size  --mcu=$(PART) $(TARGETFILE)
+	#avr-size --mcu=$(PART) --format=avr $(TARGETFILE)
+	#avr-nm --size-sort --print-size $(TARGETFILE) # more detailed information about size of objects functions variables
 
 burnbajos:
 	$(PROGRAM) -p m1280 -c $(FLASHER) -D -e -Uflash:w:bajos.bin:a

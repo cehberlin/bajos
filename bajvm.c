@@ -23,7 +23,7 @@ Erweiterungen von:
 	Chris Engel, CONTROL
 	Felix Fehlberg, Berliner Volksbank
 	Steffen Kalisch, COMED
-2010	Christopher-Eyk Hrabia BTC
+2010	Christopher-Eyk Hrabia BTC AG
 students of informatics at the HWR-Berlin/Berufsakademie	
 ********************************************************************************************/
 /* speed is not our primary goal!!!*/
@@ -64,10 +64,15 @@ scheduler
 #include "stack.h"
 
 #if !(AVR32LINUX||LINUX || AM || CH || XPLAIN || NGW100||STK1000||EVK1100|| EVK1104)
-#error ein Zielsystem muß es doch geben?
+#error You need a valid target device: AVR32LINUX||LINUX || AM || CH || XPLAIN || NGW100||STK1000||EVK1100|| EVK1104
 #endif
 
+#ifdef TINYBAJOS 
+void main() __attribute__ ((noreturn));
+void main(){
+#else
 int main(int argc,char* argv[]){
+#endif
 	initHW();
 #ifdef LINUX
 	initVM(argc-1,argv);	
