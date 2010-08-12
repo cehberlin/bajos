@@ -46,30 +46,10 @@ char initInterrupt(){
 
   u1 vectorNr=opStackGetValue(local+1).UInt;
 
-  printf("nr:%d",vectorNr);
-
   //interruptNr not valid
   if(vectorNr>=NUMBEROFINTERRUPTS) return 0;
 
   interruptVectors[vectorNr]=findThreadCB((slot)opStackGetValue(local));
-
-  #ifdef AM //for test purpose
-
-  cli();
-
-  TCCR0A = 0; //normal increment with overflow
-
-  TCCR0B |= (1<<CS02) | (1<<CS00); // Prescaler 1024
-
-  // enable Overflow Interrupt 
-  TIMSK0 |= (1<<TOIE0);
-
-  DDRB |= 0x80;
- 
-  //enable Global Interrupts
-  sei();
-
-  #endif
  
   return 0;
 }

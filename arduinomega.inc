@@ -36,10 +36,10 @@ CLASSFILEBASE		= 0xC480
 
 # JAVA SOURCES
 #JAVAAPPSOURCES		= javatests/LockSimple.java
-JAVAAPPSOURCES		= javatests/AM.java
+#JAVAAPPSOURCES		= javatests/AM.java
 #JAVAAPPSOURCES		= javatests/T1.java javatests/T2.java
 #JAVAAPPSOURCES		= javatests/SchedulerTest.java
-#JAVAAPPSOURCES		= javatests/InterruptTest.java
+JAVAAPPSOURCES		= javatests/InterruptTest.java
 
 # JAVA SOURCES
 #JAVABOOTSOURCES		+= 
