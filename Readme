@@ -10,7 +10,7 @@ Boot classes in BAJOSBOOT include necessary classes of the JVM-specification, ot
 
 BAJOS version 0.6 is developed and compiled under Suse11.1 with the atmel tools for Suse11.1 and avr32studioV2.1.2 (avr-gcc version 4.13, avr32-ggc version 4.2.2). BAJOSVers.06, compiled for AVR8 processors (atmega128, atmega1280), expects the bootclasses and application classes in the flash memory. That enlarges the data ram space for the java heap and stack.
 Bajos for the ArduinoMega board with the atmega1280 and bajos for the EVk1100 board with the AVR32UC3A can be compiled as well as a stand alone application or as program, started from resident monitor (bamo128 or bamo32 in cs.ba-berlin.de).
-Every variant allows the interaction with a terminal program (RS232-serial communication) after starting.
+Every variant allows the interaction with a terminal program (RS232-serial communication) after starting (adjust the serial baudrates in bajos and for your terminal!).
 
 GOALS OF BAJOS
 The main motivation for developing BAJOS is to create an open source software for education of computer science students at an advanced technical college. Students are to be able to translate the theoretical knowledge in practical exercises. Java is appropriate for that particularly because the java run time environment includes elements of operating systems and the java specification lets students go way for creative ideas here. The combination of application software development in java, the programming of the jvm and native code device drivers in C/C++, the use of gnu development tools, the working in groups for an extensive software system and the use of an version control system under linux prepare the students for their job as software developers.
@@ -117,14 +117,14 @@ now type 'w':
     BAMo128 #>name of cob (bin) -file for uploading:
 type here on the terminal the filename of the vm: bajvm.bin.
 After loading the vm you need to load the boot classes with the j-command and the flash
-word address B000.
+word address C480.
 	Bamo128 #> j
-write flash words from 0000 to ff80(128 words pages):B000
+write flash words from 0000 to ff80(128 words pages):C480
 type w: name of cob (bin) -file for uploading: avr8bootpack
 (Don't forget to type 'w').
 Repeat the same procedure for loading the application classes amapp with the flash
-word address D800.
-The addresses B000 and D800 are defined in definitions.h and point at free flash space
+word address E600.
+The addresses C480 and E600 are defined in definitions.h and point at free flash space
 between 0- ~9800 (bajvm) and the monitor f000-ffff.
 Now you can start bajvm with the monitor command
 	BAM0128#> g 0
