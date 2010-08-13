@@ -129,8 +129,8 @@ SECTIONS
   __stack_size__ = DEFINED(__stack_size__) ? __stack_size__ : 4K;
 
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = 0x80000000); . = 0x80000000;
-/*  PROVIDE (__executable_start = 0x80020000); . = 0x80020000; */
+/*  PROVIDE (__executable_start = 0x80000000); . = 0x80000000;*/
+  PROVIDE (__executable_start = 0x80020000); . = 0x80020000;
   .interp         : { *(.interp) } >FLASH AT>FLASH :FLASH
   .reset : {  *(.reset) } >FLASH AT>FLASH :FLASH
   .hash           : { *(.hash) } >FLASH AT>FLASH :FLASH
