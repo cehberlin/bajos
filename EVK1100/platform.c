@@ -112,7 +112,6 @@ stdIOInit();
 /* 		application classes  DS(Ram) -> hard coded !!!*/
 void initVM(){	/* read, analyze classfiles and fill structures*/
 	u4 length;
-	u1 i=0;
 char* addr;
 u4 temp;
 char buf[5];
@@ -134,8 +133,7 @@ cs[cN].classFileStartAddress=addr+4;	/* after length of class*/
 cs[cN].classFileLength=temp;/*(u1)(*addr)+256*(u1)(*(addr+1));*/
 analyzeClass(&cs[cN]);	
 addr+=cs[cN].classFileLength+4;
-printf("%x %x\n",cs[cN].classFileStartAddress,cs[cN].classFileLength);
-
+printf("%x %x %x %x\n",numClasses,cN,cs[cN].classFileStartAddress,cs[cN].classFileLength);
 }
 printf("%x bootclasses are loaded\n",cN);
 /* thats to boot classes*/
@@ -536,8 +534,8 @@ static const gpio_map_t USART_GPIO_MAP =
   /* USART options.*/
   static const usart_options_t USART_OPTIONS =
   {
-//   .baudrate     = 57600,
-    .baudrate     = 115200,
+   .baudrate     = 57600,
+    //.baudrate     = 115200,
     .charlength   = 8,
     .paritytype   = USART_NO_PARITY,
     .stopbits     = USART_1_STOPBIT,
