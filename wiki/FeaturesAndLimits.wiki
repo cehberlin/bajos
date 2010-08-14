@@ -10,7 +10,6 @@ Known differences are:
   * no double data type
   * no unicode support
   * no full run time evaluation of all class/method/field-attributes
-  * no overloaded native methods
   * no complete exception handling
   * less than 256 classes/methods/local variables in methods
   * less than 16 kwords (32 bit) on heap
