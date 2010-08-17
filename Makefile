@@ -88,7 +88,7 @@ BAJOSCSOURCES	= bajvm.c classfile.c interpreter.c heap.c stack.c scheduler.c \
 
 # java system sources -> subset of java system sources for the small controller, add more sources later
 JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
-			$(LANG)/String.java $(LANG)/StringBuffer.java \
+			$(LANG)/String.java $(LANG)/StringBuffer.java $(LANG)/StringBuilder.java \
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
