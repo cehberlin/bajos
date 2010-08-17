@@ -72,7 +72,9 @@ CONCURRENT	= ${BOOTCLASSPATH}java/util/concurrent
 
 #java binaries and flags
 JAVACOMP		= javac
-JAVACOMPFLAGS		= -g:none -source 1.4 -verbose
+JAVACOMPFLAGS		= -g:none 
+
+#-source 1.4 -verbose
 JAVACOMPBOOTCLASSES	= -bootclasspath ${BOOTCLASSPATH} -classpath BAJOSBOOT/classes -extdirs .
 
 # COMMON SOURCES
