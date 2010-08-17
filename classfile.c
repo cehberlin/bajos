@@ -338,8 +338,8 @@ void analyzeClass(classStructure* c)	{
 		pc=4; /* NOT +=4, because getU*(pc) increases pc when pc = 0 */
 		c->minor_version=pc++;			/* 4*/
 		c->major_version=++pc;			/* 6*/
-		if (getU2(c->major_version) > 49) 	{
-				errorExit(-1, "this java version is not supported yet: c->major_version %x\n", getU2(c->major_version));
+		if (getU2(c->major_version) > 50) 	{
+				errorExit(-1, "this java version is not supported yet: c->major_version %d\n", getU2(c->major_version));
 			
 		}
 #ifdef DEBUG
@@ -469,31 +469,32 @@ void analyzeClass(classStructure* c)	{
 #endif
 
 		analyzeMethods(c);				}
-		ln=getU2(0);
-	for (i=0; i <ln; i++){
-		attribute_name_index=getU2(0); /* jetzt raus kriegen, was fuer ein atrr*/
-		if (
+		ln=getU2(0);		// class file attribute count
+#ifdef DEBUG
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+	printf_P(PSTR("cf-attributes: count: %d "),ln);
+  #else
+	printf("cf-attributes: count: %d ",ln);
+  #endif
+#endif
+/*
+for (i=0; i <ln; i++)	{	// SourceFile (6), Deprecated (4),InnerClasses,EnclosingMethod,Synthetic,Signature
+					// ignore attributes
+attribute_name_index=getU2(0);
+if (
 #ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
-("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9) == 0)	{
+	      ("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9) == 0)	{
 #ifdef DEBUG
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("cf-attributes: count: %d "),ln);
-#else
-	printf("cf-attributes: count: %d ",ln);
-#endif
-
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("attribute_length: %d"),getU4(pc));
 #else
 	printf("attribute_length: %d",getU4(pc));
 #endif
-
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("attribute_index: %d\n"),getU2(pc+4));
@@ -502,7 +503,10 @@ strncmp
 #endif
 
 #endif
-			pc+=6;																			}				}
+pc+=6;										}  // SourceFile
+// simple ignore all attributes at class file end!!!
+}  // attribute count
+*/
 }
 
 void analyzeConstantPool(classStructure* c){
@@ -697,9 +701,9 @@ c->nativeFunction=NULL;
 		//BHDEBUGPRINTSTRING(METHODDESCRSTR(cN,n),METHODDESCRSTRLENGTH(cN,n));
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR(" tattribute_count: %04x\n"),a=getU2(pc+6));
+	printf_P(PSTR(" \tattribute_count: %04x\n"),a=getU2(pc+6));
 #else
-	printf(" tattribute_count: %04x\n",a=getU2(pc+6));
+	printf(" \tattribute_count: %04x\n",a=getU2(pc+6));
 #endif
 
 #endif
@@ -719,7 +723,8 @@ strncmp
 			{c->nativeFunction=(functionForNativeMethodType*)funcArray[i]; break;}
 	continue; /* native method*/
 }
-		for (m=0; m<a;m++)									{ /* attributes of method*/
+//Code(var), Exception(var),Synthetic (4),Signature,Deprecated(4) 
+		for (m=0; m<a;m++)			{ /* attributes of method*/
 		const char* adr=getAddr(c->constant_pool[getU2(0)]+1+2);
 			if (
 #ifdef AVR8
@@ -768,7 +773,7 @@ pc+=12;
 	printf("%2x ",getU1(pc+i));
 #endif
 	 /*length*/
-#endif				
+#endif					
 pc+=getU4(pc-4);
 etl=getU2(0);
 #ifdef DEBUG
@@ -822,6 +827,7 @@ pc+=etl*8;
 #endif
 
 #endif
+//LineNumberTable(var),LocalVariableTable(var),StackMapTable
 					for (i=0;i< h;i++)	{
 						const char*addr=getAddr(c->constant_pool[getU2(0)]+3);
 						if (
@@ -830,15 +836,27 @@ strncmpRamFlash
 #else
 strncmp
 #endif
-("LineNumberTable",addr, 15) == 0 )	pc=getU4(0)+pc;	
+("LineNumberTable",addr, 15) == 0 )	{pc=getU4(0)+pc; continue;}
+
 						if (
 #ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
-("LocalVariableTable",addr, 18) == 0)	pc=getU4(0)+pc;	
-										}		}
+("StackMapTable",addr, 13) == 0 )	{pc=getU4(0)+pc; continue;}
+
+
+						if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("LocalVariableTable",addr, 18) == 0)	{pc=getU4(0)+pc; continue;}
+errorExitFunction(4,"unsupported code attribute");
+										}	// code attributes
+	continue;} // code
 			if (
 #ifdef AVR8
 strncmpRamFlash
@@ -870,86 +888,84 @@ strncmp
 #endif
 pc+=2*n2;
 			/*pc=(u2)getU4(0)+pc;*/
-			}
+			continue;
+			} //Exceptions
 			if (
 #ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
-("Synthetic", adr,9) == 0)		pc+=4;
+("Synthetic", adr,9) == 0)		{pc+=4; continue;}
 			if (
 #ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
-("Deprecated", adr,10) == 0)	pc+=4;								}
+("Deprecated", adr,10) == 0)	{pc+=4; continue;}
+if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("Signature", adr,9) == 0)	{pc=(u2)getU4(0)+pc; continue;}
+errorExitFunction(4,"unsupported method attribute");
+		} // method attributes
 	}	/* methods_count*/
 }
 	
-void analyzeFields(classStructure* c){
+void analyzeFields(classStructure* c)	{
 	u2 n, a, cur_a;
 	u2 startStaticObject = heapTop - 1;
     u2 numStaticFields=0;
-	for (n=0; n<getU2(c->fields_count);n++)	{  /*fields*/
+	for (n=0; n<getU2(c->fields_count);n++)	{  /*num fields*/
 		c->field_info[n]=pc; 	/* absolute in classfile*/
 #ifdef DEBUG
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %x\taccess_flags: %d\n"),n,getU2(pc));
-#else
+  #else
 	printf("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
-#endif
+  #endif
 
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tname: %d\n"),n,getU2(pc+2));
-#else
+  #else
 	printf("\tfield %d\tname: %d\n",n,getU2(pc+2));
-#endif
+  #endif
 
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tdescriptor: %d\n"),n,getU2(pc+4));
-#else
+  #else
 	printf("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4));
-#endif
- 						/*Signature*/
+  #endif
 
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
 	printf_P(PSTR("\tfield %d\tattribute_count: %d\n"),n,getU2(pc+6));
-#else
+  #else
 	printf("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
+  #endif
 #endif
-
-#endif
-		pc += 6;
-		a = getU2(0);
+	pc += 6;
+	a = getU2(0); 		// num field attribute
+		// ConstantValue(6),Synthetic(4),Signature(6) ,Deprecated(4)
 /*		if (0x0008 & getU2(pc-8)) {// only static fields in class objects*/
 			heapSetElement((slot)(u4)0x77, heapTop++); /* initialize the heap elements*/
 /*		}*/
-		numStaticFields++;
+	numStaticFields++;
 		for (cur_a = 0; cur_a < a; ++cur_a) {
 			u2 attribute_name_index = getU2(0);
 			u1 attribute_name = cs[cN].constant_pool[attribute_name_index];
 			u4 attribute_length = getU4(0);
 
-			if (getU1(attribute_name) != CONSTANT_Utf8) {
-					errorExit(-1, "error while reading class file, CONSTANT_Utf8 expected\n");
-			}
-
-			if (getU2(attribute_name + 1) == 13 && 
+if (
 #ifdef AVR8
 strncmpRamFlash
 #else
 strncmp
 #endif
-("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {
-				if (attribute_length != 2) {
-						errorExit(-1, "error while reading class file, ConstantValue_attribute should have a length of 2\n");
-					
-				}
+("ConstantValue", getAddr(attribute_name + 3), 13) == 0) {  
 				u2 constantvalue_index = getU2(0);
 				u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
 				if (getU1(constantvalue) == CONSTANT_String) {
@@ -967,13 +983,39 @@ strncmp
 				} else {
 					heapSetElement((slot)getU4(constantvalue+1),heapTop-1); /*   n+1 !!no double, float*/
 				}
+				continue; // next attribute test
 			} else {
 				pc += attribute_length; /* continue*/
-			}
-		}
-	}
+				continue; // next attribute test
+			}  // ConstantValue
+
+if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("Synthetic", getAddr(attribute_name + 3), 9) == 0) {pc+=4; continue;}
+if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("Deprecated", getAddr(attribute_name + 3), 10) == 0) {pc+=4; continue;}
+if (
+#ifdef AVR8
+strncmpRamFlash
+#else
+strncmp
+#endif
+("Signature", getAddr(attribute_name + 3), 9) == 0) {pc+=6; continue;}
+ errorExitFunction(3,"unsupported field attribute");
+		} // field attribute count
+
+	}  // numfields
 	HEAPOBJECTMARKER(startStaticObject).length = (numStaticFields > 0)? heapTop-startStaticObject : 1;
-}
+}  // end analyze fields
 
 u2	getStartPC()	{	/*cN,mN*/
 	u2 attrLength = 0;  /* search code-position*/
