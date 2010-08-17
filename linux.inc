@@ -175,3 +175,11 @@ Interpreter:
 compInterpreter:
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/InterpreterTest.java
+
+
+Breed:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Breed.class
+
+compBreed:
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
+		$(APPCLASSPATH)/Breed.java
