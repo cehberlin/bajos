@@ -1,8 +1,8 @@
 CPATH    = ./BAJOSBOOT/classes
 
-JARGS    = -g:none -verbose  -source 1.4 -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./BAJOSBOOT/sources
+JARGS    = -g:none -verbose  -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./BAJOSBOOT/sources
 
-
+#  -source 1.4
 boot:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/io/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/lang/*.java
