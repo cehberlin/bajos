@@ -8,7 +8,7 @@ package java.lang;
  *<P>
  * @author <a href="mailto:martin@egholm-nielsen.dk">Martin E. Nielsen</a>
  */
-public final class StringBuffer implements CharSequence
+public class StringBuffer implements CharSequence
 {
 	
 	char[] characters;
