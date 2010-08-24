@@ -1,3 +1,7 @@
+++++++++++++++++++++++++++++++++++++++++
++				BAJOS				   +
+++++++++++++++++++++++++++++++++++++++++
+
 BAJOS is a run-time environment for microcontroller. It consists of BAJVM, a Java Virtual Machine
 and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system. BAJOS is a development of HWR-Berlin, faculty of Company-Linked Programs, department for informatics. See the file "license.terms" for information on usage and redistribution.
 The system has been tested for 8 Bit and 32 AVR controllers on different development boards and works under Linux on PC or Linux for Embedded Systems.
