@@ -5,16 +5,16 @@ Welcome to the bajos wiki!
 
 Bajos is a Java runtime environment for microcontrollers. It consists of BAJVM, a Java Virtual Machine and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system and has been tested for 8 and 32 bit AVR controllers (atmega128,UC3A, AP7000). It works on PC's with linux also.
 Bajos has been tested at:<br>
-- 32 Bit and 64 Bit PC-linux systems (most development and testing is carried out here)
-- MICA2 Board (mote) with atmega128 only equipped with internal 4K Byte data ram
-- Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128
-    ( see http://code.google.com/p/bamo128 )
-- NGW100 with/without linux
-- STK1000 with/without linux
-- EVK1100 with/without resident monitor bamo32 (see cs.ba-berlin.de)
-- EVK1104 with/without resident monitor bamo32
-- ArduinoMega (http://arduino.cc/en/Main/ArduinoBoardMega) with/without resident monitor bamo128
-- XPLAIN- board with atxmega128A1 (in development, see this repository)
+- 32 Bit and 64 Bit PC-linux systems (most development and testing is carried out here)<br>
+- MICA2 Board (mote) with atmega128 only equipped with internal 4K Byte data ram<br>
+- Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128<br>
+    ( see httpcode.google.com/p/bamo128 )<br>b
+- NGW100 with/without linux<br>
+- STK1000 with/without linux<br>
+- EVK1100 with/without resident monitor bamo32 (see cs.ba-berlin.de)<br>
+- EVK1104 with/without resident monitor bamo32<br>
+- ArduinoMega (arduino.cc/en/Main/ArduinoBoardMega) with/without resident monitor bamo128<br>
+- XPLAIN- board with atxmega128A1 (in development, see this repository)<br>
 
 Check download area for latest stable revision.
 
