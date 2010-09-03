@@ -4,7 +4,7 @@
 Welcome to the bajos wiki!
 
 Bajos is a Java runtime environment for microcontrollers. It consists of BAJVM, a Java Virtual Machine and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system and has been tested for 8 and 32 bit AVR controllers (atmega128,UC3A, AP7000). It works on PC's with linux also.
-Bajos has been tested at:<\b>
+Bajos has been tested at:<\br>
 - 32 Bit and 64 Bit PC-linux systems (most development and testing is carried out here)
 - MICA2 Board (mote) with atmega128 only equipped with internal 4K Byte data ram
 - Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128
