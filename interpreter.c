@@ -1778,4 +1778,4 @@ findClass
 		handleException();
 	}
 }
-#endif TINYBAJOS_EXCEPTION
+#endif // TINYBAJOS_EXCEPTION
