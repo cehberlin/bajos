@@ -110,14 +110,13 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 #include "XMEGA/native.h"
 
 functionForNativeMethodType functionForNativePlatFormMethod[] =	{
-/*	nativeCharIn,
+	nativeCharIn,
 	nativeCharOut,
 	nativeExit,
 	currentTimeMillis,
 	nativeConStat,
 	nativeSetData,
 	nativeGetData
-	*/
 };
 #endif
 
