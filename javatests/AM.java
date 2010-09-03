@@ -8,8 +8,6 @@ public class AM			{
 	public static void main(String [] args)		{
 	char c;
 	int n=0;
-for (n=0; n < 20; n++)
-
 	// not q!!!
 	System.out.println("currentTimeMillis Test, type any key -> e for end");
 	while ((c=System.in.read())!='e') System.out.println(System.currentTimeMillis());
