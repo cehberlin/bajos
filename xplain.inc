@@ -16,21 +16,28 @@
 # make writeFusesM	-> start after reset vom boot section 0xf000 (in words)
 
 # TOOLS
-CC		= avr-gcc
-OBJCOPY		= avr-objcopy
-PROGRAM		= avrdude
+# from avr32studio www.atmel.no/beta_ware
+BINDIR	= /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_3.0.0.201007091540/os/linux/x86_64/bin/
+DUDEDIR = /opt/cross/avrdude-5.10/
+CC		= $(BINDIR)avr-gcc
+OBJCOPY		= $(BINDIR)avr-objcopy
+PROGRAM		= $(DUDEDIR)avrdude
+# flasher means the avrdude device which you are using for flashing
+#FLASHER 	= stk200 
+FLASHER 	= avrispmkII -P usb 
+
 
 # DEVICE
 #ARCH			= AVR7
 PART			= atxmega128a1
 DEFS 			+= -DAVR8 -DXPLAIN -DF_CPU=16000000 -IXMEGA -IXMEGA/include -include XMEGA/autoconf.h
-DEFS+=  -O1
+DEFS+=  -Os
 
 #OPTIMIZATION		=   
 #-gdwarf-2 -Werror-implicit-function-declaration  -mrelax -Wmissing-prototypes   -Wstrict-prototypes  -Wpointer-arith -fshort-enums  -ffunction-sections -fdata-sections
 
 # for standalone application
-CLASSFILEBASE		= 0xB000
+CLASSFILEBASE		=  0xC480
 # fix address for class files (in words), make it better
 
 # JAVA SOURCES
@@ -46,8 +53,9 @@ PLATFORMCSOURCES	= XMEGA/native.c XMEGA/generic_memcpy.c \
 			  XMEGA/generic_strcmp.c  XMEGA/platform.c XMEGA/sysclk.c \
 			  XMEGA/xmega_pr.c
 
-PLATFORMASMSOURCES	= XMEGA/ccp.S  XMEGA/entry.S XMEGA/routines.S  XMEGA/routines_stack.S
+PLATFORMASMSOURCES	=  XMEGA/routines.S  XMEGA/routines_stack.S
 
+#XMEGA/ccp.S  XMEGA/entry.S
 OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
 
 # GOALS
@@ -70,10 +78,13 @@ all:	clean  bootclasses compXPLAIN bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} XMEGA/link.lds $(filter %.o,$+) -mmcu=$(PART)    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) "/usr/lib/gcc/avr/4.3.3/avrxmega7/libgcc.a"
+	$(VERBOSE_CMD)${CC}  $(filter %.o,$+) -mmcu=$(PART) -o$(TARGETFILE) 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
+#   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm 
+#XMEGA/link.lds 
 
+#"/usr/lib/gcc/avr/4.3.3/avrxmega7/libgcc.a"
 # -Wl,--section-start,.data=0x802000,--defsym=__heap_start=0x802800,--defsym=__heap_end=0x803f00,--defsym=__stack=0x803fff  
 bajospack:
 	$(VERBOSE_CMD) cat $(BIN) > bajos.bin
