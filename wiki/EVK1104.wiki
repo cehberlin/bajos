@@ -5,4 +5,7 @@ The board provides a number of Hardware Features:
     * 320 x 240 QVGA TFT LCD
     * Two MMC/ SD card connectors
     * SPI, TWI and USARTs
-    * Capacitive Touch interface
+    * Capacitive Touch interface (12 Buttons)
+    * audio connector
+
+usable Platform methodes:
