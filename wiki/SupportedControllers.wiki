@@ -7,6 +7,6 @@ Here u find a list of supported controllers. By clicking the boards you get on t
   * NGW100
   * STK1000
   * ArduinoMega
-  * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1100]
-  * EVK1104
+  * EVK1100
+  * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1104]
   * XPLAIN- board
