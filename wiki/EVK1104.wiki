@@ -24,7 +24,7 @@ usable Platform methodes:
       * parameter:
         * int x: horizontal position of the pixel (from left to right 0-320)
         * int y: vertical position od the pixel (from top to bottom 0-240)
-        * int color: color in Words (BLACK, WHITE, YELLOW,...) or Numbers
+        * int color: color, a bitnumber that holds rgb-colors (bit 1-5 red, bit 6-11 green, bit 11-16 blue)
       * returns: nothing
 
     * void drawHorizLine(int x, int y, int length, int color );
