@@ -21,10 +21,12 @@ usable Platform methodes:
 *LCD-Display*
     * void drawPixel(int x, int y, int color);
       * draw a Pixel on the Lcd
-      * Parameter:
+      * parameter:
         * int x: horizontal position of the pixel (from left to right 0-320)
         * int y: vertical position od the pixel (from top to bottom 0-240)
         * int color: color in Words (BLACK, WHITE, YELLOW,...) or Numbers
+      * returns: nothing
+
     * void drawHorizLine(int x, int y, int length, int color );
     * void drawVertLine(int x, int y, int length, int color);
     * void drawLine(int x1, int y1, int x2, int y2, int color);
