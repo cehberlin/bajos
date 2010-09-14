@@ -1,1 +1,8 @@
 = EVK1104 with Bajos =
+The board provides a number of Hardware Features:
+
+    * Hi-Speed USB OTG interface
+    * 320 x 240 QVGA TFT LCD
+    * Two MMC/ SD card connectors
+    * SPI, TWI and USARTs
+    * Capacitive Touch interface
