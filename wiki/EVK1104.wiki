@@ -18,18 +18,18 @@ usable Platform methodes:
     * void exit (int status);
     * int currentTimeMillis();
 
-#LCD-Display
-* void drawPixel(int x, int y, int color);
-draw a Pixel on the Lcd.
-* void drawHorizLine(int x, int y, int length, int color );
-* void drawVertLine(int x, int y, int length, int color);
-* void drawLine(int x1, int y1, int x2, int y2, int color);
-* void drawFillRectRGB(int x, int y, int width, int height, int color);
-* void drawFilledCircle(int x, int y, int radius, int color, int quadrants);
+*LCD-Display*
+    * void drawPixel(int x, int y, int color);
+      draw a Pixel on the Lcd.
+    * void drawHorizLine(int x, int y, int length, int color );
+    * void drawVertLine(int x, int y, int length, int color);
+    * void drawLine(int x1, int y1, int x2, int y2, int color);
+    * void drawFillRectRGB(int x, int y, int width, int height, int color);
+    * void drawFilledCircle(int x, int y, int radius, int color, int quadrants);
 
-#Buttons
-* int getButtons();
+*Buttons*
+    * int getButtons();
 
-#LEDs
-* void setLEDon(int LED);
-* void setLEDoff(int LED);
+*LEDs*
+    * void setLEDon(int LED);
+    * void setLEDoff(int LED);
