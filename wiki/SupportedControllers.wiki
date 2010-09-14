@@ -1,0 +1,12 @@
+= supported Controllers =
+Here u find a list of supported controllers. By clicking the boards you get on the documentation.
+
+  * 32 Bit and 64 Bit PC-linux
+  * MICA2 Board
+  * Charon2
+  * NGW100
+  * STK1000
+  * ArduinoMega
+  * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1100]
+  * EVK1104
+  * XPLAIN- board
