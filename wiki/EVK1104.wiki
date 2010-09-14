@@ -11,9 +11,10 @@ The board provides a number of Hardware Features:
 usable Platform methodes:
 
 # generics
-* char nativeCharIn();
+* char nativeCharIn()
+
 * void nativeCharOut(char c);
-* int conStat(); // inkey
+* int conStat();
 * void exit (int status);
 * int currentTimeMillis();
 
