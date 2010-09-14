@@ -12,19 +12,19 @@ usable Platform methodes:
 
 *generics:*
 
-    * char nativeCharIn();
-    * void nativeCharOut(char c);
-    * int conStat();
-    * void exit (int status);
-    * int currentTimeMillis();
+ * char nativeCharIn();
+ * void nativeCharOut(char c);
+ * int conStat();
+ * void exit (int status);
+ * int currentTimeMillis();
 
 *LCD-Display*
     * void drawPixel(int x, int y, int color);
-      draw a Pixel on the Lcd
-      Parameter:
-      * int x: horizontal position of the pixel (from left to right 0-320)
-      * int y: vertical position od the pixel (from top to bottom 0-240)
-      * int color: color in Words (BLACK, WHITE, YELLOW,...) or Numbers
+      * draw a Pixel on the Lcd
+      * Parameter:
+        * int x: horizontal position of the pixel (from left to right 0-320)
+        * int y: vertical position od the pixel (from top to bottom 0-240)
+        * int color: color in Words (BLACK, WHITE, YELLOW,...) or Numbers
     * void drawHorizLine(int x, int y, int length, int color );
     * void drawVertLine(int x, int y, int length, int color);
     * void drawLine(int x1, int y1, int x2, int y2, int color);
