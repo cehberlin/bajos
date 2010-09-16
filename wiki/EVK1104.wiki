@@ -1,4 +1,5 @@
 = EVK1104 with Bajos =
+== General Information ==
 The board provides a number of Hardware Features:
 
     * Hi-Speed USB OTG interface
@@ -8,34 +9,77 @@ The board provides a number of Hardware Features:
     * Capacitive Touch interface (12 Buttons)
     * audio connector
 
-usable Platform methodes:
+== Usable platform-methods ==
 
-*generics:*
-
+=== Generics: ===
  * char nativeCharIn();
  * void nativeCharOut(char c);
  * int conStat();
  * void exit (int status);
  * int currentTimeMillis();
 
-*LCD-Display*
+=== LCD-Display ===
     * void drawPixel(int x, int y, int color);
       * draw a Pixel on the Lcd
       * parameter:
         * int x: horizontal position of the pixel (from left to right 0-320)
-        * int y: vertical position od the pixel (from top to bottom 0-240)
+        * int y: vertical position of thepixel (from top to bottom 0-240)
         * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
       * returns: nothing
 
     * void drawHorizLine(int x, int y, int length, int color );
-    * void drawVertLine(int x, int y, int length, int color);
-    * void drawLine(int x1, int y1, int x2, int y2, int color);
-    * void drawFillRectRGB(int x, int y, int width, int height, int color);
-    * void drawFilledCircle(int x, int y, int radius, int color, int quadrants);
+      * draw a horizontal line on the Lcd, beginning at the specified pixel
+      * parameter:
+        * int x: horizontal position of the fixation-pixel (from left to right 0-320)
+        * int y: vertical position od the fixation-pixel (from top to bottom 0-240)
+        * int length: lenth of the line (in px)
+        * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
 
-*Buttons*
+    * void drawVertLine(int x, int y, int length, int color);
+      * draw a vertical line on the Lcd, beginning at the specified pixel
+      * parameter:
+        * int x: horizontal position of the fixation-pixel (from left to right 0-320)
+        * int y: vertical position od the fixation-pixel (from top to bottom 0-240)
+        * int length: lenth of the line (in px)
+        * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
+
+    * void drawLine(int x1, int y1, int x2, int y2, int color);
+      * draw a line on the Lcd between 2 points
+      * parameter:
+        * int x1: horizontal position of the starting point (from left to right 0-320)
+        * int y1: vertical position od the starting point(from top to bottom 0-240)
+        * int x2: horizontal position of the endpoint (from left to right 0-320)
+        * int y2: vertical position od the endpoint (from top to bottom 0-240)
+        * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
+
+    * void drawFillRectRGB(int x, int y, int width, int height, int color);
+      * draw a filled rectangle on the Lcd
+      * parameter:
+        * int x: horizontal position of the starting point (from left to right 0-320)
+        * int y: vertical position od the starting point(from top to bottom 0-240)
+        * int width: width of the rectangle
+        * int height: height of the rectangle
+        * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
+
+    * void drawFilledCircle(int x, int y, int radius, int color, int quadrants);
+      * draw a filled circle on the Lcd
+      * parameter:
+        * int x: horizontal position of the center (from left to right 0-320)
+        * int y: vertical position od the center (from top to bottom 0-240)
+        * int radius: radius of the circle
+        * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int quadrants: bitmask, which encodes the quadrants, which should be drawn
+          * Binary-encoded: 0b 1 0 1 0 -> 0x A (each bit represents one quadrant)
+          * e.g. 0x03 for the first two quadrants (upper circle) or 0x08 for the 4th quadrant 
+      * returns: nothing
+
+=== Buttons ===
     * int getButtons();
 
-*LEDs*
+=== LEDs ===
     * void setLEDon(int LED);
     * void setLEDoff(int LED);
