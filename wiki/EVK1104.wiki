@@ -55,7 +55,7 @@ The board provides a number of Hardware Features:
         * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
       * returns: nothing
 
-    * void drawFillRectRGB(int x, int y, int width, int height, int color);
+    * void drawFillRect(int x, int y, int width, int height, int color);
       * draw a filled rectangle on the Lcd
       * parameter:
         * int x: horizontal position of the starting point (from left to right 0-320)
