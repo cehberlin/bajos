@@ -73,8 +73,8 @@ The board provides a number of Hardware Features:
         * int radius: radius of the circle
         * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
         * int quadrants: bitmask, which encodes the quadrants, which should be drawn
-          * Binary-encoded: 0b 1 0 1 0 -> 0x A (each bit represents one quadrant)
-          * e.g. 0x03 for the first two quadrants (upper circle) or 0x08 for the 4th quadrant 
+          * Binary-encoded: 0b 4 4 3 3 2 2 1 1 (quadrants are represented by 2 bits)
+          * e.g. 0x0F for the first two quadrants (upper circle) or 0xC0 for the 4th quadrant 
       * returns: nothing
 
 === Buttons ===
