@@ -9,7 +9,53 @@ The board provides a number of Hardware Features:
     * Capacitive Touch interface (12 Buttons)
     * audio connector
 
-== Usable platform-methods ==
+== platform classes ==
+_`[]` - optional Parameters_
+
+==Display.java==
+(Example see javatests/EVK1104a.java)
+
+Can be used for printing on the Display
+
+===attributes===
+ * private int xMax (Display Width)
+ * private int yMax (Display Height)
+ * private int color, bgColor (Color and Backgroundcolor)
+
+===methodes===
+ * void setColor(int color)
+   * sets the Color
+   * parameter:
+     * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+   * returns: nothing
+
+ * void setBackgroundColor(int color)
+   * sets the Backgroundcolor
+   * parameter:
+     * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+   * returns: nothing
+ 
+ * void drawPoint(int i, int j `[`, int color`]`)  
+      * draw a Pixel on the Lcd
+      * parameter:
+        * int x: horizontal position of the pixel (from left to right 0-320)
+        * int y: vertical position of thepixel (from top to bottom 0-240)
+        * int color: color of the Pixel, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
+
+ * void drawRect(int x, int y, int width, int height, int lineWidth `[`, int color `[`, int bgColor`]]`)  
+      * draw a Rectangle on the Lcd
+      * parameter:
+        * int x: horizontal position of the left-top corner (from left to right 0-320)
+        * int y: vertical position of of the left-top corner (from top to bottom 0-240)
+        * int width: Width of the Rectangle
+        * int height: Height of the Rectangle
+        * int lineWidth : Width of the Rectangle border
+        * int color: color of the Ractangle border, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the Rectangle, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+      * returns: nothing
+
+== PlatForm.java ==
 
 === Generics: ===
  * char nativeCharIn();
