@@ -7,11 +7,14 @@ The Source directory itself contains the packages of Bajos.
 *packages*:
 
 * java
+
   * graphics
   * io
   * lang
   * util
+
 * platform
+
   * 32 Bit and 64 Bit PC-linux
   * MICA2 Board
   * Charon2
