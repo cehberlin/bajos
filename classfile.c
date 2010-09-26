@@ -854,7 +854,7 @@ strncmpRamFlash
 strncmp
 #endif
 ("LocalVariableTable",addr, 18) == 0)	{pc=getU4(0)+pc; continue;}
-errorExitFunction(4,"unsupported code attribute");
+errorExit(4,"unsupported code attribute");
 										}	// code attributes
 	continue;} // code
 			if (
@@ -911,7 +911,7 @@ strncmpRamFlash
 strncmp
 #endif
 ("Signature", adr,9) == 0)	{pc=(u2)getU4(0)+pc; continue;}
-errorExitFunction(4,"unsupported method attribute");
+errorExit(4,"unsupported method attribute");
 		} // method attributes
 	}	/* methods_count*/
 }
@@ -1010,7 +1010,7 @@ strncmpRamFlash
 strncmp
 #endif
 ("Signature", getAddr(attribute_name + 3), 9) == 0) {pc+=6; continue;}
- errorExitFunction(3,"unsupported field attribute");
+ errorExit(3,"unsupported field attribute");
 		} // field attribute count
 
 	}  // numfields
