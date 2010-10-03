@@ -348,7 +348,7 @@ Can be used for printing on the Display
     * draw a character on the Lcd
     * parameter:
       * char c: the character
-      * int font: (const unsigned char *)&FONTXxX (possible for XxX are 6x8, 8x8, 8x16) (given by the Display driver)
+      * int font: `(const unsigned char *)&FONTXxX` (possible for XxX are 6x8, 8x8, 8x16) (given by the Display driver)
       * int x: horizontal position of the text (from left to right 0-320)
       * int y: vertical position of of the text (from top to bottom 0-240)
       * int color: color of the text, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
