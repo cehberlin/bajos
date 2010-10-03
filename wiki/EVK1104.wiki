@@ -1,4 +1,5 @@
 = EVK1104 with Bajos =
+_at the moment bajos is just working as standalone for the EVK1104_
 == General Information ==
 The board provides a number of Hardware Features:
 
