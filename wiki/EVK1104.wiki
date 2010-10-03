@@ -127,7 +127,7 @@ Can be used for printing on the Display
         * int y: vertical position of of the center (from top to bottom 0-240)
         * int radius: radius of the circle
         * int linewidth : width of the circle border
-        * int bitmask: 4 bit mask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
+        * int bitmask: 4 bit bitmask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
         * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
         * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
@@ -148,7 +148,7 @@ Can be used for printing on the Display
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
         * int radius: radius of the circle
-        * int bitmask: 4 bit mask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
+        * int bitmask: 4 bit bitmask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
         * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
         * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
@@ -186,6 +186,58 @@ Can be used for printing on the Display
       * converts a size 4 boolean array to a 4 bit bitmask array`[`0`]`  = bit 0, ..., array`[`3`]`  = bit 3
       * parameter:
         * boolean`[]` array: 
+
+==ADC.java==
+(Example see javatests/EVK1104a.java)
+
+  * void enable();
+    * enables the ADC
+    * parameter:
+    
+  * void disable();
+    * disables the ADC
+    * parameter:
+    
+  * int getValue();
+    * returns the ADC value
+    * parameter:
+    
+==LEDs.java==
+(Example see javatests/EVK1104a.java)
+
+  * void setLEDs(boolean`[]` led);
+    * sets an internal LED array to save a LED status
+    * parameter:
+      * boolean`[]` led: size 4 booleanarray, led`[`0`]` = LED0, ..., led`[`3`]` = LED3
+    
+  * void activate();
+    * activates the saved LED status
+    * parameter:
+      * boolean`[]` led: size 4 booleanarray, led`[`0`]` = LED0, ..., led`[`3`]` = LED3
+    
+  * void activate(boolean`[]` led);
+    * activates the given LED status
+    * parameter:
+    
+  * void activate(int i);
+    * activates the saved LED status and enables led`[`i`]`
+    * parameter:
+      * int i: index of the led
+    
+  * void deactivate(int i);
+    * activates the saved LED status and disables led`[`i`]`
+    * parameter:
+      * int i: index of the led
+    
+  * void activateBits(int bitmask);
+    * activates the given LED status
+    * parameter:
+        * int bitmask: 4 bit bitmask, bit 0 = LED0, ... , bit 3 = LED3
+
+  * int toggle(int i);
+    * toggles led`[i]`
+    * parameter:
+      * int i: index of the led
 
 == PlatForm.java ==
 
