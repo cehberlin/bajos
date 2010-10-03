@@ -18,105 +18,174 @@ _`[]` - optional Parameters_
 Can be used for printing on the Display
 
 ===attributes===
- * private int xMax (Display Width)
- * private int yMax (Display Height)
- * private int color, bgColor (default Color and default Backgroundcolor)
+ * private int xMax (Display width)
+ * private int yMax (Display height)
+ * private int color, bgColor (default color and default background color)
 
 ===methodes===
  * void setColor(int color)
-   * sets the Color
+   * sets the color
    * parameter:
      * int color: color, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void setBackgroundColor(int color)
-   * sets the Backgroundcolor
+   * sets the background color
    * parameter:
      * int color: color, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void clearDisplay()
-   * clears the hole Display (Display has Backgroundcolor after clear)
+   * clears the hole Display (Display has background color after clear)
  
  * void drawPoint(int i, int j `[`, int color`]`)  
-      * draw a Pixel on the Lcd
+      * draw a pixel on the Lcd
       * parameter:
         * int x: horizontal position of the pixel (from left to right 0-320)
-        * int y: vertical position of thepixel (from top to bottom 0-240)
-        * int color: color of the Pixel, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int y: vertical position of the pixel (from top to bottom 0-240)
+        * int color: color of the pixel, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
- * void drawRect(int x, int y, int width, int height, int lineWidth `[`, int color `[`, int bgColor`]]`)  
-      * draw a Rectangle on the Lcd
+ * void drawLine(int x1, int y1, int x2, int y3 `[`, int color`]`)  
+      * draw a Line on the Lcd
+      * parameter:
+        * int x1,x2: horizontal position of the start and end point (from left to right 0-320)
+        * int y1,y2: vertical position of the start and end point (from top to bottom 0-240)
+        * int color: color of the pixel, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+
+ * void drawVertLine(int x1, int y1, int length `[`, int color`]`)  
+      * draw a vetical line on the Lcd
+      * parameter:
+        * int x1: horizontal position of the start point (from left to right 0-320)
+        * int y1: vertical position of the start point (from top to bottom 0-240)
+        * int length: length of the line
+        * int color: color of the pixel, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+
+ * void drawHorizLine(int x1, int y1, int length `[`, int color`]`)  
+      * draw a horizontal line on the Lcd
+      * parameter:
+        * int x1: horizontal position of the start point (from left to right 0-320)
+        * int y1: vertical position of the start point (from top to bottom 0-240)
+        * int length: length of the line
+        * int color: color of the pixel, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+
+ * void drawRect(int x, int y, int width, int height, int linewidth `[`, int color `[`, int bgColor`]]`)  
+      * draw a rectangle on the Lcd
       * parameter:
         * int x: horizontal position of the left-top corner (from left to right 0-320)
         * int y: vertical position of of the left-top corner (from top to bottom 0-240)
-        * int width: Width of the Rectangle
-        * int height: Height of the Rectangle
-        * int lineWidth : Width of the Rectangle border
-        * int color: color of the Ractangle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
-        * int bgColor: fillcolor of the Rectangle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int width: width of the rectangle
+        * int height: height of the rectangle
+        * int linewidth : width of the rectangle border
+        * int color: color of the rectangle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the rectangle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void drawFillRect(int x, int y, int width, int height `[`, int color`]`)  
-      * draw a filled Rectangle on the Lcd
+      * draw a filled rectangle on the Lcd
       * parameter:
         * int x: horizontal position of the left-top corner (from left to right 0-320)
         * int y: vertical position of of the left-top corner (from top to bottom 0-240)
-        * int width: Width of the Rectangle
-        * int height: Height of the Rectangle
-        * int color: color of the Ractangle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int width: width of the rectangle
+        * int height: height of the rectangle
+        * int color: color of the rectangle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void drawClearRect(int x, int y, int width, int height)  
-      * draw a filled Rectangle on the Lcd with Backgroundcolor as Color
+      * draw a filled rectangle on the Lcd with background color as color
       * parameter:
         * int x: horizontal position of the left-top corner (from left to right 0-320)
         * int y: vertical position of of the left-top corner (from top to bottom 0-240)
-        * int width: Width of the Rectangle
-        * int height: Height of the Rectangle
+        * int width: width of the rectangle
+        * int height: height of the rectangle
 
- * void drawCircle(int x, int y, int radius, int lineWidth `[`, int color `[`, int bgColor`]]`)  
-      * draw a Circle on the Lcd
+ * void drawCircle(int x, int y, int radius, int linewidth `[`, int color `[`, int bgColor`]]`)  
+      * draw a circle on the Lcd
       * parameter:
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
-        * int radius: radius of the Circle
-        * int lineWidth : Width of the Circle border
-        * int color: color of the Circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
-        * int bgColor: fillcolor of the Circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int radius: radius of the circle
+        * int linewidth : width of the circle border
+        * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void drawFillCircle(int x, int y, int width, int height `[`, int color`]`) 
-      * draw a filled Circle on the Lcd
+      * draw a filled circle on the Lcd
       * parameter:
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
-        * int radius: radius of the Circle
-        * int lineWidth : Width of the Circle border
-        * int color: color of the Circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int radius: radius of the circle
+        * int linewidth : width of the circle border
+        * int color: color of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
  * void drawClearCircle(int x, int y, int width, int height)  
-      * draw a filled Circle on the Lcd with Backgroundcolor as Color
+      * draw a filled circle on the Lcd with background color as color
       * parameter:
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
-        * int radius: radius of the Circle
+        * int radius: radius of the circle
 
- * void drawPartialCircle(int x, int y, int radius, int lineWidth, int bitmask `[`, int color `[`, int bgColor`]]`)  
-      * draw a partial Circle on the Lcd
+ * void drawPartialCircle(int x, int y, int radius, int linewidth, int bitmask `[`, int color `[`, int bgColor`]]`)  
+      * draw a partial circle on the Lcd
       * parameter:
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
-        * int radius: radius of the Circle
-        * int lineWidth : Width of the Circle border
-        * int bitmask: 4 Bit Mask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
-        * int color: color of the Circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
-        * int bgColor: fillcolor of the Circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int radius: radius of the circle
+        * int linewidth : width of the circle border
+        * int bitmask: 4 bit mask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
+        * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
 
- * void drawPartialFillCircle(int x, int y, int radius, int lineWidth `[`, int color `[`, int bgColor`]]`)  
-      * draw a Circle on the Lcd
+ * void drawPartialCircle(int x, int y, int radius, int linewidth, boolean`[]` array `[`, int color `[`, int bgColor`]]`)  
+      * draw a partial circle on the Lcd
       * parameter:
         * int x: horizontal position of the center (from left to right 0-320)
         * int y: vertical position of of the center (from top to bottom 0-240)
-        * int radius: radius of the Circle
-        * int lineWidth : Width of the Circle border
-        * int color: color of the Circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
-        * int bgColor: fillcolor of the Circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int radius: radius of the circle
+        * int linewidth : width of the circle border
+        * boolean`[]` array: Array with 4 booleans, array`[`0`]`  = quadrant 1, ... , array`[`3`]`  = quadrant 4
+        * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+
+ * void drawPartialFillCircle(int x, int y, int radius, int bitmask `[`, int color `[`, int bgColor`]]`)  
+      * draw a partial filled circle on the Lcd
+      * parameter:
+        * int x: horizontal position of the center (from left to right 0-320)
+        * int y: vertical position of of the center (from top to bottom 0-240)
+        * int radius: radius of the circle
+        * int bitmask: 4 bit mask, bit 0 = quadrant 1, ... , bit 3 = quadrant 4
+        * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+
+ * void drawPartialFillCircle(int x, int y, int radius, boolean`[]` array `[`, int color `[`, int bgColor`]]`)  
+      * draw a partial filled circle on the Lcd
+      * parameter:
+        * int x: horizontal position of the center (from left to right 0-320)
+        * int y: vertical position of of the center (from top to bottom 0-240)
+        * int radius: radius of the circle
+        * boolean`[]` array: Array with 4 booleans, array`[`0`]`  = quadrant 1, ... , array`[`3`]`  = quadrant 4
+        * int color: color of the circle border, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: fillcolor of the circle, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        
+ * void drawString(String string, int font, int x, int y, `[`, int color `[`, int bgColor`]]`)  
+      * draw a text on the Lcd
+      * parameter:
+        * String string: the text as String
+        * int font: possible: 1,2 or 3 (1 = smallest, 3 biggest) (Fonts are given by Fontmatrixes at the Display driver)
+        * int x: horizontal position of the text (from left to right 0-320)
+        * int y: vertical position of of the text (from top to bottom 0-240)
+        * int color: color of the text, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: color of the text background, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        
+ * void drawChar(char c, int font, int x, int y, `[`, int color `[`, int bgColor`]]`)  
+      * draw a character on the Lcd
+      * parameter:
+        * char c: the character
+        * int font: possible: 1,2 or 3 (1 = smallest, 3 biggest) (Fonts are given by Fontmatrixes at the Display driver)
+        * int x: horizontal position of the text (from left to right 0-320)
+        * int y: vertical position of of the text (from top to bottom 0-240)
+        * int color: color of the text, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        * int bgColor: color of the text background, a bitnumber that holds rgb16-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
+        
+ * int arrayToBitmask(boolean`[]` array)  
+      * converts a size 4 boolean array to a 4 bit bitmask array`[`0`]`  = bit 0, ..., array`[`3`]`  = bit 3
+      * parameter:
+        * boolean`[]` array: 
 
 == PlatForm.java ==
 
@@ -129,10 +198,10 @@ Can be used for printing on the Display
 
 === LCD-Display ===
     * void drawPixel(int x, int y, int color);
-      * draw a Pixel on the Lcd
+      * draw a pixel on the Lcd
       * parameter:
         * int x: horizontal position of the pixel (from left to right 0-320)
-        * int y: vertical position of thepixel (from top to bottom 0-240)
+        * int y: vertical position of the pixel (from top to bottom 0-240)
         * int color: color, a bitnumber that holds rgb-colors (bit 11-15 red, bit 5-10 green, bit 0-4 blue)
       * returns: nothing
 
