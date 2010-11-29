@@ -3,8 +3,9 @@
 
 Welcome to the bajos wiki!
 
-Bajos is a Java runtime environment for microcontrollers. It consists of BAJVM, a Java Virtual Machine and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system and has been tested for 8 and 32 bit AVR controllers (atmega128,UC3A, AP7000). It works on PC's with linux also.
-Bajos has been tested at:<br>
+Bajos is a Java runtime environment for microcontrollers. It consists of BAJVM, a Java Virtual Machine and of BAJOSBOOT, a collection of system classes. BAJOS can be adapted to Embedded Systems with/without operating system and we use it for 8 and 32 bit AVR controllers (atmega128, UC3A, AP7000). It works on PC's with linux also.
+
+Bajos has been tested yet at:<br>
 - 32 Bit and 64 Bit PC-linux systems (most development and testing is carried out here)<br>
 - MICA2 Board (mote) with atmega128 only equipped with internal 4K Byte data ram<br>
 - Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128
@@ -13,10 +14,11 @@ Bajos has been tested at:<br>
 - STK1000 with/without linux<br>
 - EVK1100 with/without resident monitor bamo32 (see cs.ba-berlin.de)<br>
 - EVK1104 with/without resident monitor bamo32<br>
-- ArduinoMega (arduino.cc/en/Main/ArduinoBoardMega) with/without resident monitor bamo128<br>
+- ArduinoMega (arduino.cc/en/Main/ArduinoBoardMega) with/without preinstalled arduino bootloader or installable resident monitor bamo128<br>
 - XPLAIN- board with atxmega128A1 (in development, see this repository)<br>
 
-Check download area for latest stable revision.
+The modular software structure make it simple to adapt the software to other boards or microcontrollers with a minimum of flash and data memory.<br>
+Check download area for latest stable revision.<br>
 
 <h3>Bajos at Arduino controls a Lego-Robot and an alphanumeric display</h3>
 <p><img src="http://cs.ba-berlin.de/Bild3-800.jpg" alt="" width="640" height="480" />
