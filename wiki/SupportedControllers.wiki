@@ -2,11 +2,11 @@
 Here u find a list of supported controllers. By clicking the boards you get to the documentation.
 
   * 32 Bit and 64 Bit PC-linux
-  * MICA2 Board
-  * Charon2
+  * MICA2 Board (atmega128)
+  * Charon2 (atmega128)
+  * ArduinoMega (atmega1280)
   * NGW100
   * STK1000
-  * ArduinoMega
   * EVK1100
-  * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1104]
+  * EVK1104 [http://code.google.com/p/bajos/wiki/EVK1104 EVK1104]
   * XPLAIN- board
