@@ -1,4 +1,4 @@
-= supported Controllers =
+= Supported Controllers =
 Here u find a list of supported controllers. By clicking the boards you get to the documentation.
 
   * 32 Bit and 64 Bit PC-linux
