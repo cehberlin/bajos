@@ -35,4 +35,4 @@ and type 'w'. The minikermit window display the text: "name of bin file for uplo
 Type "bajos.bin". Bajos is uploading now and starts immediately.<br>
 
 AM.java in the directory javatests is the running application class. It contains a test of the method currentTimeMilliSec and driver for the programmable board led. You can change this sourcecode and produce a new standalone bajos with the make-command line.
-Other or mor application classes can be added by editing the arduinomega.inc file.
+Other or more application classes can be added by editing the arduinomega.inc file.
