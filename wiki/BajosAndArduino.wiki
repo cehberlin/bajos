@@ -1,7 +1,9 @@
 *Run Bajos at Arduino*<br>
 The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br>
-There are many ways to install a java application at arduino. The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino software environment and a linux pc environment.<br>
-Download minikermit from [http://code.google.com/p/minikermit].<br>
+There are many ways to install a java application at arduino.<br>
+*1. Load BAJOS with arduino bootloader as standalone application*<br>
+The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino software environment and a linux pc environment.<br>
+Download and unpack minikermit.tar.gz from [http://code.google.com/p/minikermit].<br>
 Edit minikermit.c<br>
 Uncomment:<br>
 #define ARDUINOBOOTLOADER
@@ -19,5 +21,18 @@ Start minikermit:<br>
 #>./minikermit<br>
 Then reset the arduino with the reset button on board and type immediately 3 times '!' on
 pc keypad.<br>
-In the minikermit window you see a text similar: "ATmegaBOOT / Arduino Mega - (C) Arduino LLC - 090930"<br>.
+In the minikermit window you see a text similar: "ATmegaBOOT / Arduino Mega - (C) Arduino LLC - 090930".<br>
 That shows all is ready for BAJOS.<br>
+<br>Prepare BAJOS<br>
+Download and unpack bajos.tar.gz from this page.<br>
+Edit bajos/ARDUINOMEGA/arduinomega.inc<br>
+#define BAUDRATE	57600	/* arduino bootloader default baudrate*/
+Then compile bajos, generate bootclasses and compile application class (javatests/AM.class) with the make-utility in the bajos-dir:<br>
+#>make clean  bootclasses compAM bootpack app compile bajospack<br>
+creates bajos.bin which contains the virtual machines booclasses and the application class. Thats our binary file for upload at the arduino.<br>
+Start minikermit (maybe there are outputs from an old pragram in arduino. Don't mind me.) 
+and type 'w'. The minikermit window display the text: "name of bin file for uploading?".<br>
+Type "bajos.bin". Bajos is uploading now and starts immediately.<br>
+
+AM.java in the directory javatests is the running application class. It contains a test of the method currentTimeMilliSec and driver for the programmable board led. You can change this sourcecode and produce a new standalone bajos with the make-command line.
+Other or mor application classes can be added by editing the arduinomega.inc file.
