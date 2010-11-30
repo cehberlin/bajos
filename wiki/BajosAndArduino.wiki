@@ -42,4 +42,11 @@ If you have a avr-isp programmer connect it with your arduino board (pins labele
 #> make all am<br>
 That burns bajos, boot classes and application classes in the arduino board. Start minikermit (see above) and after Reset runs the application class AM.class (see above). More precisely: after reset starts the bootloader in the boot section and if you not type a key at pc keyboard in a time window the bootloader jumps to the address 0 where bajos is loaded.<br>
 *2 Burn the monitor bamo128 with AVR-ISP-mkII programmer and load bajos with the monitor*<br>
-creates and burns 
+Bamo128 [code.google.com/p/bamo128] is a useful monitor program written in assembler for avr8 microcontroller. It occupied 4Kwords (arduino bootloader needs 2Kwords) in the bootsection. After reset the microcontroller starts at boot section the monitor. The resident monitor is a simple operating system with following features:
+* user interaction over serial interface with a pc-termnal program (minikermit)
+* upload application programs
+* start  application programs with/without breakpoints and step-mode
+* disassemble machine code
+* display/modify flash, sdram and eeprom-memory
+* display/modify cpu register and state
+* driver interface for use in application programs
