@@ -1,4 +1,23 @@
 *Run Bajos at Arduino*<br>
 The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br>
-There are many ways to install a java application at arduino. The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino software environment.<br>
-Download minikermit from [http://code.google.com/p/minikermit]<br>
+There are many ways to install a java application at arduino. The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino software environment and a linux pc environment.<br>
+Download minikermit from [http://code.google.com/p/minikermit].<br>
+Edit minikermit.c<br>
+Uncomment:<br>
+#define ARDUINOBOOTLOADER
+#define MODEMDEVICE 	"/dev/ttyUSB0"	    /* USB port */<br>
+if you connect your arduino via usb cable with the pc.<br>
+and: <br>
+#define BAUDRATE 	B57600 <br>
+(thats the default baudrate of arduino bootloader).<br>
+Compile from command line: <br>
+#> g++ minikermit.c -lncurses -o minikermit<br>
+generates the executable minikermit.<br>
+You can test the communication between the arduino and the pc.<br>
+Connect the arduino via usb cable with the pc, the green power led is on.<br>
+Start minikermit:<br>
+#>./minikermit<br>
+Then reset the arduino with the reset button on board and type immediately 3 times '!' on
+pc keypad.<br>
+In the minikermit window you see a text similar: "ATmegaBOOT / Arduino Mega - (C) Arduino LLC - 090930"<br>.
+That shows all is ready for BAJOS.<br>
