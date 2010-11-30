@@ -1,3 +1,4 @@
+#labels Run,Bajos,atArduino
 *Run Bajos at Arduino*<br>
 The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br>
 There are many ways to install a java application at arduino.<br>
