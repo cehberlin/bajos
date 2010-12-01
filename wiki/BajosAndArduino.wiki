@@ -1,18 +1,19 @@
 #labels Run,Bajos,atArduino
 *Run Bajos at Arduino*<br>
-The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br>
+The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br><br>
 There are many ways to install a java application at arduino.<br>
 *1. Load BAJOS with arduino bootloader as standalone application*<br>
-The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino software environment and a linux pc environment.<br>
-Download and unpack minikermit.tar.gz from [http://code.google.com/p/minikermit].<br>
+The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).<br>
+We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. If you download and unizp this package in a directory /opt/cross/, you are compatible with our software environment and paths in the makefiles. <br>
+You can upload any software (bajos also) with minikermit [http://code.google.com/p/minikermit], a terminal program for serial communication with microcontrollers.
+Download and unpack minikermit.tar.gz.<br>
 Edit minikermit.c<br>
 Uncomment:<br>
-#define ARDUINOBOOTLOADER
-#define MODEMDEVICE 	"/dev/ttyUSB0"	    /* USB port */<br>
+#define ARDUINOBOOTLOADER<br>
+#define MODEMDEVICE 	"/dev/ttyUSB0"	    // USB port<br>
 if you connect your arduino via usb cable with the pc.<br>
 and: <br>
-#define BAUDRATE 	B57600 <br>
-(thats the default baudrate of arduino bootloader).<br>
+#define BAUDRATE 	B57600 //thats the default baudrate of arduino bootloader<br>
 Compile from command line: <br>
 #> g++ minikermit.c -lncurses -o minikermit<br>
 generates the executable minikermit.<br>
@@ -27,22 +28,22 @@ That shows all is ready for BAJOS.<br>
 <br>Prepare BAJOS<br>
 Download and unpack bajos.tar.gz from this page.<br>
 Edit bajos/ARDUINOMEGA/arduinomega.inc<br>
-#define BAUDRATE	57600	/* arduino bootloader default baudrate*/
+#define BAUDRATE	57600	/`*` arduino bootloader default baudrate `*`/<br>
 Then compile bajos, generate bootclasses and compile application class (javatests/AM.class) with the make-utility in the bajos-dir:<br>
 #>make clean  bootclasses compAM bootpack app compile bajospack am<br>
-creates bajos.bin which contains the virtual machines booclasses and the application class. Thats our binary file for upload at the arduino.<br>
-Start minikermit (maybe there are outputs from an old pragram in arduino. Don't mind me.) 
+creates bajos.bin which contains the virtual machine, booclasses and the application class. Thats our binary file for upload at the arduino.<br>
+Start minikermit (maybe there are outputs from an old program in arduino. Don't mind me.) 
 and type 'w'. The minikermit window display the text: "name of bin file for uploading?".<br>
 Type "bajos.bin". Bajos is uploading now and starts immediately.<br>
 
-AM.java in the directory javatests is the running application class. It contains a test of the method currentTimeMilliSec and driver for the programmable board led. You can change this sourcecode and produce a new standalone bajos with the make-command line.
-Other or more application classes can be added by editing the arduinomega.inc file.
+AM.java in the directory javatests of bajos is the running application class. It contains a test of the method currentTimeMilliSec and driver for the programmable board led. You can change this sourcecode and produce a new standalone bajos with the command line above.
+Other or more application classes can be added by editing the arduinomega.inc file.<br><br>
 *2 Burn BAJOS with AVR-ISP-mkII programmer as standalone application*<br>
 If you have a avr-isp programmer connect it with your arduino board (pins labeled as "ICSP") and connect the serial usb port with a second usb cable with the pc. In the bajos directory type:<br>
 #> make all am<br>
-That burns bajos, boot classes and application classes in the arduino board. Start minikermit (see above) and after Reset runs the application class AM.class (see above). More precisely: after reset starts the bootloader in the boot section and if you not type a key at pc keyboard in a time window the bootloader jumps to the address 0 where bajos is loaded.<br>
-*2 Burn the monitor bamo128 with AVR-ISP-mkII programmer and load bajos with the monitor*<br>
-Bamo128 [code.google.com/p/bamo128] is a useful monitor program written in assembler for avr8 microcontroller. It occupies 4Kwords (arduino bootloader needs 2Kwords) in the bootsection. After reset the microcontroller starts at boot section the monitor. The resident monitor is a simple operating system with following features:
+That burns bajos, boot classes and application classes in the arduino board. Start minikermit (see above) and after Reset runs the application class AM.class (see above). More precisely: after reset starts the bootloader in the boot section and if you not type a key at pc keyboard in a time window the bootloader jumps to the address 0 where bajos is loaded.<br><br>
+*3 Burn the monitor bamo128 with AVR-ISP-mkII programmer and load bajos with the monitor*<br>
+Bamo128 [http://code.google.com/p/bamo128] is a useful monitor program written in assembler for avr8 microcontroller. It occupies 4Kwords (arduino bootloader needs 2Kwords) in the bootsection. After reset the microcontroller starts at boot section the monitor. The resident monitor is a simple operating system with following features:
   * user interaction over serial interface with a pc-terminal program (minikermit)
   * upload application programs
   * start  application programs with/without breakpoints and step-mode
