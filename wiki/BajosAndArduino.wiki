@@ -53,6 +53,13 @@ Bamo128 [http://code.google.com/p/bamo128] is a useful monitor program written i
   * driver interface for use in application programs
 Download and unpack bamo128. In the bamo128 directory:<br>
 #> make burn am<br>
-generates and burn bamo128 in your arduino board (before connect the board with the programmer and the usb-serial line with the pc). The arduino bootloader now is overwritten! (Never say die, every time you can reinstall the shipped bootloader with the arduino IDE). The fuses bits must be programmed for bamo128 (4k word boot section, start after reset at bootsection is reversible with the arduino IDE also). With minikermit (see above) you can communicate now with bamo128 (see also [http://code.google.com/p/bamo128] ) and upload every binary software.
+generates and burn bamo128 in your arduino board (before connect the board with the programmer and the usb-serial line with the pc). The arduino bootloader now is overwritten! (Never say die, every time you can reinstall the shipped bootloader with the arduino IDE). The fuses bits must be programmed for bamo128 (4k word boot section, start after reset at bootsection is reversible with the arduino IDE also). With minikermit (see above) you can communicate now with bamo128 (see also [http://code.google.com/p/bamo128] ) and upload every binary software. After reset starts the monitor in the boot section with a greeting and the monitor prompt. Type h for help or see at the bamo128 side.<br>
 ==3.1 Load bajos with bamo128 as standalone application==
+Remove the programmer from the arduino board.<br>
+Switch to the bajos directory and type:<br>
+#>make clean  bootclasses compAM bootpack app compile bajospack am<br>
+Be sure, the baudrates of bajos and minikermit are the same (up to 115200 possible). 
+The command line produces bajos.bin (how described above).<br>
+Then start minikermit and type 'w' after the minikermit terminal prompt. Minikermit ask for filename for uploading. Type the filename (bajos.bin) and minikermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
+and the java application (javatests/AM.class) runs. But what is to do when the java program end. The virtual machine starts against und run the application. With bamo128 we have a better solution. Use the driver in bamo128 (which is resident in bootsection) and return to the bamo128 prompt at java program end.
 ==3.2 Burn bajos by offering drivers through  bamo128== 
