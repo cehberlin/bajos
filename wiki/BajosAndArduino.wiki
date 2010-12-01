@@ -53,7 +53,7 @@ Bamo128 [http://code.google.com/p/bamo128] is a useful monitor program written i
   * driver interface for use in application programs
 Download and unpack bamo128. In the bamo128 directory:<br>
 #> make burn am<br>
-#>make writeFuses am
+#> make fuses am
 generates and burn bamo128 in your arduino board (before connect the board with the programmer and the usb-serial line with the pc). The arduino bootloader now is overwritten! (Never say die, every time you can reinstall the shipped bootloader with the arduino IDE). The fuses bits must be programmed for bamo128 (4k word boot section, start after reset at bootsection is reversible with the arduino IDE also). With minikermit (see above) you can communicate now with bamo128 (see also [http://code.google.com/p/bamo128] ) and upload every binary software. After reset starts the monitor in the boot section with a greeting and the monitor prompt. Type h for help or see at the bamo128 side.<br>
 ==3.1 Load bajos with bamo128 as standalone application==
 Remove the programmer from the arduino board.<br>
