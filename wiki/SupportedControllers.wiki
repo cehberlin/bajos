@@ -1,5 +1,5 @@
 = Supported Controllers =
-You find a list of supported and tested controllers here.
+You find a list of supported and tested boards and controllers here.
 
   * 32 Bit and 64 Bit PC-Linux
   * MICA2 Board (atmega128)
@@ -9,4 +9,4 @@ You find a list of supported and tested controllers here.
   * STK1000
   * EVK1100
   * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1104]
-  * XPLAIN- board
+  * XPLAIN- board (experimental)
