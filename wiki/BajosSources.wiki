@@ -1,3 +1,3 @@
 The bajos directory contains the files for the virtual machine and a subdir BAJOSBOOT for the system- and boot- java files (sources and classfiles), the directory javatests with diverse java testfiles for the different boards and for each board a platform directory with platform specific drivers and initialization c-files (e.g. ARDUINOMEGA).<br>
-*c sources in bajos-dir*
-===interpreter.c===
+===c sources in bajos-dir==
+*interpreter.c*
