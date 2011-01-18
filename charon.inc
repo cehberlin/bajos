@@ -4,7 +4,10 @@
 #
 # java for 8 Bit uC atmega128 at CharonII
 #=================================#
+<<<<<<< .mine
+=======
 
+>>>>>>> .r772
 # working with monitor bamo128  (cs.ba-berlin.de) -> first load bamo128 in boot section
 # make all ch -> generates bajvm.bin, avr8bootpack and chapp
 # load bajvm.bin avr8bootpack and chapp in flash, then start bajos with the "go" command of  monitor
