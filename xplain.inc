@@ -17,7 +17,7 @@
 
 # TOOLS
 # from avr32studio www.atmel.no/beta_ware
-BINDIR	= /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_3.0.0.201007091540/os/linux/x86_64/bin/
+BINDIR	= /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
 DUDEDIR = /opt/cross/avrdude-5.10/
 CC		= $(BINDIR)avr-gcc
 OBJCOPY		= $(BINDIR)avr-objcopy
