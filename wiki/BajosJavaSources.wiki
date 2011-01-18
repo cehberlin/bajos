@@ -1,0 +1,24 @@
+= BAJOSBOOT Sources=
+
+The BAJOSBOOT Sources are all Javafiles and Classes that can be used.
+
+The Source directory itself contains the packages of Bajos.
+
+*packages*:
+
+ * java
+   * graphics
+   * io
+   * lang
+   * util
+
+ * platform
+   * 32 Bit and 64 Bit PC-linux
+   * MICA2 Board
+   * Charon2
+   * NGW100
+   * STK1000
+   * ArduinoMega
+   * EVK1100
+   * [http://code.google.com/p/bajos/wiki/EVK1104 EVK1104]
+   * XPLAIN- board
