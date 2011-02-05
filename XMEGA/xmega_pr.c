@@ -51,8 +51,7 @@
  * the SYSCLK_PORT_* definitions).
  * \param id The ID (bitmask) of the peripheral module to be enabled
  */
-void sysclk_enable_module(uint8_t port, uint8_t id)
-{
+void sysclk_enable_module(uint8_t port, uint8_t id) {
 	irqflags_t iflags;
 	uint8_t mask;
 
@@ -70,8 +69,7 @@ void sysclk_enable_module(uint8_t port, uint8_t id)
  * the SYSCLK_PORT_* definitions).
  * \param id The ID (bitmask) of the peripheral module to be disabled
  */
-void sysclk_disable_module(uint8_t port, uint8_t id)
-{
+void sysclk_disable_module(uint8_t port, uint8_t id) {
 	irqflags_t iflags;
 	uint8_t mask;
 

@@ -48,8 +48,7 @@
  * standard API while eliminating some unnecessary argument setup
  * overhead.
  */
-void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate)
-{
+void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate) {
 	int8_t		exp;
 	uint32_t	div;
 	uint32_t	fper = CONFIG_CPU_HZ;
@@ -68,17 +67,20 @@ void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate)
 	 * 16x oversampling is used, and (b) shift all the limits left
 	 * by 3 bits.
 	 */
-	if (!(baud->flags & USART_BIT(CLK2X)))
+	if(!(baud->flags & USART_BIT(CLK2X)))
 		rate *= 2;
 
 	/* Find the lowest possible exponent */
 	limit = 0xfffU >> 4;
 	ratio = fper / rate;
-	for (exp = -7; exp < 7; exp++) {
-		if (ratio < limit)
+
+	for(exp = -7; exp < 7; exp++) {
+		if(ratio < limit)
 			break;
+
 		limit <<= 1;
-		if (exp < -3)
+
+		if(exp < -3)
 			limit |= 1;
 	}
 
@@ -94,7 +96,7 @@ void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate)
 	 * The formula for calculating BSEL is slightly different when
 	 * exp is negative than it is when exp is positive.
 	 */
-	if (exp < 0) {
+	if(exp < 0) {
 		/*
 		 * We're supposed to subtract 1, then apply BSCALE. We
 		 * want to apply BSCALE first, so we need to turn
@@ -109,9 +111,9 @@ void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate)
 		 * divide. Otherwise, left-shift the denominator instead
 		 * (effectively resulting in an overall right shift.)
 		 */
-		if (exp <= -3) {
+		if(exp <= -3) {
 			div = ((fper << (-exp - 3)) + rate / 2)
-				/ rate;
+			      / rate;
 		} else {
 			rate <<= exp + 3;
 			div = (fper + rate / 2) / rate;
@@ -140,15 +142,14 @@ void uart_priv_baud_set_rate(struct uart_baud *baud, uint32_t rate)
  * standard API while eliminating some unnecessary argument setup
  * overhead.
  */
-bool uart_priv_baud_rate_is_valid(uint8_t flags, uint32_t rate)
-{
+bool uart_priv_baud_rate_is_valid(uint8_t flags, uint32_t rate) {
 	uint32_t	max_rate;
 	uint32_t	min_rate;
 
 	max_rate = CONFIG_CPU_HZ / 8;
 	min_rate = div_ceil(CONFIG_CPU_HZ, 128UL * 8 * 4096);
 
-	if (!(flags & USART_BIT(CLK2X))) {
+	if(!(flags & USART_BIT(CLK2X))) {
 		max_rate /= 2;
 		min_rate = div_ceil(min_rate, 2);
 	}

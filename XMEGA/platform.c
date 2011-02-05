@@ -23,18 +23,17 @@ das arbeitet mit 9600 bauds
 #include "../classfile.h"
 
 extern void getCharsFromFlash(u1*, u1, char*);
-static int uart_putchar (char c, FILE *stream)
-{
-    if (c == '\n')
-        uart_putchar('\r', stream);
- 
-    // Wait for the transmit buffer to be empty
-    while ( !( USARTC0.STATUS & USART_DREIF_bm) );
- 
-    // Put our character into the transmit buffer
-    USARTC0.DATA = c; 
- 
-    return 0;
+static int uart_putchar(char c, FILE *stream) {
+	if(c == '\n')
+		uart_putchar('\r', stream);
+
+	// Wait for the transmit buffer to be empty
+	while(!(USARTC0.STATUS & USART_DREIF_bm));
+
+	// Put our character into the transmit buffer
+	USARTC0.DATA = c;
+
+	return 0;
 }
 
 FILE uartAVR8 = FDEV_SETUP_STREAM(conOut, conIn, _FDEV_SETUP_RW);
@@ -49,33 +48,32 @@ FILE uartAVR8 = FDEV_SETUP_STREAM(conOut, conIn, _FDEV_SETUP_RW);
 #ifndef CONFIG_BOARD_LED_XFER
 # define CONFIG_BOARD_LED_XFER	BOARD_LED1_ID
 #endif
-void uart_init (void);
-void uart_init (void)
-{
-    // Set the TxD pin high - set PORTC DIR register bit 3 to 1
-    PORTC.OUTSET = PIN3_bm;
- 
-    // Set the TxD pin as an output - set PORTC OUT register bit 3 to 1
-    PORTC.DIRSET = PIN3_bm;
- 
-    // Set baud rate & frame format
-    USARTC0.BAUDCTRLB = 0;			// BSCALE = 0 as well
-    USARTC0.BAUDCTRLA = 12;
- 
-    // Set mode of operation
-    USARTC0.CTRLA = 0;				// no interrupts please
-    USARTC0.CTRLC = 0x03;			// async, no parity, 8 bit data, 1 stop bit
- 
-    // Enable transmitter only
-    USARTC0.CTRLB = USART_TXEN_bm;
+void uart_init(void);
+void uart_init(void) {
+	// Set the TxD pin high - set PORTC DIR register bit 3 to 1
+	PORTC.OUTSET = PIN3_bm;
+
+	// Set the TxD pin as an output - set PORTC OUT register bit 3 to 1
+	PORTC.DIRSET = PIN3_bm;
+
+	// Set baud rate & frame format
+	USARTC0.BAUDCTRLB = 0;			// BSCALE = 0 as well
+	USARTC0.BAUDCTRLA = 12;
+
+	// Set mode of operation
+	USARTC0.CTRLA = 0;				// no interrupts please
+	USARTC0.CTRLC = 0x03;			// async, no parity, 8 bit data, 1 stop bit
+
+	// Enable transmitter only
+	USARTC0.CTRLB = USART_TXEN_bm;
 }
 
 void initHW()	{
-//  uart_init();
-  	sysclk_init();
-		board_init();
-// CLK_PER = CLK_CPU an PD7 ausgeben
-	PORTD.DIR = (1<<PIN7);
+	//  uart_init();
+	sysclk_init();
+	board_init();
+	// CLK_PER = CLK_CPU an PD7 ausgeben
+	PORTD.DIR = (1 << PIN7);
 	PORTCFG.CLKEVOUT = PORTCFG_CLKOUT_PD7_gc;
 
 	uart_enable_clock(UART_ID);
@@ -84,96 +82,107 @@ void initHW()	{
 
 	// Light up a LED to show that we are ready
 	led_activate(CONFIG_BOARD_LED_READY);
- bool led_on = true;
+	bool led_on = true;
 	char data;
 
-	for (;;) {
+	for(;;) {
 
-		while (!uart_get_byte(UART_ID, &data)) ;
-		if (data=='r')break;
+		while(!uart_get_byte(UART_ID, &data)) ;
+
+		if(data == 'r')break;
+
 		// toggle a LED each time we get data
-		if (led_on == true) {
+		if(led_on == true) {
 			led_activate(CONFIG_BOARD_LED_XFER);
 			led_on = false;
-		}
-		else {
+		} else {
 			led_deactivate(CONFIG_BOARD_LED_XFER);
 			led_on = true;
 		}
-		while (!uart_put_byte(UART_ID, data+2));
+
+		while(!uart_put_byte(UART_ID, data + 2));
 	}
-stdout = stdin=stderr = &uartAVR8;
-//stdout = &mystdout;
+
+	stdout = stdin = stderr = &uartAVR8;
+	//stdout = &mystdout;
 
 }
 // damned atmels low level driver
 char conIn(FILE* stream)	{
-  char c;
-//   while(!uart_rx_buffer_is_full(UART_ID)) ;
-//uart_get_byte(UART_ID, &c);
-while (!uart_get_byte(UART_ID, &c)) ;
-return c;
+	char c;
+
+	//   while(!uart_rx_buffer_is_full(UART_ID)) ;
+	//uart_get_byte(UART_ID, &c);
+	while(!uart_get_byte(UART_ID, &c)) ;
+
+	return c;
 }
 
 void conOut(char c)	{
-//while (! uart_tx_buffer_is_empty(UART_ID));
-//  uart_put_byte(UART_ID, c);
-while (!uart_put_byte(UART_ID, c));
-if (c!='\n') return;
-//while ( !uart_tx_buffer_is_empty(UART_ID));
-//uart_put_byte(UART_ID,'\r');
-while (!uart_put_byte(UART_ID, '\r'));
+	//while (! uart_tx_buffer_is_empty(UART_ID));
+	//  uart_put_byte(UART_ID, c);
+	while(!uart_put_byte(UART_ID, c));
+
+	if(c != '\n') return;
+
+	//while ( !uart_tx_buffer_is_empty(UART_ID));
+	//uart_put_byte(UART_ID,'\r');
+	while(!uart_put_byte(UART_ID, '\r'));
 }
 
 char conStat()	{
-return uart_rx_buffer_is_full_priv(UART_ID);
+	return uart_rx_buffer_is_full_priv(UART_ID);
 }
 
 
 
 /* all class files stored for linux in DS (malloc)*/
 /* for avr8 all class files in flash */
-void initVM(){	/* read, analyze classfiles and fill structures*/
-u1* addr;
-char buf[5];
-heapInit();	/* linux avr8 malloc , others hard coded!*/
-// all classes in flash for arduinoMega and CharonII
-addr=(u1*) AVR8_FLASH_JAVA_BASE;
-buf[4]=0;
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&numClasses);
-addr+=4; // after numclasses*
-for (cN=0; cN<numClasses;cN++)	{
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-cs[cN].classFileStartAddress=addr+4;	// after length of class;
-analyzeClass(&cs[cN]);	
-addr+=cs[cN].classFileLength+4;
-printf_P(PSTR("bootclass: %x length:%x loaded\n"),cN,cs[cN].classFileLength);
-}
-printf_P(PSTR("load java application classes: \n"));
+void initVM() {	/* read, analyze classfiles and fill structures*/
+	u1* addr;
+	char buf[5];
+	heapInit();	/* linux avr8 malloc , others hard coded!*/
+	// all classes in flash for arduinoMega and CharonII
+	addr = (u1*) AVR8_FLASH_JAVA_BASE;
+	buf[4] = 0;
+	getCharsFromFlash(addr, 4, buf);
+	sscanf(buf, "%4d", (char*)&numClasses);
+	addr += 4; // after numclasses*
+
+	for(cN = 0; cN < numClasses; cN++)	{
+		getCharsFromFlash(addr, 4, buf);
+		sscanf(buf, "%4d", (char*)&cs[cN].classFileLength);
+		cs[cN].classFileStartAddress = addr + 4;	// after length of class;
+		analyzeClass(&cs[cN]);
+		addr += cs[cN].classFileLength + 4;
+		printf_P(PSTR("bootclass: %x length:%x loaded\n"), cN, cs[cN].classFileLength);
+	}
+
+	printf_P(PSTR("load java application classes: \n"));
 
 #ifdef WITHMON
-addr=(char*)AVR8_FLASH_APP_BASE;
+	addr = (char*)AVR8_FLASH_APP_BASE;
 #endif
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&numClasses);
-numClasses+=cN;
-addr+=4; // after numclasses
-for (;cN<numClasses;cN++)	{
-getCharsFromFlash(addr,4,buf);
-sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-cs[cN].classFileStartAddress=addr+4;	// after length of class
-analyzeClass(&cs[cN]);
-addr+=cs[cN].classFileLength+4;
-printf_P(PSTR("appclass: %x length:%x loaded\n"),cN,cs[cN].classFileLength);
+	getCharsFromFlash(addr, 4, buf);
+	sscanf(buf, "%4d", (char*)&numClasses);
+	numClasses += cN;
+	addr += 4; // after numclasses
 
-}
-DEBUGPRINTHEAP;
+	for(; cN < numClasses; cN++)	{
+		getCharsFromFlash(addr, 4, buf);
+		sscanf(buf, "%4d", (char*)&cs[cN].classFileLength);
+		cs[cN].classFileStartAddress = addr + 4;	// after length of class
+		analyzeClass(&cs[cN]);
+		addr += cs[cN].classFileLength + 4;
+		printf_P(PSTR("appclass: %x length:%x loaded\n"), cN, cs[cN].classFileLength);
+
+	}
+
+	DEBUGPRINTHEAP;
 }	// initVM
 
 void exit(int n)	{
-goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
+	goto * 0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
 }
 
 

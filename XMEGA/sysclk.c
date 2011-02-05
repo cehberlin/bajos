@@ -41,20 +41,21 @@
 #include <regs/xmega_clk.h>
 
 #ifdef CONFIG_PLL0_SOURCE
-static void sysclk_init_pll(void)
-{
+static void sysclk_init_pll(void) {
 	struct pll_config pllcfg;
 
-	switch (CONFIG_PLL0_SOURCE) {		//RC32 MHZ
+	switch(CONFIG_PLL0_SOURCE) {		//RC32 MHZ
 	case PLL_SRC_RC2MHZ:
 		break;
 	case PLL_SRC_RC32MHZ:
 		osc_enable(OSC_ID_RC32M);
-		do { } while (!osc_is_running(OSC_ID_RC32M));
+		do { } while(!osc_is_running(OSC_ID_RC32M));
+
 		break;
 	case PLL_SRC_XOSC:
 		osc_enable(OSC_ID_XOSC);
-		do { } while (!osc_is_running(OSC_ID_XOSC));
+		do { } while(!osc_is_running(OSC_ID_XOSC));
+
 		break;
 	default:
 		unhandled_case(CONFIG_PLL0_SOURCE);
@@ -67,48 +68,51 @@ static void sysclk_init_pll(void)
 }
 #endif
 
-void sysclk_init(void)
-{
+void sysclk_init(void) {
 	unsigned int i;
 
 	build_assert(CONFIG_SYSCLK_SOURCE <= SYSCLK_SRC_PLL);
 	build_assert(CONFIG_SYSCLK_PSADIV <= XMEGA_CLK_PSADIV_512);
 	build_assert((CONFIG_SYSCLK_PSADIV & 0x01)
-			|| (CONFIG_SYSCLK_PSADIV == 0));
+	             || (CONFIG_SYSCLK_PSADIV == 0));
 	build_assert(CONFIG_SYSCLK_PSBCDIV <= XMEGA_CLK_PSBCDIV_2_2);
 
 	/* Turn off all peripheral clocks that can be turned off */
-	for (i = 0; i <= XMEGA_PR_PRPF; i++)
+	for(i = 0; i <= XMEGA_PR_PRPF; i++)
 		mmio_write8((void *)(PR_BASE + i), 0xff);
 
 	/* Set up system clock prescalers if different from defaults */
-	if (CONFIG_SYSCLK_PSADIV != XMEGA_CLK_PSADIV_1
-			|| CONFIG_SYSCLK_PSBCDIV != XMEGA_CLK_PSBCDIV_1_1) {
+	if(CONFIG_SYSCLK_PSADIV != XMEGA_CLK_PSADIV_1
+	        || CONFIG_SYSCLK_PSBCDIV != XMEGA_CLK_PSBCDIV_1_1) {
 		clk_write_ccp_reg(PSCTRL, CLK_BF(PSADIV, CONFIG_SYSCLK_PSADIV)
-				| CLK_BF(PSBCDIV, CONFIG_SYSCLK_PSBCDIV));
+		                  | CLK_BF(PSBCDIV, CONFIG_SYSCLK_PSBCDIV));
 	}
 
 	/*
 	 * Switch to the selected initial system clock source, unless
 	 * the default internal 2 MHz oscillator is selected.
 	 */
-	if (CONFIG_SYSCLK_SOURCE != SYSCLK_SRC_RC2MHZ) {
+	if(CONFIG_SYSCLK_SOURCE != SYSCLK_SRC_RC2MHZ) {
 		bool need_rc2mhz = false;
 
-		switch (CONFIG_SYSCLK_SOURCE) {
+		switch(CONFIG_SYSCLK_SOURCE) {
 		case SYSCLK_SRC_RC32MHZ:
 			osc_enable(OSC_ID_RC32M);
-			do { } while (!osc_is_running(OSC_ID_RC32M));
+			do { } while(!osc_is_running(OSC_ID_RC32M));
+
 			break;
 
 		case SYSCLK_SRC_RC32KHZ:
 			osc_enable(OSC_ID_RC32K);
-			do { } while (!osc_is_running(OSC_ID_RC32K));
+			do { } while(!osc_is_running(OSC_ID_RC32K));
+
 			break;
 #ifdef CONFIG_PLL0_SOURCE
 		case SYSCLK_SRC_PLL:
+
 			if ww(CONFIG_PLL0_SOURCE == PLL_SRC_RC2MHZ)
 				need_rc2mhz = true;
+
 			sysclk_init_pll();
 			break;
 #endif
@@ -120,8 +124,9 @@ void sysclk_init(void)
 
 		clk_write_ccp_reg(CTRL, CLK_BF(SCLKSEL, CONFIG_SYSCLK_SOURCE));
 		assert(clk_read_reg(CTRL)
-				== CLK_BF(SCLKSEL, CONFIG_SYSCLK_SOURCE));
-		if (!need_rc2mhz)
+		       == CLK_BF(SCLKSEL, CONFIG_SYSCLK_SOURCE));
+
+		if(!need_rc2mhz)
 			osc_disable(OSC_ID_RC2M);
 	}
 }

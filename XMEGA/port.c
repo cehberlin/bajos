@@ -40,21 +40,21 @@
 
 
 void port_select_gpio(void *port, pin_mask_t pin_mask,
-	port_pin_flags_t flags)
-{
+                      port_pin_flags_t flags) {
 	unsigned char pin;
 
-	for (pin = 0; pin < 8; pin++) {
-		if (pin_mask & (1 << pin))
+	for(pin = 0; pin < 8; pin++) {
+		if(pin_mask & (1 << pin))
 			port_write_reg(port, PIN0CTRL + pin, flags);
 	}
 
 	/* Select direction and initial pin state */
-	if (flags & PORT_DIR_OUTPUT) {
-		if (flags & PORT_INIT_HIGH)
+	if(flags & PORT_DIR_OUTPUT) {
+		if(flags & PORT_INIT_HIGH)
 			port_write_reg(port, OUTSET, pin_mask);
 		else
 			port_write_reg(port, OUTCLR, pin_mask);
+
 		port_write_reg(port, DIRSET, pin_mask);
 	} else {
 		port_write_reg(port, DIRCLR, pin_mask);
@@ -72,8 +72,7 @@ void port_select_gpio(void *port, pin_mask_t pin_mask,
  * pin high (towards Vdd), while \a false means drive the pin low
  * (towards Vss).
  */
-void gpio_set_value_noninline(gpio_pin_t pin, bool value)
-{
+void gpio_set_value_noninline(gpio_pin_t pin, bool value) {
 	gpio_set_value_inline(pin, value);
 }
 
@@ -85,7 +84,6 @@ void gpio_set_value_noninline(gpio_pin_t pin, bool value)
  * \retval true The pin is currently high (close to Vdd)
  * \retval false The pin is currently low (close to Vss)
  */
-bool gpio_get_value_noninline(gpio_pin_t pin)
-{
+bool gpio_get_value_noninline(gpio_pin_t pin) {
 	return gpio_get_value_inline(pin);
 }

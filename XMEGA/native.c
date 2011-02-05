@@ -13,7 +13,7 @@
 #include <stdlib.h>
 //b#include <string.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>  
+#include <avr/interrupt.h>
 #include "../definitions.h"
 #include "../typedefinitions.h"
 #include "../bajvm.h"
@@ -21,7 +21,7 @@
 #include "../classfile.h"
 #include "../scheduler.h"
 #include "../heap.h"
-#ifdef AVR8 
+#ifdef AVR8
 #include <avr/pgmspace.h>
 #endif
 #include "native.h"
@@ -30,32 +30,34 @@
 #ifdef WITHMON
 #define		STRING(a,b)		#a" "#b
 #define		INLINEASM(a,b)	STRING(a,b)
-extern char (*conIn)();
-#endif 
+extern char(*conIn)();
+#endif
 
 char	nativeCharIn()	{
-opStackPush((slot)(u4)conIn(NULL));
-return 1;		}
+	opStackPush((slot)(u4)conIn(NULL));
+	return 1;
+}
 
 char nativeCharOut()		{
-char val=opStackGetValue(local+1).UInt;
-	printf("%c",val);
-	return 0;		}
+	char val = opStackGetValue(local + 1).UInt;
+	printf("%c", val);
+	return 0;
+}
 
 
 char nativeExit()	{
-#ifndef	WITHMON  
-asm volatile	(	"rjmp	.-2"	);
+#ifndef	WITHMON
+	asm volatile("rjmp	.-2");
 #else
-goto *0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
+	goto * 0xf002;	/*asm	 (INLINEASM(jmp,0xf002));*/
 #endif
 }
 
 char currentTimeMillis()	{
 #ifdef WITHMON
-	opStackPush((slot)(u4)((*(u4*)SYSTIMEMILLISEC)&0x7ffff));
+	opStackPush((slot)(u4)((*(u4*)SYSTIMEMILLISEC) & 0x7ffff));
 #else
-	opStackPush((slot) (u4) timerMilliSec);
+	opStackPush((slot)(u4) timerMilliSec);
 #endif
 	return 1;
 }
@@ -63,16 +65,16 @@ char currentTimeMillis()	{
 /* added 2009 by: Friedrich Große & Rainer Kirchhoff, FHW-BA Berlin*/
 /* Deutsche Post IT-Services GmbH & MSA Auer GmbH*/
 char nativeConStat() {
-	opStackPush((slot) (u4) conStat());	
+	opStackPush((slot)(u4) conStat());
 	return 1;
 }
 
 char nativeSetData() { //sdram
 	/*Get possible 16-Bit adr.*/
-	u2 portAddr = opStackGetValue(local+1).bytes[0];
-	portAddr |= (opStackGetValue(local+1).bytes[1]<<8);
+	u2 portAddr = opStackGetValue(local + 1).bytes[0];
+	portAddr |= (opStackGetValue(local + 1).bytes[1] << 8);
 	/*Get value*/
-	u2 portValue = opStackGetValue(local+2).bytes[0];
+	u2 portValue = opStackGetValue(local + 2).bytes[0];
 	/*Assign Value to Port (Adr)*/
 	*((u2*)portAddr) = portValue;
 	return 0;
@@ -80,8 +82,8 @@ char nativeSetData() { //sdram
 
 char nativeGetData() { //sdarm
 	/*Get possible 16-Bit adr.*/
-	u2 portAddr = opStackGetValue(local+1).bytes[0];
-	portAddr |= opStackGetValue(local+1).bytes[1]<<8;
-	opStackPush((slot) (u4) (char) *((u2*)portAddr));
+	u2 portAddr = opStackGetValue(local + 1).bytes[0];
+	portAddr |= opStackGetValue(local + 1).bytes[1] << 8;
+	opStackPush((slot)(u4)(char) *((u2*)portAddr));
 	return 1;
 }

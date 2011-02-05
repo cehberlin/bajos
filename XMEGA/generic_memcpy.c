@@ -38,12 +38,11 @@
 #include <string.h>
 #include <generic/string.h>
 
-void *generic_memcpy(void *dest, const void *src, size_t n)
-{
+void *generic_memcpy(void *dest, const void *src, size_t n) {
 	char *d = dest;
 	const char *s = src;
 
-	while (n--)
+	while(n--)
 		*d++ = *s++;
 
 	return dest;

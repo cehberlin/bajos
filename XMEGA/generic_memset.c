@@ -38,11 +38,10 @@
 #include <string.h>
 #include <generic/string.h>
 
-void *generic_memset(void *s, int c, size_t n)
-{
+void *generic_memset(void *s, int c, size_t n) {
 	char *p = s;
 
-	while (n--)
+	while(n--)
 		*p++ = c;
 
 	return s;

@@ -40,22 +40,22 @@
 #include <types.h>
 #include <compiler.h>
 
-static void delay_loop(uint16_t iterations)
-{
+static void delay_loop(uint16_t iterations) {
 #ifdef __GNUC__
 	asm volatile(
-		"1:	sbiw	%0, 1\n"
-		"	brne	1b"
-		: "+w"(iterations));
+	    "1:	sbiw	%0, 1\n"
+	    "	brne	1b"
+	    : "+w"(iterations));
 #else
-	while (iterations--) {
+
+	while(iterations--) {
 		barrier();
 	}
+
 #endif
 }
 
-static void udelay_internal(unsigned int us)
-{
+static void udelay_internal(unsigned int us) {
 	delay_loop(((CONFIG_CPU_HZ / 1000000) * us) / 4);
 }
 
@@ -64,8 +64,7 @@ static void udelay_internal(unsigned int us)
  *
  * \param us Number of microseconds to delay.
  */
-void udelay(unsigned int us)
-{
+void udelay(unsigned int us) {
 	assert(us != 0);
 
 	udelay_internal(us);
@@ -76,12 +75,11 @@ void udelay(unsigned int us)
  *
  * \param ms Number of milliseconds to delay.
  */
-void mdelay(unsigned int ms)
-{
+void mdelay(unsigned int ms) {
 	assert(ms != 0);
 
 	do {
 		udelay_internal(1000);
 		ms--;
-	} while (ms != 0);
+	} while(ms != 0);
 }

@@ -38,11 +38,10 @@
 #include <string.h>
 #include <generic/string.h>
 
-size_t generic_strlen(const char *str)
-{
+size_t generic_strlen(const char *str) {
 	size_t	len = 0;
 
-	while (*str++)
+	while(*str++)
 		len++;
 
 	return len;

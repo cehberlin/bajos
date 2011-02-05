@@ -1,4 +1,4 @@
- void initHW(void);
- char conIn(FILE*);
- void conOut(char c);
- char conStat(void);
+void initHW(void);
+char conIn(FILE*);
+void conOut(char c);
+char conStat(void);

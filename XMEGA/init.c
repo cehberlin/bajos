@@ -48,11 +48,10 @@
 # include <board/sdram.h>
 #endif
 
-void board_init(void)
-{
+void board_init(void) {
 	/* Set LED pins to be outputs, and all off. */
 	port_select_gpio((void *)PORTE_BASE, 0xff, PORT_DIR_OUTPUT
-			| PORT_INIT_HIGH);
+	                 | PORT_INIT_HIGH);
 	/* If USARTD0 is used for UART communication set PORTD tx pin as output */
 #ifdef CONFIG_XPLAIN_UARTD0
 	port_select_gpio_pin(27, PORT_DIR_OUTPUT | PORT_INIT_HIGH);
@@ -74,11 +73,11 @@ void board_init(void)
 	/* Set button pins on port F to be inputs with pull-up and interrupt
 	 * sensing on both edges.
 	 */
-//	port_select_gpio((void *)PORTF_BASE, 0xFF, PORT_DIR_INPUT | PORT_BOTHEDGES | PORT_PULL_UP);
+	//	port_select_gpio((void *)PORTF_BASE, 0xFF, PORT_DIR_INPUT | PORT_BOTHEDGES | PORT_PULL_UP);
 
 	/* If resistive touch is configured, unset the PR bit for ADC A */
 #ifdef CONFIG_TOUCH_RESISTIVE
-//	board_enable_touch_adc();
+	//	board_enable_touch_adc();
 #endif
 
 	/*
@@ -96,7 +95,7 @@ void board_init(void)
 	/* If huge memory is enabled, enable the onboard SDRAM. */
 #if 0
 
-//CONFIG_EXTRAM_SDRAM
+	//CONFIG_EXTRAM_SDRAM
 	// Configure I/O ports used by the EBI, except data lines.
 	port_write_reg(PORTH_BASE, OUT, 0x0f);
 	port_write_reg(PORTH_BASE, DIR, 0xff);
