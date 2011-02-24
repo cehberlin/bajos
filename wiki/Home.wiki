@@ -8,12 +8,12 @@ Bajos is a Java runtime environment for microcontrollers. It consists of BAJVM, 
 Bajos has been tested yet at:<br>
   * 32 Bit and 64 Bit PC-linux systems (most development and testing is carried out here)
   * MICA2 Board (mote) with atmega128 only equipped with internal 4K Byte data ram<br>
-  * Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128 [http://code.google.com/p/bamo128]
+  * Charon2 board with atmega128 and 32K data ram and resident monitor program bamo128 [http://bamo128.googlecode.com]
   * NGW100 with/without linux
   * STK1000 with/without linux
   * EVK1100 with/without resident monitor bamo32 [http://cs.ba-berlin.de]
   * EVK1104 with/without resident monitor bamo32
-  * ArduinoMega [http://arduino.cc/en/Main/ArduinoBoardMega] with/without preinstalled arduino bootloader or installable resident monitor bamo128
+  * ArduinoMega [http://arduino.cc/en/Main/ArduinoBoardMega] with/without preinstalled arduino bootloader or installable resident monitor bamo128 [http://bamo128.googlecode.com]
   * XPLAIN- board with atxmega128A1 (in development, see this repository)
 
 The modular software structure make it simple to adapt the software to other boards or microcontrollers with a minimum of flash and data memory.<br>
