@@ -13,9 +13,11 @@
 # load with monitor: u-command bajvm to 0x80002000 and avr32bootpack to 0x80003800
 # run with monitor: g 0x80002000 command bajos
 
-CC		= avr32-gcc
-OBJCOPY		= avr32-objcopy
-PROGRAM		= avr32program 
+BINDIR = /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
+CC		= $(BINDIR)/avr32-gcc
+OBJCOPY		= $(BINDIR)/avr32-objcopy
+UTILDIR		= /opt/cross/as4e-ide/plugins/com.atmel.avr.utilities.linux.x86_64_3.0.0.201012011602/os/linux/x86_64/bin/
+PROGRAM		= $(UTILDIR)/avr32program
 
 # CPU architecture: {ap|ucr1|ucr2}
 ARCH = ucr2
