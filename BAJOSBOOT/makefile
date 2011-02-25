@@ -1,8 +1,8 @@
 CPATH    = ./BAJOSBOOT/classes
 
-JARGS    = -g:none -verbose  -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./BAJOSBOOT/sources
+JARGS    = -g:none -verbose  -source 1.4 -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./BAJOSBOOT/sources
 
-#  -source 1.4
+
 boot:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/io/*.java
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/lang/*.java
@@ -12,6 +12,9 @@ boot:
 
 graphic:
 	javac  $(JARGS) ./BAJOSBOOT/sources/java/graphics/*.java
+
+display:
+	javac  $(JARGS) ./BAJOSBOOT/sources/java/display/*.java
 
 all:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/PlatForm.java
@@ -37,7 +40,7 @@ evk1100:
 
 
 evk1104:
-	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1104/PlatForm.java
+	javac  $(JARGS) ./BAJOSBOOT/sources/platform/evk1104/*.java
 
 linux:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/linux/PlatForm.java
@@ -52,7 +55,7 @@ stk1000:
 	javac  $(JARGS) ./BAJOSBOOT/sources/platform/stk1000/PlatForm.java
 
 clean:
-	rm ./BAJOSBOOT/classes/platform/PlatForm.class
+	rm ./BAJOSBOOT/classes/platform/*.class
 	rm ./BAJOSBOOT/classes/java/io/*.class
 	rm ./BAJOSBOOT/classes/java/lang/*.class
 	rm ./BAJOSBOOT/classes/java/graphics/*.class
