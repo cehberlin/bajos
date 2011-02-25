@@ -42,14 +42,15 @@ int uart_putchar(char c, FILE *stream)	{
 int uart_getchar(FILE *stream)	{
 return conIn();			}
 
-SIGNAL(SIG_OUTPUT_COMPARE2A) __attribute__ ((naked));
-SIGNAL(SIG_OUTPUT_COMPARE2A) {asm volatile  (INLINEASM(jmp,saveCPU));} 
- /* monitor for step-command */
 
-SIGNAL(SIG_OUTPUT_COMPARE1A) __attribute__ ((naked));
-SIGNAL(SIG_OUTPUT_COMPARE1A) {asm volatile  (INLINEASM(jmp,mySysClock));}
+// monitor interrupt für step ...
+ISR(TIMER2_COMPA_vect) __attribute__ ((naked));
+ISR(TIMER2_COMPA_vect) {asm volatile  (INLINEASM(jmp,saveCPU));}
 
- /* monitor for sysclock millisec */
+ /* monitor interrupt for sysclock millisec */
+ISR(TIMER1_COMPA_vect) __attribute__ ((naked));
+ISR(TIMER1_COMPA_vect) {asm volatile  (INLINEASM(jmp,mySysClock));}
+
 #else
 void conOut(char c)	{
   uart_putchar(c,& uartAVR8);
@@ -67,7 +68,7 @@ int uart_getchar(FILE *stream)	{
 	loop_until_bit_is_set(UCSR0A, RXC0);
 	return (int)UDR0;	}
 
-SIGNAL(SIG_OUTPUT_COMPARE1A)		{
+ISR(TIMER1_COMPA_vect) {
 	timerMilliSec++;	
 }
 
@@ -83,6 +84,7 @@ OCR1A=(unsigned int)OCR1ATIME;
 
 void initHW(){
 asm	volatile ( "ldi r24,1");
+asm	volatile ( "clr r1");
 asm volatile ("out 0x3b, r24");	// RAMPZ  ever 1
 #ifndef WITHMON
 startUart0();

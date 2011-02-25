@@ -1,6 +1,6 @@
-#define baud		115200
+#define baud		57600 //115200
 #define	OCR1ATIME	(F_CPU/1000)
-#define	bdteiler	(F_CPU/(16*baud))		  	// Baud-Divider
+#define	bdteiler	(F_CPU/(16*baud)-1)		  	// Baud-Divider
 
 #define		MYUDR		UDR0		// usart data reg 0/1
 #define		MYUDRE		UDRE0
