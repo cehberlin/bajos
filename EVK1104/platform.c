@@ -17,10 +17,15 @@
 #include "power_clocks_lib.h"
 #include "intc.h"
 #include "gpio.h"
-#include "flashc.h"
-#include "pm.h"
-#include "cycle_counter.h"
 #include "spi.h"
+#include "pm.h"
+#include "led.h"
+#include "et024006dhu.h"
+#include "qt60168.h"
+#include "conf_qt60168.h"
+#include "delay.h"
+#include "flashc.h"
+#include "cycle_counter.h"
 #include "rtc.h"
 #include "sdramc.h"
 #include "iobinding.h"
@@ -47,6 +52,50 @@ void initHW()	{
 usart1Init();			// 57600 ACM  -> minikermit
 initTimer();
 sdramc_init(48000000);
+
+
+/* START init Touch */
+static const gpio_map_t QT60168_SPI_GPIO_MAP =
+  {
+    {QT60168_SPI_SCK_PIN,          QT60168_SPI_SCK_FUNCTION         },  // SPI Clock.
+    {QT60168_SPI_MISO_PIN,         QT60168_SPI_MISO_FUNCTION        },  // MISO.
+    {QT60168_SPI_MOSI_PIN,         QT60168_SPI_MOSI_FUNCTION        },  // MOSI.
+    {QT60168_SPI_NPCS0_PIN,        QT60168_SPI_NPCS0_FUNCTION}  // Chip Select NPCS.
+  };
+
+  // SPI options.
+  spi_options_t spiOptions =
+  {
+    .reg          = QT60168_SPI_NCPS,
+    .baudrate     = QT60168_SPI_MASTER_SPEED, // Defined in conf_qt60168.h.
+    .bits         = QT60168_SPI_BITS,         // Defined in conf_qt60168.h.
+    .spck_delay   = 0,
+    .trans_delay  = 0,
+    .stay_act     = 0,
+    .spi_mode     = 3,
+    .modfdis      = 1
+  };
+
+  // Assign I/Os to SPI.
+  gpio_enable_module(QT60168_SPI_GPIO_MAP,
+                     sizeof(QT60168_SPI_GPIO_MAP) / sizeof(QT60168_SPI_GPIO_MAP[0]));
+
+  // Initialize as master.
+  spi_initMaster(QT60168_SPI, &spiOptions);
+
+  // Set selection mode: variable_ps, pcs_decode, delay.
+  spi_selectionMode(QT60168_SPI, 0, 0, 0);
+
+  // Enable SPI.
+  spi_enable(QT60168_SPI);
+
+  // Initialize QT60168 with SPI clock Osc0.
+  spi_setupChipReg(QT60168_SPI, &spiOptions, FOSC0);
+  
+  qt60168_init(FOSC0);
+
+/* END init Touch */
+
 #endif
 stdIOInit();
 }

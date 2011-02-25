@@ -48,7 +48,8 @@
 #define _PRINT_FUNCS_H_
 
 #include <avr32/io.h>
-#include "../board.h"
+//#include "../board.h"
+#include "evk1104.h"
 
 
 /*! \name USART Settings for the Debug Module

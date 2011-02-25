@@ -19,7 +19,10 @@
 #  define EXAMPLE_PDCA_CLOCK_HSB      AVR32_PDCA_CLK_HSB
 #  define EXAMPLE_PDCA_CLOCK_PB       AVR32_PDCA_CLK_PBA
 #endif
+
 u2 readClassFile(char* fileName,char* addr);
+
+  
 char	conIn();
 void	conOut(char c);
 void	hexConOut(char c);
