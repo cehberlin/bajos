@@ -13,11 +13,9 @@
 # load with monitor: u-command bajvm to 0x80002000 and avr32bootpack to 0x80003800
 # run with monitor: g 0x80002000 command bajos
 
-BINDIR = /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
-CC		= $(BINDIR)/avr32-gcc
-OBJCOPY		= $(BINDIR)/avr32-objcopy
-UTILDIR		= /opt/cross/as4e-ide/plugins/com.atmel.avr.utilities.linux.x86_64_3.0.0.201012011602/os/linux/x86_64/bin/
-PROGRAM		= $(UTILDIR)/avr32program
+CC		= avr32-gcc
+OBJCOPY		= avr32-objcopy
+PROGRAM		= avr32program 
 
 # CPU architecture: {ap|ucr1|ucr2}
 ARCH = ucr2
@@ -60,11 +58,15 @@ JAVABOOTSOURCES	+= 	$(LANG)/Math.java \
 			$(LANG)/RuntimeException.java $(LANG)/InterruptedException.java \
 			$(UTIL)/Collection.java $(UTIL)/List.java \
 			$(UTIL)/Stack.java $(UTIL)/Vector.java \
-			$(LANG)/Runtime.java
+			$(LANG)/Runtime.java \
+			$(JPLATFORM)/Display.java \
+			$(JPLATFORM)/Touch.java \
+			$(JPLATFORM)/LEDs.java \
+			$(JPLATFORM)/ADC.java
 			
-JAVAAPPSOURCES		= javatests/EVK1104.java
+JAVAAPPSOURCES		= javatests/EVK1104*.java
 
-PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c 
+PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c $(APPPATH)EVK1104/et024006dhu.c $(APPPATH)EVK1104/delay.c $(APPPATH)EVK1104/smc.c $(APPPATH)EVK1104/qt60168.c $(APPPATH)EVK1104/led.c
 PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
@@ -107,7 +109,7 @@ PLATFORMASMSOURCES	+= $(APPPATH)/EVK1104/exception.S   $(APPPATH)/EVK1104/trampo
 LD_EXTRA_FLAGS	= -Wl,--gc-sections -Wl,-e,_trampoline  -nostartfiles
 LINKER_SCRIPT	= $(APPPATH)EVK1104/link_uc3a3256.lds
 
-all:	clean compile bootclasses  compEVK1104 burnbootpack burnbajvm run
+all:	clean compile bootclasses compEVK1104 burnbootpack burnbajvm run
 
 # Program MCU memory from ELF output file.
 .PHONY: burnbajvm
@@ -131,6 +133,7 @@ $(TARGETFILE): $(OBJFILES)
 	@echo $(MSG_BINARY_IMAGE)
 	$(OBJCOPY) -O binary $(TARGETFILE)  $(TARGETFILE).bin
 	$(VERBOSE_NL)
+
 
 # Preprocess, compile & assemble: create object files from C source files.
 %.o: %.c
@@ -171,5 +174,4 @@ burnbootpack:	bootpack
 # java app
 compEVK1104:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(JAVAAPPSOURCES)
-
 
