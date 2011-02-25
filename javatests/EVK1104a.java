@@ -3,166 +3,85 @@
 * See the file "license.terms" for information on usage and redistribution of this file.
 */
 import java.util.*;
-import platform.*;
+
 public class EVK1104a			{
 	public static void main(String [] args)		{
-
-	int x;
 	char c;
-	int y=0;
-	Display display = new Display();
-	
-	System.out.println("ACD-Test... zum Beenden 'e' drücken, beliebige Taste um Wert auszugeben");
-	ADC adc = new ADC();
-	adc.enable();
-	while (true) {
-	  System.out.println(adc.getValue());
-	  if((System.in.read())=='e')
-      break;
-	}	
-	adc.disable();
-	
-	System.out.println("ADC Test vorbei");	
-	
-	System.out.println("LCD-Test mit Display Klasse... zum Beenden 'e' druecken");
-	
-	while (true) {
-	  y++;
-    display.setColor(0xF0F0);
-    display.setBackgroundColor(0x0000);
-    //Rects
-    display.drawFillRect(0,0,40,40);
-    display.drawRect(45,0,40,40,2);
-    display.drawFillRect(100,0,40,40,0xFFFF);
-    display.drawRect(155,0,40,40,2,0xFFFF,0x0F0F);
-    display.drawRect(210,0,40,40,2,0x0F0F);
-    
-    //Circles
-    display.drawFillCircle(25,70,25);
-    display.drawCircle(80,70,25,2);
-    display.drawFillCircle(135,70,25,0xFFFF);
-    display.drawCircle(190,70,25,2,0xFFFF,0x0F0F);
-    display.drawCircle(245,70,25,2,0x0F0F);
-    
-    //Texts
-    display.drawString("LCD Text",1, 0, 100);
-    display.drawString("steht hier",2, 65, 100);
-    display.drawString("auf dem",3, 155, 100);
-    display.drawString("EVK1104",1, 0, 120, 0xFFFF, 0x0F0F);
-    display.drawString("Display",2, 65, 120, 0xFFFF, 0x0F0F);
-    display.drawString("in tollen",3, 145, 120, 0xFFFF, 0x0F0F);
-    display.drawString("Farben",3, 220, 120, 0x0F0F);
-    
-    //Pixels
-    display.drawPoint(10,140);
-    display.drawPoint(11,140);
-    display.drawPoint(10,141);
-    display.drawPoint(11,141);
-    display.drawPoint(20,140,0x0F0F);
-    display.drawPoint(21,140,0x0F0F);
-    display.drawPoint(20,141,0x0F0F);
-    display.drawPoint(21,141,0x0F0F);
-    
-    //Parcial Circles
-    boolean [] circleParts = {true,false,true,false};
-    display.drawPartialFillCircle(25,180,25,circleParts);
-    display.drawPartialCircle(80,180,25,2,0xCC);
-    display.drawPartialFillCircle(135,180,25,0x33,0xFFFF);
-    display.drawPartialCircle(190,180,25,2,0x33,0xFFFF,0x0F0F);
-    display.drawPartialCircle(245,180,25,2,0x33,0x0F0F);
-    
-    //Lines
-    display.drawHorizLine(0,210,30);
-    display.drawHorizLine(40,210,30,0x0F0F);
-    display.drawVertLine(0,215,20);
-    display.drawVertLine(40,215,20,0x0F0F);
-    display.drawLine(0,236,20,240);
-    display.drawLine(30,236,70,240,0X0F0F);
-    if((System.in.read())=='e')
-      break;
-	}
-	display.clearDisplay();
-	y=0;
-	System.out.println("LCD-Test vorbei...");
-	
-	System.out.println("LED-Test...");
-	
-	System.out.println("Test 1: Bit-Zaehler, Druecke eine Taste zum zaehlen, zum Beenden 'e' druecken");
-  LEDs leds = new LEDs();
-	while (true) {
-	   // System.out.println((y) + " an-> " + (y^0xf) + "aus!");
-	   // System.platform.setLEDon(y);
-	   // System.platform.setLEDoff(y^0xf);
-	   leds.activateBits(y);
-	    
-	    y=y+1;
-	    if (y==16) {y=0;}
-	    if((System.in.read())=='e')
-        break;
-	}
-	System.out.println("Test 2: Manuell, Druecke 1-4 um die entsprechende LED umzuschalten, zum Beenden 'e' druecken");
+	int n=0;
 
-	while((c=System.in.read())!='e'){
-	  if(c=='1')
-	    leds.toggle(1);
-    if(c=='2')
-      leds.toggle(2);
-    if(c=='3')
-      leds.toggle(3);
-    if(c=='4')
-      leds.toggle(4);
-	}
-	System.out.println("LED-Test vorbei...");
-	System.out.println("Touch-Wheel/-Button-Test mit Anzeige auf LCD (Button 1 und 4 zum beenden druecken)");
-	while(true){
-	  display.clearDisplay();
-	  int bitmask = 0x0000;
-	  x = (System.platform.getButtons()&0xffff);
-	  //int bitmask = 0x0000;
-	  
-	  if ((x & 0x000e) != 0) {bitmask = (bitmask | 0x03);}
-	  if ((x & 0x0130) != 0) {bitmask = (bitmask | 0xC0);}
-	  if ((x & 0x0e00) != 0) {bitmask = (bitmask | 0x30);}
-	  if ((x & 0x3001) != 0) {bitmask = (bitmask | 0x0C);}
-	  if ((x & 0x0040) != 0) {display.drawFillRect(30,10,40,40);}
-	  if ((x & 0x0080) != 0) {display.drawFillRect(90,10,40,40);}
-	  if ((x & 0x4000) != 0) {display.drawFillRect(190,10,40,40);}
-	  if ((x & 0x8000) != 0) {display.drawFillRect(250,10,40,40);}
-	  /*if (Touch.isTouched(1)||Touch.isTouched(2)||Touch.isTouched(3)) {bitmask = (bitmask | 0x03);}
-  	if (Touch.isTouched(4)||Touch.isTouched(5)||Touch.isTouched(8)) {bitmask = (bitmask | 0xC0);}
-	  if (Touch.isTouched(9)||Touch.isTouched(10)||Touch.isTouched(11)) {bitmask = (bitmask | 0x30);}
-	  if (Touch.isTouched(12)||Touch.isTouched(13)||Touch.isTouched(0)) {bitmask = (bitmask | 0x0C);}	  
-	  if (Touch.isTouched(6)) display.drawFillRect(30,10,40,40);
-	  if (Touch.isTouched(7)) display.drawFillRect(90,10,40,40);
-	  if (Touch.isTouched(14)) display.drawFillRect(190,10,40,40);
-	  if (Touch.isTouched(15)) display.drawFillRect(230,10,40,40);
-*/
-	  display.drawPartialFillCircle(160,120,50,bitmask);
+	//START Example for Display usage
 
-	  // System.platform.setLEDon(y);
-	  // System.platform.setLEDoff(y^0xff);
-	  // y += 1;
-	  // if (y==9) {y=0;}
-	  //if(Touch.isTouched(6) & Touch.isTouched(15))
-	  if(x == 0x8040) 
-	   break;
+	//    First examples using drawFillRect
+System.platform.initDisplay();
+	System.out.println("press any key for funny Display or e for exit anc c to clean Display");
+  while ((c=System.in.read()) != 'e'){
+    if(c == 'c')
+      System.platform.drawFillRect(0,0,320,240,0xFFFF);
+    else{
+	    // 320 240 Display
+	    for(int i = 0; i < 100; i++){
+	      Random rand = new Random();
+        int color = rand.nextInt() % 0xFFFF;
+        if(color < 0)
+          color = color * -1;
+        int x = rand.nextInt() % 320;
+        if(x < 0)
+          x = x * -1;
+        int y = rand.nextInt() % 240;
+        if(y < 0)
+          y = y * -1;
+        System.platform.drawFillRect(x,y,20,20,color);
+      }
+	  }
   }
-  display.drawPartialCircle(160,120,100,10,0xF0);
-  display.drawVertLine(155,80,60);
-  display.drawVertLine(156,80,60);
-  display.drawVertLine(157,80,60);
-  display.drawVertLine(158,80,60);
-  display.drawVertLine(159,80,60);
-  display.drawVertLine(160,80,60);
-  display.drawVertLine(161,80,60);
-  display.drawVertLine(162,80,60);
-  display.drawVertLine(163,80,60);
-  display.drawVertLine(164,80,60);
-  display.drawVertLine(165,80,60);
-	System.out.println("Ende Touch-Wheel/-Button-Test");
+  
+//  End Example 
 
-	System.out.println("Test beendet");
+ 
 
+  System.platform.drawHorizLine(10,10,50,0xFA30);
+  System.platform.drawFillRect(20,20,30,30,0x0FB4);
+  System.platform.drawVertLine(60,60,60,0x00FF);
+  for (int i=1; i<10;i++){
+    System.platform.drawPixel(i,i*i,0x0000);
+    System.platform.drawPixel(i-1,i*i-1,0x0000);
+    System.platform.drawPixel(i-1,i*i+1,0x0000);
+    System.platform.drawPixel(i+1,i*i+1,0x0000);
+    System.platform.drawPixel(i+1,i*i-1,0x0000);
+  }
+  int x;
+  //while((c=System.in.read()) != 'e'){
+  while(true){
+    //System.platform.drawFillRect(0,0,320,240,0xFFFF);
+    x = (System.platform.getButtons()&0xffff);
+    // System.out.println("Button: " + x);
+// DISPLAY 240 x 320 pixel
+    int bitmask = 0x0000;
+    //if (((x & 0x0002) == 2) || ((x & 0x0004) == 4) || ((x & 0x0008) == 8)) {bitmask = (bitmask | 0x03);} // 1. Quadrant
+    //if (((x & 0x0010) == 16) || ((x & 0x0020) == 32) || ((x & 0x0100) == 256)) {bitmask = (bitmask | 0xC0);} // 4. Quadrant
+    //if (((x & 0x0200) == 512) || ((x & 0x0400) == 1024) || ((x & 0x0800) == 258)) {bitmask = (bitmask | 0x30);} // 3. Quadrant
+    //if (((x & 0x1000) == 4096) || ((x & 0x2000) == 8192) || ((x & 0x0001) == 1)) {bitmask = (bitmask | 0x0C);} // 2. Quadrant
+    if ((x & 0x000e) != 0) {bitmask = (bitmask | 0x03);}
+    if ((x & 0x0130) != 0) {bitmask = (bitmask | 0xC0);}
+    if ((x & 0x0e00) != 0) {bitmask = (bitmask | 0x30);}
+    if ((x & 0x3001) != 0) {bitmask = (bitmask | 0x0C);}
+    if ((x & 0x0040) != 0) {System.platform.drawFillRect(30,10,40,40,0xF0F0);} else {System.platform.drawFillRect(30,10,40,40,0xFFFF);}
+    if ((x & 0x0080) != 0) {System.platform.drawFillRect(90,10,40,40,0xF0F0);} else {System.platform.drawFillRect(90,10,40,40,0xFFFF);}
+    if ((x & 0x4000) != 0) {System.platform.drawFillRect(190,10,40,40,0xF0F0);} else {System.platform.drawFillRect(190,10,40,40,0xFFFF);}
+    if ((x & 0x8000) != 0) {System.platform.drawFillRect(230,10,40,40,0xF0F0);} else {System.platform.drawFillRect(230,10,40,40,0xFFFF);}
+    
+    System.platform.drawFilledCircle(160,120,50,0xF0F0,bitmask);
+    System.platform.drawFilledCircle(160,120,50,0xFFFF,bitmask^0xffff);
+
+    //if (x==0) {System.platform.drawFillRect(0,0,320,240,0x0F0F);}
+    //if (x==6) {System.platform.drawFillRect(0,0,320,240,0xFFFF);}
+    //if (x==7) {System.platform.drawFillRect(0,0,320,240,0x0000);}
+    //if (x==14) {System.platform.drawFillRect(0,0,320,240,0xF0F0);}
+    //if (x==15) {System.platform.drawFillRect(0,0,320,240,0x123F);}
+    //if (x==8) {System.platform.drawFillRect(0,0,320,240,0xABC0);}
+  }
+
+//	System.out.println("end test");
   //END Example for Display usage
 
 }
