@@ -154,7 +154,24 @@ functionForNativeMethodType functionForNativePlatFormMethod[] =	{
 	nativeCharOut,
 	conStat,
 	nativeExit,
-	currentTimeMillis
+	currentTimeMillis,
+	initDisplay,
+	clearDisplay,
+	drawPixel,
+	drawHorizLine,
+	drawVertLine,
+	drawLine,
+	drawFillRect,
+	drawFilledCircle,
+	drawChar,
+	getButtons,
+	isButtonPressed,
+	setLEDon,
+	setLEDoff,
+	adcInit,
+	adcEnable,
+	adcDisable,
+	adcGetValue
 };
 #endif
 
