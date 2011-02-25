@@ -94,8 +94,8 @@ JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
-			$(LANG)/Exception.java $(LANG)/Math.java \
-			$(LANG)/ArrayIndexOutOfBoundsException.java
+			$(LANG)/Exception.java $(LANG)/Math.java
+#			$(LANG)/ArrayIndexOutOfBoundsException.java
 
 #############
 # TINYBAJOS #
@@ -111,7 +111,8 @@ ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
 	DEFS			+= -DTINYBAJOS_EXCEPTION # remove exception handling
 else
 	JAVABOOTSOURCES 	+= 	$(LANG)/Thread.java
-	JAVABOOTSOURCES		+= 	$(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
+
+#JAVABOOTSOURCES		+= 	$(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
 	BAJOSCSOURCES		+= 	$(APPPATH)JAVALANGNATIVE/lock.c \
 					$(APPPATH)JAVALANGNATIVE/thread.c \
 					$(APPPATH)JAVALANGNATIVE/interruptthread.c
