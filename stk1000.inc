@@ -17,9 +17,11 @@ PART		= ap7000
 PLATFORM	= STK1000  -D BOARD=STK1000
 LDFLAGS		= -march=$(ARCH) -mpart=$(PART)
 
-CC		= avr32-gcc
-PROGRAM		= avr32program
-OBJCOPY		= avr32-objcopy
+BINDIR = /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
+CC		= $(BINDIR)/avr32-gcc
+OBJCOPY		= $(BINDIR)/avr32-objcopy
+UTILDIR		= /opt/cross/as4e-ide/plugins/com.atmel.avr.utilities.linux.x86_64_3.0.0.201012011602/os/linux/x86_64/bin/
+PROGRAM		= $(UTILDIR)/avr32program 
 
 MCPU		= ap7000
 CC_FLAGS	= -Wall -c  -mcpu=$(MCPU) -O$(OPT)
