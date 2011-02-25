@@ -80,7 +80,7 @@ burnbajvm:	burn run
 
 burn:
 	@echo $(MSG_PROGRAMMING)
-	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+	$(PROGRAM)  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
 
 else # without monitor
 PLATFORMCSOURCES	+= $(APPPATH)EVK1100/intc.c $(APPPATH)EVK1100/pm.c \
@@ -106,7 +106,7 @@ burnbajvm: burn run
 
 burn:	
 	@echo $(MSG_PROGRAMMING)
-	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
+	$(PROGRAM)  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
 
 #	$(VERBOSE_CMD) $(PROGRAM) --part UC3A0512ES program  -F bin -O 0x80040000 -finternal@0x80040000,256Kb -cxtal -v -R avr32bootpack
 #	$(VERBOSE_CMD) $(PROGRAM) program $(FLASH:%=-f%) $(PROG_CLOCK:%=-c%) -e -v -R $(if $(findstring run,$(MAKECMDGOALS)),-r) $(TARGETFILE)
@@ -153,7 +153,7 @@ bootpack:
 	@echo generating avr32bootpack
 
 burnbootpack:	bootpack
-	avr32program  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
+	$(PROGRAM)  -pjtagicemkii  --part UC3A0512ES program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
 
 
 # java app

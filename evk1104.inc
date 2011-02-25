@@ -14,9 +14,10 @@
 # run with monitor: g 0x80002000 command bajos
 
 BINDIR = /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
+UTILDIR= /opt/cross/as4e-ide/plugins/com.atmel.avr.utilities.linux.x86_64_*/os/linux/x86_64/bin/
 CC		= $(BINDIR)avr32-gcc
 OBJCOPY		= $(BINDIR)avr32-objcopy
-PROGRAM		= $(BINDIR)avr32program 
+PROGRAM		= $(UTILDIR)avr32program 
 
 # CPU architecture: {ap|ucr1|ucr2}
 ARCH = ucr2
@@ -65,7 +66,7 @@ JAVABOOTSOURCES	+= 	$(LANG)/Math.java \
 			$(JPLATFORM)/LEDs.java \
 			$(JPLATFORM)/ADC.java
 			
-JAVAAPPSOURCES		= javatests/EVK1104*.java
+JAVAAPPSOURCES		= javatests/EVK1104.java javatests/EVK1104a.java javatests/EVK1104b.java
 
 PLATFORMCSOURCES	= $(APPPATH)EVK1104/platform.c $(APPPATH)EVK1104/native.c $(APPPATH)EVK1104/et024006dhu.c $(APPPATH)EVK1104/delay.c $(APPPATH)EVK1104/smc.c $(APPPATH)EVK1104/qt60168.c $(APPPATH)EVK1104/led.c
 PLATFORMASMSOURCES	= $(APPPATH)EVK1104/crt0.S
@@ -116,7 +117,7 @@ all:	clean compile bootclasses compEVK1104 burnbootpack burnbajvm run
 .PHONY: burnbajvm
 
 burnbajvm:
-	$PROGRAM)  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
+	$(PROGRAM)  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
 
 
 endif	#monitor
