@@ -16,33 +16,35 @@
 # make writeFusesM	-> start after reset vom boot section 0xf000 (in words)
 
 # TOOLS
-CC		= avr-gcc
-OBJCOPY		= avr-objcopy
+BINDIR		= /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
+CC		= $(BINDIR)avr-gcc
+OBJCOPY		= $(BINDIR)avr-objcopy
 PROGRAM		= avrdude
 # flasher means the avrdude device which you are using for flashing
-FLASHER 	= stk200 
-#FLASHER 	= avrispmkII -P usb 
+#FLASHER	= stk500 -P/dev/ttyUSB0
+#FLASHER 	= stk200 
+FLASHER 	= avrispmkII -P usb 
 
 # DEVICE
 ARCH			= AVR5
 PART			= atmega1280
 DEFS 			+= -DAVR8 -DAM -DF_CPU=16000000 
-
 OPTIMIZATION		= -Os
 
 # for standalone application
-CLASSFILEBASE		= 0xC480
+CLASSFILEBASE		= 0x8000
+#0xC480
 # fix address for class files (in words), make it better
 
 # JAVA SOURCES
 #JAVAAPPSOURCES		= javatests/LockSimple.java
-#JAVAAPPSOURCES		= javatests/AM.java
+JAVAAPPSOURCES		= javatests/AM.java
 #JAVAAPPSOURCES		= javatests/T1.java javatests/T2.java
 #JAVAAPPSOURCES		= javatests/SchedulerTest.java
-JAVAAPPSOURCES		= javatests/InterruptTest.java
+#JAVAAPPSOURCES		= javatests/InterruptTest.java
 
 # JAVA SOURCES
-#JAVABOOTSOURCES		+= 
+#JAVABOOTSOURCES	+= 
 
 #############
 # TINYBAJOS #
@@ -67,13 +69,15 @@ OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 # GOALS
 
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
-DEFS+= -DWITHMON 
+DEFS+= -DWITHMON
+DEFS+= -Wl,--defsym=__stack=0x802100
+
 all:	clean  bootclasses compAM bootpack app compile
 	@echo created $(BIN) arv8bootpack amapp
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) $(DEFS)  -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 	@${CC} --version
@@ -133,14 +137,14 @@ writeFusesA:	# 4 k word boot section, start from address 0000 after reset
 bootpack:
 	@echo -n generate file: avr8bootpack\; numClasses: 
 	@printf %4d `echo $(JAVABOOTCLASSES)| wc -w` |tee  avr8bootpack
-	@for i in $(JAVABOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
+	$(VERBOSE_CMD) for i in $(JAVABOOTCLASSES) ;do printf %4d `cat $$i| wc -c` >> avr8bootpack;	cat $$i >> avr8bootpack;	done
 	@echo "  length:" `ls -l avr8bootpack | cut -f5 -d' '`
 
 .PHONY:	app
 app:
 	@echo -n generate file: amapp\; numClasses: 
 	@printf %4d `echo $(JAVAAPPCLASSES)| wc -w` |tee  amapp
-	@for i in $(JAVAAPPCLASSES) ;do printf %4d `cat $$i| wc -c` >> amapp;	cat $$i >> amapp;	done
+	$(VERBOSE_CMD) for i in $(JAVAAPPCLASSES) ;do printf %4d `cat $$i| wc -c` >> amapp;	cat $$i >> amapp;	done
 	@echo "  length:" `ls -l amapp | cut -f5 -d' '`
 
 %.o: %.c
