@@ -13,9 +13,10 @@
 # load with monitor: u-command bajvm to 0x80002000 and avr32bootpack to 0x80003800
 # run with monitor: g 0x80002000 command bajos
 
-CC		= avr32-gcc
-OBJCOPY		= avr32-objcopy
-PROGRAM		= avr32program 
+BINDIR = /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
+CC		= $(BINDIR)avr32-gcc
+OBJCOPY		= $(BINDIR)avr32-objcopy
+PROGRAM		= $(BINDIR)avr32program 
 
 # CPU architecture: {ap|ucr1|ucr2}
 ARCH = ucr2
@@ -89,7 +90,7 @@ all:	clean compile bootclasses compEVK1104 bootpack
 burnbajvm: burn run
 
 burn:
-	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
+	$(PROGRAM)  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80020000  -v -e -R bajvm.bin
 
 
 else # without monitor
@@ -115,7 +116,7 @@ all:	clean compile bootclasses compEVK1104 burnbootpack burnbajvm run
 .PHONY: burnbajvm
 
 burnbajvm:
-	avr32program  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
+	$PROGRAM)  -pjtagicemkii  --part $(PART) program -finternal@0x80000000 -cint -F bin -O 0x80000000  -v -e -R bajvm.bin
 
 
 endif	#monitor
@@ -168,7 +169,7 @@ bootpack:
 
 
 burnbootpack:	bootpack
-	avr32program  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
+	$(PROGRAM)  -pjtagicemkii  --part UC3A3256 program -finternal@0x80000000 -cint -F bin -O 0x80038000  -v -e -R avr32bootpack
 
 
 # java app
