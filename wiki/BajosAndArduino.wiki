@@ -5,22 +5,21 @@ There are many ways to install a java application at arduino.<br>
 ==1. Load BAJOS with arduino bootloader as standalone application==
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).<br>
 We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. If you download and unizp this package in a directory /opt/cross/, you are compatible with our software environment and paths in the makefiles. <br>
-You can upload any software (bajos also) with minikermit [http://code.google.com/p/minikermit], a terminal program for serial communication with microcontrollers.
-Download and unpack minikermit.tar.gz.<br>
-Edit minikermit.c<br>
+You can upload any software (bajos also) from pc at arduino with arduinokermit [http://minikermit.googlecode.com], a terminal program for serial communication with microcontrollers.
+Download and unpack arduinokermit.tar.gz.<br>
+Edit arduinokermit.c<br>
 Uncomment:<br>
-#define ARDUINOBOOTLOADER<br>
 #define MODEMDEVICE 	"/dev/ttyUSB0"	    // USB port<br>
 if you connect your arduino via usb cable with the pc.<br>
 and: <br>
 #define BAUDRATE 	B57600 //thats the default baudrate of arduino bootloader<br>
 Compile from command line: <br>
-#> g++ minikermit.c -lncurses -o minikermit<br>
-generates the executable minikermit.<br>
+#> g++ arduinokermit.c -lncurses -o arduinokermit<br>
+generates the executable arduinokermit.<br>
 You can test the communication between the arduino and the pc.<br>
 Connect the arduino via usb cable with the pc, the green power led is on.<br>
-Start minikermit:<br>
-#>./minikermit<br>
+Start arduinokermit:<br>
+#>./arduinokermit<br>
 Then reset the arduino with the reset button on board and type immediately 3 times '!' on
 pc keypad.<br>
 In the minikermit window you see a text similar: "ATmegaBOOT / Arduino Mega - (C) Arduino LLC - 090930".<br>
@@ -32,8 +31,8 @@ Edit bajos/ARDUINOMEGA/arduinomega.inc<br>
 Then compile bajos, generate bootclasses and compile application class (javatests/AM.class) with the make-utility in the bajos-dir:<br>
 #>make clean  bootclasses compAM bootpack app compile bajospack am<br>
 creates bajos.bin which contains the virtual machine, booclasses and the application class. Thats our binary file for upload at the arduino.<br>
-Start minikermit (maybe there are outputs from an old program in arduino. Don't mind me.) 
-and type 'w'. The minikermit window display the text: "name of bin file for uploading?".<br>
+Start arduinokermit (maybe there are outputs from an old program in arduino. Don't mind me.) 
+and type 'w'. The arduinokermit window display the text: "name of bin file for uploading?".<br>
 Type "bajos.bin". Bajos is uploading now and starts immediately.<br>
 
 AM.java in the directory javatests of bajos is the running application class. It contains a test of the method currentTimeMilliSec and driver for the programmable board led. You can change this sourcecode and produce a new standalone bajos with the command line above.
@@ -41,10 +40,10 @@ Other or more application classes can be added by editing the arduinomega.inc fi
 ==2 Burn BAJOS with AVR-ISP-mkII programmer as standalone application==
 If you have a avr-isp programmer connect it with your arduino board (pins labeled as "ICSP") and connect the serial usb port with a second usb cable with the pc. In the bajos directory type:<br>
 #> make all am<br>
-That burns bajos, boot classes and application classes in the arduino board. Start minikermit (see above) and after Reset runs the application class AM.class (see above). More precisely: after reset starts the bootloader in the boot section and if you not type a key at pc keyboard in a time window the bootloader jumps to the address 0 where bajos is loaded.<br><br>
+That burns bajos, boot classes and application classes in the arduino board. Start arduinokermit (see above) and after Reset runs the application class AM.class (see above). More precisely: after reset starts the bootloader in the boot section and if you not type a key at pc keyboard in a time window the bootloader jumps to the address 0 where bajos is loaded.<br><br>
 ==3 Burn the monitor bamo128 with AVR-ISP-mkII programmer and load bajos with the monitor==
-Bamo128 [http://code.google.com/p/bamo128] is a useful monitor program written in assembler for avr8 microcontroller. It occupies 4Kwords (arduino bootloader needs 2Kwords) in the bootsection. After reset the microcontroller starts at boot section the monitor. The resident monitor is a simple operating system with following features:
-  * user interaction over serial interface with a pc-terminal program (minikermit)
+Bamo128 [http://bamo128.googlecode.com] is a useful monitor program written in assembler for avr8 microcontroller. It occupies 4Kwords (arduino bootloader needs 2Kwords) in the bootsection. After reset the microcontroller starts at boot section the monitor. The resident monitor is a simple operating system with following features:
+  * user interaction over serial interface with a pc-terminal program (arduinokermit)
   * upload application programs
   * start  application programs with/without breakpoints and step-mode
   * disassemble machine code
@@ -54,14 +53,14 @@ Bamo128 [http://code.google.com/p/bamo128] is a useful monitor program written i
 Download and unpack bamo128. In the bamo128 directory:<br>
 #> make burn am<br>
 #> make fuses am
-generates and burn bamo128 in your arduino board (before connect the board with the programmer and the usb-serial line with the pc). The arduino bootloader now is overwritten! (Never say die, every time you can reinstall the shipped bootloader with the arduino IDE). The fuses bits must be programmed for bamo128 (4k word boot section, start after reset at bootsection is reversible with the arduino IDE also). With minikermit (see above) you can communicate now with bamo128 (see also [http://code.google.com/p/bamo128] ) and upload every binary software. After reset starts the monitor in the boot section with a greeting and the monitor prompt. Type h for help or see at the bamo128 side.<br>
+generates and burn bamo128 in your arduino board (before connect the board with the programmer and the usb-serial line with the pc). The arduino bootloader now is overwritten! (Never say die, every time you can reinstall the shipped bootloader with the arduino IDE). The fuses bits must be programmed for bamo128 (4k word boot section, start after reset at bootsection is reversible with the arduino IDE also). With arduinokermit (see above) you can communicate now with bamo128 (see also [http://bamo128.googlecode.com] ) and upload every binary software. After reset starts the monitor in the boot section with a greeting and the monitor prompt. Type h for help or see at the bamo128 side.<br>
 ==3.1 Load bajos with bamo128 as standalone application==
 Remove the programmer from the arduino board.<br>
 Switch to the bajos directory and type:<br>
 #>make clean  bootclasses compAM bootpack app compile bajospack am<br>
-Be sure, the baudrates of bajos and minikermit are the same (up to 115200 possible). 
+Be sure, the baudrates of bajos and arduinokermit are the same (up to 115200 possible). 
 The command line produces bajos.bin (how described above).<br>
-Then start minikermit and type 'w' after the minikermit terminal prompt. Minikermit ask for filename for uploading. Type the filename (bajos.bin) and minikermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
+Then start arduinokermit and type 'w' after the arduinokermit terminal prompt. Arduinokermit ask for filename for uploading. Type the filename (bajos.bin) and arduinokermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
 and the java application (javatests/AM.class) runs. But what is to do when the java program ends. The virtual machine starts against und run the application. With bamo128 we have a better solution. Use the driver in bamo128 (which is resident in bootsection) and return to the bamo128 prompt at java program end.
 ==3.2 Burn bajos by offering drivers through  bamo128== 
 The better way with bamo128 is to use the io-driver (serial, milliSec-Timer,jump to monitor prompt). This reduces the program size also. There ist a jump table at the beginning of bamo128 with fixed addresses to entry points in bamo128. Revise the source code of bamo128 change not the jump table location.
@@ -71,13 +70,13 @@ creates 3 files:
   * bajvm.bin -> the virtual machine
   * avr8bootpack -> the boot (system) classes of bajos as bin file
   * amapp -> the application classes as bin- file 
-Start minikermit and type 'w' in the minikermit terminal and upload bajvm.bin (to address 0).<br>
-Then type 'j' (a hidden bamo128 command) and give the address where the avr8bootpack (c000) is uploaded too. (boot classes and application classes are stored in flash for arduino Mega).
-Then type the filename (avr8bootpack). After this load with the same j-command amapp to the address: D600<br>
+Start arduinokermit and type 'w' in the arduinokermit terminal and upload bajvm.bin (to address 0).<br>
+Then type 'W' and give the address where the avr8bootpack (8000) is uploaded too. (boot classes and application classes are stored in flash for arduino Mega).
+Then type the filename (avr8bootpack). After this load with the same W-command amapp to the address: D600<br>
 (The actual addresses for java classes are defined in bajos/defines.h.)<br>
 Now you can start bajos with:<br>
 #> g 0<br>
 the application runs and after end the application jumps back to the monitor prompt.<br>
 You can effectively now upload the parts you need now. Changing the application, type:<br>
 #>make compAM amapp am<br>
-and upload with bamo128 amapp only.  
+and upload with bamo128 "amapp" only.  
