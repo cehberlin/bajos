@@ -15,8 +15,7 @@ Known differences are:
   * Array objects have no type information
   * No typechecking in the bytecode handlers for ASTORE
   * RETURN throws no IllegalMonitorStateException
-  * String constants are not automatically embedded in a java.lang.String object. If you encounter problems for example 
-with casting String constants, try ‘new String(“STRINGCONSTANT”)’ instead of ‘“STRINGCONSTANT”’
+  * String constants are not automatically embedded in a java.lang.String object. If you encounter problems for example with casting String constants, try ‘new String(“STRINGCONSTANT”)’ instead of ‘“STRINGCONSTANT”’
   * No Serialization, no java.lang.Serializable
   * No hashCode() methods
   * No System properties
