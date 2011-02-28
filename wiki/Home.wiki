@@ -1,4 +1,5 @@
-#labels start,home,startpage,firstpage
+#summary introduction start page
+#labels introduction
 = Bajos=
 
 Welcome to the bajos wiki!
