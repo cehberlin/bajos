@@ -109,7 +109,7 @@ addr+=4; // after numclasses*
 for (cN=0; cN<numClasses;cN++)	{
 	getCharsFromFlash(addr,4,buf);
 	sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-	cs[cN].classFileStartAddress=addr+4;	// after length of class;
+	cs[cN].classFileStartAddress=(char*)addr+4;	// after length of class;
 	analyzeClass(&cs[cN]);	
 	addr+=cs[cN].classFileLength+4;
 
@@ -131,7 +131,7 @@ addr+=4; // after numclasses
 for (;cN<numClasses;cN++)	{
 	getCharsFromFlash(addr,4,buf);
 	sscanf(buf,"%4d",(char*)&cs[cN].classFileLength);
-	cs[cN].classFileStartAddress=addr+4;	// after length of class
+	cs[cN].classFileStartAddress=(char*)addr+4;	// after length of class
 	analyzeClass(&cs[cN]);
 	addr+=cs[cN].classFileLength+4;
 

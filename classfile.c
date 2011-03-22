@@ -306,8 +306,7 @@ strncmp
 }
 
 void analyzeClass(classStructure* c)	{
-	u2 ln,i;
-	u2 attribute_name_index;
+	u2 ln;
 	pc=0;
 		/* static class object*/
 		/* enough heap space for static class objects*/

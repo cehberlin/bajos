@@ -88,7 +88,8 @@ all:	clean  bootclasses compAM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802200 
+	#testwise replaced lprintf_flt by -lprintf_min and lscanf_flt by lscanf_min results in 3,2KB less code!!
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_min -Wl,-u,vfscanf -lscanf_min -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802200 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 

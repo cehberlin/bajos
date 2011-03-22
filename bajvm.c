@@ -117,11 +117,15 @@ if (findMethodByName("main",4,"([Ljava/lang/String;)V",22))	{
 	opStackPush((slot) (u4)0);	/* args parameter to main (should be a string array)*/
 	opStackSetSpPos(findMaxLocals());
 	run(); 				/*  run main*/
-	return 0;						}
+	#ifndef TINYBAJOS 
+	return 0;						
+	#endif
+	}
 
 	errorExit(1,"\nno main found %d",numClasses);												
-	
+	#ifndef TINYBAJOS 
 	return 1;
+	#endif
 }
 
 #ifndef TINYBAJOS_ERROREXIT
