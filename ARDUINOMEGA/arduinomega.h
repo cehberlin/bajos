@@ -1,7 +1,10 @@
 #define baud		57600 //115200
 #define	OCR1ATIME	(F_CPU/1000)
+#if baud == 115200
+#define	bdteiler	(F_CPU/(16*baud))		  	// Baud-Divider
+#else
 #define	bdteiler	(F_CPU/(16*baud)-1)		  	// Baud-Divider
-
+#endif
 #define		MYUDR		UDR0		// usart data reg 0/1
 #define		MYUDRE		UDRE0
 #define		MYUCSRA		UCSR0A		// usart control/status reg A,B,C 0,1
