@@ -13,7 +13,7 @@
 #include "typedefinitions.h"
 // RAMPZ ever 1 -> therefore 0x8000+0x3000=0xb000 (words) java class base 
 // 0x10000 + 0x06000 in bytes
-// bamo128 -> 0xE000 to 0xFFFF
+// bamo128 -> 0xF000 to 0xFFFF in words
 #define AVR8_FLASH_JAVA_BASE	0x0000	// +rampz;16k boot classes in flash	-> 0x8000 in words
 #define AVR8_FLASH_APP_BASE 	0xcc00	// +rampz;6k application classes	-> 0xe600
 
