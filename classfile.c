@@ -623,7 +623,9 @@ pc+=4;
 #ifdef DEBUG
 
 #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("\tcp %d\t:Float:\t%f  \n"),n,getFloat(pc));
+    u1 float_str[7];
+    dtostrf( getFloat(pc), 7, 3, float_str );
+	printf_P(PSTR("\tcp %d\t:Float:\t%s  \n"),n,float_str);
 #else
 	printf("\tcp %d\t:Float:\t%f  \n",n,getFloat(pc));
 #endif

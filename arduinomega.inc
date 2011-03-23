@@ -16,6 +16,8 @@
 # make writeFusesM	-> start after reset vom boot section 0xf000 (in words)
 
 # TOOLS
+# If you do not have that bin path use uncommented one
+#BINDIR =
 BINDIR		= /opt/cross/as4e-ide/plugins/com.atmel.avr.toolchains.linux.x86_64_*/os/linux/x86_64/bin/
 CC		= $(BINDIR)avr-gcc
 OBJCOPY		= $(BINDIR)avr-objcopy
@@ -77,18 +79,17 @@ all:	clean  bootclasses compAM bootpack app compile
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) $(DEFS)  -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH) $(DEFS)  -Wl,-u,vfprintf -lprintf_min -Wl,-u,vfscanf -lscanf_min -lm -o$(TARGETFILE)
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 	@${CC} --version
-#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm -o$(TARGETFILE)
+#	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_min -Wl,-u,vfscanf -lscanf_min -lm -o$(TARGETFILE)
 ##	@rm ${EXE}
 else
 all:	clean  bootclasses compAM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	#testwise replaced lprintf_flt by -lprintf_min and lscanf_flt by lscanf_min results in 3,2KB less code!!
 	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,-u,vfprintf -lprintf_min -Wl,-u,vfscanf -lscanf_min -lm -o$(TARGETFILE) -Wl,--defsym=__stack=0x802200 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)

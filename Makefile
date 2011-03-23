@@ -94,13 +94,13 @@ JAVABOOTSOURCES =	$(JPLATFORM)/PlatForm.java $(LANG)/Throwable.java\
 			$(LANG)/Integer.java $(LANG)/Float.java \
 			$(LANG)/Object.java $(LANG)/System.java \
 			$(IO)/OutStream.java $(IO)/InStream.java \
-			$(LANG)/Exception.java $(LANG)/Math.java
+			$(LANG)/Math.java
 #			$(LANG)/ArrayIndexOutOfBoundsException.java
 
 #############
 # TINYBAJOS #
 #############
-#Smaller version of bajos with reduced features
+#Smaller version of bajos with reduced feature set
 ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
 	#Shrink bajos, but looses features 
 	DEFS			+= -DTINYBAJOS #general flag
@@ -110,7 +110,7 @@ ifeq ($(findstring TINYBAJOS,$(MAKECMDGOALS)),TINYBAJOS)
 	DEFS			+= -DTINYBAJOS_OTHER # remove different maybe unnessary functions
 	DEFS			+= -DTINYBAJOS_EXCEPTION # remove exception handling
 else
-	JAVABOOTSOURCES 	+= 	$(LANG)/Thread.java
+	JAVABOOTSOURCES 	+= 	$(LANG)/Thread.java $(LANG)/Exception.java
 
 #JAVABOOTSOURCES		+= 	$(CONCURRENT)/Lock.java $(CONCURRENT)/InterruptThread.java
 	BAJOSCSOURCES		+= 	$(APPPATH)JAVALANGNATIVE/lock.c \

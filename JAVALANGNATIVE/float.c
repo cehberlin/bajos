@@ -28,8 +28,14 @@ char floatToCharArray()	{
 	f4 f=opStackGetValue(local).Float;	/* the float*/
 	char buf[8];
 	u1 i;
-	for(i=0; i<8; ++i) {buf[i]=0;}
+	for(i=0; i<8; ++i) {
+		buf[i]=0;
+	}
+#ifdef AVR8
+	dtostrf( f, 7, 3, buf );
+#else
 	snprintf(buf,7,"%f",f);
+#endif
 	u2 heapPos=getFreeHeapSpace(8+ 1);	/* char arr length + marker*/
 	mySlot.stackObj.pos=heapPos;
 	mySlot.stackObj.magic=OBJECTMAGIC;
@@ -39,7 +45,9 @@ char floatToCharArray()	{
 	HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
 	HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
 	HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
-	for(i=0; i<8; i++){	heapSetElement(( slot)(u4)(*(buf+i)),heapPos++);}
+	for(i=0; i<8; i++){
+		heapSetElement(( slot)(u4)(*(buf+i)),heapPos++);
+	}
 	return 1;
 }
 
@@ -51,14 +59,18 @@ return 1;
 
 /* char arr to float*/
 char nativeParseFloat()	{
-slot mySlot=opStackGetValue(local); /* the char array*/
-char buf[mySlot.stackObj.arrayLength];
-f4 f;
-u4 i;
-for (i=0;i<mySlot.stackObj.arrayLength;i++) 
-buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
-buf[mySlot.stackObj.arrayLength]=0;
-sscanf(buf,"%f",&f);
-opStackPush((slot)f);
-return 1;
+	slot mySlot=opStackGetValue(local); /* the char array*/
+	char buf[mySlot.stackObj.arrayLength];
+	f4 f;
+	u4 i;
+	for (i=0;i<mySlot.stackObj.arrayLength;i++)
+	buf[i]= (u1)heapGetElement(mySlot.stackObj.pos+i+1).UInt;
+	buf[mySlot.stackObj.arrayLength]=0;
+	#ifdef AVR8
+	f=strtod(buf,NULL);
+	#else
+	sscanf(buf,"%f",&f);
+	#endif
+	opStackPush((slot)f);
+	return 1;
 }
