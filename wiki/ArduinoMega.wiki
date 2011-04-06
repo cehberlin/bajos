@@ -61,9 +61,9 @@ Switch to the bajos directory and type:<br>
 Be sure, the baudrates of bajos and arduinokermit are the same (up to 115200 possible, default 57600). 
 The command line produces bajos.bin (how described above).<br>
 Then start arduinokermit and type 'w' in the monitor after the arduinokermit terminal prompt. Arduinokermit ask for filename for uploading. Type the filename (bajos.bin) and arduinokermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
-and the java application (javatests/AM.class) runs. But what is to do when the java program ends. The virtual machine starts against und run the application. With bamo128 we have a better solution. Use the driver in bamo128 (which is resident in bootsection) and return to the bamo128 prompt at java program end.
+and the java application (javatests/AM.class) runs. But what is to do when the java program ends. The virtual machine starts against und run the application. With bamo128 we have a better solution. Use the drivers in bamo128 (which is resident in bootsection) and return to the bamo128 prompt at java program end.
 ==3.2 Burn bajos by offering drivers through bamo128== 
-The better way with bamo128 is to use the io-driver (serial, milliSec-Timer,jump to monitor prompt). This reduces the program size also. There ist a jump table at the beginning of bamo128 with fixed addresses to entry points in bamo128. Revise the source code of bamo128 change not the jump table location.
+The better way with bamo128 is to use the io-drivers (serial, milliSec-Timer,jump to monitor prompt). This reduces the program size also. There ist a jump table at the beginning of bamo128 with fixed addresses to entry points in bamo128. Revise the source code of bamo128 change not the jump table location.
 Switch to the bajos directory and type:<br>
 #>make all am withmon<br>
 creates 3 files:
