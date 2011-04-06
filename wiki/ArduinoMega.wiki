@@ -1,6 +1,6 @@
 #summary Run Bajos at arduino Mega
 =Run Bajos at Arduino=
-The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) are well suitable for Bajos.<br><br>
+The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) is well suitable for Bajos.<br><br>
 There are many ways to install a java application at arduino.<br>
 ==1. Load BAJOS with arduino bootloader as standalone application==
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).<br>
@@ -71,8 +71,8 @@ creates 3 files:
   * avr8bootpack -> the boot (system) classes of bajos as bin file
   * amapp -> the application classes as bin- file 
 Start arduinokermit and type the monitor command 'w' in the arduinokermit terminal and upload bajvm.bin (to address 0).<br>
-Then type 'W' and give the address where the avr8bootpack (8000) is uploaded too. (boot classes and application classes are stored in flash for arduino Mega).
-Then type the filename (avr8bootpack). After this load with the same W-command amapp to the address: D600<br>
+Then type 'W' and give file (avr8bootpack) and the address where the avr8bootpack (8000) is uploaded too. (boot classes and application classes are stored in flash for arduino Mega).
+After this load with the same W-command amapp to the address: E600<br>
 (The actual addresses for java classes are defined in bajos/defines.h.)<br>
 Now you can start bajos with:<br>
 #> g 0<br>
