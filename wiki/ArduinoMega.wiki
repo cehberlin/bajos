@@ -1,6 +1,6 @@
 #summary Run Bajos at arduino Mega
 =Run Bajos at Arduino=
-The Arduino Mega with the atmega1280 processor ( 128KB flash, 8 KB data ram) is well suitable for Bajos.<br><br>
+The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) is well suitable for Bajos.<br><br>
 There are many ways to install a java application at arduino.<br>
 ==1. Load BAJOS with arduino bootloader as standalone application==
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).<br>
@@ -29,7 +29,7 @@ Download and unpack bajos.tar.gz from this page.<br>
 Edit bajos/ARDUINOMEGA/arduinomega.inc<br>
 #define BAUDRATE	57600	/`*` arduino bootloader default baudrate `*`/<br>
 Then compile bajos, generate bootclasses and compile application class (javatests/AM.class) with the make-utility in the bajos-dir:<br>
-#>make clean  bootclasses compAM bootpack app compile bajospack am<br>
+*#>make clean  bootclasses compAM bootpack app compile bajospack am*<br><br>
 creates bajos.bin which contains the virtual machine, booclasses and the application class. Thats our binary file for upload at the arduino.<br>
 Start arduinokermit (maybe there are outputs from an old program in arduino. Don't mind me.) 
 and type 'w'. The arduinokermit window display the text: "name of bin file for uploading?".<br>
@@ -57,12 +57,12 @@ generates and burn bamo128 in your arduino board (before connect the board with 
 ==3.1 Load bajos with bamo128 as standalone application==
 Remove the programmer from the arduino board.<br>
 Switch to the bajos directory and type:<br>
-#>make clean  bootclasses compAM bootpack app compile bajospack am<br>
-Be sure, the baudrates of bajos and arduinokermit are the same (up to 115200 possible). 
+*#>make clean  bootclasses compAM bootpack app compile bajospack am*<br><br>
+Be sure, the baudrates of bajos and arduinokermit are the same (up to 115200 possible, default 57600). 
 The command line produces bajos.bin (how described above).<br>
-Then start arduinokermit and type 'w' after the arduinokermit terminal prompt. Arduinokermit ask for filename for uploading. Type the filename (bajos.bin) and arduinokermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
+Then start arduinokermit and type 'w' in the monitor after the arduinokermit terminal prompt. Arduinokermit ask for filename for uploading. Type the filename (bajos.bin) and arduinokermit and bamo128 upload the file at address 0. After this you see against the monitor prompt of bamo128. Type: #> g 0<br>
 and the java application (javatests/AM.class) runs. But what is to do when the java program ends. The virtual machine starts against und run the application. With bamo128 we have a better solution. Use the driver in bamo128 (which is resident in bootsection) and return to the bamo128 prompt at java program end.
-==3.2 Burn bajos by offering drivers through  bamo128== 
+==3.2 Burn bajos by offering drivers through bamo128== 
 The better way with bamo128 is to use the io-driver (serial, milliSec-Timer,jump to monitor prompt). This reduces the program size also. There ist a jump table at the beginning of bamo128 with fixed addresses to entry points in bamo128. Revise the source code of bamo128 change not the jump table location.
 Switch to the bajos directory and type:<br>
 #>make all am withmon<br>
@@ -70,13 +70,14 @@ creates 3 files:
   * bajvm.bin -> the virtual machine
   * avr8bootpack -> the boot (system) classes of bajos as bin file
   * amapp -> the application classes as bin- file 
-Start arduinokermit and type 'w' in the arduinokermit terminal and upload bajvm.bin (to address 0).<br>
+Start arduinokermit and type the monitor command 'w' in the arduinokermit terminal and upload bajvm.bin (to address 0).<br>
 Then type 'W' and give the address where the avr8bootpack (8000) is uploaded too. (boot classes and application classes are stored in flash for arduino Mega).
 Then type the filename (avr8bootpack). After this load with the same W-command amapp to the address: D600<br>
 (The actual addresses for java classes are defined in bajos/defines.h.)<br>
 Now you can start bajos with:<br>
 #> g 0<br>
 the application runs and after end the application jumps back to the monitor prompt.<br>
-You can effectively now upload the parts you need now. Changing the application, type:<br>
+You can effectively now upload the parts you need now. Changing the java application source, type:<br>
 #>make compAM amapp am<br>
-and upload with bamo128 "amapp" only.  
+and upload with bamo128 "amapp" ( the application class files) only. <br><br>
+You can replace arduinokermit by avrdude (with the programmer option -carduino) for uploading bajos. For terminal communication you can use screen, kermit or other terminal software instead of arduinokermit (see http://bamo128.googlecode.com).
