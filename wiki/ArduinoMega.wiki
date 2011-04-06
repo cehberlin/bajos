@@ -1,6 +1,6 @@
 #summary Run Bajos at arduino Mega
 =Run Bajos at Arduino=
-The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) is well suitable for Bajos.<br><br>
+The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) are well suitable for Bajos.<br><br>
 There are many ways to install a java application at arduino.<br>
 ==1. Load BAJOS with arduino bootloader as standalone application==
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).<br>
