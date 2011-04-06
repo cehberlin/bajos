@@ -9,6 +9,8 @@ You can upload any software (bajos also) from pc at arduino with arduinokermit [
 Download and unpack arduinokermit.tar.gz.<br>
 Edit arduinokermit.c<br>
 Uncomment:<br>
+#define	ARDUINOSWRESET // reset the arduino before bootloading<br>
+// you can let this commented for bootloading method 2. and 3.<br>
 #define MODEMDEVICE 	"/dev/ttyUSB0"	    // USB port<br>
 if you connect your arduino via usb cable with the pc.<br>
 and: <br>
