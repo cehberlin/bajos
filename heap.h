@@ -15,4 +15,5 @@ u2		getNextHeapObjectPos(u2 pos);
 // garbage collection
 u2 getFreeHeapSpace(u2 length);
 void checkObjects(void);
+u1 canItBeAnObject(u2);
 #endif
