@@ -39,14 +39,7 @@ u2	getNextHeapObjectPos(u2 pos)	{
 		return  ((pos+HEAPOBJECTMARKER(pos).length)< heapTop)?  pos+HEAPOBJECTMARKER(pos).length:(heapTop+1);
 									}
 
-u2 getFreeHeapSpace(u2 length)	{	/* todo er muss genau einen Platz der Länge zurückgeben !!*/
-/*
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-	printf_P(PSTR("length %x \n"),length);
-#else
-	printf("length %x \n",length);
-#endif
-*/
+u2 getFreeHeapSpace(u2 length)	{
 /* erkennnen circularer referencen on heap ohne bezug zu opstack !!*/
 if ((heapTop+length-1) < MAXHEAP) 	{
 	HEAPOBJECTMARKER(heapTop).length=length;
@@ -167,7 +160,8 @@ if (HEAPOBJECTMARKER(nextElementPos).rootCheck==1){
 												/* seraching for "objects in root-objects"*/
 for (i=1; i <HEAPOBJECTMARKER(nextElementPos).length;i++)	
 if ((HEAPOBJECT(nextElementPos+i).stackObj.magic==OBJECTMAGIC)
-&& HEAPOBJECT(nextElementPos+i).UInt != NULLOBJECT.UInt
+&& HEAPOBJECT(nextElementPos+i).UInt != NULLOBJECT.UInt 
+&& canItBeAnObject(HEAPOBJECT(nextElementPos+i).stackObj.pos)
 && (HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).magic==OBJECTMAGIC)
 &&   (HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).rootCheck==0)      ) {HEAPOBJECTMARKER(HEAPOBJECT(nextElementPos+i).stackObj.pos).rootCheck=1;stillAConcatedObject=1; }
 }
@@ -179,4 +173,13 @@ nextElementPos=0;
 while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) <heapTop)
 	if (!HEAPOBJECTMARKER(nextElementPos).rootCheck) 
 		HEAPOBJECTMARKER(nextElementPos).status=HEAPFREESPACE;
+}
+
+u1 canItBeAnObject(u2 pos)	{
+    u1 retV=0; // can not be an object
+    u2 nextElementPos=0;
+    do 	{
+	if (nextElementPos == pos) { retV = 1; break;}
+	} while ( (nextElementPos=getNextHeapObjectPos(nextElementPos)) < heapTop);
+    return retV;
 }
