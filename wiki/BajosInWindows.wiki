@@ -138,7 +138,7 @@ JAVAAPPSOURCES		= javatests/AM.java
 Change the "active" declaration of JAVAAPPSOURCES by adding your own java files, or comment out that line and add a new declaration of JAVAAPPSOURCES.
 
 Remember:
- If you don't put your java files in the javatests folder, you have to add set the folder information to your file relative to the bajos roor folder!
+ If you don't put your java files in the javatests folder, you have to add the folder information to your file relative to the bajos root folder!
 
 Then start the make process by typing {{{make all am}}}.
 
