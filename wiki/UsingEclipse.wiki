@@ -1,9 +1,9 @@
 #labels eclipse,build,IDE,CDT,MAKEFILE
-#Using Eclipse as BAJOS IDE
+#Using Eclipse as BAJOS IDE for CORE Development
 
 = Introduction =
 
-This page describes, how you could work with bajos using eclipse.
+This page describes, how you could work with bajos using eclipse if you want to develop on the core of BAJOS
 
 
 = Getting Source =
@@ -67,8 +67,6 @@ On default BAJOS will be build with all target which forces make to clean the so
 Example:
 
 http://ceh-photo.de/bajos/eclipse_change_compile_mode.png
-
-
 
 
 
