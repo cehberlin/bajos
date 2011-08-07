@@ -56,6 +56,7 @@ The available values for TARGETHW correspond to the MAKEFILE. At the moment you 
   * ngw100
   * STK1000
   * XMEGA
+  * linux
 
 === Use TINYBAJOS option===
 If you change the value of TINYBAJOS to yes, BAJOS will be build with a reduced feature set, which provides a much lower flash usage.
@@ -67,8 +68,6 @@ On default BAJOS will be build with all target which forces make to clean the so
 Example:
 
 http://ceh-photo.de/bajos/eclipse_change_compile_mode.png
-
-
 
 
 
