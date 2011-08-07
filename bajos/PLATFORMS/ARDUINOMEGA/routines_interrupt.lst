@@ -1,0 +1,914 @@
+GAS LISTING /tmp/ccF6PnjW.s 			page 1
+
+
+   1               	# 1 "PLATFORMS/ARDUINOMEGA/routines_interrupt.asm"
+   1               	#include <avr/io.h>
+   1               	...
+   0               	
+   0               	
+   1               	/* Copyright (c) 2002,2003,2005,2006,2007 Marek Michalkiewicz, Joerg Wunsch
+   2               	   Copyright (c) 2007 Eric B. Weddington
+   3               	   All rights reserved.
+   4               	
+   5               	   Redistribution and use in source and binary forms, with or without
+   6               	   modification, are permitted provided that the following conditions are met:
+   7               	
+   8               	   * Redistributions of source code must retain the above copyright
+   9               	     notice, this list of conditions and the following disclaimer.
+  10               	
+  11               	   * Redistributions in binary form must reproduce the above copyright
+  12               	     notice, this list of conditions and the following disclaimer in
+  13               	     the documentation and/or other materials provided with the
+  14               	     distribution.
+  15               	
+  16               	   * Neither the name of the copyright holders nor the names of
+  17               	     contributors may be used to endorse or promote products derived
+  18               	     from this software without specific prior written permission.
+  19               	
+  20               	  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21               	  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22               	  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23               	  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24               	  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25               	  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26               	  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27               	  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28               	  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29               	  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30               	  POSSIBILITY OF SUCH DAMAGE. */
+  31               	
+  32               	/* $Id: io.h,v 1.52.2.28 2009/12/20 17:02:53 arcanum Exp $ */
+  33               	
+  34               	/** \file */
+  35               	/** \defgroup avr_io <avr/io.h>: AVR device-specific IO definitions
+  36               	    \code #include <avr/io.h> \endcode
+  37               	
+  38               	    This header file includes the apropriate IO definitions for the
+  39               	    device that has been specified by the <tt>-mmcu=</tt> compiler
+  40               	    command-line switch.  This is done by diverting to the appropriate
+  41               	    file <tt>&lt;avr/io</tt><em>XXXX</em><tt>.h&gt;</tt> which should
+  42               	    never be included directly.  Some register names common to all
+  43               	    AVR devices are defined directly within <tt>&lt;avr/common.h&gt;</tt>,
+  44               	    which is included in <tt>&lt;avr/io.h&gt;</tt>,
+  45               	    but most of the details come from the respective include file.
+  46               	
+  47               	    Note that this file always includes the following files:
+  48               	    \code 
+  49               	    #include <avr/sfr_defs.h>
+  50               	    #include <avr/portpins.h>
+  51               	    #include <avr/common.h>
+  52               	    #include <avr/version.h>
+GAS LISTING /tmp/ccF6PnjW.s 			page 2
+
+
+  53               	    \endcode
+  54               	    See \ref avr_sfr for more details about that header file.
+  55               	
+  56               	    Included are definitions of the IO register set and their
+  57               	    respective bit values as specified in the Atmel documentation.
+  58               	    Note that inconsistencies in naming conventions,
+  59               	    so even identical functions sometimes get different names on
+  60               	    different devices.
+  61               	
+  62               	    Also included are the specific names useable for interrupt
+  63               	    function definitions as documented
+  64               	    \ref avr_signames "here".
+  65               	
+  66               	    Finally, the following macros are defined:
+  67               	
+  68               	    - \b RAMEND
+  69               	    <br>
+  70               	    The last on-chip RAM address.
+  71               	    <br>
+  72               	    - \b XRAMEND
+  73               	    <br>
+  74               	    The last possible RAM location that is addressable. This is equal to 
+  75               	    RAMEND for devices that do not allow for external RAM. For devices 
+  76               	    that allow external RAM, this will be larger than RAMEND.
+  77               	    <br>
+  78               	    - \b E2END
+  79               	    <br>
+  80               	    The last EEPROM address.
+  81               	    <br>
+  82               	    - \b FLASHEND
+  83               	    <br>
+  84               	    The last byte address in the Flash program space.
+  85               	    <br>
+  86               	    - \b SPM_PAGESIZE
+  87               	    <br>
+  88               	    For devices with bootloader support, the flash pagesize
+  89               	    (in bytes) to be used for the \c SPM instruction. 
+  90               	    - \b E2PAGESIZE
+  91               	    <br>
+  92               	    The size of the EEPROM page.
+  93               	    
+  94               	*/
+  95               	
+  96               	#ifndef _AVR_IO_H_
+  97               	#define _AVR_IO_H_
+  98               	
+  99               	#include <avr/sfr_defs.h>
+   1               	/* Copyright (c) 2002, Marek Michalkiewicz <marekm@amelek.gda.pl>
+ 100               	
+ 101               	#if defined (__AVR_AT94K__)
+ 102               	#  include <avr/ioat94k.h>
+ 103               	#elif defined (__AVR_AT43USB320__)
+ 104               	#  include <avr/io43u32x.h>
+ 105               	#elif defined (__AVR_AT43USB355__)
+ 106               	#  include <avr/io43u35x.h>
+ 107               	#elif defined (__AVR_AT76C711__)
+ 108               	#  include <avr/io76c711.h>
+GAS LISTING /tmp/ccF6PnjW.s 			page 3
+
+
+ 109               	#elif defined (__AVR_AT86RF401__)
+ 110               	#  include <avr/io86r401.h>
+ 111               	#elif defined (__AVR_AT90PWM1__)
+ 112               	#  include <avr/io90pwm1.h>
+ 113               	#elif defined (__AVR_AT90PWM2__)
+ 114               	#  include <avr/io90pwmx.h>
+ 115               	#elif defined (__AVR_AT90PWM2B__)
+ 116               	#  include <avr/io90pwm2b.h>
+ 117               	#elif defined (__AVR_AT90PWM3__)
+ 118               	#  include <avr/io90pwmx.h>
+ 119               	#elif defined (__AVR_AT90PWM3B__)
+ 120               	#  include <avr/io90pwm3b.h>
+ 121               	#elif defined (__AVR_AT90PWM216__)
+ 122               	#  include <avr/io90pwm216.h>
+ 123               	#elif defined (__AVR_AT90PWM316__)
+ 124               	#  include <avr/io90pwm316.h>
+ 125               	#elif defined (__AVR_AT90PWM81__)
+ 126               	#  include <avr/io90pwm81.h>
+ 127               	#elif defined (__AVR_ATmega8U2__)
+ 128               	#  include <avr/iom8u2.h>
+ 129               	#elif defined (__AVR_ATmega16M1__)
+ 130               	#  include <avr/iom16m1.h>
+ 131               	#elif defined (__AVR_ATmega16U2__)
+ 132               	#  include <avr/iom16u2.h>
+ 133               	#elif defined (__AVR_ATmega16U4__)
+ 134               	#  include <avr/iom16u4.h>
+ 135               	#elif defined (__AVR_ATmega32C1__)
+ 136               	#  include <avr/iom32c1.h>
+ 137               	#elif defined (__AVR_ATmega32M1__)
+ 138               	#  include <avr/iom32m1.h>
+ 139               	#elif defined (__AVR_ATmega32U2__)
+ 140               	#  include <avr/iom32u2.h>
+ 141               	#elif defined (__AVR_ATmega32U4__)
+ 142               	#  include <avr/iom32u4.h>
+ 143               	#elif defined (__AVR_ATmega32U6__)
+ 144               	#  include <avr/iom32u6.h>
+ 145               	#elif defined (__AVR_ATmega64C1__)
+ 146               	#  include <avr/iom64c1.h>
+ 147               	#elif defined (__AVR_ATmega64M1__)
+ 148               	#  include <avr/iom64m1.h>
+ 149               	#elif defined (__AVR_ATmega128__)
+ 150               	#  include <avr/iom128.h>
+ 151               	#elif defined (__AVR_ATmega1280__)
+ 152               	#  include <avr/iom1280.h>
+   1               	/* Copyright (c) 2005 Anatoly Sokolov 
+   2               	   All rights reserved.
+   3               	
+   4               	   Redistribution and use in source and binary forms, with or without
+   5               	   modification, are permitted provided that the following conditions are met:
+   6               	
+   7               	   * Redistributions of source code must retain the above copyright
+   8               	     notice, this list of conditions and the following disclaimer.
+   9               	
+  10               	   * Redistributions in binary form must reproduce the above copyright
+  11               	     notice, this list of conditions and the following disclaimer in
+  12               	     the documentation and/or other materials provided with the
+  13               	     distribution.
+GAS LISTING /tmp/ccF6PnjW.s 			page 4
+
+
+  14               	
+  15               	   * Neither the name of the copyright holders nor the names of
+  16               	     contributors may be used to endorse or promote products derived
+  17               	     from this software without specific prior written permission.
+  18               	
+  19               	  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  20               	  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  21               	  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  22               	  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  23               	  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  24               	  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  25               	  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  26               	  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  27               	  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  28               	  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  29               	  POSSIBILITY OF SUCH DAMAGE. */
+  30               	
+  31               	/* $Id: iom1280.h,v 1.2.2.5 2008/10/17 23:27:46 arcanum Exp $ */
+  32               	
+  33               	/* avr/iom1280.h - definitions for ATmega1280 */
+  34               	
+  35               	#ifndef _AVR_IOM1280_H_
+  36               	#define _AVR_IOM1280_H_ 1
+  37               	
+  38               	#include <avr/iomxx0_1.h>
+   1               	/* Copyright (c) 2005 Anatoly Sokolov 
+  39               	
+ 153               	#elif defined (__AVR_ATmega1281__)
+ 154               	#  include <avr/iom1281.h>
+ 155               	#elif defined (__AVR_ATmega1284P__)
+ 156               	#  include <avr/iom1284p.h>
+ 157               	#elif defined (__AVR_ATmega128RFA1__)
+ 158               	#  include <avr/iom128rfa1.h>
+ 159               	#elif defined (__AVR_ATmega2560__)
+ 160               	#  include <avr/iom2560.h>
+ 161               	#elif defined (__AVR_ATmega2561__)
+ 162               	#  include <avr/iom2561.h>
+ 163               	#elif defined (__AVR_AT90CAN32__)
+ 164               	#  include <avr/iocan32.h>
+ 165               	#elif defined (__AVR_AT90CAN64__)
+ 166               	#  include <avr/iocan64.h>
+ 167               	#elif defined (__AVR_AT90CAN128__)
+ 168               	#  include <avr/iocan128.h>
+ 169               	#elif defined (__AVR_AT90USB82__)
+ 170               	#  include <avr/iousb82.h>
+ 171               	#elif defined (__AVR_AT90USB162__)
+ 172               	#  include <avr/iousb162.h>
+ 173               	#elif defined (__AVR_AT90USB646__)
+ 174               	#  include <avr/iousb646.h>
+ 175               	#elif defined (__AVR_AT90USB647__)
+ 176               	#  include <avr/iousb647.h>
+ 177               	#elif defined (__AVR_AT90USB1286__)
+ 178               	#  include <avr/iousb1286.h>
+ 179               	#elif defined (__AVR_AT90USB1287__)
+ 180               	#  include <avr/iousb1287.h>
+ 181               	#elif defined (__AVR_ATmega64__)
+ 182               	#  include <avr/iom64.h>
+GAS LISTING /tmp/ccF6PnjW.s 			page 5
+
+
+ 183               	#elif defined (__AVR_ATmega640__)
+ 184               	#  include <avr/iom640.h>
+ 185               	#elif defined (__AVR_ATmega644__) || defined (__AVR_ATmega644A__)
+ 186               	#  include <avr/iom644.h>
+ 187               	#elif defined (__AVR_ATmega644P__)
+ 188               	#  include <avr/iom644p.h>
+ 189               	#elif defined (__AVR_ATmega644PA__)
+ 190               	#  include <avr/iom644pa.h>
+ 191               	#elif defined (__AVR_ATmega645__) || defined (__AVR_ATmega645A__) || defined (__AVR_ATmega645P__)
+ 192               	#  include <avr/iom645.h>
+ 193               	#elif defined (__AVR_ATmega6450__) || defined (__AVR_ATmega6450A__) || defined (__AVR_ATmega6450P__
+ 194               	#  include <avr/iom6450.h>
+ 195               	#elif defined (__AVR_ATmega649__) || defined (__AVR_ATmega649A__)
+ 196               	#  include <avr/iom649.h>
+ 197               	#elif defined (__AVR_ATmega6490__) || defined (__AVR_ATmega6490A__) || defined (__AVR_ATmega6490P__
+ 198               	#  include <avr/iom6490.h>
+ 199               	#elif defined (__AVR_ATmega649P__)
+ 200               	#  include <avr/iom649p.h>
+ 201               	#elif defined (__AVR_ATmega64HVE__)
+ 202               	#  include <avr/iom64hve.h>
+ 203               	#elif defined (__AVR_ATmega103__)
+ 204               	#  include <avr/iom103.h>
+ 205               	#elif defined (__AVR_ATmega32__)
+ 206               	#  include <avr/iom32.h>
+ 207               	#elif defined (__AVR_ATmega323__)
+ 208               	#  include <avr/iom323.h>
+ 209               	#elif defined (__AVR_ATmega324P__) || defined (__AVR_ATmega324A__)
+ 210               	#  include <avr/iom324.h>
+ 211               	#elif defined (__AVR_ATmega324PA__)
+ 212               	#  include <avr/iom324pa.h>
+ 213               	#elif defined (__AVR_ATmega325__)
+ 214               	#  include <avr/iom325.h>
+ 215               	#elif defined (__AVR_ATmega325P__)
+ 216               	#  include <avr/iom325.h>
+ 217               	#elif defined (__AVR_ATmega3250__)
+ 218               	#  include <avr/iom3250.h>
+ 219               	#elif defined (__AVR_ATmega3250P__)
+ 220               	#  include <avr/iom3250.h>
+ 221               	#elif defined (__AVR_ATmega328P__) || defined (__AVR_ATmega328__)
+ 222               	#  include <avr/iom328p.h>
+ 223               	#elif defined (__AVR_ATmega329__)
+ 224               	#  include <avr/iom329.h>
+ 225               	#elif defined (__AVR_ATmega329P__) || defined (__AVR_ATmega329PA__)
+ 226               	#  include <avr/iom329.h>
+ 227               	#elif defined (__AVR_ATmega3290__)
+ 228               	#  include <avr/iom3290.h>
+ 229               	#elif defined (__AVR_ATmega3290P__)
+ 230               	#  include <avr/iom3290.h>
+ 231               	#elif defined (__AVR_ATmega32HVB__)
+ 232               	#  include <avr/iom32hvb.h>
+ 233               	#elif defined (__AVR_ATmega406__)
+ 234               	#  include <avr/iom406.h>
+ 235               	#elif defined (__AVR_ATmega16__)
+ 236               	#  include <avr/iom16.h>
+ 237               	#elif defined (__AVR_ATmega16A__)
+ 238               	#  include <avr/iom16a.h>
+ 239               	#elif defined (__AVR_ATmega161__)
+GAS LISTING /tmp/ccF6PnjW.s 			page 6
+
+
+ 240               	#  include <avr/iom161.h>
+ 241               	#elif defined (__AVR_ATmega162__)
+ 242               	#  include <avr/iom162.h>
+ 243               	#elif defined (__AVR_ATmega163__)
+ 244               	#  include <avr/iom163.h>
+ 245               	#elif defined (__AVR_ATmega164P__) || defined (__AVR_ATmega164A__)
+ 246               	#  include <avr/iom164.h>
+ 247               	#elif defined (__AVR_ATmega165__) || defined (__AVR_ATmega165A__)
+ 248               	#  include <avr/iom165.h>
+ 249               	#elif defined (__AVR_ATmega165P__)
+ 250               	#  include <avr/iom165p.h>
+ 251               	#elif defined (__AVR_ATmega168__) || defined (__AVR_ATmega168A__)
+ 252               	#  include <avr/iom168.h>
+ 253               	#elif defined (__AVR_ATmega168P__)
+ 254               	#  include <avr/iom168p.h>
+ 255               	#elif defined (__AVR_ATmega169__) || defined (__AVR_ATmega169A__)
+ 256               	#  include <avr/iom169.h>
+ 257               	#elif defined (__AVR_ATmega169P__)
+ 258               	#  include <avr/iom169p.h>
+ 259               	#elif defined (__AVR_ATmega169PA__)
+ 260               	#  include <avr/iom169pa.h>
+ 261               	#elif defined (__AVR_ATmega8HVA__)
+ 262               	#  include <avr/iom8hva.h>
+ 263               	#elif defined (__AVR_ATmega16HVA__)
+ 264               	#  include <avr/iom16hva.h>
+ 265               	#elif defined (__AVR_ATmega16HVA2__)
+ 266               	#  include <avr/iom16hva2.h>
+ 267               	#elif defined (__AVR_ATmega16HVB__)
+ 268               	#  include <avr/iom16hvb.h>
+ 269               	#elif defined (__AVR_ATmega8__)
+ 270               	#  include <avr/iom8.h>
+ 271               	#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega48A__)
+ 272               	#  include <avr/iom48.h>
+ 273               	#elif defined (__AVR_ATmega48P__)
+ 274               	#  include <avr/iom48p.h>
+ 275               	#elif defined (__AVR_ATmega88__) || defined (__AVR_ATmega88A__)
+ 276               	#  include <avr/iom88.h>
+ 277               	#elif defined (__AVR_ATmega88P__)
+ 278               	#  include <avr/iom88p.h>
+ 279               	#elif defined (__AVR_ATmega88PA__)
+ 280               	#  include <avr/iom88pa.h>
+ 281               	#elif defined (__AVR_ATmega8515__)
+ 282               	#  include <avr/iom8515.h>
+ 283               	#elif defined (__AVR_ATmega8535__)
+ 284               	#  include <avr/iom8535.h>
+ 285               	#elif defined (__AVR_AT90S8535__)
+ 286               	#  include <avr/io8535.h>
+ 287               	#elif defined (__AVR_AT90C8534__)
+ 288               	#  include <avr/io8534.h>
+ 289               	#elif defined (__AVR_AT90S8515__)
+ 290               	#  include <avr/io8515.h>
+ 291               	#elif defined (__AVR_AT90S4434__)
+ 292               	#  include <avr/io4434.h>
+ 293               	#elif defined (__AVR_AT90S4433__)
+ 294               	#  include <avr/io4433.h>
+ 295               	#elif defined (__AVR_AT90S4414__)
+ 296               	#  include <avr/io4414.h>
+GAS LISTING /tmp/ccF6PnjW.s 			page 7
+
+
+ 297               	#elif defined (__AVR_ATtiny22__)
+ 298               	#  include <avr/iotn22.h>
+ 299               	#elif defined (__AVR_ATtiny26__)
+ 300               	#  include <avr/iotn26.h>
+ 301               	#elif defined (__AVR_AT90S2343__)
+ 302               	#  include <avr/io2343.h>
+ 303               	#elif defined (__AVR_AT90S2333__)
+ 304               	#  include <avr/io2333.h>
+ 305               	#elif defined (__AVR_AT90S2323__)
+ 306               	#  include <avr/io2323.h>
+ 307               	#elif defined (__AVR_AT90S2313__)
+ 308               	#  include <avr/io2313.h>
+ 309               	#elif defined (__AVR_ATtiny2313__)
+ 310               	#  include <avr/iotn2313.h>
+ 311               	#elif defined (__AVR_ATtiny2313A__)
+ 312               	#  include <avr/iotn2313a.h>
+ 313               	#elif defined (__AVR_ATtiny13__)
+ 314               	#  include <avr/iotn13.h>
+ 315               	#elif defined (__AVR_ATtiny13A__)
+ 316               	#  include <avr/iotn13a.h>
+ 317               	#elif defined (__AVR_ATtiny25__)
+ 318               	#  include <avr/iotn25.h>
+ 319               	#elif defined (__AVR_ATtiny4313__)
+ 320               	#  include <avr/iotn4313.h>
+ 321               	#elif defined (__AVR_ATtiny45__)
+ 322               	#  include <avr/iotn45.h>
+ 323               	#elif defined (__AVR_ATtiny85__)
+ 324               	#  include <avr/iotn85.h>
+ 325               	#elif defined (__AVR_ATtiny24__)
+ 326               	#  include <avr/iotn24.h>
+ 327               	#elif defined (__AVR_ATtiny24A__)
+ 328               	#  include <avr/iotn24a.h>
+ 329               	#elif defined (__AVR_ATtiny44__)
+ 330               	#  include <avr/iotn44.h>
+ 331               	#elif defined (__AVR_ATtiny44A__)
+ 332               	#  include <avr/iotn44a.h>
+ 333               	#elif defined (__AVR_ATtiny84__)
+ 334               	#  include <avr/iotn84.h>
+ 335               	#elif defined (__AVR_ATtiny261__)
+ 336               	#  include <avr/iotn261.h>
+ 337               	#elif defined (__AVR_ATtiny261A__)
+ 338               	#  include <avr/iotn261a.h>
+ 339               	#elif defined (__AVR_ATtiny461__)
+ 340               	#  include <avr/iotn461.h>
+ 341               	#elif defined (__AVR_ATtiny461A__)
+ 342               	#  include <avr/iotn461a.h>
+ 343               	#elif defined (__AVR_ATtiny861__)
+ 344               	#  include <avr/iotn861.h>
+ 345               	#elif defined (__AVR_ATtiny861A__)
+ 346               	#  include <avr/iotn861a.h>
+ 347               	#elif defined (__AVR_ATtiny43U__)
+ 348               	#  include <avr/iotn43u.h>
+ 349               	#elif defined (__AVR_ATtiny48__)
+ 350               	#  include <avr/iotn48.h>
+ 351               	#elif defined (__AVR_ATtiny88__)
+ 352               	#  include <avr/iotn88.h>
+ 353               	#elif defined (__AVR_ATtiny87__)
+GAS LISTING /tmp/ccF6PnjW.s 			page 8
+
+
+ 354               	#  include <avr/iotn87.h>
+ 355               	#elif defined (__AVR_ATtiny167__)
+ 356               	#  include <avr/iotn167.h>
+ 357               	#elif defined (__AVR_AT90SCR100__)
+ 358               	#  include <avr/io90scr100.h>
+ 359               	#elif defined (__AVR_ATxmega16A4__)
+ 360               	#  include <avr/iox16a4.h>
+ 361               	#elif defined (__AVR_ATxmega16D4__)
+ 362               	#  include <avr/iox16d4.h>
+ 363               	#elif defined (__AVR_ATxmega32A4__)
+ 364               	#  include <avr/iox32a4.h>
+ 365               	#elif defined (__AVR_ATxmega32D4__)
+ 366               	#  include <avr/iox32d4.h>
+ 367               	#elif defined (__AVR_ATxmega64A1__)
+ 368               	#  include <avr/iox64a1.h>
+ 369               	#elif defined (__AVR_ATxmega64A3__)
+ 370               	#  include <avr/iox64a3.h>
+ 371               	#elif defined (__AVR_ATxmega64D3__)
+ 372               	#  include <avr/iox64d3.h>
+ 373               	#elif defined (__AVR_ATxmega128A1__)
+ 374               	#  include <avr/iox128a1.h>
+ 375               	#elif defined (__AVR_ATxmega128A3__)
+ 376               	#  include <avr/iox128a3.h>
+ 377               	#elif defined (__AVR_ATxmega128D3__)
+ 378               	#  include <avr/iox128d3.h>
+ 379               	#elif defined (__AVR_ATxmega192A3__)
+ 380               	#  include <avr/iox192a3.h>
+ 381               	#elif defined (__AVR_ATxmega192D3__)
+ 382               	#  include <avr/iox192d3.h>
+ 383               	#elif defined (__AVR_ATxmega256A3__)
+ 384               	#  include <avr/iox256a3.h>
+ 385               	#elif defined (__AVR_ATxmega256A3B__)
+ 386               	#  include <avr/iox256a3b.h>
+ 387               	#elif defined (__AVR_ATxmega256D3__)
+ 388               	#  include <avr/iox256d3.h>
+ 389               	#elif defined (__AVR_ATA6289__)
+ 390               	#  include <avr/ioa6289.h>
+ 391               	/* avr1: the following only supported for assembler programs */
+ 392               	#elif defined (__AVR_ATtiny28__)
+ 393               	#  include <avr/iotn28.h>
+ 394               	#elif defined (__AVR_AT90S1200__)
+ 395               	#  include <avr/io1200.h>
+ 396               	#elif defined (__AVR_ATtiny15__)
+ 397               	#  include <avr/iotn15.h>
+ 398               	#elif defined (__AVR_ATtiny12__)
+ 399               	#  include <avr/iotn12.h>
+ 400               	#elif defined (__AVR_ATtiny11__)
+ 401               	#  include <avr/iotn11.h>
+ 402               	#else
+ 403               	#  if !defined(__COMPILING_AVR_LIBC__)
+ 404               	#    warning "device type not defined"
+ 405               	#  endif
+ 406               	#endif
+ 407               	
+ 408               	#include <avr/portpins.h>
+   1               	/* Copyright (c) 2003  Theodore A. Roth
+ 409               	
+GAS LISTING /tmp/ccF6PnjW.s 			page 9
+
+
+ 410               	#include <avr/common.h>
+   1               	/* Copyright (c) 2007 Eric B. Weddington
+ 411               	
+ 412               	#include <avr/version.h>
+   1               	/* Copyright (c) 2005, Joerg Wunsch                               -*- c -*-
+ 413               	
+ 414               	/* Include fuse.h after individual IO header files. */
+ 415               	#include <avr/fuse.h>
+   1               	/* Copyright (c) 2007, Atmel Corporation
+ 416               	
+ 417               	/* Include lock.h after individual IO header files. */
+ 418               	#include <avr/lock.h>
+   1               	/* Copyright (c) 2007, Atmel Corporation
+ 419               	
+   2               	
+   3               	/*
+   4               	 * ASM implementation for fast interrupt handling
+   5               	 */
+   6               	
+   7               	.extern interruptVectors //array
+   8               	.extern interruptThread //function
+   9               	
+  10               	.global RESET_vect
+  11               	RESET_vect:		
+  12 0000 AF93      				PUSH	r26
+  13 0002 A0E0      				LDI	r26,0
+  14 0004 0C94 0000 				JMP	GENERALINTERRUPT
+  15               	.global INT0_vect
+  16               	INT0_vect:		
+  17 0008 AF93      				PUSH	r26
+  18 000a A1E0      				LDI	r26,1
+  19 000c 0C94 0000 				JMP	GENERALINTERRUPT
+  20               	.global INT1_vect
+  21               	INT1_vect:		
+  22 0010 AF93      				PUSH	r26
+  23 0012 A2E0      				LDI	r26,2
+  24 0014 0C94 0000 				JMP	GENERALINTERRUPT
+  25               	.global INT2_vect
+  26               	INT2_vect:	
+  27 0018 AF93      				PUSH	r26
+  28 001a A3E0      				LDI	r26,3
+  29 001c 0C94 0000 				JMP	GENERALINTERRUPT
+  30               	.global INT3_vect
+  31               	INT3_vect:		
+  32 0020 AF93      				PUSH	r26
+  33 0022 A4E0      				LDI	r26,4
+  34 0024 0C94 0000 				JMP	GENERALINTERRUPT
+  35               	.global INT4_vect
+  36               	INT4_vect:	
+  37 0028 AF93      				PUSH	r26
+  38 002a A5E0      				LDI	r26,5
+  39 002c 0C94 0000 				JMP	GENERALINTERRUPT
+  40               	.global INT5_vect
+  41               	INT5_vect:		
+  42 0030 AF93      				PUSH	r26
+  43 0032 A6E0      				LDI	r26,6
+  44 0034 0C94 0000 				JMP	GENERALINTERRUPT
+GAS LISTING /tmp/ccF6PnjW.s 			page 10
+
+
+  45               	.global INT6_vect
+  46               	INT6_vect:		
+  47 0038 AF93      				PUSH	r26
+  48 003a A7E0      				LDI	r26,7
+  49 003c 0C94 0000 				JMP	GENERALINTERRUPT
+  50               	.global INT7_vect
+  51               	INT7_vect:	
+  52 0040 AF93      				PUSH	r26
+  53 0042 A8E0      				LDI	r26,8
+  54 0044 0C94 0000 				JMP	GENERALINTERRUPT
+  55               	.global PCINT0_vect
+  56               	PCINT0_vect:	
+  57 0048 AF93      				PUSH	r26
+  58 004a A9E0      				LDI	r26,9
+  59 004c 0C94 0000 				JMP	GENERALINTERRUPT
+  60               	.global PCINT1_vect
+  61               	PCINT1_vect:		
+  62 0050 AF93      				PUSH	r26
+  63 0052 AAE0      				LDI	r26,10
+  64 0054 0C94 0000 				JMP	GENERALINTERRUPT
+  65               	.global PCINT2_vect 
+  66               	PCINT2_vect:		
+  67 0058 AF93      				PUSH	r26
+  68 005a ABE0      				LDI	r26,11
+  69 005c 0C94 0000 				JMP	GENERALINTERRUPT
+  70               	.global WDT_vect
+  71               	WDT_vect:		
+  72 0060 AF93      				PUSH	r26
+  73 0062 ACE0      				LDI	r26,12
+  74 0064 0C94 0000 				JMP	GENERALINTERRUPT
+  75               	#ifndef WITHMON
+  76               	.global TIMER2_COMPA_vect
+  77               	TIMER2_COMPA_vect:
+  78 0068 AF93      				PUSH	r26
+  79 006a ADE0      				LDI	r26,13
+  80 006c 0C94 0000 				JMP	GENERALINTERRUPT
+  81               	#endif
+  82               	.global TIMER2_COMPB_vect
+  83               	TIMER2_COMPB_vect:	
+  84 0070 AF93      				PUSH	r26
+  85 0072 AEE0      				LDI	r26,14
+  86 0074 0C94 0000 				JMP	GENERALINTERRUPT
+  87               	.global TIMER2_OVF_vect
+  88               	TIMER2_OVF_vect:	
+  89 0078 AF93      				PUSH	r26
+  90 007a AFE0      				LDI	r26,15
+  91 007c 0C94 0000 				JMP	GENERALINTERRUPT
+  92               	.global TIMER1_CAPT_vect
+  93               	TIMER1_CAPT_vect:
+  94 0080 AF93      				PUSH	r26
+  95 0082 A0E1      				LDI	r26,16
+  96 0084 0C94 0000 				JMP	GENERALINTERRUPT
+  97               	/* used by time in millis
+  98               	.global TIMER1_COMPA_vect
+  99               	TIMER1_COMPA_vect:
+ 100               				PUSH	r26
+ 101               				LDI	r26,17
+GAS LISTING /tmp/ccF6PnjW.s 			page 11
+
+
+ 102               				JMP	GENERALINTERRUPT
+ 103               	*/
+ 104               	.global TIMER1_COMPB_vect
+ 105               	TIMER1_COMPB_vect:	
+ 106 0088 AF93      				PUSH	r26
+ 107 008a A2E1      				LDI	r26,18
+ 108 008c 0C94 0000 				JMP	GENERALINTERRUPT
+ 109               	.global TIMER1_COMPC_vect
+ 110               	TIMER1_COMPC_vect:	
+ 111 0090 AF93      				PUSH	r26
+ 112 0092 A3E1      				LDI	r26,19
+ 113 0094 0C94 0000 				JMP	GENERALINTERRUPT
+ 114               	.global TIMER1_OVF_vect
+ 115               	TIMER1_OVF_vect:	
+ 116 0098 AF93      				PUSH	r26
+ 117 009a A4E1      				LDI	r26,20
+ 118 009c 0C94 0000 				JMP	GENERALINTERRUPT
+ 119               	.global TIMER0_COMPA_vect
+ 120               	TIMER0_COMPA_vect:	
+ 121 00a0 AF93      				PUSH	r26
+ 122 00a2 A5E1      				LDI	r26,21
+ 123 00a4 0C94 0000 				JMP	GENERALINTERRUPT
+ 124               	.global TIMER0_COMPB_vect
+ 125               	TIMER0_COMPB_vect:	
+ 126 00a8 AF93      				PUSH	r26
+ 127 00aa A6E1      				LDI	r26,22
+ 128 00ac 0C94 0000 				JMP	GENERALINTERRUPT
+ 129               	.global TIMER0_OVF_vect
+ 130               	TIMER0_OVF_vect:
+ 131 00b0 AF93      				PUSH	r26
+ 132 00b2 A7E1      				LDI	r26,23
+ 133 00b4 0C94 0000 				JMP	GENERALINTERRUPT	
+ 134               	.global SPI_STC_vect
+ 135               	SPI_STC_vect:	
+ 136 00b8 AF93      				PUSH	r26
+ 137 00ba A8E1      				LDI	r26,24
+ 138 00bc 0C94 0000 				JMP	GENERALINTERRUPT
+ 139               	.global USART0_RX_vect
+ 140               	USART0_RX_vect:	
+ 141 00c0 AF93      				PUSH	r26
+ 142 00c2 A9E1      				LDI	r26,25
+ 143 00c4 0C94 0000 				JMP	GENERALINTERRUPT
+ 144               	.global USART0_UDRE_vect
+ 145               	USART0_UDRE_vect:
+ 146 00c8 AF93      				PUSH	r26
+ 147 00ca AAE1      				LDI	r26,26
+ 148 00cc 0C94 0000 				JMP	GENERALINTERRUPT
+ 149               	.global USART0_TX_vect
+ 150               	USART0_TX_vect:
+ 151 00d0 AF93      				PUSH	r26
+ 152 00d2 ABE1      				LDI	r26,27
+ 153 00d4 0C94 0000 				JMP	GENERALINTERRUPT
+ 154               	.global ANALOG_COMP_vect
+ 155               	ANALOG_COMP_vect:	
+ 156 00d8 AF93      				PUSH	r26
+ 157 00da ACE1      				LDI	r26,28
+ 158 00dc 0C94 0000 				JMP	GENERALINTERRUPT
+GAS LISTING /tmp/ccF6PnjW.s 			page 12
+
+
+ 159               	.global ADC_vect
+ 160               	ADC_vect:		
+ 161 00e0 AF93      				PUSH	r26
+ 162 00e2 ADE1      				LDI	r26,29
+ 163 00e4 0C94 0000 				JMP	GENERALINTERRUPT
+ 164               	.global EE_READY_vect
+ 165               	EE_READY_vect:	
+ 166 00e8 AF93      				PUSH	r26
+ 167 00ea AEE1      				LDI	r26,30
+ 168 00ec 0C94 0000 				JMP	GENERALINTERRUPT
+ 169               	.global TIMER3_CAPT_vect
+ 170               	TIMER3_CAPT_vect:
+ 171 00f0 AF93      				PUSH	r26
+ 172 00f2 AFE1      				LDI	r26,31
+ 173 00f4 0C94 0000 				JMP	GENERALINTERRUPT
+ 174               	.global TIMER3_COMPA_vect
+ 175               	TIMER3_COMPA_vect:
+ 176 00f8 AF93      				PUSH	r26
+ 177 00fa A0E2      				LDI	r26,32
+ 178 00fc 0C94 0000 				JMP	GENERALINTERRUPT
+ 179               	.global TIMER3_COMPB_vect
+ 180               	TIMER3_COMPB_vect:
+ 181 0100 AF93      				PUSH	r26
+ 182 0102 A1E2      				LDI	r26,33
+ 183 0104 0C94 0000 				JMP	GENERALINTERRUPT
+ 184               	.global TIMER3_COMPC_vect
+ 185               	TIMER3_COMPC_vect:
+ 186 0108 AF93      				PUSH	r26
+ 187 010a A2E2      				LDI	r26,34
+ 188 010c 0C94 0000 				JMP	GENERALINTERRUPT
+ 189               	.global TIMER3_OVF_vect
+ 190               	TIMER3_OVF_vect:
+ 191 0110 AF93      				PUSH	r26
+ 192 0112 A3E2      				LDI	r26,35
+ 193 0114 0C94 0000 				JMP	GENERALINTERRUPT
+ 194               	.global USART1_RX_vect
+ 195               	USART1_RX_vect:	
+ 196 0118 AF93      				PUSH	r26
+ 197 011a A4E2      				LDI	r26,36
+ 198 011c 0C94 0000 				JMP	GENERALINTERRUPT
+ 199               	.global USART1_UDRE_vect
+ 200               	USART1_UDRE_vect:
+ 201 0120 AF93      				PUSH	r26
+ 202 0122 A5E2      				LDI	r26,37
+ 203 0124 0C94 0000 				JMP	GENERALINTERRUPT
+ 204               	.global USART1_TX_vect
+ 205               	USART1_TX_vect:	
+ 206 0128 AF93      				PUSH	r26
+ 207 012a A6E2      				LDI	r26,38
+ 208 012c 0C94 0000 				JMP	GENERALINTERRUPT
+ 209               	.global TWI_vect
+ 210               	TWI_vect:	
+ 211 0130 AF93      				PUSH	r26
+ 212 0132 A7E2      				LDI	r26,39
+ 213 0134 0C94 0000 				JMP	GENERALINTERRUPT
+ 214               	.global SPM_READY_vect
+ 215               	SPM_READY_vect:	
+GAS LISTING /tmp/ccF6PnjW.s 			page 13
+
+
+ 216 0138 AF93      				PUSH	r26
+ 217 013a A8E2      				LDI	r26,40
+ 218 013c 0C94 0000 				JMP	GENERALINTERRUPT
+ 219               	.global TIMER4_CAPT_vect
+ 220               	TIMER4_CAPT_vect:
+ 221 0140 AF93      				PUSH	r26
+ 222 0142 A9E2      				LDI	r26,41
+ 223 0144 0C94 0000 				JMP	GENERALINTERRUPT
+ 224               	.global TIMER4_COMPA_vect
+ 225               	TIMER4_COMPA_vect:
+ 226 0148 AF93      				PUSH	r26
+ 227 014a AAE2      				LDI	r26,42
+ 228 014c 0C94 0000 				JMP	GENERALINTERRUPT
+ 229               	.global TIMER4_COMPB_vect
+ 230               	TIMER4_COMPB_vect:
+ 231 0150 AF93      				PUSH	r26
+ 232 0152 ABE2      				LDI	r26,43
+ 233 0154 0C94 0000 				JMP	GENERALINTERRUPT
+ 234               	.global TIMER4_COMPC_vect
+ 235               	TIMER4_COMPC_vect:
+ 236 0158 AF93      				PUSH	r26
+ 237 015a ACE2      				LDI	r26,44
+ 238 015c 0C94 0000 				JMP	GENERALINTERRUPT
+ 239               	.global TIMER4_OVF_vect
+ 240               	TIMER4_OVF_vect:
+ 241 0160 AF93      				PUSH	r26
+ 242 0162 ADE2      				LDI	r26,45
+ 243 0164 0C94 0000 				JMP	GENERALINTERRUPT
+ 244               	.global TIMER5_CAPT_vect
+ 245               	TIMER5_CAPT_vect:
+ 246 0168 AF93      				PUSH	r26
+ 247 016a AEE2      				LDI	r26,46
+ 248 016c 0C94 0000 				JMP	GENERALINTERRUPT
+ 249               	.global TIMER5_COMPA_vect
+ 250               	TIMER5_COMPA_vect:
+ 251 0170 AF93      				PUSH	r26
+ 252 0172 AFE2      				LDI	r26,47
+ 253 0174 0C94 0000 				JMP	GENERALINTERRUPT
+ 254               	.global TIMER5_COMPB_vect
+ 255               	TIMER5_COMPB_vect:
+ 256 0178 AF93      				PUSH	r26
+ 257 017a A0E3      				LDI	r26,48
+ 258 017c 0C94 0000 				JMP	GENERALINTERRUPT
+ 259               	.global TIMER5_COMPC_vect
+ 260               	TIMER5_COMPC_vect:
+ 261 0180 AF93      				PUSH	r26
+ 262 0182 A1E3      				LDI	r26,49
+ 263 0184 0C94 0000 				JMP	GENERALINTERRUPT
+ 264               	.global TIMER5_OVF_vect
+ 265               	TIMER5_OVF_vect:
+ 266 0188 AF93      				PUSH	r26
+ 267 018a A2E3      				LDI	r26,50
+ 268 018c 0C94 0000 				JMP	GENERALINTERRUPT
+ 269               	.global USART2_RX_vect
+ 270               	USART2_RX_vect:	
+ 271 0190 AF93      				PUSH	r26
+ 272 0192 A3E3      				LDI	r26,51
+GAS LISTING /tmp/ccF6PnjW.s 			page 14
+
+
+ 273 0194 0C94 0000 				JMP	GENERALINTERRUPT
+ 274               	.global USART2_UDRE_vect
+ 275               	USART2_UDRE_vect:
+ 276 0198 AF93      				PUSH	r26
+ 277 019a A4E3      				LDI	r26,52
+ 278 019c 0C94 0000 				JMP	GENERALINTERRUPT
+ 279               	.global USART2_TX_vect
+ 280               	USART2_TX_vect:	
+ 281 01a0 AF93      				PUSH	r26
+ 282 01a2 A5E3      				LDI	r26,53
+ 283 01a4 0C94 0000 				JMP	GENERALINTERRUPT
+ 284               	.global USART3_RX_vect
+ 285               	USART3_RX_vect:	
+ 286 01a8 AF93      				PUSH	r26
+ 287 01aa A6E3      				LDI	r26,54
+ 288 01ac 0C94 0000 				JMP	GENERALINTERRUPT
+ 289               	.global USART3_UDRE_vect
+ 290               	USART3_UDRE_vect:
+ 291 01b0 AF93      				PUSH	r26
+ 292 01b2 A7E3      				LDI	r26,55
+ 293 01b4 0C94 0000 				JMP	GENERALINTERRUPT
+ 294               	.global USART3_TX_vect
+ 295               	USART3_TX_vect:	
+ 296 01b8 AF93      				PUSH	r26
+ 297 01ba A8E3      				LDI	r26,56
+ 298 01bc 0C94 0000 				JMP	GENERALINTERRUPT
+ 299               	
+ 300               	//For every Interrupt the same...
+ 301               	GENERALINTERRUPT:	
+ 302 01c0 BF93      				PUSH	r27
+ 303 01c2 BFB7      				IN	r27,_SFR_IO_ADDR(SREG)	
+ 304 01c4 BF93      				PUSH	r27
+ 305 01c6 1F92      				PUSH	r1
+ 306 01c8 8F93      				PUSH	r24
+ 307 01ca 9F93      				PUSH	r25
+ 308 01cc EF93      				PUSH	r30
+ 309 01ce FF93      				PUSH	r31
+ 310 01d0 1124      				EOR	r1,r1 //set to 0
+ 311               				//load pointer to sram pos of arry
+ 312 01d2 E0E0      				ldi	ZL, lo8(interruptVectors)
+ 313 01d4 F0E0      				ldi	ZH, hi8(interruptVectors)
+ 314 01d6 AA0F      				ADD	r26,r26 //x2 for 16bit
+ 315               				//add array index to pointer
+ 316 01d8 EA0F      				ADD	ZL,r26
+ 317 01da F11D      				ADC	ZH,r1	
+ 318               				//load content where pointer points to
+ 319 01dc 8191      				LD	r24,Z+
+ 320 01de 9081      				LD	r25,Z
+ 321 01e0 0E94 0000 				CALL	interruptThread
+ 322               	
+ 323 01e4 FF91      				POP	r31
+ 324 01e6 EF91      				POP	r30
+ 325 01e8 9F91      				POP	r25
+ 326 01ea 8F91      				POP	r24
+ 327 01ec 1F90      				POP	r1
+ 328 01ee BF91      				POP	r27
+ 329 01f0 BFBF      				OUT	_SFR_IO_ADDR(SREG),r27
+GAS LISTING /tmp/ccF6PnjW.s 			page 15
+
+
+ 330 01f2 BF91      				POP	r27
+ 331 01f4 AF91      				POP	r26
+ 332 01f6 1895      				RETI
+GAS LISTING /tmp/ccF6PnjW.s 			page 16
+
+
+DEFINED SYMBOLS
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:11     .text:0000000000000000 RESET_vect
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:301    .text:00000000000001c0 GENERALINTERRUPT
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:16     .text:0000000000000008 __vector_1
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:21     .text:0000000000000010 __vector_2
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:26     .text:0000000000000018 __vector_3
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:31     .text:0000000000000020 __vector_4
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:36     .text:0000000000000028 __vector_5
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:41     .text:0000000000000030 __vector_6
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:46     .text:0000000000000038 __vector_7
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:51     .text:0000000000000040 __vector_8
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:56     .text:0000000000000048 __vector_9
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:61     .text:0000000000000050 __vector_10
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:66     .text:0000000000000058 __vector_11
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:71     .text:0000000000000060 __vector_12
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:77     .text:0000000000000068 __vector_13
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:83     .text:0000000000000070 __vector_14
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:88     .text:0000000000000078 __vector_15
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:93     .text:0000000000000080 __vector_16
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:105    .text:0000000000000088 __vector_18
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:110    .text:0000000000000090 __vector_19
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:115    .text:0000000000000098 __vector_20
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:120    .text:00000000000000a0 __vector_21
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:125    .text:00000000000000a8 __vector_22
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:130    .text:00000000000000b0 __vector_23
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:135    .text:00000000000000b8 __vector_24
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:140    .text:00000000000000c0 __vector_25
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:145    .text:00000000000000c8 __vector_26
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:150    .text:00000000000000d0 __vector_27
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:155    .text:00000000000000d8 __vector_28
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:160    .text:00000000000000e0 __vector_29
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:165    .text:00000000000000e8 __vector_30
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:170    .text:00000000000000f0 __vector_31
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:175    .text:00000000000000f8 __vector_32
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:180    .text:0000000000000100 __vector_33
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:185    .text:0000000000000108 __vector_34
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:190    .text:0000000000000110 __vector_35
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:195    .text:0000000000000118 __vector_36
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:200    .text:0000000000000120 __vector_37
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:205    .text:0000000000000128 __vector_38
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:210    .text:0000000000000130 __vector_39
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:215    .text:0000000000000138 __vector_40
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:220    .text:0000000000000140 __vector_41
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:225    .text:0000000000000148 __vector_42
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:230    .text:0000000000000150 __vector_43
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:235    .text:0000000000000158 __vector_44
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:240    .text:0000000000000160 __vector_45
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:245    .text:0000000000000168 __vector_46
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:250    .text:0000000000000170 __vector_47
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:255    .text:0000000000000178 __vector_48
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:260    .text:0000000000000180 __vector_49
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:265    .text:0000000000000188 __vector_50
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:270    .text:0000000000000190 __vector_51
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:275    .text:0000000000000198 __vector_52
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:280    .text:00000000000001a0 __vector_53
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:285    .text:00000000000001a8 __vector_54
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:290    .text:00000000000001b0 __vector_55
+GAS LISTING /tmp/ccF6PnjW.s 			page 17
+
+
+PLATFORMS/ARDUINOMEGA/routines_interrupt.asm:295    .text:00000000000001b8 __vector_56
+
+UNDEFINED SYMBOLS
+interruptVectors
+interruptThread

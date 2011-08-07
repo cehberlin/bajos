@@ -4,10 +4,6 @@
 #
 # java for 8 Bit uC atmega128 at CharonII
 #=================================#
-<<<<<<< .mine
-=======
-
->>>>>>> .r772
 # working with monitor bamo128  (cs.ba-berlin.de) -> first load bamo128 in boot section
 # make all ch -> generates bajvm.bin, avr8bootpack and chapp
 # load bajvm.bin avr8bootpack and chapp in flash, then start bajos with the "go" command of  monitor
@@ -28,12 +24,12 @@ OPTIMIZATION		=
 # -O3
 
 # JAVA SOURCES
-#JAVAAPPSOURCES		= javatests/Charon.java
-JAVAAPPSOURCES		= javatests/SchedulerTest.java
+#JAVAAPPSOURCES		= JAVATESTS/Charon.java
+JAVAAPPSOURCES		= JAVATESTS/SchedulerTest.java
 
-PLATFORMCSOURCES	= $(APPPATH)CHARON/lcd.c $(APPPATH)CHARON/shift.c $(APPPATH)CHARON/ds182x.c \
-			$(APPPATH)CHARON/platform.c $(APPPATH)CHARON/native.c
-PLATFORMASMSOURCES 	= $(APPPATH)CHARON/routines.asm $(APPPATH)CHARON/routines_stack.asm
+PLATFORMCSOURCES	= $(TARGETHWFOLDER)/lcd.c $(TARGETHWFOLDER)/shift.c $(TARGETHWFOLDER)/ds182x.c \
+			$(TARGETHWFOLDER)/platform.c $(TARGETHWFOLDER)/native.c
+PLATFORMASMSOURCES 	= $(TARGETHWFOLDER)/routines.asm $(TARGETHWFOLDER)/routines_stack.asm
 
 OBJFILES		+=	$(PLATFORMASMSOURCES:.asm=.o)
 
