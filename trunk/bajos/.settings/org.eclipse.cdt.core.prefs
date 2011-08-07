@@ -1,4 +1,4 @@
-#Sun Aug 07 12:55:48 CEST 2011
+#Sun Aug 07 15:05:06 CEST 2011
 eclipse.preferences.version=1
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754.1060099672/BUILDCONFIGURATION/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754.1060099672/BUILDCONFIGURATION/operation=append
@@ -16,7 +16,7 @@ environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/BUILDCONFIGURA
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/BUILDCONFIGURATION/value=${ConfigName}
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TARGETHW/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TARGETHW/operation=replace
-environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TARGETHW/value=arduinomega
+environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TARGETHW/value=linux
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TINYBAJOS/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TINYBAJOS/operation=replace
 environment/project/cdt.managedbuild.toolchain.gnu.base.459263754/TINYBAJOS/value=
