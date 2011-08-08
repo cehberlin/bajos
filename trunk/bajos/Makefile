@@ -34,7 +34,7 @@ FirstWord = $(if $(1),$(word 1,$(1)))
 # CHECK  ECLIPSE BUILD
 # ** ** ** *** ** ** ** ** ** ** ** ** ** ** **
 
-ifneq ($(TARGETHW),"")
+ifneq ($(TARGETHW),)#variable is not set by environment
 
 ifneq  "" "$(filter CH ch charon,$(TARGETHW))"
 TARGETHW=charon
