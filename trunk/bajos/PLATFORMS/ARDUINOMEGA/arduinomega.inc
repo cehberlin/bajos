@@ -24,7 +24,8 @@ PROGRAM		= avrdude
 # flasher means the avrdude device which you are using for flashing
 #FLASHER	= stk500 -P/dev/ttyUSB0
 #FLASHER 	= stk200 
-FLASHER 	= avrispmkII -P usb 
+#FLASHER 	= avrispmkII -P usb 
+FLASHER	= stk500v2 -P/dev/ttyUSB0 #ARDUINO 
 
 # DEVICE
 ARCH			= AVR5
