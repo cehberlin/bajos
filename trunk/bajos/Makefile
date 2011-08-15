@@ -206,7 +206,7 @@ clobber: clean
 	-$(VERBOSE_CMD)$(RM) `find . -name *.class -print`
 
 .PHONY: clean
-clean:
+clean: copyandappend 
 	@echo $(MSG_CLEANING)
 	-$(VERBOSE_CMD)$(RM) $(BIN)
 	-$(VERBOSE_CMD)$(RM) $(HEX)
@@ -358,8 +358,19 @@ TINYBAJOS:
 	@:
 
 bootclasses:
+ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
+	make -f ./JAVABOOTCLASSES/makefile clean
+else
 	make -f ./JAVABOOTCLASSES/makefile $(TARGETHW)
 	make -f ./JAVABOOTCLASSES/makefile boot
+endif
+	
+copyandappend:
+ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
+	make -f ./TOOLS/CopyAndAppend/makefile clean
+else
+	make -f ./TOOLS/CopyAndAppend/makefile
+endif
 
 
 # Copyright (c) 2007, Atmel Corporation All rights reserved.

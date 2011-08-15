@@ -86,7 +86,7 @@ $(TARGETFILE):	${OBJFILES}
 #	$(VERBOSE_CMD)${CC} $(filter %.o,$+) -mmcu=$(PART) -architecture=$(ARCH)   -Wl,--section-start,.data=0x800200,--defsym=__heap_start=0x800c00,--defsym=__heap_end=0x802080,--defsym=__stack=0x802100    -Wl,-u,vfprintf -lprintf_min -Wl,-u,vfscanf -lscanf_min -lm -o$(TARGETFILE)
 ##	@rm ${EXE}
 else
-all:	clean  bootclasses compAM bootpack app compile bajospack burnbajos
+all:	clean  copyandappend bootclasses compAM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
@@ -95,8 +95,9 @@ $(TARGETFILE):	${OBJFILES}
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 
 bajospack:
-	$(VERBOSE_CMD) cat $(BIN) > bajos.bin
-	$(VERBOSE_CMD)(i=`ls -l $(BIN) | cut -f5 -d' '`; limit=`expr 2 \* $$(($(CLASSFILEBASE)))`;while [ "$$i" -lt "$$limit" ];  do  i=$$(($$i+1));echo -n 'x' >> bajos.bin;  done)
+	# set java classes in upper part of flash so we do not need to change the z-flag: Special for Atmel 8Biters with more than 64KB Flash
+	# this tool fills up our bin from end of JVM code to start location of java classes after 64kb
+	$(VERBOSE_CMD) java -jar ./TOOLS/CopyAndAppend/CopyAndAppend.jar $(BIN) bajos.bin -t $(CLASSFILEBASE) -b 0x78 -m2
 	cat avr8bootpack >> bajos.bin
 	cat amapp >> bajos.bin
 	@echo Creating binary image to \`bajos.bin\'	.

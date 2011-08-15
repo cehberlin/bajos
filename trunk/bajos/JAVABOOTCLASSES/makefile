@@ -1,6 +1,6 @@
 CPATH    = ./JAVABOOTCLASSES/classes
 
-JARGS    = -g:none -verbose  -source 1.4 -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./JAVABOOTCLASSES/sources
+JARGS    = -g:none -verbose -extdirs . -bootclasspath $(CPATH) -d $(CPATH) -sourcepath ./JAVABOOTCLASSES/sources
 
 
 boot:
@@ -69,15 +69,15 @@ clean:
 
 
 boot1:
-	javac  -verbose -source 1.4  -g:none -classpath ./JAVABOOTCLASSES/classes ./JAVABOOTCLASSES/sources/java/io/*.java
+	javac  -verbose -g:none -classpath ./JAVABOOTCLASSES/classes ./JAVABOOTCLASSES/sources/java/io/*.java
 	mv ./JAVABOOTCLASSES/sources/java/io/*.class  ./JAVABOOTCLASSES/classes/java/io
-	javac  -verbose -source 1.4 -classpath ./JAVABOOTCLASSES/classes -g:none ./JAVABOOTCLASSES/sources/java/lang/*.java -extdirs . -bootclasspath .
+	javac  -verbose -classpath ./JAVABOOTCLASSES/classes -g:none ./JAVABOOTCLASSES/sources/java/lang/*.java -extdirs . -bootclasspath .
 	mv ./JAVABOOTCLASSES/sources/java/lang/*.class  ./JAVABOOTCLASSES/classes/java/lang
-	javac  -verbose -source 1.4  -g:none  ./JAVABOOTCLASSES/sources/java/util/*.java -extdirs . -bootclasspath . -classpath ./JAVABOOTCLASSES/classes
+	javac  -verbose -g:none  ./JAVABOOTCLASSES/sources/java/util/*.java -extdirs . -bootclasspath . -classpath ./JAVABOOTCLASSES/classes
 	mv ./JAVABOOTCLASSES/sources/java/util/*.class  ./JAVABOOTCLASSES/classes/java/util
 
 graphic1:
-	javac  -verbose -source 1.4 -classpath ./JAVABOOTCLASSES/classes -g:none ./JAVABOOTCLASSES/sources/java/graphics/*.java
+	javac  -verbose -classpath ./JAVABOOTCLASSES/classes -g:none ./JAVABOOTCLASSES/sources/java/graphics/*.java
 	mv ./JAVABOOTCLASSES/sources/java/graphics/*.class  ./JAVABOOTCLASSES/classes/java/graphics/
 
 
