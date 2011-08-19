@@ -11,9 +11,9 @@ There are many ways to install a java application at arduino.<br>
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).
 
 === Direct uppload with AVRDUDE from MAKE===
-If you change the configured FLASHER in PLATFORM/ARDUINOMENA/arduinomega.inc to
+If you change the configured FLASHER in PLATFORM/ARDUINOMEGA/arduinomega.inc to<br>
 
-FLASHER	= stk500v1 -P/dev/ttyUSB0 # old ARDUINO Bootloader
+FLASHER	= stk500v1 -P/dev/ttyUSB0 # old ARDUINO Bootloader<br>
 FLASHER	= stk500v2 -P/dev/ttyUSB0 # new ARDUINO Bootloader
 
 the MAKE will flash the bajos direct to your arduino on make all am or make burnbajos am if you have already build.
