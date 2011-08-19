@@ -10,7 +10,7 @@ There are many ways to install a java application at arduino.<br>
 ==1. Load BAJOS with arduino bootloader as standalone application==
 The simplest way is to use the preinstalled bootloader at arduino board which is normally used to burn the arduino applications with the arduino IDE (windows or linux).
 
-=== Direct uppload with AVRDUDE from MAKE===
+=== Direct upload with AVRDUDE from MAKE===
 If you change the configured FLASHER in PLATFORM/ARDUINOMEGA/arduinomega.inc to<br>
 
 FLASHER	= stk500v1 -P/dev/ttyUSB0 # old ARDUINO Bootloader<br>
