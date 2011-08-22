@@ -3,7 +3,9 @@
 The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) is well suitable for Bajos.
 
 == Environment ==
-We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. If you download and unizp this package in a directory /opt/cross/, you are compatible with our software environment and paths in the makefiles. 
+We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. Download and unizp this package and insert in ARDUINOMEGA/arduinomega.inc<br>
+BINDIR = /opt/cross/as4e-ide/plugin/com.atmel.avr.toolchains.linux.x86_64_3.1.0.201012011657/os/linux/x86_64/bin/ <br>
+(if this is your path to avr-gcc)  or write this path in the search path of the shell environment. 
 
 There are many ways to install a java application at arduino.<br>
 
@@ -34,9 +36,9 @@ Uncomment:
 #define MODEMDEVICE 	"/dev/ttyUSB0"	    // USB port
 
 if you connect your arduino via usb cable with the pc.
-and: 
+and:<br>
 #define BAUDRATE 	B57600 //thats the default baudrate of arduino bootloader<br>
-Compile from command line: 
+Compile from command line:<br> 
 #> g++ arduinokermit.c -lncurses -o arduinokermit
 generates the executable arduinokermit.
 
