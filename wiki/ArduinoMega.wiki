@@ -3,7 +3,7 @@
 The Arduino Mega (with the atmega1280 processor  128KB flash, 8 KB data ram) or Mega256 (with the atmega256 processor  256KB flash, 16 KB data ram) is well suitable for Bajos.
 
 == Environment ==
-We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. Download and unizp this package and insert in ARDUINOMEGA/arduinomega.inc<br>
+We work in a linux environment with the GNU toolchain  (C/C++ compiler, binutils,...), avrdude for programming and the AVR8 GNU C-compiler and tools (avr-gcc,...), which currently are hunker down in the 32 Bit IDE AVR32 Studio http://www.atmel.no/beta_ware. Download and unizp this package and insert in PLATFORMS/ARDUINOMEGA/arduinomega.inc<br>
 BINDIR = /opt/cross/as4e-ide/plugin/com.atmel.avr.toolchains.linux.x86_64_3.1.0.201012011657/os/linux/x86_64/bin/ <br>
 (if this is your path to avr-gcc)  or write this path in the search path of the shell environment. 
 
