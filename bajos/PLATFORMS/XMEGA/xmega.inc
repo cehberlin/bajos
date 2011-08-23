@@ -18,7 +18,7 @@
 # TOOLS
 # from avr32studio www.atmel.no/beta_ware
 BINDIR	=
-DUDEDIR = /opt/cross/avrdude-5.10/
+DUDEDIR = 
 CC		= $(BINDIR)avr-gcc
 OBJCOPY		= $(BINDIR)avr-objcopy
 PROGRAM		= $(DUDEDIR)avrdude
@@ -41,7 +41,7 @@ CLASSFILEBASE		=  0xC480
 # fix address for class files (in words), make it better
 
 # JAVA SOURCES
-JAVAAPPSOURCES		= JAVATESTS/XP.java
+JAVAAPPSOURCES		= JAVATESTS/XM.java
 
 
 
@@ -61,7 +61,7 @@ OBJFILES		+=	$(PLATFORMASMSOURCES:.S=.o)
 # GOALS
 ifeq ($(findstring withmon,$(MAKECMDGOALS)),withmon)
 DEFS+= -DWITHMON
-all:	clean  bootclasses compXP bootpack app compile
+all:	clean  bootclasses compXM bootpack app compile
 	@echo created $(BIN) arv8bootpack xpapp
 
 $(TARGETFILE):	${OBJFILES}
@@ -74,11 +74,11 @@ $(TARGETFILE):	${OBJFILES}
 ##	@rm ${EXE}
 #-Wl,--defsym=__stack=0x802100 
 else
-all:	clean  bootclasses compXPLAIN bootpack app compile bajospack burnbajos
+all:	clean  bootclasses compXM bootpack app compile bajospack burnbajos
 
 $(TARGETFILE):	${OBJFILES}
 	@echo $(MSG_LINKING)
-	$(VERBOSE_CMD)${CC}  $(filter %.o,$+) -mmcu=$(PART) -o$(TARGETFILE) 
+	$(VERBOSE_CMD)${CC}  $(filter %.o,$+) -mmcu=$(PART) -lm -o$(TARGETFILE) 
 	@echo $(MSG_BINARY_IMAGE)
 	$(VERBOSE_CMD) $(OBJCOPY) -O binary $(TARGETFILE) $(BIN)
 #   -Wl,-u,vfprintf -lprintf_flt -Wl,-u,vfscanf -lscanf_flt -lm 
@@ -98,7 +98,7 @@ endif	#withmon
 
 withmon:
 	@:
-xplain:
+xmega:
 	@:
 
 burnbajos:
@@ -141,5 +141,5 @@ app:
 	$(VERBOSE_CMD) $(CC) -x assembler-with-cpp -D__ASSEMBLY__ -Wall ${DEFS} ${DEBUGGEN}  -mmcu=$(PART)  -c $< -o $@
 
 # java app
-compXPLAIN:	
+compXM:	
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) $(JAVAAPPSOURCES)
