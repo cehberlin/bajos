@@ -250,8 +250,7 @@ void createThread (void)
         {
             errorExit(77, "field priority not found");
         }
-        t->pPriority = (u4*) (heapBase + opStackGetValue(local).stackObj.pos
-            + fNO + 1);
+        t->pPriority = (u4*) (heapBase + opStackGetValue(local).stackObj.pos + fN + 1);
 // position of int field priority of the thread creating object, next field is aLive
                                                   // restore class number of object
         cN = opStackGetValue(local).stackObj.classNumber;
@@ -276,8 +275,7 @@ void createThread (void)
         *(t->methodStackBase + 4) = findMaxLocals();
                                                   /* reference to caller object (from start())*/
         *(t->opStackBase) = opStackGetValue(local);
-        verbosePrintf("cN x%x mN x%x startPC x%x\n", cN, mN,
-            *(t->methodStackBase + 3));
+        //verbosePrintf("cN x%x mN x%x startPC x%x\n", cN, mN, *(t->methodStackBase + 3));
     }
     u2 i;
     for (i = 0; i < MAXLOCKEDTHREADOBJECTS; i++)
