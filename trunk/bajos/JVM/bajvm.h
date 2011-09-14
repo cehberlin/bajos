@@ -33,11 +33,10 @@ void initVM(void);
 #define INIT__(_a)
 #endif
 #undef __DEF_GLOBALS__
-GLOBAL u2 pc;                                     // one thread
+GLOBAL u2 pc;                                     // active thread
 GLOBAL u1 cN;                                     // class structure Number
-GLOBAL u1 mN;                                     //method Number in class structure
-GLOBAL u1 fNC;                                    // field Number in class structure
-GLOBAL u1 fNO;                                    // fieldN umber in object
+GLOBAL u1 mN;                                     // method Number in class structure
+GLOBAL u1 fN;                       		  // field number in class or object 
 GLOBAL u1 local INIT__(0);
 GLOBAL slot* opStackBase INIT__(NULL);
 GLOBAL u2* methodStackBase INIT__(NULL);
@@ -59,7 +58,7 @@ GLOBAL u4 mainThreadPriority[2];                  // priority (and alive) of mai
 GLOBAL ThreadPriorityList threadPriorities[MAXPRIORITY] ;
 GLOBAL ThreadControlBlock* interruptVectors[NUMBEROFINTERRUPTS];
 #endif
-GLOBAL classStructure cs[MAXCLASSES];
+GLOBAL classStructure cs[MAXCLASSES];	// static allocated !!!
 #ifndef AVR8
 GLOBAL u4 timerMilliSec INIT__(0);
 #else
