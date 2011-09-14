@@ -114,30 +114,39 @@ u2 findMaxLocals()                                /*cN,mN*/
 
 
 /* in cN fieldName fieldDescr*/
-/* out cN, fNC fNO */
+/* out cN, fN of normal field in object (non static, non final primitive fields)*/
 /* return 1 -> found */
 u1 findFieldByName(const char* fieldName, u1 fieldNameLength,
 const char* fieldDescr, u1 fieldDescrLength)
 {
-    fNO = 0;
+    u1	i;
+    u1	found = 0;
+    fN = 0;
     do
     {
         u1 numFields = getU2(cs[cN].fields_count);
-        for (fNC = 0; fNC < numFields; ++fNC)
-        {
-            u2 fieldname = cs[cN].constant_pool[getU2(
-                cs[cN].field_info[fNC] + 2)];
-            u2 fielddescr = cs[cN].constant_pool[getU2(
-                cs[cN].field_info[fNC] + 4)];
-            if (fieldNameLength == getU2(fieldname + 1) &&
+        for (i = 0; i < numFields; ++i)
+        {   
+	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
+	    u1 isNotObject =  
     #ifdef AVR8
+                   strncmpRamFlash
+    #else
+                   strncmp
+    #endif
+		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) && isNotObject) continue; // ignore static and non static primitive finals
+	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
+            u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)];
+	
+            if (fieldNameLength == getU2(fieldname + 1) &&
+    #ifdef AVR8 
                 strncmpFlashFlash
     #else
                 strncmp
     #endif
-                (fieldName, (const char*) getAddr(fieldname + 3),
-                getU2(fieldname + 1)) == 0 && fieldDescrLength
-                == getU2(fielddescr + 1) &&
+                (fieldName, (const char*) getAddr(fieldname + 3),getU2(fieldname + 1)) == 0 && 
+                 fieldDescrLength == getU2(fielddescr + 1) &&
     #ifdef AVR8
                 strncmpFlashFlash
     #else
@@ -146,30 +155,40 @@ const char* fieldDescr, u1 fieldDescrLength)
                 (fieldDescr, (const char*) getAddr(fielddescr + 3),
                 getU2(fielddescr + 1)) == 0)
             {
-                break;
-            }
-        }
-        fNO += fNC;
-        if (fNC < numFields)
-            return 1;
+                found=1; break; 
+            } 
+        
+	    	    fN++;
+	}
+        if (found )            return 1;
     } while (findSuperClass());
     return 0;
 }
 
 
-u1 findFieldByRamName(const char* fieldName, u1 fieldNameLength,
-const char* fieldDescr, u1 fieldDescrLength)
+u1 findFieldByRamName(const char* fieldName, u1 fieldNameLength, // for normal fields
+const char* fieldDescr, u1 fieldDescrLength) // only use in scheduler
 {
-    fNO = 0;
+    u1 i;
+    u1 found = 0;
+    fN = 0;
     do
     {
         u1 numFields = getU2(cs[cN].fields_count);
-        for (fNC = 0; fNC < numFields; ++fNC)
-        {
+        for (i = 0; i < numFields; ++i)
+        {	    
+	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
+	    u1 isNotObject =  
+    #ifdef AVR8
+                   strncmpRamFlash
+    #else
+                   strncmp
+    #endif
+		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL)&& isNotObject) continue; // ignore static and non static primitive finals
+	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
             u2 fieldname = cs[cN].constant_pool[getU2(
-                cs[cN].field_info[fNC] + 2)];
-            u2 fielddescr = cs[cN].constant_pool[getU2(
-                cs[cN].field_info[fNC] + 4)];
+                cs[cN].field_info[i] + 2)];
             if (fieldNameLength == getU2(fieldname + 1) &&
     #ifdef AVR8
                 strncmpRamFlash
@@ -186,15 +205,59 @@ const char* fieldDescr, u1 fieldDescrLength)
     #endif
                 (fieldDescr, (const char*) getAddr(fielddescr + 3),
                 getU2(fielddescr + 1)) == 0)
-            {
-                break;
-            }
+             {
+                found=1; break; 
+            } 
+            	    fN++;
         }
-        fNO += fNC;
-        if (fNC < numFields)
-            return 1;
+	if (found )            return 1;
     } while (findSuperClass());
     return 0;
+}
+
+u1 findStaticFieldByName(const char* fieldName, u1 fieldNameLength,
+const char* fieldDescr, u1 fieldDescrLength)	{
+  u1	i;
+    u1	found = 0;
+    fN = 0;
+        u1 numFields = getU2(cs[cN].fields_count);
+        for (i = 0; i < numFields; ++i)
+        {
+	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
+	    u1 isNotObject =  
+    #ifdef AVR8
+                   strncmpRamFlash
+    #else
+                   strncmp
+    #endif
+		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	
+	    if (! ( getU2(cs[cN].field_info[i]) & ACC_STATIC)) continue; // ignore non static
+	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) &&  isNotObject) continue; // non object finals  
+            u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)];
+            if (fieldNameLength == getU2(fieldname + 1) &&
+    #ifdef AVR8 
+                strncmpFlashFlash
+    #else
+                strncmp
+    #endif
+                (fieldName, (const char*) getAddr(fieldname + 3),
+                getU2(fieldname + 1)) == 0 && fieldDescrLength
+                == getU2(fielddescr + 1) &&
+    #ifdef AVR8
+                strncmpFlashFlash
+    #else
+                strncmp
+    #endif
+                (fieldDescr, (const char*) getAddr(fielddescr + 3),
+                getU2(fielddescr + 1)) == 0)
+            {
+                found=1; break; 
+            } 
+            	    fN++;
+        }
+        if (found )            return 1;
+    return 0;
+    
 }
 
 
@@ -426,17 +489,7 @@ void analyzeClass(classStructure* c)
 {
     u2 ln;
     pc = 0;
-/* static class object*/
-/* enough heap space for static class objects*/
-    HEAPOBJECTMARKER(heapTop).status = HEAPALLOCATEDSTATICCLASSOBJECT;
-/* static classfile object*/
-    HEAPOBJECTMARKER(heapTop).magic = OBJECTMAGIC;
-    HEAPOBJECTMARKER(heapTop).rootCheck = 1;
-    HEAPOBJECTMARKER(heapTop).mutex = MUTEXNOTBLOCKED;
-    HEAPOBJECTMARKER(heapTop).length = 1;         /* evtl. später überschreiben	*/
-    cs[cN].classInfo.stackObj.pos = heapTop++;
-    cs[cN].classInfo.stackObj.magic = OBJECTMAGIC;
-    cs[cN].classInfo.stackObj.classNumber = cN;
+
 #ifdef DEBUG
 #ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
     printf_P(PSTR("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"), cN);
@@ -556,8 +609,7 @@ printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
     c->field_info = NULL;
     if (getU2(c->fields_count) != 0)
     {
-        if ((c->field_info = (u2*) malloc(sizeof(u2) * getU2(c->fields_count)))
-            == NULL)
+        if ((c->field_info = (u2*) malloc(sizeof(u2) * getU2(c->fields_count))) == NULL)
 
 #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
             printf_P(PSTR("malloc error\n"));
@@ -1069,45 +1121,53 @@ void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
 void analyzeFields(classStructure* c)
 {
     u2 n, a, cur_a;
-    u2 startStaticObject = heapTop - 1;
-    u2 numStaticFields = 0;
+    fN = 0; // count static fields
     for (n = 0; n < getU2(c->fields_count); n++)  /*num fields*/
     {
         c->field_info[n] = pc;                    /* absolute in classfile*/
 #ifdef DEBUG
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
         printf_P(PSTR("\tfield %x\taccess_flags: %d\n"),n,getU2(pc));
-#else
+  #else
         printf("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
-#endif
+  #endif
 
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
         printf_P(PSTR("\tfield %d\tname: %d\n"),n,getU2(pc+2));
-#else
+  #else
         printf("\tfield %d\tname: %d\n",n,getU2(pc+2));
-#endif
+  #endif
 
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
         printf_P(PSTR("\tfield %d\tdescriptor: %d\n"),n,getU2(pc+4));
-#else
+  #else
         printf("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4));
-#endif
+  #endif
 
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
+  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
         printf_P(PSTR("\tfield %d\tattribute_count: %d\n"),n,getU2(pc+6));
-#else
+  #else
         printf("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
+  #endif
 #endif
-#endif
+	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[n] + 4)];
+	    u1 isNotObject =  
+    #ifdef AVR8
+                            strncmpRamFlash
+    #else
+                            strncmp
+    #endif
+					("L",(const char*) getAddr(fielddescr + 3), 1);
+					
+	//printf("cN %d n %d A %c fN %d \n",cN,n,*(const char*)getAddr(fielddescr + 3),fN);
+	if ((ACC_STATIC & getU2(pc)) && !((ACC_FINAL & getU2(pc)) && isNotObject)) 
+		    // count only normal static fields and final static fields in  class object
+	            fN++;
         pc += 6;
+
         a = getU2(0);                             // num field attribute
 // ConstantValue(6),Synthetic(4),Signature(6) ,Deprecated(4)
-/*		if (0x0008 & getU2(pc-8)) {// only static fields in class objects*/
-                                                  /* initialize the heap elements*/
-        heapSetElement((slot) (u4) 0x77, heapTop++);
-/*		}*/
-        numStaticFields++;
-        for (cur_a = 0; cur_a < a; ++cur_a)
+        for (cur_a = 0; cur_a < a; ++cur_a)  // field attributes
         {
             u2 attribute_name_index = getU2(0);
             u1 attribute_name = cs[cN].constant_pool[attribute_name_index];
@@ -1119,43 +1179,11 @@ void analyzeFields(classStructure* c)
     #else
                 strncmp
     #endif
-                ("ConstantValue", getAddr(attribute_name + 3), 13) == 0)
-            {
-                u2 constantvalue_index = getU2(0);
-                u1 constantvalue = cs[cN].constant_pool[constantvalue_index];
-                if (getU1(constantvalue) == CONSTANT_String)
-                {
-                    u2 utf8 = cs[cN].constant_pool[getU2(constantvalue + 1)];
-                    if (getU1(utf8) != CONSTANT_Utf8)
-                    {
-                        errorExit(
-                            -1,
-                            "error while reading class file, CONSTANT_String target is no Utf8 entry but %d\n",
-                            getU1(utf8));
-
-                    }
-
-                    u2 space = getFreeHeapSpace(getU2(utf8 + 1));
-                    int i;
-                    for (i = 0; i < getU2(utf8 + 1); ++i)
-                    {
-                        heapSetElement((slot) (u4) getU2(utf8 + 1 + 1 + i),
-                            space++);
-                    }
-                }
-                else
-                {
-                                                  /*   n+1 !!no double, float*/
-                    heapSetElement((slot) getU4(constantvalue + 1), heapTop - 1);
-                }
-                continue;                         // next attribute test
-            }
-            else
-            {
+                ("ConstantValue", getAddr(attribute_name + 3), 13) == 0)	// nothing to do for jvm
+           {
                 pc += attribute_length;           /* continue*/
                 continue;                         // next attribute test
-            }                                     // ConstantValue
-
+            }
             if (
     #ifdef AVR8
                 strncmpRamFlash
@@ -1191,10 +1219,17 @@ void analyzeFields(classStructure* c)
             }
             errorExit(3, "unsupported field attribute");
         }                                         // field attribute count
-
     }                                             // numfields
-    HEAPOBJECTMARKER(startStaticObject).length
-        = (numStaticFields > 0) ? heapTop - startStaticObject : 1;
+    u2 heapPos=getFreeHeapSpace(fN + 1);/* + marker*/       /* allocate on heap places for stackObject fields*/
+    for (n=0; n < fN;n++)                         /* initialize the heap elements*/
+                    heapSetElement((slot) (u4) 0, heapPos+n+1);
+    HEAPOBJECTMARKER(heapPos).status = HEAPALLOCATEDSTATICCLASSOBJECT;	    
+    HEAPOBJECTMARKER(heapPos).mutex=MUTEXNOTBLOCKED;
+    HEAPOBJECTMARKER(heapPos).rootCheck=1;
+    HEAPOBJECTMARKER(heapPos).magic= OBJECTMAGIC;
+    c->classInfo.stackObj.pos = heapPos;
+    c->classInfo.stackObj.magic = OBJECTMAGIC;
+    c->classInfo.stackObj.classNumber = cN;
 }                                                 // end analyze fields
 
 
