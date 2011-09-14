@@ -870,8 +870,7 @@ void run()                                        /* in: classNumber,  methodNum
                         + 1));
                 }
 
-                if (!findFieldByName(fieldName, fieldNameLength, fieldDescr,
-                    fieldDescrLength))
+                if (!findStaticFieldByName(fieldName, fieldNameLength, fieldDescr,fieldDescrLength))
                 {
                     FIELDNOTFOUNDERR(
                         fieldName,
@@ -888,9 +887,9 @@ void run()                                        /* in: classNumber,  methodNum
                 }
 /* got position in constant pool --> results in position on heap*/
                 DEBUGPRINTLNSTRING(fieldName, fieldNameLength);
-                opStackPush(heapGetElement(cs[cN].classInfo.stackObj.pos + fNC + 1));
+                opStackPush(heapGetElement(cs[cN].classInfo.stackObj.pos + fN + 1));
                 pc += 2;
-                cN = methodStackPop();
+                cN = methodStackPop();	// end GETSTATIC
 
                 CASE PUTSTATIC:
                                                   /*mb jf*/
@@ -957,8 +956,7 @@ void run()                                        /* in: classNumber,  methodNum
                         + 1));
                 }
 
-                if (!findFieldByName(fieldName, fieldNameLength, fieldDescr,
-                    fieldDescrLength))
+                if (!findStaticFieldByName(fieldName, fieldNameLength, fieldDescr, fieldDescrLength))
                 {
                     FIELDNOTFOUNDERR(
                         fieldName,
@@ -975,11 +973,11 @@ void run()                                        /* in: classNumber,  methodNum
                 }
 
                 heapSetElement(opStackPop(),
-                    cs[cN].classInfo.stackObj.pos + /*i*/fNC + 1);/*opStackPop().UInt+i+1);*/
+                    cs[cN].classInfo.stackObj.pos + fN + 1);
                 pc += 2;
 
                 cN = methodStackPop();            /* restore cN*/
-
+		// end PUTSTATIC
                 CASE GETFIELD:
                 DEBUGPRINTLN("getfield ->   heap to stack:");
                 methodStackPush(cN);
@@ -1013,8 +1011,7 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
 /* jetzt ist es noch besser, im stackobject die classnummer zu ermitteln*/
 
                 cN = first.stackObj.classNumber;
-                if (!findFieldByName(fieldName, fieldNameLength, fieldDescr,
-                    fieldDescrLength))
+                if (!findFieldByName(fieldName, fieldNameLength, fieldDescr, fieldDescrLength))
                 {
                     FIELDNOTFOUNDERR(
                         fieldName,
@@ -1030,10 +1027,10 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
                         + 3));
                 }
                 opStackPush(
-                    (slot) heapGetElement(first.stackObj.pos + fNO/*count+ i*/+ 1).Int);/*bh2007!!!!!!!*/
+                    (slot) heapGetElement(first.stackObj.pos + fN+ 1).Int);
                 pc += 2;
                 cN = methodStackPop();
-
+		// end GETFIELD
                 CASE PUTFIELD:
                 DEBUGPRINTLN("putfield -> stack to heap");
                 methodStackPush(cN);
@@ -1046,7 +1043,7 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
                     fieldNameLength = getU2(
                         CP(cN, getU2(CP(cN, getU2(CP(cN, BYTECODEREF) + 3)) + 1))
                         + 1);                     /* length*/
-                    /* mb jf print type*/fieldDescr = (char*) getAddr(CP(cN, /* utf8*/
+                    fieldDescr = (char*) getAddr(CP(cN, /* utf8*/
                         getU2(                    /* descriptor-index*/
                                                   /* index to name and type*/
                         CP(cN, getU2(CP(cN, BYTECODEREF) + 3))
@@ -1123,8 +1120,7 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
                     {
 
                         cN = second.stackObj.classNumber;
-                        if (!findFieldByName(fieldName, fieldNameLength, fieldDescr,
-                            fieldDescrLength))
+                        if (!findFieldByName(fieldName, fieldNameLength, fieldDescr, fieldDescrLength))
                         {
                             FIELDNOTFOUNDERR(
                                 fieldName,
@@ -1162,13 +1158,13 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
 printf("classnumber: %d nummer %d was von stack %d\n",cN,i,val);
 #endif
 */
-                        heapSetElement(first, second.stackObj.pos + /*count+i*/fNO + 1);
+                        heapSetElement(first, second.stackObj.pos + fN + 1);
                     }
                     pc += 2;
 
                     cN = methodStackPop();
                 }
-
+	    // end PUTFIELD
                 CASE INVOKESPECIAL:
             case INVOKEVIRTUAL:
             case INVOKEINTERFACE:
@@ -1563,30 +1559,36 @@ printf("empty method stack\n");
                     CLASSNOTFOUNDERR((char *) getAddr(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+3),getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF) + 1)) + 1)) + 1));
                 }
                 methodStackPush(cN);
-                fNO= getU2(cs[cN].fields_count);
-                while (findSuperClass()) fNO+=getU2(cs[cN].fields_count);
+		fN = 0;
+		do 	{
+		    for (i=0; i < getU2(cs[cN].fields_count); i++)	// count normal fields
+			    {
+		             u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
+	                     u1 isNotObject =  
+    #ifdef AVR8
+                             strncmpRamFlash
+    #else
+                              strncmp
+    #endif
+		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) && isNotObject) continue; // ignore static and non static primitive finals
+	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
+				fN++;
+			    }
+		    
+		} while (findSuperClass());
                 cN=methodStackPop();
-                heapPos=getFreeHeapSpace(fNO/*count getU2(cs[cN].fields_count)*/+ 1);/* + marker*/
+                heapPos=getFreeHeapSpace(fN + 1);/* + marker*/       /* allocate on heap places for stackObject fields*/
                 first.stackObj.pos=heapPos;
                 first.stackObj.magic=OBJECTMAGIC;
                 first.stackObj.classNumber=cN;
-/*first.stackObj.type=STACKNEWOBJECT;*/
-                                                  /* allocate on heap platz fuer.stackObjektvariablen*/
                 DEBUGPRINTLN(" -> push %x\n",heapPos);
                 opStackPush(first);               /* reference to.stackObject on opStack*/
-                                                  /*.stackObject*/
                 HEAPOBJECTMARKER(heapPos).status = HEAPALLOCATEDNEWOBJECT;
                 HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
-/*HEAPOBJECTMARKER(heapPos).classNumber = cN;*/
                 HEAPOBJECTMARKER(heapPos).mutex = MUTEXNOTBLOCKED;
-/*						HEAPOBJECTMARKER(heapPos).waitSetNumber = NUMWAITSETS;		// NULL*/
-
-                j=getU2(cs[cN].fields_count);
-                for (i=0; i< fNO; i++)            /* check access flag*/
-/*							if(getU2( cs[cN].field_info[i]) != ACC_STATIC)	// if not static field, initialize with 0*/
-                                                  /* initialize the heap elements*/
+                for (i=0; i< fN; i++)        /* initialize the heap elements*/
                     heapSetElement((slot)(u4)0, heapPos+i+1);
-/* initialize static fields (constants)*/
 
                 mN = methodStackPop();
                 cN = methodStackPop();
@@ -1614,24 +1616,20 @@ printf("empty method stack\n");
                 opStackPush(first);
                 HEAPOBJECTMARKER(heapPos).status=HEAPALLOCATEDARRAY;
                 HEAPOBJECTMARKER(heapPos).magic=OBJECTMAGIC;
-                HEAPOBJECTMARKER(heapPos++).mutex = MUTEXNOTBLOCKED;
-                switch (byte1)                    /* array type, init array with 0 on heap*/
+                HEAPOBJECTMARKER(heapPos).mutex = MUTEXNOTBLOCKED;
+		heapPos++;
+		switch (byte1)                    /* array type, init array with 0 on heap*/
                 {
                     case T_BOOLEAN:
                         for (i=0; i<count; i++) heapSetElement(( slot)(u4)0,heapPos++);
-
                         CASE T_CHAR:
                         for (i=0; i<count; i++) heapSetElement(( slot)(u4)0,heapPos++);
-
                         CASE T_FLOAT:
                         for (i=0; i<count; i++) heapSetElement(( slot)0.f,heapPos++);
-
                         CASE T_DOUBLE:
                         DNOTSUPPORTED;
-
                         CASE T_BYTE:
                         for (i=0; i<count; i++) heapSetElement(( slot)(u4)0,heapPos++);
-
                         CASE T_SHORT:
                         for (i=0; i<count; i++) heapSetElement(( slot)(u4)0,heapPos++);
 
