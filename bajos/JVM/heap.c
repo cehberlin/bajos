@@ -60,21 +60,19 @@ u2 getFreeHeapSpace(u2 length)
 /* erkennnen circularer referencen on heap ohne bezug zu opstack !!*/
     if ((heapTop + length - 1) < MAXHEAP)
     {
-        HEAPOBJECTMARKER(heapTop).length = length;
+        HEAPOBJECTMARKER(heapTop).length = length; // get exact length slots
         heapTop += length;
         return heapTop - length;
     }                                             /* free space on heap*/
-
     u2 nextElementPos = 0;
     do                                            /* first fit*/
     {
         if ((HEAPOBJECTMARKER(nextElementPos).status == HEAPFREESPACE)
-            && ((HEAPOBJECTMARKER(nextElementPos).length) >= length))
-            return nextElementPos;                /* first fit	 */
+            && ((HEAPOBJECTMARKER(nextElementPos).length) >= length))	{
+            return nextElementPos;	// may be get more space than length
+	    }                /* first fit	 */
     } while ((nextElementPos = getNextHeapObjectPos(nextElementPos)) < heapTop);
-
     checkObjects();
-
 /* noch mal probieren*/
     nextElementPos = 0;
     do
@@ -88,7 +86,6 @@ u2 getFreeHeapSpace(u2 length)
     int schmelz;
 
     verbosePrintf("Heap merge\n");
-
     for (schmelz = 0; schmelz < 20; schmelz++)
     {
         nextElementPos = 0;
