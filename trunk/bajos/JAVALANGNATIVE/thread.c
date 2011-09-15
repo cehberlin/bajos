@@ -61,7 +61,7 @@ char nativeSetPriority()                          //by ceh
     }
 
                                                   // position of int field priority of the thread creating object
-    pCurrentPrio = (u4*) (heapBase + soi.stackObj.pos + fNO + 1);
+    pCurrentPrio = (u4*) (heapBase + soi.stackObj.pos + fN + 1);
     if (newPrio == (*pCurrentPrio))
         return 0;                                 // nothing to do
 // search thread control block af calling object
