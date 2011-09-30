@@ -39,7 +39,7 @@ JAVABOOTSOURCES		+= 	\
 
 # only for stk1000!!!
 ifeq  ($(TARGETHW), avr32-linux)
-JAVABOOTSOURCES+=		${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
+JAVABOOTSOURCES+=	${GRAPHICS}/Display.java ${GRAPHICS}/DisplayHSB.java \
 			${GRAPHICS}/DisplayZBuffer.java ${GRAPHICS}/DisplayKonstanten.java \
 			${GRAPHICS}/Point.java ${GRAPHICS}/Font.java \
 			${GRAPHICS}/Line.java ${GRAPHICS}/Polyline.java \
@@ -183,3 +183,11 @@ Breed:
 compBreed:
 	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES) \
 		$(APPCLASSPATH)/Breed.java
+
+
+Test:	 
+	./$(TARGETFILE)   $(JAVABOOTCLASSES) $(APPCLASSPATH)/Test.class
+
+compTest:
+	$(JAVACOMP) $(JAVACOMPFLAGS) $(JAVACOMPBOOTCLASSES)  \
+	$(APPCLASSPATH)/Test.java
