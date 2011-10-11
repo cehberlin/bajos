@@ -2,12 +2,11 @@
  * HWR-Berlin, Fachbereich Berufsakademie, Fachrichtung Informatik
  * See the file "license.terms" for information on usage and redistribution of this file.
  */
-#if LINUX||AVR32LINUX
+#if LINUX || AVR32LINUX
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "definitions.h"
@@ -27,7 +26,7 @@ extern functionForNativeMethodType functionForNativePlatFormMethod[];
 
 #ifdef AVR8
 /* ARDUINOMEGA holds the classfiles in instruction flash!*/
-/* RAMPZ = 1 (ever) -> classfiles are in te upper half of flash */
+/* RAMPZ = 1 (ever) -> classfiles are in te upper half of atmega128 flash */
 /* address of classfile byte in flash 0x0000 to 0xffff */
 /* eg. address 0x2345 means byte in flash at address (binary):1001000110100101 */
 extern u1 getU1Flash(u1* pos);
@@ -128,30 +127,16 @@ const char* fieldDescr, u1 fieldDescrLength)
         for (i = 0; i < numFields; ++i)
         {   
 	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
-	    u1 isNotObject =  
-    #ifdef AVR8
-                   strncmpRamFlash
-    #else
-                   strncmp
-    #endif
-		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+	    u1 isNotObject =  	STRNCMPRAMFLASH ("L",(const char*) getAddr(fielddescr + 3), 1);	    
 	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) && isNotObject) continue; // ignore static and non static primitive finals
 	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
             u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)];
 	
             if (fieldNameLength == getU2(fieldname + 1) &&
-    #ifdef AVR8 
-                strncmpFlashFlash
-    #else
-                strncmp
-    #endif
+		    STRNCMPFLASHFLASH
                 (fieldName, (const char*) getAddr(fieldname + 3),getU2(fieldname + 1)) == 0 && 
                  fieldDescrLength == getU2(fielddescr + 1) &&
-    #ifdef AVR8
-                strncmpFlashFlash
-    #else
-                strncmp
-    #endif
+		    STRNCMPFLASHFLASH
                 (fieldDescr, (const char*) getAddr(fielddescr + 3),
                 getU2(fielddescr + 1)) == 0)
             {
@@ -167,7 +152,7 @@ const char* fieldDescr, u1 fieldDescrLength)
 
 
 u1 findFieldByRamName(const char* fieldName, u1 fieldNameLength, // for normal fields
-const char* fieldDescr, u1 fieldDescrLength) // only use in scheduler
+			const char* fieldDescr, u1 fieldDescrLength) // only use in scheduler
 {
     u1 i;
     u1 found = 0;
@@ -178,31 +163,17 @@ const char* fieldDescr, u1 fieldDescrLength) // only use in scheduler
         for (i = 0; i < numFields; ++i)
         {	    
 	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
-	    u1 isNotObject =  
-    #ifdef AVR8
-                   strncmpRamFlash
-    #else
-                   strncmp
-    #endif
-		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+	    u1 isNotObject =  STRNCMPRAMFLASH ("L",(const char*) getAddr(fielddescr + 3), 1);	    
 	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL)&& isNotObject) continue; // ignore static and non static primitive finals
 	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
             u2 fieldname = cs[cN].constant_pool[getU2(
                 cs[cN].field_info[i] + 2)];
             if (fieldNameLength == getU2(fieldname + 1) &&
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
-                (fieldName, (const char*) getAddr(fieldname + 3),
+		STRNCMPRAMFLASH
+                 (fieldName, (const char*) getAddr(fieldname + 3),
                 getU2(fieldname + 1)) == 0 && fieldDescrLength
                 == getU2(fielddescr + 1) &&
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		    STRNCMPRAMFLASH
                 (fieldDescr, (const char*) getAddr(fielddescr + 3),
                 getU2(fielddescr + 1)) == 0)
              {
@@ -224,30 +195,16 @@ const char* fieldDescr, u1 fieldDescrLength)	{
         for (i = 0; i < numFields; ++i)
         {
 	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
-	    u1 isNotObject =  
-    #ifdef AVR8
-                   strncmpRamFlash
-    #else
-                   strncmp
-    #endif
-		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	
+	    u1 isNotObject =  STRNCMPRAMFLASH  ("L",(const char*) getAddr(fielddescr + 3), 1);	
 	    if (! ( getU2(cs[cN].field_info[i]) & ACC_STATIC)) continue; // ignore non static
 	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) &&  isNotObject) continue; // non object finals  
             u2 fieldname = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 2)];
             if (fieldNameLength == getU2(fieldname + 1) &&
-    #ifdef AVR8 
-                strncmpFlashFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPFLASHFLASH
                 (fieldName, (const char*) getAddr(fieldname + 3),
                 getU2(fieldname + 1)) == 0 && fieldDescrLength
                 == getU2(fielddescr + 1) &&
-    #ifdef AVR8
-                strncmpFlashFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPFLASHFLASH
                 (fieldDescr, (const char*) getAddr(fielddescr + 3),
                 getU2(fielddescr + 1)) == 0)
             {
@@ -289,11 +246,7 @@ const char* methodDescr, const u1 methodDescrLength)
         (methodName, methodNameLength, methodDescr, methodDescrLength))
         return 1;
     else if (classNameLength == 16 &&
-    #ifdef AVR8
-        strncmpRamFlash
-    #else
-        strncmp
-    #endif
+	    STRNCMPRAMFLASH
         ("java/lang/Object", className, classNameLength) == 0)
     {
         return 0;                                 /* not found*/
@@ -358,11 +311,7 @@ const u1 methodDescrLength)
                 cs[cN].constant_pool[getU2(METHODBASE(cN, mN) + 4)]
                 + 1))
                 if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+	    STRNCMPRAMFLASH
                 (
                 methodDescr,
                 (char*) getAddr(
@@ -395,11 +344,7 @@ u1 findSuperClass()
     if (16 == getU2(
         cs[cN].constant_pool[getU2(
         cs[cN].constant_pool[getU2(cs[cN].this_class)] + 1)] + 1) &&
-    #ifdef AVR8
-        strncmpRamFlash
-    #else
-        strncmp
-    #endif
+	    STRNCMPRAMFLASH
         (
         "java/lang/Object",
         getAddr(
@@ -466,11 +411,7 @@ u1 findClass(const char* className, u1 classNameLength)
             continue;
         }
         if (
-    #ifdef AVR8
-            strncmpRamFlash
-    #else
-            strncmp
-    #endif
+	    STRNCMPRAMFLASH
             (
             className,
             (const char*) getAddr(
@@ -485,316 +426,114 @@ u1 findClass(const char* className, u1 classNameLength)
 }
 
 
-void analyzeClass(classStructure* c)
+void analyzeClass()	// input: cN
 {
     u2 ln;
     pc = 0;
 
-#ifdef DEBUG
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"), cN);
-#else
-    printf("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
-#endif
-#endif
-    c->magic = pc;                                /* relative position in classfile*/
-#ifdef DEBUG
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tmagic:\t %X\t"), getU4(pc));
-#else
-    printf("cf\tmagic:\t %X\t", getU4(pc));
-#endif
-#endif
+    DEBUGPRINTF("class number:\t \t\t%X   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cN);
+    cs[cN].magic = pc;                                /* relative position in classfile*/
+    DEBUGPRINTF("cf\tmagic:\t %X\t", getU4(pc));
     pc = 4;                                       /* NOT +=4, because getU*(pc) increases pc when pc = 0 */
-    c->minor_version = pc++;                      /* 4*/
-    c->major_version = ++pc;                      /* 6*/
-    if (getU2(c->major_version) > 50)
-    {
-        errorExit(
-            -1,
-            "this java version is not supported yet: c->major_version %d\n",
-            getU2(c->major_version));
-
-    }
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("version:\t%d.%d\n"), getU2(pc),getU2(pc-2));
-#else
-    printf("version:\t%d.%d\n", getU2(pc),getU2(pc-2));
-#endif
-#endif
+    cs[cN].minor_version = pc++;                      /* 4*/
+    cs[cN].major_version = ++pc;                      /* 6*/
+    if (getU2(cs[cN].major_version) > 50)
+        ERROREXIT( 1,
+            "this java version is not supported yet: cs[cN].major_version %d\n",
+            getU2(cs[cN].major_version));
+    DEBUGPRINTF("version:\t%d.%d\n", getU2(pc),getU2(pc-2));
     pc += 2;
-    c->constant_pool_count = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tconstant_pool_count:\t%d\n"), getU2(pc));
-#else
-    printf("cf\tconstant_pool_count:\t%d\n", getU2(pc));
-#endif
-/*8*/
-#endif
+    cs[cN].constant_pool_count = pc;
+    DEBUGPRINTF("cf\tconstant_pool_count:\t%d\n", getU2(pc));
     pc += 2;
-    if ((c->constant_pool = (u2*) malloc(
+    if ((cs[cN].constant_pool = (u2*) malloc(
                                                   /* -2 möglich wegen 0!!*/
-        sizeof(u2) * getU2(c->constant_pool_count))) == NULL)
+        sizeof(u2) * getU2(cs[cN].constant_pool_count))) == NULL)
+	ERROREXIT(2,"malloc error\n");
 
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("malloc error\n"));
-#else
-    printf("malloc error\n");
-#endif
-
-    analyzeConstantPool(c);
-    c->access_flags = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\taccess_flags: %x\n"),getU2(pc));
-#else
-    printf("cf\taccess_flags: %x\n",getU2(pc));
-#endif
-#endif
+    analyzeConstantPool();
+    cs[cN].access_flags = pc;
+    DEBUGPRINTF("cf\taccess_flags: %x\n",getU2(pc));
     pc += 2;
-    c->this_class = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tthis_class: %d\n"),getU2(pc));
-#else
-    printf("cf\tthis_class: %d\n",getU2(pc));
-#endif
-#endif
+    cs[cN].this_class = pc;
+    DEBUGPRINTF("cf\tthis_class: %d\n",getU2(pc));
     pc += 2;
-    c->super_class = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tsuper_class: %d\n"),getU2(pc));
-#else
-    printf("cf\tsuper_class: %d\n",getU2(pc));
-#endif
-#endif
+    cs[cN].super_class = pc;
+    DEBUGPRINTF("cf\tsuper_class: %d\n",getU2(pc));
     pc += 2;
-    c->interfaces_count = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tinterfaces_count: %d\n"),getU2(pc));
-#else
-    printf("cf\tinterfaces_count: %d\n",getU2(pc));
-#endif
-#endif
+    cs[cN].interfaces_count = pc;
+    DEBUGPRINTF("cf\tinterfaces_count: %d\n",getU2(pc));
     pc += 2;
-    c->interfaces = pc;
-    pc += getU2(c->interfaces_count) * 2;
-/*
- #ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
- printf_P(PSTR("cf\tinterfaces: %d\n"),getU2(c->interfaces));
-#else
-printf("cf\tinterfaces: %d\n",getU2(c->interfaces));
-#endif
-*/
-    c->fields_count = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tfields_count: %d\n"),getU2(pc));
-#else
-    printf("cf\tfields_count: %d\n",getU2(pc));
-#endif
-#endif
+    cs[cN].interfaces = pc;
+    pc += getU2(cs[cN].interfaces_count) * 2;
+    cs[cN].fields_count = pc;
+    DEBUGPRINTF("cf\tfields_count: %d\n",getU2(pc));
     pc += 2;
-    c->field_info = NULL;
-    if (getU2(c->fields_count) != 0)
+    cs[cN].field_info = NULL;
+    if (getU2(cs[cN].fields_count) != 0)
     {
-        if ((c->field_info = (u2*) malloc(sizeof(u2) * getU2(c->fields_count))) == NULL)
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-            printf_P(PSTR("malloc error\n"));
-#else
-        printf("malloc error\n");
-#endif
-
-        analyzeFields(c);
+        if ((cs[cN].field_info = (u2*) malloc(sizeof(u2) * getU2(cs[cN].fields_count))) == NULL)
+	ERROREXIT(3,"malloc error");
+        analyzeFields();
     }
-    c->methods_count = pc;
-#ifdef DEBUG
-
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf\tmethods_count: %d\n"),getU2(pc));
-#else
-    printf("cf\tmethods_count: %d\n",getU2(pc));
-#endif
-#endif
+    cs[cN].methods_count = pc;
+    DEBUGPRINTF("cf\tmethods_count: %d\n",getU2(pc));
     pc += 2;
-    c->method_info = NULL;
-    if (getU2(c->methods_count) != 0)
+    cs[cN].method_info = NULL;
+    if (getU2(cs[cN].methods_count) != 0)
     {
-        if ((c->method_info = (u2*) malloc(
-            2 * sizeof(u2) * getU2(c->methods_count))) == NULL)
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-            printf_P(PSTR("malloc error\n"));
-#else
-        printf("malloc error\n");
-#endif
-
-        analyzeMethods(c);
+        if ((cs[cN].method_info = (u2*) malloc(
+            2 * sizeof(u2) * getU2(cs[cN].methods_count))) == NULL)
+	    ERROREXIT(4,"malloc error");
+        analyzeMethods();
     }
     ln = getU2(0);                                // class file attribute count
-#ifdef DEBUG
-#ifdef AVR8                                   // change all avr8 string to flash strings gives more data ram space for java!!
-    printf_P(PSTR("cf-attributes: count: %d "),ln);
-#else
-    printf("cf-attributes: count: %d ",ln);
-#endif
-#endif
-/*
- for (i=0; i <ln; i++)	{	// SourceFile (6), Deprecated (4),InnerClasses,EnclosingMethod,Synthetic,Signature
- // ignore attributes
-attribute_name_index=getU2(0);
-if (
-#ifdef AVR8
-strncmpRamFlash
-#else
-strncmp
-#endif
-("SourceFile",getAddr(c->constant_pool[attribute_name_index]+3),9) == 0)	{
-#ifdef DEBUG
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-printf_P(PSTR("attribute_length: %d"),getU4(pc));
-#else
-printf("attribute_length: %d",getU4(pc));
-#endif
-
-#ifdef AVR8	// change all avr8 string to flash strings gives more data ram space for java!!
-printf_P(PSTR("attribute_index: %d\n"),getU2(pc+4));
-#else
-printf("attribute_index: %d\n",getU2(pc+4));
-#endif
-
-#endif
-pc+=6;										}  // SourceFile
-// simple ignore all attributes at class file end!!!
-}  // attribute count
-*/
+    DEBUGPRINTF("cf-attributes: count: %d ",ln);
+ 	// SourceFile (6), Deprecated (4),InnerClasses,EnclosingMethod,Synthetic,Signature
 }
 
 
-void analyzeConstantPool(classStructure* c)
+void analyzeConstantPool()
 {
     u2 n, anz, length;
-    anz = getU2(c->constant_pool_count);
+    anz = getU2(cs[cN].constant_pool_count);
     for (n = 1; n < anz; n++)
     {
-        c->constant_pool[n] = pc;
+        cs[cN].constant_pool[n] = pc;
         switch (getU1(0))
         {
             case CONSTANT_Class:                  /*    7 */
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:Class\t\t-> name:\t%d\n"),n,getU2(pc));
-#else
-                printf("\tcp %d\t:Class\t\t-> name:\t%d\n",n,getU2(pc));
-#endif
-#endif
+		DEBUGPRINTF("\tcp %d\t:Class\t\t-> name:\t%d\n",n,getU2(pc));
                 pc += 2;
                 CASE CONSTANT_String:             /*    8 */
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:String\t\t-> string:\t%d\n"),n,getU2(pc));
-#else
-                printf("\tcp %d\t:String\t\t-> string:\t%d\n",n,getU2(pc));
-#endif
-#endif
+                DEBUGPRINTF("\tcp %d\t:String\t\t-> string:\t%d\n",n,getU2(pc));
                 pc+=2;
                 CASE CONSTANT_Fieldref:           /*    9 */
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:Fieldref\t-> class: %d "), n,getU2(pc));
-#else
-                printf("\tcp %d\t:Fieldref\t-> class: %d ", n,getU2(pc));
-#endif
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("name_and_type:\t%d\n"), getU2(pc+2));
-#else
-                printf("name_and_type:\t%d\n", getU2(pc+2));
-#endif
-#endif
+                DEBUGPRINTF("\tcp %d\t:Fieldref\t-> class: %d ", n,getU2(pc));
+		DEBUGPRINTF("name_and_type:\t%d\n", getU2(pc+2));
                 pc+=4;
                 CASE CONSTANT_InterfaceMethodref: /*   11 */
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:InterfaceMethodref->class: %d "),n,getU2(pc));
-#else
-                printf("\tcp %d\t:InterfaceMethodref->class: %d ",n,getU2(pc));
-#endif
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("name_and_type_index\t%d\n"),getU2(pc+2));
-#else
-                printf("name_and_type_index\t%d\n",getU2(pc+2));
-#endif
-#endif
+                DEBUGPRINTF("\tcp %d\t:InterfaceMethodref->class: %d ",n,getU2(pc));
+		DEBUGPRINTF("name_and_type_index\t%d\n",getU2(pc+2));
                 pc+=4;
                 CASE CONSTANT_Methodref:          /*    10  nur Methoden, die aufgerufen werden!!!*/
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:Methodref\t-> class: %d "),n,getU2(pc));
-#else
-                printf("\tcp %d\t:Methodref\t-> class: %d ",n,getU2(pc));
-#endif
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("name_and_type:\t%d\n"), getU2(pc+2));
-#else
-                printf("name_and_type:\t%d\n", getU2(pc+2));
-#endif
-#endif
+                DEBUGPRINTF("\tcp %d\t:Methodref\t-> class: %d ",n,getU2(pc));
+		DEBUGPRINTF("name_and_type:\t%d\n", getU2(pc+2));
                 pc+=4;
                 CASE CONSTANT_Integer:            /*    3*/
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("cp %d\t: Integer -> name:\t%d\n"),n,getU4(pc));
-#else
-                printf("cp %d\t: Integer -> name:\t%d\n",n,getU4(pc));
-#endif
-#endif
+                DEBUGPRINTF("cp %d\t: Integer -> name:\t%d\n",n,getU4(pc));
                 pc+=4;
                 CASE CONSTANT_NameAndType:        /*    12*/
-#ifdef DEBUG
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:nameAndType\t-> name:\t%d "),n,getU2(pc));
-#else
-                printf("\tcp %d\t:nameAndType\t-> name:\t%d ",n,getU2(pc));
-#endif
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("descriptor:\t %d\n"),getU2(pc+2));
-#else
-                printf("descriptor:\t %d\n",getU2(pc+2));
-#endif
-#endif
+                DEBUGPRINTF("\tcp %d\t:nameAndType\t-> name:\t%d ",n,getU2(pc));
+		DEBUGPRINTF("descriptor:\t %d\n",getU2(pc+2));
                 pc+=4;
                 CASE CONSTANT_Float:              /*    4 */
 #ifdef DEBUG
-
 #ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
                 {
                 	u1 float_str[7];
-					dtostrf( getFloat(pc), 7, 3, float_str );
-					printf_P(PSTR("\tcp %d\t:Float:\t%s  \n"),n,float_str);
+			dtostrf( getFloat(pc), 7, 3, float_str );
+			printf_P(PSTR("\tcp %d\t:Float:\t%s  \n"),n,float_str);
                 }
 #else
                 printf("\tcp %d\t:Float:\t%f  \n",n,getFloat(pc));
@@ -807,76 +546,35 @@ void analyzeConstantPool(classStructure* c)
                 DNOTSUPPORTED;
                 CASE CONSTANT_Utf8:               /*    1*/
                 length=getU2(0);
+		DEBUGPRINTF("\tcp %d\t:Utf8:\t\t-> ",n);
 #ifdef DEBUG
-                int i;
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\tcp %d\t:Utf8:\t\t-> "),n);
-#else
-                printf("\tcp %d\t:Utf8:\t\t-> ",n);
-#endif
-
+                u2 i;
                 for (i=0; i < length;i++)
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("%c"),getU1(pc+i));
-#else
-                printf("%c",getU1(pc+i));
-#endif
+		DEBUGPRINTF("%c",getU1(pc+i));
 /* utf8 chars ???*/
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\n"));
-#else
-                printf("\n");
-#endif
+		DEBUGPRINTF("\n");
 #endif
                 pc += length;
-                DEFAULT: errorExit(-1, "invalid constant pool identifier\n");
-
+                DEFAULT: ERROREXIT(5, "invalid constant pool identifier\n");
         }
     }
 }
 
 
-void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
+void analyzeMethods()            /* jan 08 not good tested*/
 {
     int i, n, m, a;
     u2 etl;
-    c->nativeFunction = NULL;
-    for (n = 0; n < getU2(c->methods_count); n++) /*methods*/
+    cs[cN].nativeFunction = NULL;
+    for (n = 0; n < getU2(cs[cN].methods_count); n++) /*methods*/
     {
-        c->method_info[n] = pc;                   /* absolute in classfile*/
-#ifdef DEBUG
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("\tmethod %d\taccess_flags: %04x"),n,getU2(pc));
-#else
-        printf("\tmethod %d\taccess_flags: %04x",n,getU2(pc));
-#endif
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR(" name: %04x "),getU2(pc+2));
-#else
-        printf(" name: %04x ",getU2(pc+2));
-#endif
-
-//BHDEBUGPRINTSTRING(METHODNAMESTR(cN,n),METHODNAMESTRLENGTH(cN,n));
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR(" descriptor: %04x "),getU2(pc+4));
-#else
-        printf(" descriptor: %04x ",getU2(pc+4));
-#endif
-/*Signature*/
+        cs[cN].method_info[n] = pc;                   /* absolute in classfile*/
+        DEBUGPRINTF("\tmethod %d\taccess_flags: %04x",n,getU2(pc));
+	DEBUGPRINTF(" name: %04x ",getU2(pc+2));
+	DEBUGPRINTF(" descriptor: %04x ",getU2(pc+4));
+	DEBUGPRINTF(" \tattribute_count: %04x\n",a=getU2(pc+6));
+	/*Signature*/
 //BHDEBUGPRINTSTRING(METHODDESCRSTR(cN,n),METHODDESCRSTRLENGTH(cN,n));
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR(" \tattribute_count: %04x\n"),a=getU2(pc+6));
-#else
-        printf(" \tattribute_count: %04x\n",a=getU2(pc+6));
-#endif
-#endif
         a = getU2(pc + 6);
         pc += 8;
         if (a == 0)
@@ -884,23 +582,19 @@ void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
             for (i = 0; i
                 < (/*sizeof(nativeClassNames)/sizeof(char*)*/numNativeClassNames); i++)
                 if (!
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+                STRNCMPRAMFLASH
                 (
                 nativeClassNames[i],
                 (char*) getAddr(
-                c->constant_pool[getU2(
-                c->constant_pool[getU2(c->this_class)]
+                cs[cN].constant_pool[getU2(
+                cs[cN].constant_pool[getU2(cs[cN].this_class)]
                 + 1)] + 3),
                 getU2(
-                c->constant_pool[getU2(
-                c->constant_pool[getU2(c->this_class)]
+                cs[cN].constant_pool[getU2(
+                cs[cN].constant_pool[getU2(cs[cN].this_class)]
                 + 1)] + 1)))
             {
-                c->nativeFunction
+                cs[cN].nativeFunction
                     = (functionForNativeMethodType*) funcArray[i];
                 break;
             }
@@ -909,111 +603,44 @@ void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
 //Code(var), Exception(var),Synthetic (4),Signature,Deprecated(4)
         for (m = 0; m < a; m++)                   /* attributes of method*/
         {
-            const char* adr = getAddr(c->constant_pool[getU2(0)] + 1 + 2);
+            const char* adr = getAddr(cs[cN].constant_pool[getU2(0)] + 1 + 2);
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Code", adr, 4) == 0)
             {
-#ifdef DEBUG
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\t\tCode: attribute_length: %d\n"),getU4(pc));
-#else
-                printf("\t\tCode: attribute_length: %d\n",getU4(pc));
-#endif
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\t\tCode: max_stack: %d\n"), getU2(pc+4));
-#else
-                printf("\t\tCode: max_stack: %d\n", getU2(pc+4));
-#endif
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\t\tCode: max_locals: %d\n"),getU2(pc+6));
-#else
-                printf("\t\tCode: max_locals: %d\n",getU2(pc+6));
-#endif
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\t\tCode: code_length: %d\n\t\t"),getU4(pc+8));
-#else
-                printf("\t\tCode: code_length: %d pc: %d\n\t\t",getU4(pc+8),pc);
-#endif
-#endif
+		DEBUGPRINTF("\t\tCode: attribute_length: %d\n",getU4(pc));
+		DEBUGPRINTF("\t\tCode: max_stack: %d\n", getU2(pc+4));
+		DEBUGPRINTF("\t\tCode: max_locals: %d\n",getU2(pc+6));
+		DEBUGPRINTF("\t\tCode: code_length: %d pc: %d\n\t\t",getU4(pc+8),pc);
                 pc += 12;
 #ifdef DEBUG
                 for (i=0;i <getU4(pc-4);i++)
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("%2x "),getU1(pc+i));
-#else
-                printf("%2x ",getU1(pc+i));
-#endif
+		    DEBUGPRINTF("%2x ",getU1(pc+i));
 /*length*/
 #endif
                 pc += getU4(pc - 4);
                 etl = getU2(0);
+		DEBUGPRINTF("\n\t\tCode: exception_table_length: %d\n",etl);
 #ifdef DEBUG
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\n\t\tCode: exception_table_length: %d\n"),etl);
-#else
-                printf("\n\t\tCode: exception_table_length: %d\n",etl);
-#endif
 /* exception_table	*/
 
                 for (i=0;i <etl;i++)
                 {
-
-#ifdef AVR8                   // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("\t\t\texception: nr: %d startPC: %d\n"),i,getU2(pc+8*i));
-#else
-                    printf("\t\t\texception: nr: %d startPC: %d\n",i,getU2(pc+8*i));
-#endif
-
-#ifdef AVR8                   // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("\t\t\texception: nr: %d endPC: %d\n"),i,getU2(8*i+2));
-#else
-                    printf("\t\t\texception: nr: %d endPC: %d\n",i,getU2(8*i+2));
-#endif
-
-#ifdef AVR8                   // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("\t\t\texception: nr: %d handlerPC: %d\n"),i,getU2(8*i+4));
-#else
-                    printf("\t\t\texception: nr: %d handlerPC: %d\n",i,getU2(8*i+4));
-#endif
-
-#ifdef AVR8                   // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("\t\t\texception: nr: %d catchType: %d\n"),i,getU2(8*i+6));
-#else
-                    printf("\t\t\texception: nr: %d catchType: %d\n",i,getU2(8*i+6));
-#endif
-
+		    DEBUGPRINTF("\t\t\texception: nr: %d startPC: %d\n",i,getU2(pc+8*i));
+		    DEBUGPRINTF("\t\t\texception: nr: %d endPC: %d\n",i,getU2(8*i+2));
+		    DEBUGPRINTF("\t\t\texception: nr: %d catchType: %d\n",i,getU2(8*i+6));
+		    DEBUGPRINTF("\t\t\texception: nr: %d catchType: %d\n",i,getU2(8*i+6));
                 }
 #endif
                 pc += etl * 8;
                 u2 h = getU2(0);
-#ifdef DEBUG
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("\t\tCode: attributes_count: %d\n"), h);
-#else
-                printf("\t\tCode: attributes_count: %d\n", h);
-#endif
-#endif
+		DEBUGPRINTF("\t\tCode: attributes_count: %d\n", h);
 //LineNumberTable(var),LocalVariableTable(var),StackMapTable
                 for (i = 0; i < h; i++)
                 {
-                    const char*addr = getAddr(c->constant_pool[getU2(0)] + 3);
+                    const char*addr = getAddr(cs[cN].constant_pool[getU2(0)] + 3);
                     if (
-    #ifdef AVR8
-                        strncmpRamFlash
-    #else
-                        strncmp
-    #endif
+			STRNCMPRAMFLASH
                         ("LineNumberTable", addr, 15) == 0)
                     {
                         pc = getU4(0) + pc;
@@ -1021,11 +648,7 @@ void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
                     }
 
                     if (
-    #ifdef AVR8
-                        strncmpRamFlash
-    #else
-                        strncmp
-    #endif
+			    STRNCMPRAMFLASH
                         ("StackMapTable", addr, 13) == 0)
                     {
                         pc = getU4(0) + pc;
@@ -1033,131 +656,74 @@ void analyzeMethods(classStructure* c)            /* jan 08 not good tested*/
                     }
 
                     if (
-    #ifdef AVR8
-                        strncmpRamFlash
-    #else
-                        strncmp
-    #endif
+			STRNCMPRAMFLASH
                         ("LocalVariableTable", addr, 18) == 0)
                     {
                         pc = getU4(0) + pc;
                         continue;
                     }
-                    errorExit(4, "unsupported code attribute");
+                    ERROREXIT(6, "unsupported code attribute");
                 }                                 // code attributes
                 continue;
             }                                     // code
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		    STRNCMPRAMFLASH
                 ("Exceptions", adr, 10) == 0)
             {
-#ifdef DEBUG
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("exception object\n"));
-#else
-                printf("exception object\n");
-#endif
-#endif
+		DEBUGPRINTF("exception object\n");
                 mN = n;
                 u4 n2 = getU4(0);                 /*attribute_length. don't need that.*/
                 n2 = getU2(0);
 #ifdef DEBUG
                 for (i=0;i<n2;i++)
-
-#ifdef AVR8                       // change all avr8 string to flash strings gives more data ram space for java!!
-                    printf_P(PSTR("\t\t\texception: nr: %d class: %d\n"),i,getU2(pc+2*i));
-#else
-                printf("\t\t\texception: nr: %d class: %d\n",i,getU2(pc+2*i));
-#endif
+		    DEBUGPRINTF("\t\t\texception: nr: %d class: %d\n",i,getU2(pc+2*i));
 #endif
                 pc += 2 * n2;
 /*pc=(u2)getU4(0)+pc;*/
                 continue;
             }                                     //Exceptions
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Synthetic", adr, 9) == 0)
             {
                 pc += 4;
                 continue;
             }
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Deprecated", adr, 10) == 0)
             {
                 pc += 4;
                 continue;
             }
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Signature", adr, 9) == 0)
             {
                 pc = (u2) getU4(0) + pc;
                 continue;
             }
-            errorExit(4, "unsupported method attribute");
+            ERROREXIT(7, "unsupported method attribute");
         }                                         // method attributes
     }                                             /* methods_count*/
 }
 
 
-void analyzeFields(classStructure* c)
+void analyzeFields()
 {
     u2 n, a, cur_a;
     fN = 0; // count static fields
-    for (n = 0; n < getU2(c->fields_count); n++)  /*num fields*/
+    for (n = 0 ;n < getU2(cs[cN].fields_count); n++)  /*num fields*/
     {
-        c->field_info[n] = pc;                    /* absolute in classfile*/
-#ifdef DEBUG
-  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("\tfield %x\taccess_flags: %d\n"),n,getU2(pc));
-  #else
-        printf("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
-  #endif
-
-  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("\tfield %d\tname: %d\n"),n,getU2(pc+2));
-  #else
-        printf("\tfield %d\tname: %d\n",n,getU2(pc+2));
-  #endif
-
-  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("\tfield %d\tdescriptor: %d\n"),n,getU2(pc+4));
-  #else
-        printf("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4));
-  #endif
-
-  #ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("\tfield %d\tattribute_count: %d\n"),n,getU2(pc+6));
-  #else
-        printf("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
-  #endif
-#endif
+        cs[cN].field_info[n] = pc;                    /* absolute in classfile*/
+        DEBUGPRINTF("\tfield %x\taccess_flags: %d\n",n,getU2(pc));
+	DEBUGPRINTF("\tfield %d\tname: %d\n",n,getU2(pc+2));
+	DEBUGPRINTF("\tfield %d\tdescriptor: %d\n",n,getU2(pc+4));
+	DEBUGPRINTF("\tfield %d\tattribute_count: %d\n",n,getU2(pc+6));
 	    u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[n] + 4)];
 	    u1 isNotObject =  
-    #ifdef AVR8
-                            strncmpRamFlash
-    #else
-                            strncmp
-    #endif
-					("L",(const char*) getAddr(fielddescr + 3), 1);
+		STRNCMPRAMFLASH
+		("L",(const char*) getAddr(fielddescr + 3), 1);
 					
 	//printf("cN %d n %d A %c fN %d \n",cN,n,*(const char*)getAddr(fielddescr + 3),fN);
 	if ((ACC_STATIC & getU2(pc)) && !((ACC_FINAL & getU2(pc)) && isNotObject)) 
@@ -1174,50 +740,34 @@ void analyzeFields(classStructure* c)
             u4 attribute_length = getU4(0);
 
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("ConstantValue", getAddr(attribute_name + 3), 13) == 0)	// nothing to do for jvm
            {
                 pc += attribute_length;           /* continue*/
                 continue;                         // next attribute test
             }
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Synthetic", getAddr(attribute_name + 3), 9) == 0)
             {
                 pc += 4;
                 continue;
             }
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Deprecated", getAddr(attribute_name + 3), 10) == 0)
             {
                 pc += 4;
                 continue;
             }
             if (
-    #ifdef AVR8
-                strncmpRamFlash
-    #else
-                strncmp
-    #endif
+		STRNCMPRAMFLASH
                 ("Signature", getAddr(attribute_name + 3), 9) == 0)
             {
                 pc += 6;
                 continue;
             }
-            errorExit(3, "unsupported field attribute");
+            ERROREXIT(8, "unsupported field attribute");
         }                                         // field attribute count
     }                                             // numfields
     u2 heapPos=getFreeHeapSpace(fN + 1);/* + marker*/       /* allocate on heap places for stackObject fields*/
@@ -1227,9 +777,9 @@ void analyzeFields(classStructure* c)
     HEAPOBJECTMARKER(heapPos).mutex=MUTEXNOTBLOCKED;
     HEAPOBJECTMARKER(heapPos).rootCheck=1;
     HEAPOBJECTMARKER(heapPos).magic= OBJECTMAGIC;
-    c->classInfo.stackObj.pos = heapPos;
-    c->classInfo.stackObj.magic = OBJECTMAGIC;
-    c->classInfo.stackObj.classNumber = cN;
+    cs[cN].classInfo.stackObj.pos = heapPos;
+    cs[cN].classInfo.stackObj.magic = OBJECTMAGIC;
+    cs[cN].classInfo.stackObj.classNumber = cN;
 }                                                 // end analyze fields
 
 
@@ -1241,11 +791,7 @@ u2 getStartPC()                                   /*cN,mN*/
     for (i = 0; i < getU2(METHODBASE(cN, mN) + 6); i++)
     {
         if (
-    #ifdef AVR8
-            strncmpRamFlash
-    #else
-            strncmp
-    #endif
+	    STRNCMPRAMFLASH
             (
             "Code",
             getAddr(
