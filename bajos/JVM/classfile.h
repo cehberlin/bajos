@@ -11,10 +11,10 @@ f4 getFloat(u2 pos);
 
 void* getAddr(u2 pos);
 
-void analyzeClass(classStructure* c);
-void analyzeConstantPool(classStructure* c);
-void analyzeMethods(classStructure* c);
-void analyzeFields(classStructure* c);
+void analyzeClass();
+void analyzeConstantPool();
+void analyzeMethods();
+void analyzeFields();
 u1 findClass(const char* name, u1 len);
 u1 findSuperClass(void);
 u1 findNumArgs(u2 method);
