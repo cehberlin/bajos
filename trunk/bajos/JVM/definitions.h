@@ -50,9 +50,49 @@
 #define GARBAGEFUSIONTRIALS     20
 
 #ifdef AVR8                                       // change all avr8 string to flash strings gives more data ram space for java!!
-#define avr8Printf( format, ...) printf_P (PSTR((format)),  ## __VA_ARGS__)
+    #ifdef TINYBAJOS
+	#ifndef TINYBAJOS_PRINTF
+	    #define	PRINTF(format, ...)
+	#else
+	    #define PRINTF(format, ...) printf_P(PSTR(format),  ## __VA_ARGS__)
+	#endif
+    #else
+	#define PRINTF(format, ...) printf_P(PSTR(format),  ## __VA_ARGS__)
+    #endif
 #else
-#define avr8Printf( format, ...) printf ((format),  ## __VA_ARGS__)
+    #define PRINTF(format, ...) printf(format,  ## __VA_ARGS__)
+#endif
+
+#ifdef DEBUG
+    #define DEBUGPRINTF(format, ...) PRINTF(format, ## __VA_ARGS__)
+#else
+    #define DEBUGPRINTF(format, ...)
+#endif
+
+#ifdef TINYBAJOS_ERROREXIT
+    #define ERROREXIT(nr, format, ...) exit((nr))
+#else
+    #ifdef AVR8                                       // change all avr8 string to flash strings gives more data ram space for java!!
+	#define ERROREXIT(nr, format, ...) errorExitFunction ((nr), PSTR((format)),  ## __VA_ARGS__)
+    #else
+	#define ERROREXIT(nr, format, ...) errorExitFunction ((nr), (format),  ## __VA_ARGS__)
+    #endif
+#endif
+
+#ifdef AVR8
+    #define STRNCMPRAMFLASH strncmpRamFlash
+    #define STRNCMPFLASHFLASH strncmpFlashFlash
+#else
+    #define STRNCMPRAMFLASH strncmp
+    #define STRNCMPFLASHFLASH strncmp
+#endif
+
+
+
+#ifdef AVR8                                       // change all avr8 string to flash strings gives more data ram space for java!!
+    #define avr8Printf( format, ...) printf_P (PSTR((format)),  ## __VA_ARGS__)
+#else
+    #define avr8Printf( format, ...) printf ((format),  ## __VA_ARGS__)
 #endif
 
 #ifndef TINYBAJOS_ERROREXIT
@@ -165,12 +205,11 @@
 #ifdef DEBUG
 #define OUTSTREAM stdout
 
-#define DEBUGPRINT(format, ...)avr8Printf((format),  ## __VA_ARGS__)
+#define DEBUGPRINT(format, ...) avr8Printf((format),  ## __VA_ARGS__)
 #define DEBUGPRINTLN(format, ...) avr8Printf((format),  ## __VA_ARGS__); avr8Printf("\n");
 
 #define DEBUGPRINTE(x,f)    avr8Printf(#x ": " "%"#f" ",x)
 #define PRINTE(x,f)  avr8Printf(#x ": " "%"#f" ",x)
-#define DEBUGPRINTF(a,b,c)  avr8Printf(a,b,c)
 #define DEBUGPRINTSTACK {\
     int i;\
     for (i= opStackGetSpPos() > 8 ? -8 : -opStackGetSpPos() ; i < 0 ; i++) \
@@ -214,7 +253,6 @@ avr8Printf(" %8x",(*(heapBase+i+j)).UInt);avr8Printf("\n");}\
 #define DEBUGPRINT(format, ...)
 #define DEBUGPRINTLN(format, ...)
 #define DEBUGPRINTE(x,f)
-#define DEBUGPRINTF(a,b)
 #define DEBUGPRINTSTACK
 #define DEBUGPRINTHEAP
 #define DEBUGPRINTLOCALS
