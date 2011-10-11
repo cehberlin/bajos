@@ -215,12 +215,7 @@ void run()                                        /* in: classNumber,  methodNum
                     CASE CALOAD: DEBUGPRINTLN("caload");
                     CASE SALOAD: DEBUGPRINTLN("saload");
                 }
-
-#ifdef AVR8                           // change all avr8 string to flash strings gives more data ram space for java!!
-                printf_P(PSTR("%x, =>"),first.UInt);
-#else
-                printf("%x, =>",first.UInt);
-#endif
+	    PRINTF("%x, =>",first.UInt);
 #endif
                 lengthArray = first.stackObj.arrayLength;
                 if (first.UInt == NULLOBJECT.UInt)
@@ -916,7 +911,6 @@ void run()                                        /* in: classNumber,  methodNum
     #ifdef AVR8
                     findClassFlash
     #else
-
                     findClass
     #endif
                     (
@@ -1054,33 +1048,14 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
 /*kann weg*/
                     if (!
     #ifdef AVR8
-                        findClassFlash(
+                        findClassFlash
+    #else
+                        findClass
+    #endif
+                        (
                         getAddr(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+3),
                         getU2(CP(cN,getU2(CP(cN, getU2(CP(cN,BYTECODEREF)+1))+1))+1))
-    #else
-                        findClass(
-                        getAddr(
-                        CP(
-                        cN,
-                        getU2(
-                        CP(
-                        cN,
-                        getU2(
-                        CP(cN, BYTECODEREF)
-                        + 1)) + 1))
-                        + 3),
-                        getU2(
-                        CP(
-                        cN,
-                        getU2(
-                        CP(
-                        cN,
-                        getU2(
-                        CP(cN, BYTECODEREF)
-                        + 1)) + 1))
-                        + 1))
-    #endif
-                        )
+		    )
                     {
                         CLASSNOTFOUNDERR(
                             getAddr(
@@ -1141,11 +1116,7 @@ printf("GETFIELD popRef %x von findClass %x numfields von dieser kl.%x",first,cN
 /* die Stelle auf dem heap*/
 
                         if (
-    #ifdef AVR8
-                            strncmpRamFlash( "B",fieldDescr, 1)
-    #else
-                            strncmp("B", fieldDescr, 1)
-    #endif
+		    STRNCMPRAMFLASH( "B",fieldDescr, 1)
                             == 0)
                         {
 /* Truncate Integer input for Byte output */
@@ -1565,12 +1536,7 @@ printf("empty method stack\n");
 			    {
 		             u2 fielddescr = cs[cN].constant_pool[getU2(cs[cN].field_info[i] + 4)];
 	                     u1 isNotObject =  
-    #ifdef AVR8
-                             strncmpRamFlash
-    #else
-                              strncmp
-    #endif
-		                  ("L",(const char*) getAddr(fielddescr + 3), 1);	    
+				    STRNCMPRAMFLASH("L",(const char*) getAddr(fielddescr + 3), 1);	    
 	    if ( (getU2(cs[cN].field_info[i]) & ACC_FINAL) && isNotObject) continue; // ignore static and non static primitive finals
 	    if ( getU2(cs[cN].field_info[i]) & ACC_STATIC) continue;// ignore static
 				fN++;
@@ -2011,10 +1977,11 @@ void subCheck(u2 target, u2 addr)
         cs[cN].constant_pool[getU2(cs[cN].constant_pool[addr] + 1)];
     methodStackPush(cN);
 #ifdef AVR8
-    findClassFlash(getAddr(super_class+3), getU2(super_class+1));
+    findClassFlash
 #else
-    findClass(getAddr(super_class + 3), getU2(super_class + 1));
+    findClass
 #endif
+	(getAddr(super_class + 3), getU2(super_class + 1));
     if (!checkInstance(target))
     {
         cN = methodStackPop();
@@ -2106,13 +2073,7 @@ void raiseExceptionFromIdentifier(const char *identifier, const u1 length)
 #ifdef DEBUG
     if (strlen(identifier) != length)
     {
-
-#ifdef AVR8                               // change all avr8 string to flash strings gives more data ram space for java!!
-        printf_P(PSTR("ERROR: Wrong length for %s\n"), identifier);
-#else
-        printf("ERROR: Wrong length for %s\n", identifier);
-#endif
-
+	PRINTF("ERROR: Wrong length for %s\n", identifier);
     }
 #endif
 
