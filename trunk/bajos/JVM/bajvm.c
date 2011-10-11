@@ -43,7 +43,7 @@ native methods interface
 exception handling
 scheduler
 */
-/*AVR8(arduinoMega and CharonII) EVK1100 EVK1104 NGW100 STK1000 LINUX AVR32-LINUX -> Target Systems*/
+/*AVR8(arduinoMega and CharonII) EVK1100 EVK1104 NGW100 STK1000 LINUX AVR32-LINUX XMEGA -> Target Systems*/
 
 #include <stdio.h>
 
@@ -82,8 +82,8 @@ void main()
         initVM();
 #endif
 
-        verbosePrintf("Bajos starting\n");
-
+        PRINTF("Bajos starting\n");
+	
 #ifndef TINYBAJOS_MULTITASKING
         createThread();                           /* for main*/
         opStackBase = currentThreadCB->opStackBase;
@@ -104,7 +104,7 @@ void main()
 #endif
 #endif
 
-        verbosePrintf("start clinit");
+        PRINTF("start clinit");
 
         for (cN = 0; cN < numClasses; cN++)
             if (findMethodByName("<clinit>", 8, "()V", 3))
@@ -117,7 +117,7 @@ void main()
             if (findMethodByName("main", 4, "([Ljava/lang/String;)V", 22))
         {
 
-            verbosePrintf("  -> run <main> :\n");
+            PRINTF("  -> run <main> :\n");
 
             opStackPush((slot) (u4) 0);           /* args parameter to main (should be a string array)*/
             opStackSetSpPos(findMaxLocals());
@@ -127,7 +127,7 @@ void main()
 #endif
         }
 
-        errorExit(1, "\nno main found %d", numClasses);
+        ERROREXIT(0, "\nno main found %d", numClasses);
 #ifndef TINYBAJOS
         return 1;
 #endif
